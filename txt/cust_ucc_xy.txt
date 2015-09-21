@@ -10,9 +10,8 @@ declare @accy nvarchar(MAX)=isnull((select accy from view_quat where noa=@noa),@
 if(@newcustno='')
 	set @newcustno='##'+right('000'+cast(cast(isnull((select right(MAX(noa),3) from cust where LEFT(noa,2)='##'),'000') as int)+1 as nvarchar(10)),3)
 
-insert cust(noa,comp,nick,paytype,tel,fax,conntel,serial,email,zip_comp,addr_comp,zip_home,addr_home,trantype,salesno,sales)
+insert cust(noa,comp,nick,paytype,tel,fax,zip_comp,addr_comp,zip_home,addr_home,trantype,salesno,sales)
 select @newcustno,comp,comp,paytype,tel,fax
-,postname conntel,pay serial ,memo2 email
 ,post,addr,post,addr,trantype,salesno,sales
 from view_quat where noa=@noa and custno=''
 
@@ -98,7 +97,7 @@ begin
 	,comp=b.comp
 	,nick=b.nick
 	,paytype=b.paytype
-	,tel=b.tel,fax=b.fax,postname=b.conntel,pay=b.serial,memo2=b.email
+	,tel=b.tel,fax=b.fax
 	,post=b.zip_comp,addr=b.addr_comp,trantype=b.trantype,salesno=b.salesno,sales=b.sales
 	from quat"+@t_accy+" a
 	outer apply (select * from cust where noa='"+@chg_custno+"') b

@@ -26,17 +26,16 @@
 			var bbsMask = [];
 			var bbmKey = ['noa'], bbsKey = ['noa', 'noq'];
 			q_tables = 's';
+			
 			$(document).ready(function () {
 				if (location.href.indexOf('?') < 0)   // debug
 				{
 					location.href = location.href + "?;;;noa='0015'";
 					return;
 				}
-			
 				if (!q_paraChk()) {
 					return;
 				}
-			
 				main();
 			});                  /// end ready
 			
@@ -60,10 +59,22 @@
 					tmp=tmp.match(/\d{1,3}\.{0,1}\d{0,2}/);
 					$('#txtCommission').val(tmp);
 				});
+				$('#txtTranprice').keyup(function(e) {
+					if(e.which>=37 && e.which<=40){return;}
+					var tmp=$('#txtCommission').val();
+					tmp=tmp.match(/\d{1,3}\.{0,1}\d{0,2}/);
+					$('#txtCommission').val(tmp);
+				});
 				
-				/*q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
-				q_cmbParse("cmbWtype", q_getPara('custm.wtype'));
-				q_cmbParse("cmbQtype", q_getPara('custm.qtype'));*/
+				var xy_taxtype='',xy_taxtmp=q_getPara('sys.taxtype').split(',');
+				for(var i=0;i<xy_taxtmp.length;i++)
+					xy_taxtype=xy_taxtype+(xy_taxtype.length>0?',':'')+xy_taxtmp[i].split('@')[1]+'@'+xy_taxtmp[i].split('@')[1];
+				q_cmbParse("cmbTaxtype", xy_taxtype);	
+				q_cmbParse("cmbVccmemo", '@,須@須,不須@不須');
+				q_cmbParse("cmbCheckmemo", '@,須@須,不須@不須');
+				q_cmbParse("cmbInvomemo", '@,隨貨@隨貨,月結@月結');
+				q_cmbParse("cmbPostmemo", '@,不寄單@不寄單,不寄單扣貨款@不寄單扣貨款,送單收現@送單收現,送單@送單,郵寄附回郵@郵寄附回郵,郵寄@郵寄,郵寄附回郵不寄單@郵寄附回郵不寄單');
+				
 			}
 			
 			function bbsAssign() {
@@ -121,25 +132,54 @@
 	</head>
 	<body>
 		<div style="float:left;width:100%;margin-bottom: 10px;">
-			<div class='dbbm' style="width: 68%;">
+			<div class='dbbm' style="width: 100%;">
 				<table class="tbbm"  id="tbbm"   border="0" cellpadding='2'  cellspacing='0'>
-					<!--<tr>
-						<td><a id="lblTaxtype"> </a></td>
-						<td><select id="cmbTaxtype"  style='width:98%;'> </select></td>
-						<td><a id="lblQtype"> </a></td>
-						<td><select id="cmbQtype" style='width:98%;'> </select></td>
-						<td><a id="lblWtype"> </a></td>
-						<td><select id="cmbWtype" style='width:98%;'> </select></td>
+					<tr style="height: 1px;">
+						<td style="width: 80px;"> </td>
+						<td style="width: 20%;"> </td>
+						<td style="width: 80px;"> </td>
+						<td style="width: 20%;"> </td>
+						<td style="width: 80px;"> </td>
+						<td style="width: 20%;"> </td>
 					</tr>
 					<tr>
-						<td><a id="lblVccad" > </a></td>
-						<td><input id="txtVccad" type="text" style='width:98%;'/></td>
-						<td><input id="txtP23" maxlength="10" type="text" style="width:50%;" /><a id="lblP23"> </a></td>
-						<td><a id="lblBcomp" > </a></td>
-						<td><input id="txtBcomp" maxlength='40' type="text" style='width:98%;'/></td>
-						<td><a id="lblBoat" > </a></td>
-						<td><input id="txtBoat" maxlength='20' type="text" style='width:98%;'/></td>
-					</tr>	-->
+						<td style="width: 80px;"><a id="lblConn"> </a></td>
+						<td colspan="3"><input id="txtConn" type="text" style='width:100%;'/></td>
+						<td> </td>
+						<td> </td>
+					</tr>
+					<tr>
+						<td><a id="lblTrantime"> </a></td>
+						<td><input id="txtTrantime" type="text" style='width:100%;'/></td>
+						<td><a id="lblTranprice"> </a></td>
+						<td><input id="txtTranprice" type="text" style='width:100%;text-align: right;'/></td>
+						<td> </td>
+						<td> </td>
+					</tr>
+					<tr>
+						<td><a>貨單開立</a></td>
+						<td><select id="cmbVccmemo"  style='width:98%;'> </select></td>
+						<td><a id="lblTaxtype"> </a></td>
+						<td><select id="cmbTaxtype"  style='width:98%;'> </select></td>
+						<td><a>驗單需求</a></td>
+						<td><select id="cmbCheckmemo"  style='width:98%;'> </select></td>
+					</tr>
+					<tr>
+						<td><a>發票開立</a></td>
+						<td><select id="cmbInvomemo"  style='width:98%;'> </select></td>
+						<td><a>寄單方式</a></td>
+						<td><select id="cmbPostmemo"  style='width:98%;'> </select></td>
+						<td> </td>
+						<td> </td>
+					</tr>
+					<tr>
+						<td><a id="lblCommission"> </a></td>
+						<td><input id="txtCommission" type="text" style='width:50%;text-align: right;'/>%</td>
+						<td style="width: 70px;">發票<a id="lblP23"> </a></td>
+						<td><input id="txtP23" maxlength="10" type="text" style="width:50%;" /></td>
+						<td> </td>
+						<td><input id="txtNoa" type="hidden" /> </td>
+					</tr>
 					<tr>
 						<td colspan="2">
 							<input id="chkIsfranchisestore" type="checkbox" />
@@ -151,28 +191,18 @@
 						</td>
 						<td> </td>
 					</tr>
-					<tr>
-						<td style="width: 50px;"><a id="lblCommission"> </a></td>
-						<td><input id="txtCommission" type="text" style='width:50%;text-align: right;'/>%</td>
-						<td style="width: 70px;">發票<a id="lblP23"> </a></td>
-						<td><input id="txtP23" maxlength="10" type="text" style="width:50%;" /></td>
-						<td> </td>
-						<td><input id="txtNoa" type="hidden" /> </td>
-					</tr>
 				</table>
 			</div>
 			<div id="dbbs" class='dbbs' >
 				<table id="tbbs" class='tbbs'  border="1"  cellpadding='2' cellspacing='1'  >
 					<tr style='color:White; background:#003366;' >
-						<td align="center">
-						<input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  />
-						</td>
+						<td align="center"><input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  /></td>
 						<td align="center"><a id='lblAccount'> </a></td>
 						<td align="center"><a id='lblBankno'> </a></td>
 						<td align="center"><a id='lblBank'> </a></td>
 					</tr>
 					<tr  style='background:#cad3ff;'>
-						<td style="width:1%;">
+						<td style="width:1%;"  align="center">
 							<input class="btn"  id="btnMinus.*" type="button" value='-' style=" font-weight: bold;" />
 							<input id="txtNoa.*" type="hidden" />
 							<input id="txtNoq.*" type="hidden" />

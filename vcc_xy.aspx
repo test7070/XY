@@ -631,15 +631,6 @@
 					case 'cust_detail':
 						var as = _q_appendData("cust", "", true);
 						if (as[0] != undefined) {
-							var t_invomemo=as[0].invomemo;
-							t_invomemo=t_invomemo.split('##');
-							$('#txtPrice').val(t_invomemo[5]);
-							var taxtype='0',xy_taxtypetmp=q_getPara('sys.taxtype').split(',');
-							for (var i=0;i<xy_taxtypetmp.length;i++){
-								if(xy_taxtypetmp[i].split('@')[1]==t_invomemo[2])
-									taxtype=xy_taxtypetmp[i].split('@')[0];
-							}
-							$('#cmbTaxtype').val(taxtype);
 							$('#txtFax').val(as[0].fax);
 							$('#txtPost').val(as[0].zip_comp);
 							$('#txtAddr').val(as[0].addr_comp);
@@ -651,6 +642,19 @@
 							$('#txtSales').val(as[0].sales);
 							$('#txtCustno2').val(as[0].custno2);
 							$('#txtComp2').val(as[0].cust2);
+						}
+						break;
+					case 'cust_detail2':
+						var as = _q_appendData("custm", "", true);
+						if (as[0] != undefined) {
+							$('#txtPrice').val(as[0].tranprice);
+							var t_taxtyp=as[0].taxtype;
+							var taxtype='0',xy_taxtypetmp=q_getPara('sys.taxtype').split(',');
+							for (var i=0;i<xy_taxtypetmp.length;i++){
+								if(xy_taxtypetmp[i].split('@')[1]==t_taxtyp)
+									taxtype=xy_taxtypetmp[i].split('@')[0];
+							}
+							$('#cmbTaxtype').val(taxtype);
 						}
 						break;
 					case 'btnDele':
@@ -1285,6 +1289,8 @@
 							q_gt('custaddr', t_where, 0, 0, 0, "");
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('cust', t_where, 0, 0, 0, "cust_detail");
+							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
+							q_gt('custm', t_where, 0, 0, 0, "cust_detail2");
 						}
 						
 						$('#txtSalesno').attr('disabled', 'disabled');

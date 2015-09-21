@@ -41,11 +41,11 @@ declare @tmp table(
 
 insert into @tmp 
 select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0
-,a.noa,a.datea,a.custno,a.comp,a.tel,c.mobile,case when a.addr2!='' then a.addr2 else a.addr end,c.conntel,c.billmemo
+,a.noa,a.datea,a.custno,a.comp,a.tel,c.mobile,case when a.addr2!='' then a.addr2 else a.addr end,cm.conn,cm.trantime
 ,a.invono,replace(a.memo,'chr(10)','<BR>')
 ,case when isnull(cm.notprice,0)=1 then null else a.money end
 ,case when isnull(cm.notprice,0)=1 then null else a.tax end
-,dbo.split(c.invomemo,'##',1),dbo.split(c.invomemo,'##',3)
+,cm.invomemo,cm.checkmemo
 --,c.paytype
 ,case when cast(c.startdate as int)-1>0 then cast(cast(c.startdate as int)-1 as nvarchar(10))+'日' else '月底' end
 ,b.productno,b.product,b.spec,b.unit,b.mount+b.tranmoney3-b.tranmoney2
@@ -167,11 +167,11 @@ declare @tmp table(
 
 insert into @tmp 
 select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0
-,a.noa,a.datea,a.custno,a.comp,a.tel,case when a.addr2!='' then a.addr2 else a.addr end,c.conntel,c.billmemo
+,a.noa,a.datea,a.custno,a.comp,a.tel,case when a.addr2!='' then a.addr2 else a.addr end,cm.conn,cm.trantime
 ,a.invono,replace(a.memo,'chr(10)','<BR>')
 ,case when isnull(cm.notprice,0)=1 then null else a.money end
 ,case when isnull(cm.notprice,0)=1 then null else a.tax end
-,dbo.split(c.invomemo,'##',1),dbo.split(c.invomemo,'##',3),c.paytype
+,cm.invomemo,cm.checkmemo,c.paytype
 ,b.productno,b.product,b.spec,b.unit,b.mount+b.tranmoney3-b.tranmoney2
 ,isnull((select sum(isnull(vb.tranmoney2,0))-sum(isnull(vb.tranmoney3,0)) from view_vcc va left join view_vccs vb on va.noa=vb.noa where a.custno=va.custno and b.productno=vb.productno and a.noa>=va.noa),0)
 --,b.tranmoney2

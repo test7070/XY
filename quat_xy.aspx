@@ -649,7 +649,7 @@
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
-							t_where = "(len(noa)=9 or left(noa,5)='" + $('#txtCustno').val().substr(0,5) + "')";
+							t_where = "((len(noa)=9 and charindex('-',noa)=0) or left(noa,5)='" + $('#txtCustno').val().substr(0,5) + "')";
 							q_box("ucaucc_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ucaucc', "45%", "", "");
 						});
 						

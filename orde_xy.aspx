@@ -154,7 +154,7 @@
 				q_cmbParse("combClassa",' ,便品,印刷','s');
 				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出','s');
 
-				var t_where = "where=^^ 1=1 group by post,addr^^";
+				var t_where = "where=^^ 1=1 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				
 				$('#btnPlusCust').click(function(){
@@ -1387,7 +1387,7 @@
 				$('#txtOdate').val(q_date());
 				$('#txtCustno').focus();
 
-				var t_where = "where=^^ 1=1 group by post,addr^^";
+				var t_where = "where=^^ 1=1 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 			}
 
@@ -1679,7 +1679,7 @@
 								$('#btnMinus_'+j).click();
 							}*/
 							
-							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' group by post,addr^^";
+							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('custaddr', t_where, 0, 0, 0, "");
 							
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";

@@ -464,13 +464,13 @@ where custno in (select custno from @result where gno='3' and punpay=0 and unpay
 insert @result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial)
 select '1','','000',@t_mon+'/00',@t_mon,custno,MAX(comp),xcustno,MAX(xcomp),MAX(post),MAX(addr),MAX(tel),MAX(serial)
 from @result where gno='0' 
-and custno in (select custno from (select custno,xcustno from @result where gno='0' group by custno,xcustno)tmp group by custno having COUNT(*)>1)
+and custno in (select custno from (select custno,xcustno from @result where gno='0' group by custno,xcustno)tmp group by custno having COUNT(*)>0)
 group by custno,xcustno
 
 insert @result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial,mount,money)
 select '2','','000',@t_mon+'/00',@t_mon,custno,MAX(comp),xcustno,MAX(xcomp),MAX(post),MAX(addr),MAX(tel),MAX(serial),count(*),SUM(money)
 from @result where gno='0' 
-and custno in (select custno from (select custno,xcustno from @result where gno='0' group by custno,xcustno)tmp group by custno having COUNT(*)>1)
+and custno in (select custno from (select custno,xcustno from @result where gno='0' group by custno,xcustno)tmp group by custno having COUNT(*)>0)
 group by custno,xcustno
 
 declare @custno nvarchar(30)
@@ -607,6 +607,7 @@ declare @t_bcustno nvarchar(20)
 declare @t_ecustno nvarchar(20)
 declare @t_bsalesno nvarchar(20)
 declare @t_esalesno nvarchar(20)
+declare @t_showbranch nvarchar(20)
 
 set @t_mon = case when '#non'=[1] then '' else [1] end
 set @t_bdate = case when '#non'=[2] then '' else [2] end
@@ -615,6 +616,7 @@ set @t_bcustno = case when '#non'=[4] then '' else [4] end
 set @t_ecustno = case when '#non'=[5] then char(255) else [5] end
 set @t_bsalesno = case when '#non'=[6] then '' else [6] end
 set @t_esalesno = case when '#non'=[7] then char(255) else [7] end
+set @t_showbranch = case when '#non'=[9] then '' else [9] end
 declare @t_pageline int = 32   --------一頁幾行
 -------------------------------------------------------------------------------------------------------------------------
 --收款
@@ -785,14 +787,27 @@ where custno in (select custno from @result where gno='3' and punpay=0 and unpay
 insert @result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial)
 select '1','','000',@t_mon+'/00',@t_mon,custno,MAX(comp),xcustno,MAX(xcomp),MAX(post),MAX(addr),MAX(tel),MAX(serial)
 from @result where gno='0' 
-and custno in (select custno from (select custno,xcustno from @result where gno='0' group by custno,xcustno)tmp group by custno having COUNT(*)>1)
+and custno in (select custno from (select custno,xcustno from @result where gno='0' group by custno,xcustno)tmp group by custno having COUNT(*)>0)
 group by custno,xcustno
 
 insert @result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial,mount,money)
 select '2','','000',@t_mon+'/00',@t_mon,custno,MAX(comp),xcustno,MAX(xcomp),MAX(post),MAX(addr),MAX(tel),MAX(serial),SUM(mount),SUM(money)
 from @result where gno='0' 
-and custno in (select custno from (select custno,xcustno from @result where gno='0' group by custno,xcustno)tmp group by custno having COUNT(*)>1)
+and custno in (select custno from (select custno,xcustno from @result where gno='0' group by custno,xcustno)tmp group by custno having COUNT(*)>0)
 group by custno,xcustno
+
+if(@t_showbranch='Y')
+begin
+	insert @result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial,mount,money) 
+	select '2','','000',@t_mon+'/00',@t_mon
+	,(case when isnull(a.custno2,'')!='' then a.custno2 else a.noa end) custno
+	,(case when isnull(a.custno2,'')!='' then a.cust2 else a.comp end) comp 
+	,a.noa xcustno,isnull(a.comp,'') xcomp, isnull(b.zip_home,'') post, isnull(b.addr_home,'') addr, isnull(b.tel,'') tel,isnull(b.serial,'')serial 
+	,0,0 from cust a 
+	outer apply(select * from cust where noa=(case when isnull(a.custno2,'')!='' then a.custno2 else a.noa end))b
+	where exists (select * from @result where custno=a.custno2 ) 
+	and not exists (select * from @result where xcustno=a.noa)
+end
 
 delete @result where gno='1' or gno='0' 
 

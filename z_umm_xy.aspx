@@ -63,6 +63,10 @@
                         type : '5', //[8]
                         name : 'ummcust',
                         value:'0@收款客戶,1@對帳客戶'.split(',')
+                    }, {
+                        type : '8', //[9]
+                        name : 'showbranch',
+                        value:'Y@顯示分店'.split(',')
                     }]
                 });
 

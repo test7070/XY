@@ -59,6 +59,10 @@
                         dbf : 'sss',
                         index : 'noa,namea',
                         src : 'sss_b.aspx'
+                    }, {
+                        type : '5', //[8]
+                        name : 'ummcust',
+                        value:'0@收款客戶,1@對帳客戶'.split(',')
                     }]
                 });
 

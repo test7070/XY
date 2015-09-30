@@ -702,6 +702,7 @@ declare @result table(
 	comp nvarchar(100),
 	xcustno nvarchar(100),
 	xcomp nvarchar(100),
+	xserial nvarchar(100),
 	post nvarchar(MAX),
 	addr nvarchar(MAX),
 	tel nvarchar(90),
@@ -732,7 +733,7 @@ declare @result table(
 insert into @result
 select '0' gno, a.typea, a.noa, b.noq, a.datea , (case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) mon
 		,(case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end) custno, isnull(c.comp,'') comp
-		,a.custno,a.comp
+		,a.custno,a.comp,''
 		, isnull(c.zip_home,'') post, isnull(c.addr_home,'') addr,isnull(c.tel,'') tel,isnull(c.serial,'')serial 
 		,(case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) salesno
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales 
@@ -809,7 +810,19 @@ begin
 	and not exists (select * from @result where xcustno=a.noa)
 end
 
-delete @result where gno='1' or gno='0' 
+update a 
+set xserial=b.serial
+from @result a left join cust b on a.xcustno=b.noa
+
+delete @result where gno='1' --or gno='0' 
+
+insert @result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,xserial,post,addr,tel,serial) 
+select '1','','000',@t_mon+'/00',@t_mon,custno,MAX(comp),MIN(xcustno),MIN(xcomp),xserial,MAX(post),MAX(addr),MAX(tel),MAX(serial) 
+from @result a where gno='0' 
+and exists (select custno from (select custno,xcustno from @result where gno='0' and custno=a.custno group by custno,xcustno)tmp group by custno having COUNT(*)>0) 
+group by custno,xserial 
+
+delete  @result where gno='0'
 
 declare @custno nvarchar(30)
 declare @maxnoq nvarchar(30)
@@ -866,5 +879,5 @@ dbo.getComma(unpay,0) unpay,
 replace(comp,'~#$',char(39)) comp,
 replace(xcomp,'~#$',char(39)) xcomp,
 * 
-from @result order by custno,xcustno,case when gno='0' then '1' when gno='1' then '0' else gno end,datea,noa,noq
+from @result order by custno,isnull(xserial,CHAR(255)),xcustno,case when gno='0' then '1' when gno='1' then '0' else gno end,datea,noa,noq
 ;

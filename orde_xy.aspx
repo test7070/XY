@@ -2123,27 +2123,27 @@
 				</table>
 			</div>
 		</div>
-		<div class='dbbs' style="width: 2370px;">
+		<div class='dbbs' style="width: 2200px;">
 			<table id="tbbs" class='tbbs' border="1" cellpadding='2' cellspacing='1'>
 				<tr style='color:White; background:#003366;' >
 					<td align="center" style="width:40px;"><input class="btn" id="btnPlus" type="button" value='＋' style="font-weight: bold;" /></td>
 					<td align="center" style="width:40px;"><a>項次</a></td>
-					<td align="center" style="width:150px;"><a id='lblProductno'> </a></td>
-					<td align="center" style="width:150px;"><a id='lblProduct_s'> </a></td>
-					<td align="center" style="width:230px;"><a>規格</a></td>
+					<td align="center" style="width:120px;"><a id='lblProductno'> </a></td>
+					<td align="center" style="width:130px;"><a id='lblProduct_s'> </a></td>
+					<td align="center" style="width:200px;"><a>規格</a></td>
 					<td align="center" style="width:85px;"><a>便/印</a></td>
 					<td align="center" style="width:70px;"><a>包裝方式</a></td>
 					<td align="center" style="width:40px;"><a>色數</a></td>
-					<td align="center" style="width:55px;"><a id='lblUnit'> </a></td>
+					<td align="center" style="width:40px;"><a id='lblUnit'> </a></td>
 					<td align="center" style="width:85px;"><a id='lblMount'> </a></td>
-					<td align="center" style="width:70px;"><a >寄/出庫</a></td>
-					<td align="center" style="width:85px;"><a id='lblPrices'> </a></td>
-					<td align="center" style="width:115px;"><a id='lblTotal_s'> </a></td>
+					<td align="center" style="width:60px;"><a >寄/出庫</a></td>
+					<td align="center" style="width:80px;"><a id='lblPrices'> </a></td>
+					<td align="center" style="width:100px;"><a id='lblTotal_s'> </a></td>
 					<td align="center" style="width:85px;"><a id='lblDateas'> </a></td>
 					<!--<td align="center" style="width:85px;" class="bonus"><a>獎金比例</a></td>-->
 					<td align="center" style="width:85px;"><a id='lblGemounts'> </a></td>
 					<td align="center" style="width:85px;"><a>未交量</a></td>
-					<td align="center" style="width:175px;"><a>備註</a></td>
+					<td align="center" ><a>備註</a></td>
 					<td align="center" style="width:175px;"><a>報價單號</a></td>
 					<td align="center" style="width:43px;"><a id='lblEndas'> </a></td>
 					<td align="center" style="width:43px;"><a id='lblCancels'> </a></td>
@@ -2159,11 +2159,11 @@
 						<input class="txt c1" id="txtNo2.*" type="text" />
 					</td>
 					<td align="center">
-						<input class="txt c6" id="txtProductno.*" maxlength='30'type="text" style="width:80%;" />
+						<input class="txt c6" id="txtProductno.*" maxlength='30'type="text" style="width:75%;" />
 						<input class="btn" id="btnProduct.*" type="button" value='.' style=" font-weight: bold;" />
 					</td>
 					<td>
-						<input id="txtProduct.*" type="text" class="txt c1" style="width:120px;"/>
+						<input id="txtProduct.*" type="text" class="txt c1" style="width:100px;"/>
 						<select id="combGroupbno.*" class="txt c1" style="width: 20px; float: right;"> </select>
 					</td>
 					<td><input id="txtSpec.*" type="text" class="txt c1"/></td>

@@ -125,22 +125,31 @@
 				$('#btnOrdes').click(function() {
 					var t_custno = trim($('#txtCustno').val());
 					var t_where = '';
-					//if (t_custno.length > 0) {
-						t_where = " isnull(enda,0)!=1 ";
-						//t_where += " and left(productno,2)!='##' and left(custno,2)!='##' ";//非正式編號
+						/*t_where = " isnull(enda,0)!=1 ";
 						t_where += " and productno!='' ";
 						t_where += " and datea!='' ";
-						//t_where += " and (custno='"+t_custno+"' or custno='"+t_custno.substr(0,5)+"')";
 						if (t_custno.length>0)
 							t_where += " and (custno='"+t_custno+"')";
 						t_where += " and (source!='2' or mount!=isnull((select SUM(tranmoney3) from view_vccs where ordeno=view_ordes.noa and no2=view_ordes.no2),0))";
 						if (!emp($('#txtOrdeno').val()))
 							t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0";
-						t_where = t_where;
-					/*} else {
-						alert(q_getMsg('msgCustEmp'));
-						return;
-					}*/
+						t_where = t_where;*/
+					
+						t_where = "isnull(enda,0)!=1 and productno!='' and a.mount-isnull(b.mount,0)>0";
+						if (t_custno.length>0)
+							t_where += " and (a.custno='"+t_custno+"')";
+						if (!emp($('#txtOrdeno').val()))
+							t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0";
+						t_where += " group by noa,datea,comp having datea!='' or noa not in (";
+						t_where += " select noa from view_ordes a ";
+						t_where += " outer apply (select SUM(isnull(dime,0))mount from view_vccs where ordeno=a.noa and no2=a.no2)b";
+						t_where += " where isnull(enda,0)!=1 and productno!='' and a.mount-isnull(b.mount,0)>0 and datea!=''";
+						if (t_custno.length>0)
+							t_where += " and (a.custno='"+t_custno+"')";
+						if (!emp($('#txtOrdeno').val()))
+							t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0";
+						t_where += " group by noa )";
+					
 					q_box("ordes_b2_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes_xy', "95%", "650px", q_getMsg('popOrde'));
 					//q_box("ordes_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes', "95%", "650px", q_getMsg('popOrde'));
 				});
@@ -255,7 +264,7 @@
 							b_ret = getb_ret();
 							if (!b_ret || b_ret.length == 0)
 								return;
-							for (var i = 0; i < b_ret.length; i++) {
+							/*for (var i = 0; i < b_ret.length; i++) {
 								b_ret[i].tranmoney3=0;
 								b_ret[i].tranmoney2=0;
 								b_ret[i].width=0;
@@ -272,16 +281,24 @@
 								
 							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno', b_ret.length, b_ret
 							, 'productno,product,spec,unit,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,no2,source', 'txtProductno,txtProduct,txtSpec');
+							
 							//寫入訂單號碼
 							var t_oredeno = '';
 							for (var i = 0; i < b_ret.length; i++) {
 								if (t_oredeno.indexOf(b_ret[i].noa) == -1)
 									t_oredeno = t_oredeno + (t_oredeno.length > 0 ? (',' + b_ret[i].noa) : b_ret[i].noa);
-							}
-							//取得訂單備註 + 指定地址
+							}*/
+							
+							var t_oredeno = b_ret[0].noa;
+							var t_datea = b_ret[0].datea;
 							if (t_oredeno.length > 0) {
+								//取得表身資料
+								var t_where = "where=^^ a.noa='"+t_oredeno+"' and (len(a.datea)=0 or a.datea='"+t_datea+"') and (a.mount-isnull(b.vccdime,0))>0 ^^";
+								q_gt('ordes_xy2', t_where, 0, 0, 0, "", r_accy);
+								
+								//取得訂單備註 + 指定地址
 								var t_where = "where=^^ charindex(noa,'" + t_oredeno + "')>0 ^^";
-								q_gt('orde', t_where, 0, 0, 0, "", r_accy);
+								q_gt('view_orde', t_where, 0, 0, 0, "", r_accy);
 							}
 
 							$('#txtOrdeno').val(t_oredeno);
@@ -585,8 +602,8 @@
 						document.all.combAddr.options.length = 0;
 						q_cmbParse("combAddr", t_item);
 						break;
-					case 'orde':
-						var as = _q_appendData("orde", "", true);
+					case 'view_orde':
+						var as = _q_appendData("view_orde", "", true);
 						var t_memo = $('#txtMemo').val();
 						var t_post2 = '';
 						var t_addr2 = '';
@@ -619,6 +636,28 @@
 							$('#cmbCoin').val(as[0].coin);
 							$('#txtFloata').val(as[0].floata);
 						}
+						sum();
+						break;
+					case 'ordes_xy2':
+						var as = _q_appendData("view_ordes", "", true);
+						for (var i = 0; i < as.length; i++) {
+							as[i].tranmoney3=0;
+							as[i].tranmoney2=0;
+							as[i].width=0;
+							as[i].dime=q_sub(dec(as[i].mount),dec(as[i].vccdime));
+							if(as[i].source=='2'){//庫出
+								as[i].tranmoney3=as[i].mount;
+								as[i].mount=0;
+							}else if(as[i].source=='1'){//寄庫
+								as[i].tranmoney2=as[i].mount;
+							}else{
+								as[i].width=as[i].mount;
+							}
+						}
+								
+						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno', as.length, as
+						,'productno,product,spec,unit,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,no2,source', 'txtProductno,txtProduct,txtSpec');
+							
 						sum();
 						break;
 					case 'cust_addr':

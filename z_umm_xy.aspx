@@ -67,6 +67,10 @@
                         type : '8', //[9]
                         name : 'showbranch',
                         value:'Y@顯示分店'.split(',')
+                    }, {
+                        type : '8', //[10]
+                        name : 'paging',
+                        value:'Y@統編分頁'.split(',')
                     }]
                 });
 

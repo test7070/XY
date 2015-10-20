@@ -188,3 +188,125 @@ dbo.getComma(total,0) total,
 ,case when @t_logo2=0 then '' else '<img width="120px" src="http://59.125.143.171/images/logo2_xy.png" style="position: absolute">' end logo2
 from @tmp
 order by noa,recno,gno;
+--*******************************************************************************************************
+z_ordepxy2:--z_ordepxy2
+declare @t_bdate nvarchar(10)
+declare @t_edate nvarchar(10)
+	
+set @t_bdate = case when '#non'=[2] then '' else [2] end
+set @t_edate = case when '#non'=[3] then char(255) else [3] end
+---------------------------------------------------------------------------------------------------------
+	declare @result table(
+		gno nvarchar(1),
+		noa nvarchar(50),
+		no2 nvarchar(10),
+		datea nvarchar(10),
+		odate nvarchar(10),
+		custorder nvarchar(10),
+		oldno nvarchar(50),
+		custno nvarchar(50),
+		comp nvarchar(100),
+		pno nvarchar(30),
+		pname nvarchar(MAX),
+		unit nvarchar(8),
+		pmount float,
+		pweight float,
+		price float,
+		ptotal float,
+		e nvarchar(10),
+		c nvarchar(10),
+		pcount int,
+		memo nvarchar(max),
+		primary key (odate,gno,noa,no2)
+	)
+	insert into @result
+	select '0' gno, a.noa, b.no2, b.datea, a.odate, a.custorde, c.chkstatus, a.custno,case when isnull(a.nick,'')!='' then a.nick else a.comp end,
+		   b.productno pno,b.product,
+		   b.unit, b.mount pmount, b.weight pweight, b.price,
+		   b.total ptotal, b.enda e, b.cancel c, 0 pcount,b.memo	
+	from view_ordes b
+	left join view_orde a on a.noa=b.noa
+	left join cust c on b.custno=c.noa
+	where (a.datea between @t_bdate and @t_edate)
+	order by a.odate,gno,a.noa,b.no2
+	--*****************************************************************************************	
+	declare @odate nvarchar(10)
+	declare @pmount float
+	declare @pweight float
+	declare @ptotal float
+	
+	declare @t_odate nvarchar(10)
+	declare @t_pmount float
+	declare @t_pweight float
+	declare @t_ptotal float
+	declare @tot_pmount float
+	declare @tot_pweight float
+	declare @tot_ptotal float
+	declare @t_pcount int
+
+	set @t_odate = '#@SDER#$#@'
+	set @t_pmount = 0
+	set @t_pweight = 0
+	set @t_ptotal = 0
+	set @tot_pmount = 0
+	set @tot_pweight = 0
+	set @tot_ptotal = 0
+	set @t_pcount = 0
+	declare cursor_table cursor for
+	select odate,pmount,pweight,ptotal from @result
+	open cursor_table
+	fetch next from cursor_table
+	into @odate,@pmount,@pweight,@ptotal
+	while(@@FETCH_STATUS <> -1)
+	begin
+		if @t_odate!=@odate and @t_odate != '#@SDER#$#@'
+		begin
+			insert into @result
+			select '1' gno, '小計' noa, '' no2, '' datea, @t_odate, '' oldno, '' chkstatus, '' custno, '' comp,
+				   '' pno,'' pname, '' unit, @t_pmount pmount, @t_pweight pweight, 0 price,
+				   @t_ptotal ptotal, '' e, '' c, @t_pcount pcount, '' memo
+		end
+		if @t_odate!=@odate
+		begin
+			set @t_odate = @odate
+			set @t_pmount = @pmount
+			set @t_pweight = @pweight
+			set @t_ptotal = @ptotal
+			set @t_pcount = @t_pcount + 1
+		end
+		else
+		begin
+			set @t_pmount = @t_pmount + @pmount
+			set @t_pweight = @t_pweight + @pweight
+			set @t_ptotal = @t_ptotal + @ptotal
+		end
+		set @tot_pmount = @tot_pmount + @pmount
+		set @tot_pweight = @tot_pweight + @pweight
+		set @tot_ptotal = @tot_ptotal + @ptotal
+		
+		fetch next from cursor_table
+		into @odate,@pmount,@pweight,@ptotal
+	end
+	close cursor_table
+	deallocate cursor_table
+	if @t_odate != '#@SDER#$#@'
+	begin
+		insert into @result
+		select '1' gno, '小計' noa, '' no2, '' datea, @t_odate odate, '' oldno, '' chkstatus, '' custno, '' comp,
+			   '' pno,'' pname, '' unit, @t_pmount pmount, @t_pweight pweight, 0 price,
+			   @t_ptotal ptotal, '' e, '' c, @t_pcount pcount, '' memo	
+		insert into @result
+		select '2' gno, '總計' noa, '' no2, '' datea, @t_odate odate, '' oldno, '' chkstatus, '' custno, '' comp,
+			   '' pno,'' pname, '' unit, @tot_pmount pmount, @tot_pweight pweight, 0 price,
+			   @tot_ptotal ptotal, '' e, '' c, @t_pcount pcount, '' memo
+	end
+	
+	select gno,noa,no2,datea,odate,custorder,oldno,custno,comp,pno,pname,unit
+	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,pmount),1)),4,30)) pmount
+	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,pweight),1)),0,30)) pweight
+	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,price),1)),0,30)) price
+	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,ptotal),1)),4,30)) ptotal
+	,case e when '1' then 'Y' else 'N' end e,c,pcount,memo
+	from @result;
+
+

@@ -101,7 +101,7 @@
 				var t_where = "where=^^ 1=1  ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				//104/08/17 要跟訂單一樣 單行判斷出貨.寄庫.庫出
-				q_cmbParse("cmbItemno",'0@ ,1@寄庫,2@庫出','s');
+				q_cmbParse("cmbItemno",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品','s');
 				
 				//限制帳款月份的輸入 只有在備註的第一個字為*才能手動輸入					
 				$('#txtMemo').change(function(){
@@ -794,6 +794,11 @@
 						$('#txtTranmoney3_'+i).val($('#txtDime_'+i).val());
 						$('#txtTranmoney2_'+i).val(0);
 						$('#txtWidth_'+i).val(0);
+					}else if($('#cmbItemno_'+i).val()=='3' || $('#cmbItemno_'+i).val()=='4'){//公關品 樣品
+						$('#txtWidth_'+i).val($('#txtDime_'+i).val());
+						$('#txtTranmoney3_'+i).val(0);
+						$('#txtTranmoney2_'+i).val(0);
+						$('#txtPrice_'+i).val(0);
 					}else{//出貨
 						$('#txtWidth_'+i).val($('#txtDime_'+i).val());
 						$('#txtTranmoney3_'+i).val(0);
@@ -920,6 +925,12 @@
 									$('#txtTranmoney3_'+b_seq).val($('#txtDime_'+b_seq).val());
 									$('#txtTranmoney2_'+b_seq).val(0);
 									$('#txtWidth_'+b_seq).val(0);
+									$('#txtPrice_'+b_seq).val(0);
+								}else if($('#cmbItemno_'+b_seq).val()=='2'){//公關品 樣品
+									$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
+									$('#txtTranmoney3_'+b_seq).val(0);
+									$('#txtTranmoney2_'+b_seq).val(0);
+									$('#txtPrice_'+b_seq).val(0);
 								}else{//出貨
 									$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 									$('#txtTranmoney3_'+b_seq).val(0);
@@ -946,13 +957,19 @@
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
 							if($('#cmbItemno_'+b_seq).val()=='1'){//寄庫
-									$('#txtTranmoney2_'+b_seq).val($('#txtDime_'+b_seq).val());
-									$('#txtTranmoney3_'+b_seq).val(0);
-									$('#txtWidth_'+b_seq).val(0);
+								$('#txtTranmoney2_'+b_seq).val($('#txtDime_'+b_seq).val());
+								$('#txtTranmoney3_'+b_seq).val(0);
+								$('#txtWidth_'+b_seq).val(0);
 							}else if($('#cmbItemno_'+b_seq).val()=='2'){//庫出
 								$('#txtTranmoney3_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney2_'+b_seq).val(0);
 								$('#txtWidth_'+b_seq).val(0);
+								$('#txtPrice_'+b_seq).val(0);
+							}else if($('#cmbItemno_'+b_seq).val()=='3' || $('#cmbItemno_'+b_seq).val()=='4'){//公關品樣品
+								$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
+								$('#txtTranmoney3_'+b_seq).val(0);
+								$('#txtTranmoney2_'+b_seq).val(0);
+								$('#txtPrice_'+b_seq).val(0);
 							}else{//出貨
 								$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney3_'+b_seq).val(0);

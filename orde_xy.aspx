@@ -152,7 +152,7 @@
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
 				q_cmbParse("combClassa",' ,便,印','s');
-				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出','s');
+				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品','s');
 
 				var t_where = "where=^^ 1=1 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
@@ -976,7 +976,7 @@
 									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val()+','+$('#txtMemo_'+b_seq).val());
 								else 
 									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
-								if($('#cmbSource_' + b_seq).val()='2'){
+								if($('#cmbSource_' + b_seq).val()=='2' || $('#cmbSource_' + b_seq).val()=='3' || $('#cmbSource_' + b_seq).val()=='4'){
 									$('#txtPrice_'+b_seq).val('0');
 								}else{
 									if(!emp($('#txtQuatno_'+b_seq).val()) && !emp($('#txtNo3_'+b_seq).val())){

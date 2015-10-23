@@ -29,7 +29,7 @@
         bbmMask = [['txtBdate', r_picd], ['txtEdate', r_picd]];
         q_mask(bbmMask);
      
-        q_cmbParse("cmbStype", '@全部,'+q_getPara('orde.stype'));
+        q_cmbParse("cmbStype", '@全部,'+q_getPara('vcc.stype'));
 
         $('#txtBdate').focus();
     }

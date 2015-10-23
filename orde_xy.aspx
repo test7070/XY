@@ -146,12 +146,12 @@
 				q_mask(bbmMask);
 				bbsMask = [['txtDatea', r_picd]];
 				bbsNum = [['txtPrice', 12, q_getPara('vcc.pricePrecision'), 1], ['txtMount', 9, q_getPara('vcc.mountPrecision'), 1], ['txtTotal', 10, 0, 1],['txtC1', 10, q_getPara('vcc.mountPrecision'), 1], ['txtNotv', 10, q_getPara('vcc.mountPrecision'), 1],['txtDime', 15, 0, 1]];
-				q_cmbParse("cmbStype", q_getPara('orde.stype'));
+				q_cmbParse("cmbStype", q_getPara('vcc.stype'));
 				//q_cmbParse("cmbCoin", q_getPara('sys.coin'));
 				q_cmbParse("combPaytype", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
-				q_cmbParse("combClassa",' ,便品,印刷','s');
+				q_cmbParse("combClassa",' ,便,印','s');
 				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出','s');
 
 				var t_where = "where=^^ 1=1 ^^";
@@ -853,7 +853,7 @@
 			function btnOk() {
 				if(!$('#div_cost').is(':hidden')){
 					var t_class=$.trim($('#combClassa_'+b_seq).val());
-					if(t_class=='印刷')
+					if(t_class=='印')
 						$('#cost_txtCost0').focus();
 					else
 						$('#cost_txtWdate').focus();
@@ -974,8 +974,35 @@
 							if($('#cmbSource_' + b_seq).val()!='0'){
 								if(!emp($('#txtMemo_'+b_seq).val()))
 									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val()+','+$('#txtMemo_'+b_seq).val());
-								else
+								else 
 									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
+								if($('#cmbSource_' + b_seq).val()='2'){
+									$('#txtPrice_'+b_seq).val('0');
+								}else{
+									if(!emp($('#txtQuatno_'+b_seq).val()) && !emp($('#txtNo3_'+b_seq).val())){
+										var t_where="where=^^noa='"+$('#txtQuatno_'+b_seq).val()+"' and no3='"+$('#txtNo3_'+b_seq).val()+"' ^^"
+										q_gt('view_quats', t_where, 0, 0, 0, "keyin_productno_xy");
+									}else{//重新尋找新單價
+										if(!emp($('#txtProductno_'+b_seq).val())){
+											var t_custno=$('#txtCustno').val().substr(0,$('#txtCustno').val().indexOf('-'));
+											if(t_custno=='') 
+												t_custno=$('#txtCustno').val();
+											var t_where = '';
+											if (t_custno.length > 0) {
+												//12/11 核准判斷暫時拿掉 等上線後再放入 不用apv 抓sign
+												t_where="where=^^ noa+'_'+odate+'_'+productno in (select MIN(a.noa)+'_'+MIN(a.odate)+'_'+b.productno from view_quat a left join view_quats b on a.noa=b.noa where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 "
+												+q_sqlPara2("a.custno", t_custno.substr(0,5))+" and a.datea>='"+q_date()+"' group by b.productno)";
+												t_where+=" and productno='"+$('#txtProductno_'+b_seq).val()+"' and isnull(enda,0)=0 and isnull(cancel,0)=0 "+q_sqlPara2("custno", t_custno) +" and datea>='"+q_date()+"' ^^";
+											}else {
+												alert(q_getMsg('msgCustEmp'));
+												$('#txtCustno').focus();
+												$('#btnMinus_'+b_seq).click();
+												return;
+											}
+											q_gt('view_quats', t_where, 0, 0, 0, "keyin_productno_xy");
+										}
+									}
+								}
 							}
 						});
 
@@ -1076,7 +1103,7 @@
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
-							if($('#txtClassa_'+b_seq).val()=='印刷' || $('#txtClassa_'+b_seq).val()=='便品'){
+							if($('#txtClassa_'+b_seq).val()=='印' || $('#txtClassa_'+b_seq).val()=='便'){
 								$('#combClassa_' + b_seq).val($('#txtClassa_'+b_seq).val());
 								$('#combClassa_' + b_seq).focusout();
 							}else{
@@ -1094,7 +1121,7 @@
 							var t_class=$.trim($('#combClassa_'+b_seq).val());
 							if(t_class.length>0 &&(q_cur==1 || q_cur==2)){
 								var t_html='';
-								if(t_class=='印刷'){
+								if(t_class=='印'){
 									t_html="<table id='table_cost' style='width:610px;text-align: center;' border='1' cellpadding='2'  cellspacing='0'><tr>";
 									t_html+="<td style='width:100px'>版費</td>";
 									t_html+="<td style='width:100px'>刀模費</td>";
@@ -1108,7 +1135,7 @@
 									t_html+="<td><input id='cost_txtWdate' type='text' class='txt c1'/></td>";
 									t_html+="<td><input id='cost_txtOther' type='text' class='txt c1'/></td>";
 								}
-								if(t_class=='便品'){
+								if(t_class=='便'){
 									t_html="<table id='table_cost' style='width:310px;text-align: center;' border='1' cellpadding='2'  cellspacing='0'><tr>";
 									t_html+="<td style='width:100px'>交貨日</td>";
 									t_html+="<td style='width:150px'>其他</td>";
@@ -1140,15 +1167,15 @@
 								$('#div_cost').css('left',$('#combClassa_'+b_seq).offset().left+50);
 								
 								$('#div_cost').show();
-								if(t_class=='印刷')
+								if(t_class=='印')
 									$('#cost_txtCost0').focus();
-								if(t_class=='便品')
+								if(t_class=='便')
 									$('#cost_txtWdate').focus();
 									
 								$('#btnClose_div_cost').click(function() {
 									var t_memo='';
 									
-									if(t_class=='印刷'){
+									if(t_class=='印'){
 										//判斷下兩行是否存在版費 或 刀模費
 										var iscost1=-1,iscost2=-1;
 										if($('#txtProduct_'+(b_seq+1)).length>0){//判斷物件是否存在
@@ -1208,16 +1235,16 @@
 									}
 									
 									//訂金
-									if(t_class=='印刷'){
+									if(t_class=='印'){
 										if($('#cost_txtDeposit').val()!='')
 											t_memo=t_memo+(t_memo.length>0?' ':'')+'訂金：'+$('#cost_txtDeposit').val();
 									}
 									//工期,交貨日
 									if($('#cost_txtWdate').val()!=''){
-										if(t_class=='印刷'){
+										if(t_class=='印'){
 											t_memo=t_memo+(t_memo.length>0?' ':'')+'工期：'+$('#cost_txtWdate').val();
 										}
-										if(t_class=='便品'){
+										if(t_class=='便'){
 											t_memo=t_memo+(t_memo.length>0?' ':'')+'交貨日：'+$('#cost_txtWdate').val();
 										}
 									}
@@ -1241,9 +1268,9 @@
 							b_seq = t_IdSeq;
 							var t_class=$.trim($('#combClassa_'+b_seq).val());
 							if(!$('#div_cost').is(':hidden')){
-								if(t_class=='印刷')
+								if(t_class=='印')
 									$('#cost_txtCost0').focus();
-								if(t_class=='便品')
+								if(t_class=='便')
 									$('#cost_txtWdate').focus();
 							}
 						});
@@ -1255,8 +1282,8 @@
 							
 							if($('#combGroupbno_'+b_seq).find("option:selected").text()!=''){
 								$('#txtProduct_'+b_seq).val($('#combGroupbno_'+b_seq).find("option:selected").text());
-								$('#combClassa_'+b_seq).val('印刷');
-								$('#txtClassa_'+b_seq).val('印刷');
+								$('#combClassa_'+b_seq).val('印');
+								$('#txtClassa_'+b_seq).val('印');
 							}
 							
 							//顯示規格
@@ -1714,11 +1741,11 @@
 							q_gt('view_quats', t_where, 0, 0, 0, "keyin_productno_xy");
 							
 							if($('#txtSpec_'+b_seq).val().indexOf('印')>-1 || $('#txtProductno_'+b_seq).val().indexOf($('#txtCustno').val()+"-")>-1){
-								$('#combClassa_'+b_seq).val('印刷');
-								$('#txtClassa_'+b_seq).val('印刷');
+								$('#combClassa_'+b_seq).val('印');
+								$('#txtClassa_'+b_seq).val('印');
 							}else{
-								$('#combClassa_'+b_seq).val('便品');
-								$('#txtClassa_'+b_seq).val('便品');
+								$('#combClassa_'+b_seq).val('便');
+								$('#txtClassa_'+b_seq).val('便');
 								$('#txtDime_'+b_seq).val(0);
 							}
 						}

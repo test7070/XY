@@ -965,6 +965,11 @@
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
 							//q_change($(this), 'ucc', 'noa', 'noa,product,unit');
+							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
+								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)){
+									$('#txtProductno_' + b_seq).val('');
+								}
+							}
 							AutoNo2();
 						});
 						$('#cmbSource_' + j).change(function() {
@@ -1287,10 +1292,14 @@
 								$('#txtClassa_'+b_seq).val('印');
 							}
 							
+							$('#combGroupbno_'+b_seq)[0].selectedIndex=0;
+						});
+						
+						$('#btnSpec_'+j).click(function() {
 							//顯示規格
 							var t_spec="";
 							for (var i = 0; i < uccgb.length; i++) {
-								if($('#combGroupbno_'+b_seq).val()==uccgb[i].noa){
+								if($('#txtProduct_'+b_seq).val()==uccgb[i].namea){
 									t_spec=uccgb[i].spec;
 									break;	
 								}
@@ -1377,7 +1386,6 @@
 								
 								AutoNo2();
 							});
-							$('#combGroupbno_'+b_seq)[0].selectedIndex=0;
 						});
 					}
 				}
@@ -1724,22 +1732,11 @@
 						break;
 					case 'txtProductno_':
 						if(!emp($('#txtProductno_'+b_seq).val())){
-							var t_custno=$('#txtCustno').val().substr(0,$('#txtCustno').val().indexOf('-'));
-							if(t_custno=='') 
-								t_custno=$('#txtCustno').val();
-							var t_where = '';
-							if (t_custno.length > 0) {
-								//12/11 核准判斷暫時拿掉 等上線後再放入 不用apv 抓sign
-								t_where="where=^^ noa+'_'+odate+'_'+productno in (select MIN(a.noa)+'_'+MIN(a.odate)+'_'+b.productno from view_quat a left join view_quats b on a.noa=b.noa where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 "
-								+q_sqlPara2("a.custno", t_custno.substr(0,5))+" and a.datea>='"+q_date()+"' group by b.productno)";
-								t_where+=" and productno='"+$('#txtProductno_'+b_seq).val()+"' and isnull(enda,0)=0 and isnull(cancel,0)=0 "+q_sqlPara2("custno", t_custno) +" and datea>='"+q_date()+"' ^^";
-							}else {
-								alert(q_getMsg('msgCustEmp'));
-								$('#txtCustno').focus();
-								$('#btnMinus_'+b_seq).click();
-								return;
+							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
+								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)){
+									$('#txtProductno_' + b_seq).val('');
+								}
 							}
-							q_gt('view_quats', t_where, 0, 0, 0, "keyin_productno_xy");
 							
 							if($('#txtSpec_'+b_seq).val().indexOf('印')>-1 || $('#txtProductno_'+b_seq).val().indexOf($('#txtCustno').val()+"-")>-1){
 								$('#combClassa_'+b_seq).val('印');
@@ -1748,6 +1745,23 @@
 								$('#combClassa_'+b_seq).val('便');
 								$('#txtClassa_'+b_seq).val('便');
 								$('#txtDime_'+b_seq).val(0);
+							}
+							
+							var t_custno=$('#txtCustno').val().substr(0,$('#txtCustno').val().indexOf('-'));
+							if(t_custno=='') 
+								t_custno=$('#txtCustno').val();
+							var t_where = '';
+							if (t_custno.length > 0 && $('#txtProductno_'+b_seq).val().length>0) {
+								//12/11 核准判斷暫時拿掉 等上線後再放入 不用apv 抓sign
+								t_where="where=^^ noa+'_'+odate+'_'+productno in (select MIN(a.noa)+'_'+MIN(a.odate)+'_'+b.productno from view_quat a left join view_quats b on a.noa=b.noa where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 "
+								+q_sqlPara2("a.custno", t_custno.substr(0,5))+" and a.datea>='"+q_date()+"' group by b.productno)";
+								t_where+=" and productno='"+$('#txtProductno_'+b_seq).val()+"' and isnull(enda,0)=0 and isnull(cancel,0)=0 "+q_sqlPara2("custno", t_custno) +" and datea>='"+q_date()+"' ^^";
+								q_gt('view_quats', t_where, 0, 0, 0, "keyin_productno_xy");
+							}else {
+								alert(q_getMsg('msgCustEmp'));
+								$('#txtCustno').focus();
+								$('#btnMinus_'+b_seq).click();
+								return;
 							}
 						}
 						AutoNo2();
@@ -2194,7 +2208,10 @@
 						<input id="txtProduct.*" type="text" class="txt c1" style="width:100px;"/>
 						<select id="combGroupbno.*" class="txt c1" style="width: 20px; float: right;"> </select>
 					</td>
-					<td><input id="txtSpec.*" type="text" class="txt c1"/></td>
+					<td>
+						<input id="txtSpec.*" type="text" class="txt c1" style="width:170px;"/>
+						<input class="btn" id="btnSpec.*" type="button" value='.' style=" font-weight: bold;" />
+					</td>
 					<td>
 						<input id="txtClassa.*" type="text" class="txt c1" style="width: 60px;"/>
 						<select id="combClassa.*" class="txt c1" style="width:20px;float: right;"> </select>

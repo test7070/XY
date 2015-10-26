@@ -642,6 +642,12 @@
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
+							
+							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
+								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)){
+									$('#txtProductno_' + b_seq).val('');
+								}
+							}
 							AutoNo3();
 						});
 						
@@ -861,10 +867,18 @@
 								$('#txtClassa_'+b_seq).val('印');
 							}
 							
+							$('#combGroupbno_'+b_seq)[0].selectedIndex=0;
+						});
+						
+						$('#btnSpec_'+j).click(function() {
+							t_IdSeq = -1;
+							q_bodyId($(this).attr('id'));
+							b_seq = t_IdSeq;
+							
 							//顯示規格
 							var t_spec="";
 							for (var i = 0; i < uccgb.length; i++) {
-								if($('#combGroupbno_'+b_seq).val()==uccgb[i].noa){
+								if($('#txtProduct_'+b_seq).val()==uccgb[i].namea){
 									t_spec=uccgb[i].spec;
 									break;	
 								}
@@ -951,8 +965,6 @@
 								
 								AutoNo3();
 							});
-							
-							$('#combGroupbno_'+b_seq)[0].selectedIndex=0;
 						});
 						
 						$('#txtClass_' + j).change(function() {
@@ -1267,6 +1279,12 @@
 						break;
 					case 'txtProductno_':
 						if (!emp($('#txtProductno_'+b_seq).val())) {
+							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
+								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)){
+									$('#txtProductno_' + b_seq).val('');
+								}
+							}
+							
 							if($('#txtSpec_'+b_seq).val().indexOf('印')>-1 || $('#txtProductno_'+b_seq).val().indexOf($('#txtCustno').val()+"-")>-1){
 								$('#combClassa_'+b_seq).val('印');
 								$('#txtClassa_'+b_seq).val('印');
@@ -1720,7 +1738,10 @@
 						<input id="txtProduct.*" type="text" class="txt c1" style="width:120px;"/>
 						<select id="combGroupbno.*" class="txt c1" style="width: 20px; float: right;"> </select>
 					</td>
-					<td><input id="txtSpec.*" type="text" class="txt c1"/></td>
+					<td>
+						<input id="txtSpec.*" type="text" class="txt c1" style="width:200px;"/>
+						<input class="btn" id="btnSpec.*" type="button" value='.' style=" font-weight: bold;" />
+					</td>
 					<td>
 						<input id="txtClassa.*" type="text" class="txt c1" style="width: 60px;"/>
 						<select id="combClassa.*" class="txt c1" style="width:20px;float: right;"> </select>

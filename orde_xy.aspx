@@ -687,7 +687,7 @@
 						var error_productno='';
 						var product_in_quat=false;
 						for (var i = 0; i < q_bbsCount; i++) {
-							if(!emp($('#txtProductno_'+i).val())){
+							if(!emp($('#txtProductno_'+i).val()) && $('#cmbSource_'+i).val()!='2' && $('#cmbSource_'+i).val()!='3' && $('#cmbSource_'+i).val()!='4' ){
 								product_in_quat=false;
 								for (var j = 0; j < as.length; j++) {
 									if(as[j].productno==$('#txtProductno_'+i).val()){
@@ -978,32 +978,33 @@
 									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
 								if($('#cmbSource_' + b_seq).val()=='2' || $('#cmbSource_' + b_seq).val()=='3' || $('#cmbSource_' + b_seq).val()=='4'){
 									$('#txtPrice_'+b_seq).val('0');
-								}else{
-									if(!emp($('#txtQuatno_'+b_seq).val()) && !emp($('#txtNo3_'+b_seq).val())){
-										var t_where="where=^^noa='"+$('#txtQuatno_'+b_seq).val()+"' and no3='"+$('#txtNo3_'+b_seq).val()+"' ^^"
-										q_gt('view_quats', t_where, 0, 0, 0, "keyin_productno_xy");
-									}else{//重新尋找新單價
-										if(!emp($('#txtProductno_'+b_seq).val())){
-											var t_custno=$('#txtCustno').val().substr(0,$('#txtCustno').val().indexOf('-'));
-											if(t_custno=='') 
-												t_custno=$('#txtCustno').val();
-											var t_where = '';
-											if (t_custno.length > 0) {
-												//12/11 核准判斷暫時拿掉 等上線後再放入 不用apv 抓sign
-												t_where="where=^^ noa+'_'+odate+'_'+productno in (select MIN(a.noa)+'_'+MIN(a.odate)+'_'+b.productno from view_quat a left join view_quats b on a.noa=b.noa where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 "
-												+q_sqlPara2("a.custno", t_custno.substr(0,5))+" and a.datea>='"+q_date()+"' group by b.productno)";
-												t_where+=" and productno='"+$('#txtProductno_'+b_seq).val()+"' and isnull(enda,0)=0 and isnull(cancel,0)=0 "+q_sqlPara2("custno", t_custno) +" and datea>='"+q_date()+"' ^^";
-											}else {
-												alert(q_getMsg('msgCustEmp'));
-												$('#txtCustno').focus();
-												$('#btnMinus_'+b_seq).click();
-												return;
-											}
-											q_gt('view_quats', t_where, 0, 0, 0, "keyin_productno_xy");
+								}
+							}else{
+								if(!emp($('#txtQuatno_'+b_seq).val()) && !emp($('#txtNo3_'+b_seq).val())){
+									var t_where="where=^^noa='"+$('#txtQuatno_'+b_seq).val()+"' and no3='"+$('#txtNo3_'+b_seq).val()+"' ^^"
+									q_gt('view_quats', t_where, 0, 0, 0, "keyin_productno_xy");
+								}else{//重新尋找新單價
+									if(!emp($('#txtProductno_'+b_seq).val())){
+										var t_custno=$('#txtCustno').val().substr(0,$('#txtCustno').val().indexOf('-'));
+										if(t_custno=='') 
+											t_custno=$('#txtCustno').val();
+										var t_where = '';
+										if (t_custno.length > 0) {
+											//12/11 核准判斷暫時拿掉 等上線後再放入 不用apv 抓sign
+											t_where="where=^^ noa+'_'+odate+'_'+productno in (select MIN(a.noa)+'_'+MIN(a.odate)+'_'+b.productno from view_quat a left join view_quats b on a.noa=b.noa where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 "
+											+q_sqlPara2("a.custno", t_custno.substr(0,5))+" and a.datea>='"+q_date()+"' group by b.productno)";
+											t_where+=" and productno='"+$('#txtProductno_'+b_seq).val()+"' and isnull(enda,0)=0 and isnull(cancel,0)=0 "+q_sqlPara2("custno", t_custno) +" and datea>='"+q_date()+"' ^^";
+										}else {
+											alert(q_getMsg('msgCustEmp'));
+											$('#txtCustno').focus();
+											$('#btnMinus_'+b_seq).click();
+											return;
 										}
+										q_gt('view_quats', t_where, 0, 0, 0, "keyin_productno_xy");
 									}
 								}
 							}
+							sum();
 						});
 
 						$('#txtUnit_' + j).focusout(function() {

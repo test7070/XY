@@ -202,12 +202,13 @@ set @t_edate = case when '#non'=[3] then char(255) else [3] end
 		no2 nvarchar(10),
 		datea nvarchar(10),
 		odate nvarchar(10),
-		custorder nvarchar(10),
+		custorder nvarchar(100),
 		oldno nvarchar(50),
 		custno nvarchar(50),
 		comp nvarchar(100),
 		pno nvarchar(30),
 		pname nvarchar(MAX),
+		spec nvarchar(MAX),
 		unit nvarchar(8),
 		pmount float,
 		pweight float,
@@ -222,7 +223,7 @@ set @t_edate = case when '#non'=[3] then char(255) else [3] end
 	insert into @result
 	select '0' gno, a.noa, b.no2, b.datea, a.odate, a.custorde, c.area, a.custno
 		,case when isnull(a.nick,'')!='' then a.nick else a.comp end,
-		   b.productno pno,b.product,
+		   b.productno pno,b.product,b.spec,
 		   b.unit, b.mount pmount, b.weight pweight, b.price,
 		   b.total ptotal, b.enda e, b.cancel c, 0 pcount,b.memo	
 	from view_ordes b
@@ -264,7 +265,7 @@ set @t_edate = case when '#non'=[3] then char(255) else [3] end
 		begin
 			insert into @result
 			select '1' gno, '小計' noa, '' no2, '' datea, @t_odate, '' oldno, '' chkstatus, '' custno, '' comp,
-				   '' pno,'' pname, '' unit, @t_pmount pmount, @t_pweight pweight, 0 price,
+				   '' pno,'' pname,'' spec , '' unit, @t_pmount pmount, @t_pweight pweight, 0 price,
 				   @t_ptotal ptotal, '' e, '' c, @t_pcount pcount, '' memo
 		end
 		if @t_odate!=@odate
@@ -294,15 +295,15 @@ set @t_edate = case when '#non'=[3] then char(255) else [3] end
 	begin
 		insert into @result
 		select '1' gno, '小計' noa, '' no2, '' datea, @t_odate odate, '' oldno, '' chkstatus, '' custno, '' comp,
-			   '' pno,'' pname, '' unit, @t_pmount pmount, @t_pweight pweight, 0 price,
+			   '' pno,'' pname,'' spec, '' unit, @t_pmount pmount, @t_pweight pweight, 0 price,
 			   @t_ptotal ptotal, '' e, '' c, @t_pcount pcount, '' memo	
 		insert into @result
 		select '2' gno, '總計' noa, '' no2, '' datea, @t_odate odate, '' oldno, '' chkstatus, '' custno, '' comp,
-			   '' pno,'' pname, '' unit, @tot_pmount pmount, @tot_pweight pweight, 0 price,
+			   '' pno,'' pname,'' spec, '' unit, @tot_pmount pmount, @tot_pweight pweight, 0 price,
 			   @tot_ptotal ptotal, '' e, '' c, @t_pcount pcount, '' memo
 	end
 	
-	select gno,noa,no2,datea,odate,custorder,oldno,custno,comp,pno,pname,unit
+	select gno,noa,no2,datea,odate,custorder,oldno,custno,comp,pno,pname,spec,unit
 	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,pmount),1)),4,30)) pmount
 	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,pweight),1)),0,30)) pweight
 	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,price),1)),0,30)) price

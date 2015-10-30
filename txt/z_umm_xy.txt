@@ -516,6 +516,12 @@ set utotal=(select SUM(utotal) from ((select utotal from @tmp where gno='0' and 
 from @tmp a
 where gno='1'
 
+insert @tmp (gno,salesno)
+select '2',salesno from @tmp where salesno != (select MAX(salesno) from @tmp where gno='1') group by salesno
+
+insert @tmp (gno,salesno,saless,utotal,vtotal,bonus)
+select '3',MAX(salesno),MAX(saless),sum(utotal),sum(vtotal),sum(bonus) from @tmp where gno = '1'
+
 select 
 dbo.getComma(mount,0) mount,
 dbo.getComma(price,4) price,

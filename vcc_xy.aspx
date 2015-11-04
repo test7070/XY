@@ -153,6 +153,17 @@
 					q_box("ordes_b2_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes_xy', "95%", "650px", q_getMsg('popOrde'));
 					//q_box("ordes_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes', "95%", "650px", q_getMsg('popOrde'));
 				});
+				
+				$('#btnVccs').click(function() {
+					if(!emp($('#txtCustno').val())){
+						var t_custno=$('#txtCustno').val();
+						//取最近的出貨單>>先取最後50筆出貨單
+						var t_where = " exists (select * from (select top 50 noa from view_vcc where custno='"+t_custno+"' and typea='1' and noa!='"+$('#txtNoa').val()+"' order by datea desc) tmp where noa=view_vccs"+r_accy+".noa ) "
+						q_box("vccs_b_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+ r_accy, 'vccs_xy', "95%", "650px", q_getMsg('popOrde'));
+					}else{
+						alert("請輸入客戶編號!!");
+					}
+				});
 
 				$('#lblOrdeno').click(function() {
 					q_pop('txtOrdeno', "orde_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";charindex(noa,'" + $('#txtOrdeno').val() + "')>0;" + r_accy + '_' + r_cno, 'orde', 'noa', '', "92%", "1024px", q_getMsg('lblOrdeno'), true);
@@ -178,6 +189,10 @@
 						t_where = "noa='" + t_invo + "'";
 						q_box("invo.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'invo', "95%", "95%", $('#lblInvo').val());
 					}
+				});
+				
+				$('#cmbTypea').change(function() {
+					typea_chang();
 				});
 				
 				$('#cmbStype').change(function() {
@@ -307,6 +322,18 @@
 							//103/12/04出貨單價抓最新的報價資料 >>後面取消
 							//var t_where = "where=^^ productno+'_'+odate+'_'+noa in (select productno+'_'+MAX(odate+'_'+noa) from view_quats where custno='"+$('#txtCustno').val()+"' and odate<='"+q_date()+"' and productno!='' group by productno)  ^^";
 							//q_gt('view_quats', t_where, 0, 0, 0, "vccprice_quat", r_accy);
+						}
+						break;
+					case 'vccs_xy':
+						if (q_cur > 0 && q_cur < 4) {
+							b_ret = getb_ret();
+							if (!b_ret || b_ret.length == 0)
+								return;
+							
+							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno,txtStoreno,txtStore,txtStoreno2,txtStore2', b_ret.length, b_ret
+							, 'productno,product,spec,unit,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,noq,itemno,storeno,store,storeno2,store2', 'txtProductno,txtProduct,txtSpec');
+							
+							sum();
 						}
 						break;
 					case q_name + '_s':
@@ -1141,6 +1168,7 @@
 				$('#txtAcomp').val(z_acomp);
 				$('#txtDatea').val(q_date());
 				$('#cmbTypea').val('1');
+				typea_chang();
 				$('#txtDatea').focus();
 				$('#cmbTaxtype').val('0');
 				var t_where = "where=^^ 1=1  ^^";
@@ -1213,6 +1241,7 @@
 					$('.istax').hide();
 				HiddenTreat();
 				stype_chang();
+				typea_chang();
 				$('#div_stk').hide();
 				$('#div_store2').hide();
 			}
@@ -1239,6 +1268,16 @@
 						$('#txtProductno_'+j).removeAttr('disabled');
 						$('#btnProductno_'+j).removeAttr('disabled');
 					}
+				}
+			}
+			
+			function typea_chang(){
+				if($('#cmbTypea').val()=='1'){
+					$('#btnOrdes').show();
+					$('#btnVccs').hide();
+				}else{
+					$('#btnOrdes').hide();
+					$('#btnVccs').show();
 				}
 			}
 			
@@ -1618,123 +1657,124 @@
 			<div class='dbbm'>
 				<table class="tbbm"  id="tbbm" style="width: 872px;">
 					<tr>
-						<td class="td1" style="width: 108px;"><span> </span><a id='lblType' class="lbl"> </a></td>
-						<td class="td2" style="width: 108px;"><select id="cmbTypea"> </select></td>
-						<td class="td3" style="width: 108px;">
+						<td style="width: 108px;"><span> </span><a id='lblType' class="lbl"> </a></td>
+						<td style="width: 108px;"><select id="cmbTypea"> </select></td>
+						<td style="width: 108px;">
 							<a id='lblStype' class="lbl" style="float: left;"> </a>
 							<span style="float: left;"> </span>
-							<select id="cmbStype"> </select>
+							<select id="cmbStype" style="width: 60px;"> </select>
 						</td>
-						<td class="td4" style="width: 108px;"><span> </span><a id='lblDatea' class="lbl"> </a></td>
-						<td class="td5" style="width: 108px;"><input id="txtDatea" type="text"  class="txt c1"/></td>
-						<td class="td6" style="width: 108px;"> </td>
-						<td class="td7" style="width: 108px;"><span> </span><a id='lblNoa' class="lbl"> </a></td>
-						<td class="td8" style="width: 108px;"><input id="txtNoa" type="text" class="txt c1" /></td>
+						<td style="width: 108px;"><span> </span><a id='lblDatea' class="lbl"> </a></td>
+						<td style="width: 108px;"><input id="txtDatea" type="text"  class="txt c1"/></td>
+						<td style="width: 108px;"> </td>
+						<td style="width: 108px;"><span> </span><a id='lblNoa' class="lbl"> </a></td>
+						<td style="width: 108px;"><input id="txtNoa" type="text" class="txt c1" /></td>
 					</tr>
 					<tr>
-						<td class="td1"><span> </span><a id="lblAcomp" class="lbl btn"> </a></td>
-						<td class="td2"><input id="txtCno" type="text" class="txt c1"/></td>
-						<td class="td2"><input id="txtAcomp" type="text" class="txt c1"/></td>
-						<td class="td7"><span> </span><a id='lblMon' class="lbl"> </a></td>
-						<td class="td8"><input id="txtMon" type="text" class="txt c1"/></td>
-						<td class="td8"> </td>
-						<td class="td7">
+						<td><span> </span><a id="lblAcomp" class="lbl btn"> </a></td>
+						<td><input id="txtCno" type="text" class="txt c1"/></td>
+						<td><input id="txtAcomp" type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblMon' class="lbl"> </a></td>
+						<td><input id="txtMon" type="text" class="txt c1"/></td>
+						<td> </td>
+						<td>
 							<span> </span>
 							<a id='lblInvono' class="lbl btn vcca"> </a>
 							<a id='lblInvo' class="lbl btn invo"> </a>
 						</td>
-						<td class="td8">
+						<td>
 							<input id="txtInvono" type="text" class="txt c1 vcca"/>
 							<input id="txtInvo" type="text" class="txt c1 invo"/>
 						</td>
 					</tr>
 					<tr>
-						<td class="td1"><span> </span><a id="lblCust" class="lbl btn"> </a></td>
-						<td class="td2"><input id="txtCustno" type="text" class="txt c1"/></td>
-						<td class="td2">
+						<td><span> </span><a id="lblCust" class="lbl btn"> </a></td>
+						<td><input id="txtCustno" type="text" class="txt c1"/></td>
+						<td>
 							<input id="txtComp" type="text" class="txt c1"/>
 							<input id="txtNick" type="hidden" class="txt c1"/>
 						</td>
-						<td class="td4"><span> </span><a id='lblPay' class="lbl"> </a></td>
-						<td class="td5"><input id="txtPaytype" type="text" class="txt c1"/></td>
-						<td class="td6"><select id="combPay" style="width: 100%;" onchange='combPay_chg()'> </select></td>
-						<td class="td6"align="right"><input id="btnOrdes" type="button"/></td>
+						<td><span> </span><a id='lblPay' class="lbl"> </a></td>
+						<td><input id="txtPaytype" type="text" class="txt c1"/></td>
+						<td><select id="combPay" style="width: 100%;" onchange='combPay_chg()'> </select></td>
+						<td align="right"><input id="btnOrdes" type="button"/></td>
+						<td align="right"><input id="btnVccs" type="button" value="退貨單匯入"/></td>
 					</tr>
 					<tr>
-						<td class="td1"><span> </span><a id="lblTel" class="lbl"> </a></td>
-						<td class="td2" colspan='2'><input id="txtTel" type="text" class="txt c1"/></td>
-						<td class="td1"><span> </span><a id="lblFax" class="lbl"> </a></td>
-						<td class="td2" colspan='2'><input id="txtFax" type="text" class="txt c1"/></td>
-						<td class="td4"><span> </span><a id='lblTrantype' class="lbl"> </a></td>
-						<td class="td5"><select id="cmbTrantype" style="width: 100%;"> </select></td>
+						<td><span> </span><a id="lblTel" class="lbl"> </a></td>
+						<td colspan='2'><input id="txtTel" type="text" class="txt c1"/></td>
+						<td><span> </span><a id="lblFax" class="lbl"> </a></td>
+						<td colspan='2'><input id="txtFax" type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblTrantype' class="lbl"> </a></td>
+						<td><select id="cmbTrantype" style="width: 100%;"> </select></td>
 					</tr>
 					<tr>
-						<td class="td1"><span> </span><a class="lbl">郵遞區號</a></td>
-						<td class="td2"><input id="txtPost" type="text" class="txt c1"/></td>
-						<td class="td1"><span> </span><a id="lblAddr" class="lbl"> </a></td>
-						<td class="td3" colspan='3'><input id="txtAddr" type="text" class="txt c1"/></td>
-						<td class="td7"><span> </span><a id='lblOrdeno' class="lbl btn"> </a></td>
-						<td class="td8"><input id="txtOrdeno" type="text" class="txt c1"/></td>
+						<td><span> </span><a class="lbl">郵遞區號</a></td>
+						<td><input id="txtPost" type="text" class="txt c1"/></td>
+						<td><span> </span><a id="lblAddr" class="lbl"> </a></td>
+						<td colspan='3'><input id="txtAddr" type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblOrdeno' class="lbl btn"> </a></td>
+						<td><input id="txtOrdeno" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
-						<td class="td1"><span> </span><a class="lbl">指送區號</a></td>
-						<td class="td2"><input id="txtPost2"  type="text" class="txt c1"/></td>
-						<td class="td1"><span> </span><a id='lblAddr2' class="lbl"> </a></td>
-						<td class="td3" colspan='3'>
+						<td><span> </span><a class="lbl">指送區號</a></td>
+						<td><input id="txtPost2"  type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblAddr2' class="lbl"> </a></td>
+						<td colspan='3'>
 							<input id="txtAddr2"  type="text" class="txt c1" style="width: 302px;"/>
 							<select id="combAddr" style="width: 20px" onchange='combAddr_chg()'> </select>
 						</td>
-						<td class="td6"align="right"><input id="btnStore2" type="button" value="寄庫顯示"/></td>
+						<td align="right"><input id="btnStore2" type="button" value="寄庫顯示"/></td>
 					</tr>
 					<tr>
-						<td class="td1"><span> </span><a id='lblSales' class="lbl btn"> </a></td>
-						<td class="td2"><input id="txtSalesno" type="text" class="txt c1"/></td>
-						<td class="td3"><input id="txtSales" type="text" class="txt c1"/></td>
-						<td class="td4"><span> </span><a id="lblCardeal" class="lbl btn"> </a></td>
-						<td class="td5"><input id="txtCardealno" type="text" class="txt c1"/></td>
-						<td class="td6"><input id="txtCardeal" type="text" class="txt c1"/></td>
-						<td class="td7"><span> </span><a id='lblCarno' class="lbl"> </a></td>
-						<td class="td8">
+						<td><span> </span><a id='lblSales' class="lbl btn"> </a></td>
+						<td><input id="txtSalesno" type="text" class="txt c1"/></td>
+						<td><input id="txtSales" type="text" class="txt c1"/></td>
+						<td><span> </span><a id="lblCardeal" class="lbl btn"> </a></td>
+						<td><input id="txtCardealno" type="text" class="txt c1"/></td>
+						<td><input id="txtCardeal" type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblCarno' class="lbl"> </a></td>
+						<td>
 							<input id="txtCarno"  type="text" class="txt" style="width:75%;"/>
 							<select id="combCarno" style="width: 20%;"> </select>
 						</td>
-						<!--<td class="td5"><select id="cmbTranstyle" style="width: 100%;"> </select></td>-->
+						<!--<td><select id="cmbTranstyle" style="width: 100%;"> </select></td>-->
 					</tr>
 					<tr>
-						<td class="td1"><span> </span><a id="lblMoney" class="lbl"> </a></td>
-						<td class="td2" colspan='2'><input id="txtMoney" type="text" class="txt num c1"/></td>
-						<td class="td4"><span> </span><a id='lblTax' class="lbl"> </a></td>
-						<td class="td5" colspan='2'>
+						<td><span> </span><a id="lblMoney" class="lbl"> </a></td>
+						<td colspan='2'><input id="txtMoney" type="text" class="txt num c1"/></td>
+						<td><span> </span><a id='lblTax' class="lbl"> </a></td>
+						<td colspan='2'>
 							<input id="txtTax" type="text" class="txt num c1 istax"  style="width: 49%;"/>
 							<select id="cmbTaxtype" style="width: 49%;" onchange="calTax();"> </select>
 						</td>
-						<td class="td7"><span> </span><a id='lblTotal' class="lbl istax"> </a></td>
-						<td class="td8"><input id="txtTotal" type="text" class="txt num c1 istax"/></td>
+						<td><span> </span><a id='lblTotal' class="lbl istax"> </a></td>
+						<td><input id="txtTotal" type="text" class="txt num c1 istax"/></td>
 					</tr>
 					<tr>
-						<td class="td1"><span> </span><a id="lblCust2" class="lbl btn"> </a></td>
-						<td class="td2" colspan='2'>
+						<td><span> </span><a id="lblCust2" class="lbl btn"> </a></td>
+						<td colspan='2'>
 							<input id="txtCustno2" type="text" class="txt c2"/>
 							<input id="txtComp2" type="text" class="txt c3"/>
 						</td>
-						<td class="td4"><span> </span><a id='lblFloata' class="lbl"> </a></td>
-						<td class="td5"><select id="cmbCoin" style="width: 100%;" onchange='coin_chg()'> </select></td>
-						<td class="td6"><input id="txtFloata" type="text" class="txt num c1"/></td>
-						<td class="td7"><span> </span><a id="lblTotalus" class="lbl"> </a></td>
-						<td class="td8"><input id="txtTotalus" type="text" class="txt num c1"/></td>
+						<td><span> </span><a id='lblFloata' class="lbl"> </a></td>
+						<td><select id="cmbCoin" style="width: 100%;" onchange='coin_chg()'> </select></td>
+						<td><input id="txtFloata" type="text" class="txt num c1"/></td>
+						<td><span> </span><a id="lblTotalus" class="lbl"> </a></td>
+						<td><input id="txtTotalus" type="text" class="txt num c1"/></td>
 					</tr>
 					<tr>
-						<td class="td1"><span> </span><a id="lblWorker" class="lbl"> </a></td>
-						<td class="td2"><input id="txtWorker" type="text" class="txt c1"/></td>
-						<td class="td3"><input id="txtWorker2" type="text" class="txt c1"/></td>
-						<td class="td4"><span> </span><a id='lblAccc' class="lbl btn"> </a></td>
-						<td class="td5" colspan='2'><input id="txtAccno" type="text" class="txt c1"/></td>
-						<td class="td7"><span> </span><a class="lbl">運費單價</a></td>
-						<td class="td8"><input id="txtPrice" type="text" class="txt num c1"/></td>
+						<td><span> </span><a id="lblWorker" class="lbl"> </a></td>
+						<td><input id="txtWorker" type="text" class="txt c1"/></td>
+						<td><input id="txtWorker2" type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblAccc' class="lbl btn"> </a></td>
+						<td colspan='2'><input id="txtAccno" type="text" class="txt c1"/></td>
+						<td><span> </span><a class="lbl">運費單價</a></td>
+						<td><input id="txtPrice" type="text" class="txt num c1"/></td>
 					</tr>
 					<tr>
-						<td class="td1"><span> </span><a id="lblMemo" class="lbl"> </a></td>
-						<td class="td2" colspan='7'><textarea id="txtMemo" cols="10" rows="5" style="width: 99%;height: 50px;"> </textarea></td>
+						<td><span> </span><a id="lblMemo" class="lbl"> </a></td>
+						<td colspan='7'><textarea id="txtMemo" cols="10" rows="5" style="width: 99%;height: 50px;"> </textarea></td>
 					</tr>
 				</table>
 			</div>

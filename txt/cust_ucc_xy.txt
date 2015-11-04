@@ -220,6 +220,10 @@ SET QUOTED_IDENTIFIER OFF
 declare @noa nvarchar(MAX) = [1]
 declare @year nvarchar(MAX) = [2]
 
+declare @nowdate nvarchar(30) --今天日期
+set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
+set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
+
 declare @custno nvarchar(MAX)=isnull((select custno from view_orde where noa=@noa),'')
 declare @accy nvarchar(MAX)
 declare @t_noa nvarchar(MAX)
@@ -271,8 +275,8 @@ begin
 			
 		end
 		
-		insert ucc(noa,product,spec,unit,typea)
-		select @newpno,@product,@spec+' '+@classa,@unit,'1'
+		insert ucc(noa,product,spec,unit,typea,date2,worker,style)
+		select @newpno,@product,@spec+' '+@classa,@unit,'1',@nowdate,@t_noa+'-'+@t_no2,@classa
 		
 		--更新訂單產品編號
 		exec("update ordes"+@accy+" set productno='"+@newpno+"'	where noa='"+@t_noa+"' and no2='"+@t_no2+"'")
@@ -310,6 +314,10 @@ declare @ordbno nvarchar(MAX)
 declare @no3 nvarchar(MAX)
 declare @newpno nvarchar(MAX)
 
+declare @nowdate nvarchar(30) --今天日期
+set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
+set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
+
 if(@tggno!='')
 begin
 
@@ -340,8 +348,8 @@ begin
 		set @newpno=@newpno+@t_spec
 		+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-3=len(UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),3) as int)+1 as nvarchar(10)),3)
 			
-		insert ucc(noa,product,spec,unit,typea)
-		select @newpno,@product,@spec,@unit,'1'
+		insert ucc(noa,product,spec,unit,typea,date2,worker,style)
+		select @newpno,@product,@spec,@unit,'1',@nowdate,@t_noa+'-'+@t_no2,@classa
 		
 		--更新請購產品編號
 		exec("update ordcs"+@accy+" set productno='"+@newpno+"' where noa='"+@t_noa+"' and no2='"+@t_no2+"'")

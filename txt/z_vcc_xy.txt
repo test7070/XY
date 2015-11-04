@@ -62,8 +62,9 @@ declare @tmp table(
 
 insert @tmp 
 select '0',a.storeno2,MAX(b.store),a.productno,MAX(c.product) product,MAX(c.spec) spec 
-,sum(isnull(tranmoney2,0))-sum(isnull(tranmoney3,0)) stkmount 
-from view_vccs a left join store b on a.storeno2=b.noa
+,sum((case when d.typea='2' then -1 else 1 end)*isnull(tranmoney2,0))-sum((case when d.typea='2' then -1 else 1 end)*isnull(tranmoney3,0)) stkmount 
+from view_vccs a left join view_vcc d on a.noa=d.noa 
+left join store b on a.storeno2=b.noa
 left join ucc c on a.productno=c.noa
 where isnull(a.storeno2,'') between @t_bstore and @t_estore 
 and isnull(a.productno,'') between @t_bucc and @t_eucc 
@@ -271,7 +272,8 @@ declare @tmpa table(
 
 insert @tmpa
 select * from (
-	select a.accy,a.datea,'1' typea,isnull(b.storeno2,'') storeno,c.store,a.custno custno,a.comp comp,b.productno,d.product,a.noa,tranmoney2 
+	select a.accy,a.datea,'1' typea,isnull(b.storeno2,'') storeno,c.store,a.custno custno,a.comp comp,b.productno,d.product,a.noa
+	,(case when a.typea='2' then -1 else 1 end)*tranmoney2 
 	from view_vcc a left join view_vccs b on a.noa=b.noa 
 	left join store c on b.storeno2=c.noa
 	left join ucc d on b.productno=d.noa  
@@ -279,7 +281,8 @@ select * from (
 	and isnull(b.storeno2,'') between @t_bstore and @t_estore
 	and b.productno between @t_bucc and @t_eucc
 	union all
-	select a.accy,a.datea,'2' typea,isnull(b.storeno2,'') storeno,c.store,a.custno custno,a.comp comp,b.productno,d.product,a.noa,tranmoney3 
+	select a.accy,a.datea,'2' typea,isnull(b.storeno2,'') storeno,c.store,a.custno custno,a.comp comp,b.productno,d.product,a.noa
+	,(case when a.typea='2' then -1 else 1 end)*tranmoney3 
 	from view_vcc a left join view_vccs b on a.noa=b.noa 
 	left join store c on b.storeno2=c.noa
 	left join ucc d on b.productno=d.noa  

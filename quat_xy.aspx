@@ -421,9 +421,10 @@
 							btnModi();
 						}*/
 						
-						if (as[0] != undefined) {
-							quat_no3_disabled=true;
-						}
+						//10/30暫不鎖定
+						//if (as[0] != undefined) {
+						//	quat_no3_disabled=true;
+						//}
 						orde_quat=true;
 						btnModi();
 						break;

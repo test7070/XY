@@ -59,6 +59,7 @@
 				q_getFormat();
 				bbmMask = [['txtDatea', r_picd],['txtBdate', r_picd],['txtEdate', r_picd]];
 				q_mask(bbmMask);
+				bbsMask = [['txtHandle', r_picd], ['txtHandle2', r_picd]];
 
 				$('#btnVccimport').click(function() {
 					var t_post = $('#txtZip_post').val();
@@ -220,6 +221,23 @@
 				else
 					$('#txtWorker2').val(r_name);
 				sum();
+				
+				var all_dime=true;
+				var all_width=true;
+				for (var i = 0; i < q_bbsCount; i++) {
+					if($('#checkDime_'+i).prop('checked')){
+						$('#txtDime_'+i).val(1);
+					}else{
+						$('#txtDime_'+i).val(0);
+						all_dime=false;
+					}
+					if($('#checkWidth_'+i).prop('checked')){
+						$('#txtWidth_'+i).val(1);
+					}else{
+						$('#txtWidth_'+i).val(0);
+						all_width=false;
+					}
+				}
 
 				var s1 = $('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val();
 				if (s1.length == 0 || s1 == "AUTO")
@@ -253,6 +271,7 @@
 					}
 				}
 				_bbsAssign();
+				change_check();
 				$('#chkEnda').click(function() {
 					if(q_cur==1 || q_cur==2){
 						if($('#chkEnda').prop('checked')){
@@ -336,17 +355,27 @@
 
 			function refresh(recno) {
 				_refresh(recno);
+				change_check();
 			}
 			
 
 			function readonly(t_para, empty) {
 				_readonly(t_para, empty);
+				change_check();
 				if(t_para){
 					$('#chkEnda').attr('disabled', 'disabled');
 					$('#btnVccimport').attr('disabled', 'disabled');
+					for (var j = 0; j < q_bbsCount; j++) {
+						$('#checkDime_'+j).attr('disabled', 'disabled');
+						$('#checkWidth_'+j).attr('disabled', 'disabled');
+					}
 				}else{
 					$('#chkEnda').removeAttr('disabled');
 					$('#btnVccimport').removeAttr('disabled');
+					for (var j = 0; j < q_bbsCount; j++) {
+						$('#checkDime_'+j).removeAttr('disabled');
+						$('#checkWidth_'+j).removeAttr('disabled');
+					}
 				}
 			}
 
@@ -433,7 +462,28 @@
 						
 				}
 			}
-
+			function change_check() {
+				for (var i = 0; i < q_bbsCount; i++) {
+					if(q_cur==1 || q_cur==2){
+						$('#checkDime_'+i).removeAttr('disabled');
+						$('#checkWidth_'+i).removeAttr('disabled');
+					}else{
+						$('#checkDime_'+i).attr('disabled', 'disabled');
+						$('#checkWidth_'+i).attr('disabled', 'disabled');
+					}
+					
+					if($('#txtDime_'+i).val()==0){
+						$('#checkDime_'+i).prop('checked',false);
+					}else{
+						$('#checkDime_'+i).prop('checked',true);
+					}
+					if($('#txtWidth_'+i).val()==0){
+						$('#checkWidth_'+i).prop('checked',false);
+					}else{
+						$('#checkWidth_'+i).prop('checked',true);
+					}
+				}
+			}
 		</script>
 		<style type="text/css">
 			#dmain {
@@ -677,21 +727,25 @@
 					</tr>
 				</table>
 			</div>
-			<div class='dbbs' >
+			<div class='dbbs' style="width: 1500px;">
 				<table id="tbbs" class='tbbs'  border="1"  cellpadding='2' cellspacing='1'  >
 					<tr style='color:White; background:#003366;' >
 						<td align="center">
 							<input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  />
 						</td>
-						<td align="center" style="width:10%;">客戶編號</td>
-						<td align="center" style="width:18%;">客戶名稱</td>
-						<td align="center" style="width:10%;">出貨單號</td>
-						<td align="center" style="width:10%;">出貨日期</td>
-						<td align="center" style="width:10%;">出貨金額</td>
-						<td align="center" style="width:10%;">未收金額</td>
-						<td align="center" style="width:6%;">已送貨<input id="chkEnda" type="checkbox"/></td>
-						<td align="center" style="width:10%;">已收金額</td>
-						<td align="center"><a id='lblMemo_s'> </a></td>
+						<td align="center" style="width:30px;">客戶編號</td>
+						<td align="center" style="width:80px;">客戶名稱</td>
+						<td align="center" style="width:40px;">出貨單號</td>
+						<td align="center" style="width:20px;">出貨日期</td>
+						<td align="center" style="width:20px;">出貨金額</td>
+						<td align="center" style="width:20px;">未收金額</td>
+						<td align="center" style="width:50px;">已送貨<input id="chkEnda" type="checkbox"/></td>
+						<td align="center" style="width:20px;">已收金額</td>
+						<td align="center" style="width:15px;">簽收</td>
+						<td align="center" style="width:20px;">簽收日期</td>
+						<td align="center" style="width:15px;">驗收</td>
+						<td align="center" style="width:20px;">驗收日期</td>
+						<td align="center" style="width:20px;"><a id='lblMemo_s'> </a></td>
 					</tr>
 					<tr style='background:#cad3ff;'>
 						<td style="width:1%;">
@@ -706,6 +760,16 @@
 						<td><input class="txt num c1" id="txtEcount.*" type="text"/></td>
 						<td align="center"><input id="chkEnda.*" type="checkbox"/></td>
 						<td><input class="txt num c1" id="txtAdjcount.*" type="text" /></td>
+						<td align="center">
+							<input id="checkDime.*" type="checkbox"/>
+							<input id="txtDime.*" type="hidden" />
+						</td>
+						<td><input class="txt c1" id="txtHandle.*" type="text" /></td>
+						<td align="center">
+							<input id="checkWidth.*" type="checkbox"/>
+							<input id="txtWidth.*" type="hidden" />
+						</td>
+						<td><input class="txt c1" id="txtHandle2.*" type="text" /></td>
 						<td><input class="txt c1" id="txtMemo.*" type="text" /></td>
 					</tr>
 				</table>

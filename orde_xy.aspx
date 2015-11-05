@@ -21,7 +21,7 @@
 			q_desc = 1;
 			q_tables = 's';
 			var q_name = "orde";
-			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno'];
+			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno','txtVccno'];
 			var q_readonlys = ['txtTotal', 'txtQuatno', 'txtNo2', 'txtNo3', 'txtC1', 'txtNotv'];
 			var bbmNum = [['txtTotal', 10, 0, 1], ['txtMoney', 10, 0, 1], ['txtTax', 10, 0, 1],['txtFloata', 10, 5, 1], ['txtTotalus', 15, 2, 1]];
 			var bbsNum = [];
@@ -139,7 +139,8 @@
 				q_tr('txtTotalus', q_mul(q_float('txtMoney'), q_float('txtFloata')));
 				calTax();
 			}
-
+			
+			var x_ordevccumm=false;
 			function mainPost() {
 				q_getFormat();
 				bbmMask = [['txtOdate', r_picd]];
@@ -341,6 +342,34 @@
 						}
 					}
 				});
+				
+				$('#txtVccno').click(function(){
+					t_where = '';
+					t_vccno = $('#txtVccno').val();
+					if (t_vccno.length > 0) {
+						t_where = "noa='" + t_vccno + "'";
+						q_box("vcc_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'vcc', "95%", "95%", "出貨單");
+					}
+				});
+				
+				$('#btnOrdetoVcc').click(function() {
+					//檢查是否已收款
+					if(!x_ordevccumm && !emp($('#txtVccno').val())){
+						var t_where = " where=^^ vccno='" + $('#txtVccno').val() + "'^^";
+						q_gt('umms', t_where, 0, 0, 0, 'ordevccumm', r_accy);
+						return;
+					}
+					x_ordevccumm=false;
+					//檢查是否已轉出貨
+					if(!emp($('#txtVccno').val())){ //由訂單轉出貨單 直接更新出貨單
+						//檢查是否自動產生發票
+						var t_where = "where=^^ charindex(noa,'"+$('#txtVccno').val()+"')>0 ^^";
+						q_gt('view_vcc', t_where, 0, 0, 0, "checkVcchasvcca");
+					}else{
+						var t_where = "where=^^ charindex('"+$('#txtNoa').val()+"',ordeno)>0 ^^";
+						q_gt('view_vcc', t_where, 0, 0, 0, "checkordetoVcc");
+					}
+				});
 			}
 			
 			//addr2控制事件vvvvvv-------------------
@@ -388,7 +417,7 @@
 							sum();
 							bbsAssign();
 						}
-						break;
+						break;c
 					case 'cust':
 						if (q_cur > 0 && q_cur < 4) {
 							b_ret = getb_ret();
@@ -818,6 +847,48 @@
 						}
 						$('#txtMount_0').focus();
 						bbsAssign();
+						break;
+					case 'ordevccumm':
+						var as = _q_appendData("umms", "", true);
+						if (as[0] != undefined) {
+							var z_msg = "", t_paysale = 0;
+							for (var i = 0; i < as.length; i++) {
+								t_paysale = parseFloat(as[i].paysale.length == 0 ? "0" : as[i].paysale);
+								if (t_paysale != 0)
+									z_msg += String.fromCharCode(13) + '收款單號【' + as[i].noa + '】 ' + FormatNumber(t_paysale);
+							}
+							if (z_msg.length > 0) {
+								alert('已沖帳:' + z_msg);
+								return;
+							}
+						}else{
+							x_ordevccumm=true;
+							$('#btnOrdetoVcc').click();
+						}
+						break;
+					case 'checkVcchasvcca':
+						var as = _q_appendData("view_vcc", "", true);
+						if (as[0] != undefined) {
+							if(as[0].isgenvcca=="true")
+								alert('出貨單【自動產生發票】禁止更新出貨單!!');
+							else
+								q_func('vcc_post.post.a1', r_accy + ',' + $('#txtVccno').val() + ',0');
+						}else{
+							alert('出貨單遺失，重新產生出貨單!!');
+							q_func('qtxt.query.post1', 'cust_ucc_xy.txt,orde2vcc,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';1;' + encodeURI(r_userno));
+						}
+						break;
+					case 'checkordetoVcc':
+						var as = _q_appendData("view_vcc", "", true);
+						if (as[0] != undefined) {
+							alert('訂單已自行轉出貨單【'+as[0].noa+'】!!');
+						}else{
+							if(emp($('#txtVccno').val())){
+								q_func('qtxt.query.post1', 'cust_ucc_xy.txt,orde2vcc,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';1;' + encodeURI(r_userno));
+							}else{
+								q_func('vcc_post.post.a1', r_accy + ',' + $('#txtVccno').val() + ',0');
+							}
+						}
 						break;
 					case q_name:
 						if (q_cur == 4)
@@ -1531,6 +1602,7 @@
 					$('#lblCust').show();$('#lblCustx').hide();
 					$('#btnOrdei').removeAttr('disabled');
 					$('#combAddr').attr('disabled', 'disabled');
+					$('#btnOrdetoVcc').removeAttr('disabled');
 					$('#txtOdate').datepicker( 'destroy' );
 					for (var j = 0; j < q_bbsCount; j++) {
 						$('#combGroupbno_'+j).attr('disabled', 'disabled');
@@ -1542,6 +1614,7 @@
 					$('#checkCopy').attr('disabled', 'disabled');
 					$('#btnOrdei').attr('disabled', 'disabled');
 					$('#combAddr').removeAttr('disabled');
+					$('#btnOrdetoVcc').attr('disabled', 'disabled');
 					$('#txtOdate').datepicker();
 					for (var j = 0; j < q_bbsCount; j++) {
 						$('#combGroupbno_'+j).removeAttr('disabled');
@@ -1784,6 +1857,11 @@
 					var t_paras = $('#txtNoa').val()+ ';'+r_accy;
 					q_func('qtxt.query.orde_ucc', 'cust_ucc_xy.txt,orde_ucc,' + t_paras);
 				}
+				
+				if(q_cur==2 && !emp($('#txtVccno').val())){//修改後重新產生 避免資料不對應
+					if (confirm("是否要更新出貨單?"))
+						$('#btnOrdetoVcc').click();
+				}
 			}
 			
 			function q_funcPost(t_func, result) {
@@ -1805,6 +1883,29 @@
 							s2[1]="where=^^"+replaceAll(replaceAll(s2[1],'where=^^',''),'^^','')+" and salesno='"+r_userno+"' "+"^^";
 						q_boxClose2(s2);
 						break;
+					case 'vcc_post.post.a1':
+                		q_func('qtxt.query.post0', 'cust_ucc_xy.txt,orde2vcc,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0;' + encodeURI(r_userno));
+                		break;
+                	case 'qtxt.query.post0':
+                        q_func('qtxt.query.post1', 'cust_ucc_xy.txt,orde2vcc,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';1;' + encodeURI(r_userno));
+                        break;
+					case 'qtxt.query.post1':
+						var as = _q_appendData("tmp0", "", true, true);
+						var t_invono='';
+							if (as[0] != undefined) {
+								abbm[q_recno]['vccno'] = as[0].vccno;
+								$('#txtVccno').val(as[0].vccno);
+								
+								//vcc.post內容
+								if(!emp($('#txtVccno').val())){
+									q_func('vcc_post.post', r_accy + ',' + $('#txtVccno').val() + ',1');
+								}
+							}
+							if(q_cur==2 && !emp($('#txtVccno').val()))
+                        		alert('已更新出貨單!!');
+                        	else
+                        		alert('成功轉出出貨單!!');
+                        break;
 					default:
 						break;
 				}
@@ -2138,14 +2239,22 @@
 						<td class="td3"><input id="txtFloata" type="text" class="txt num c1" /></td>
 						<td class="td4"><span> </span><a id='lblTotalus' class="lbl"> </a></td>
 						<td class="td5" colspan='2'><input id="txtTotalus" type="text" class="txt num c1"/></td>
-						<td class="td7"> </td>
-						<td class="td8"><input id="btnStore2" type="button" value="寄庫顯示"/></td>
+						<td><input style="float: right;" class="btn" id="btnOrdetoVcc" type="button" value='轉出貨單' /> </td>
+						<td><input id="txtVccno" type="text" class="txt c1"/></td>
 					</tr>
 					<tr class="tr10">
 						<td class="td1"><span> </span><a id='lblWorker' class="lbl"> </a></td>
 						<td class="td2" colspan='2'><input id="txtWorker" type="text" class="txt c1" /></td>
 						<td class="td4"><span> </span><a id='lblWorker2' class="lbl"> </a></td>
 						<td class="td6" colspan='2'><input id="txtWorker2" type="text" class="txt c1" /></td>
+						<td class="td7"><input id="btnStore2" type="button" style="float: right;" value="寄庫顯示"/></td>
+						<td class="td8"> </td>
+					</tr>
+					<tr class="tr11">
+						<td class="td1"><span> </span><a id='lblMemo' class='lbl'> </a></td>
+						<td class="td2" colspan='5'>
+							<textarea id="txtMemo" cols="10" rows="5" style="width: 99%;height: 50px;"> </textarea>
+						</td>
 						<td colspan="2">
 							<input id="chkIsproj" type="checkbox"/>
 							<span> </span><a id='lblIsproj'> </a>
@@ -2154,12 +2263,6 @@
 							<input id="chkCancel" type="checkbox"/>
 							<span> </span><a id='lblCancel'> </a>
 							<input id="txtPostname" type="hidden" />
-						</td>
-					</tr>
-					<tr class="tr11">
-						<td class="td1"><span> </span><a id='lblMemo' class='lbl'> </a></td>
-						<td class="td2" colspan='7'>
-							<textarea id="txtMemo" cols="10" rows="5" style="width: 99%;height: 50px;"> </textarea>
 						</td>
 					</tr>
 				</table>

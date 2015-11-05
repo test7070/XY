@@ -312,6 +312,61 @@
 					$('#btnEmailpost').removeAttr('disabled', 'disabled');
 					$('#btnFaxpost').removeAttr('disabled', 'disabled');
 				});
+				
+				$('#btnQuat2orde').click(function() {
+					var t_html='';
+					var rowslength=document.getElementById("table_quat").rows.length-1;
+					for (var j = 1; j < rowslength; j++) {
+						document.getElementById("table_quat").deleteRow(1);
+					}
+					var t_row=0;
+					for (var i = 0; i < q_bbsCount; i++) {
+						if($('#checkGweight_'+i).prop('checked')){
+							var tr = document.createElement("tr");
+							tr.id = "quat_"+i;
+							tr.innerHTML = "<td><input id='quat_checksel_"+t_row+"' type='checkbox' class='txt c1' checked='true' /></td>";
+							tr.innerHTML+="<td><input id='quat_txtNo3_"+t_row+"' type='text' class='txt c1' value='"+$('#txtNo3_'+i).val()+"' disabled='disabled' /></td>";
+							tr.innerHTML+= "<td><input id='quat_txtProduct_"+t_row+"' type='text' class='txt c1' value='"+$('#txtProduct_'+i).val()+"' disabled='disabled'/></td>";
+							tr.innerHTML+="<td><input id='quat_txtSpec_"+t_row+"' type='text' class='txt c1' value='"+$('#txtSpec_'+i).val()+"' disabled='disabled' /></td>";
+							tr.innerHTML+="<td><input id='quat_txtMount_"+t_row+"' type='text' class='txt c1 num' value='"+dec($('#txtMount_'+i).val())+"'/></td>";
+							
+							var tmp = document.getElementById("quat_close");
+							tmp.parentNode.insertBefore(tr,tmp);
+							
+							$('#quat_txtMount_'+i).change(function() {
+								$(this).val(dec($(this).val()));
+								if($(this).val()=='NaN')
+									$(this).val(0);
+							});
+							t_row++;
+						}
+					}
+					if(t_row>0){
+						$('#div_quat').css('top',$('#btnQuat2orde'+b_seq).offset().top);
+						$('#div_quat').css('left',$('#btnQuat2orde'+b_seq).offset().left-parseInt($('#div_quat').css('width')));
+						$('#div_quat').show();
+					}else{
+						alert('無成交產品!!');
+					}
+				});
+				
+				$('#btnToorde_div_quat').click(function() {
+					var rowslength=document.getElementById("table_quat").rows.length-2;
+					var t_para='';
+					for (var i = 0; i < rowslength; i++) {
+						if($('#quat_checksel_'+i).prop('checked')){
+							t_para=t_para+$('#quat_txtNo3_'+i).val()+"@"+dec($('#quat_txtMount_'+i).val())+"#";
+						}
+					}
+					if(t_para.length>0 && $('#txtNoa').val().length>0)
+						q_func('qtxt.query.quat2orde', 'cust_ucc_xy.txt,quat2orde,'+r_accy+';'+$('#txtNoa').val()+';'+r_userno+';'+ t_paras);
+					
+					$('#div_quat').hide();
+				});
+				
+				$('#btnClose_div_quat').click(function() {
+					$('#div_quat').hide();
+				});
 			}
 
 			function q_boxClose(s2) {
@@ -1116,6 +1171,7 @@
 				$('#div_spec').hide();
 				$('#div_cost').hide();
 				$('#div_email').hide();
+				$('#div_quat').hide();
 				$('#btnEmailpost').removeAttr('disabled');
 				$('#btnFaxpost').removeAttr('disabled');
 				change_check();
@@ -1155,6 +1211,7 @@
 					$('#btnPlusCust').hide();
 				}
 				
+				$('#div_quat').hide();
 				change_check();
 				if (t_para) {
 					$('#combAddr').attr('disabled', 'disabled');
@@ -1162,6 +1219,7 @@
 					$('#checkEweight').attr('disabled', 'disabled');
 					$('#btnEmailpost').removeAttr('disabled');
 					$('#btnFaxpost').removeAttr('disabled');
+					$('#btnQuat2orde').removeAttr('disabled');
 					for (var j = 0; j < q_bbsCount; j++) {
 						$('#combGroupbno_'+j).attr('disabled', 'disabled');
 						$('#combClassa_'+j).attr('disabled', 'disabled');
@@ -1174,6 +1232,7 @@
 					$('#checkEweight').removeAttr('disabled');
 					$('#btnEmailpost').attr('disabled', 'disabled');
 					$('#btnFaxpost').attr('disabled', 'disabled');
+					$('#btnQuat2orde').attr('disabled', 'disabled');
 					if (r_rank<9){
 						$('.boss').attr('disabled', 'disabled');
 					}
@@ -1301,6 +1360,13 @@
 			}
 			function q_funcPost(t_func, result) {
                 switch(t_func) {
+                	case 'qtxt.query.quat2orde':
+                		var as = _q_appendData("tmp0", "", true, true);
+                        if (as[0] != undefined) {
+                        	var t_ordeno=as[0].ordeno;
+                        	alert("已轉出訂單【"+t_ordeno+"】!!");
+                        }
+                		break;
                 	/*case 'qtxt.query.tmp_cust_ucc':
                 		$('#btnTmpCreate').removeAttr('disabled');
 						alert('臨時編號產生完畢。');
@@ -1534,6 +1600,23 @@
 				</tr>
 			</table>
 		</div>
+		<div id="div_quat" style="position:absolute; top:420px; left:400px; display:none; width:500px; background-color: #CDFFCE; border: 5px solid gray;">
+			<table id="table_quat" style="width:100%;" border="1" cellpadding='2'  cellspacing='0'>
+				<tr>
+					<td style="background-color: #f8d463;width: 35px;" align="center">轉</td>
+					<td style="background-color: #f8d463;width: 40px;" align="center">項次</td>
+					<td style="background-color: #f8d463;width: 120px;" align="center">品名</td>
+					<td style="background-color: #f8d463;width: 200px;" align="center">規格</td>
+					<td style="background-color: #f8d463;width: 100px;" align="center">數量</td>
+				</tr>
+				<tr id='quat_close'>
+					<td align="center" colspan='5'>
+						<input id="btnToorde_div_quat" type="button" value="確定">
+						<input id="btnClose_div_quat" type="button" value="關閉">
+					</td>
+				</tr>
+			</table>
+		</div>
 		<div id='dmain' style="overflow:hidden;width: 1270px;">
 			<div class="dview" id="dview">
 				<table class="tview" id="tview" style="width: 500px;"	>
@@ -1661,12 +1744,8 @@
 						</td>
 					</tr>
 					<tr class="tr10">
-						<td align="right">
-							<span> </span><a id='lblMemo' class="lbl"> </a>
-						</td>
-						<td colspan='7' >
-							<input id="txtMemo" type="text" style="width: 99%;"/>
-						</td>
+						<td align="right"><span> </span><a id='lblMemo' class="lbl"> </a></td>
+						<td colspan='7' ><input id="txtMemo" type="text" style="width: 99%;"/></td>
 					</tr>
 					<tr class="tr11" >
 						<td><span> </span><a id='lblWorker' class="lbl"> </a></td>
@@ -1697,6 +1776,7 @@
 						<td><span> </span><a id='lblBoss' class="lbl">美編</a></td>
 						<td><input id="txtBoss" type="text" class="txt c1 boss"/></td>
 						<td><input id="txtConn" type="text" class="txt c1 boss"/></td>
+						<td><input id="btnQuat2orde" type="button" value="轉訂單"></td>
 					</tr>
 				</table>
 			</div>

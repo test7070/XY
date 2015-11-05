@@ -473,15 +473,15 @@
 							break;
 						}
 						var rowslength=document.getElementById("table_store2").rows.length-1;
-							for (var j = 1; j < rowslength; j++) {
-								document.getElementById("table_store2").deleteRow(1);
-							}
+						for (var j = 1; j < rowslength; j++) {
+							document.getElementById("table_store2").deleteRow(1);
+						}
 						var store2_row=0;
 					
 						for (var i = 0; i < as.length; i++) {
 							//倉庫庫存
 							var tr = document.createElement("tr");
-							tr.id = "store2_"+j;
+							tr.id = "store2_"+i;
 							tr.innerHTML = "<td><input id='store2_txtProductno_"+store2_row+"' type='text' class='txt c1' value='"+as[i].productno+"' disabled='disabled'/></td>";
 							tr.innerHTML+="<td><input id='store2_txtProduct_"+store2_row+"' type='text' class='txt c1' value='"+as[i].product+"' disabled='disabled' /></td>";
 							tr.innerHTML+= "<td><input id='store2_txtSpec_"+store2_row+"' type='text' class='txt c1' value='"+as[i].spec+"' disabled='disabled'/></td>";

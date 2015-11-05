@@ -1,4 +1,5 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="Content-Language" content="en-us" />
@@ -36,7 +37,6 @@
             
             function mainPost() {
             	q_getFormat();
-                q_cmbParse("cmbItemno",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品','s');
             }
 
             function bbsAssign() {
@@ -52,6 +52,17 @@
 
             function refresh() {
                 _refresh();
+                
+                for (var j = 0; j < q_bbsCount; j++) {
+                	q_cmbParse("combItemno_"+j,'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品');
+                	if(!emp($('#txtItemno_'+j).val()))
+			        	$('#combItemno_'+j).val($('#txtItemno_'+j).val());
+			        else
+			        	$('#combItemno_'+j).val('');
+			        
+			        $('#combItemno_'+j).attr('disabled', 'disabled');
+		            $('#combItemno_'+j).css('background', t_background2);
+                }
                 
                  $('#checkAllCheckbox').click(function() {
                     $('input[type=checkbox][id^=chkSel]').each(function() {
@@ -109,6 +120,7 @@
 						<input id="txtStore2.*" type="hidden" />
 						<input id="txtOrdeno.*" type="hidden" />
 						<input id="txtNo2.*" type="hidden" />
+						<input id="txtItemno.*" type="hidden" />
 					</td>
 					<td><input class="txt"  id="txtNoa.*" type="text" style="width:98%;" /></td>
 					<td><input class="txt"  id="txtProductno.*" type="text" style="width:98%;" /></td>
@@ -116,7 +128,7 @@
 					<td><input class="txt" id="txtSpec.*" type="text" style="width:98%;" /></td>
 					<td><input class="txt" id="txtUnit.*" type="text" style="width:94%;"/></td>
 					<td><input class="txt" id="txtDime.*" type="text" style="width:94%; text-align:right;"/></td>
-					<td><select id="cmbItemno.*" class="txt" style="width:98%;"> </select></td>
+					<td><select id="combItemno.*" class="txt" style="width:98%;"> </select></td>
 					<td><input class="txt" id="txtPrice.*" type="text" style="width:96%; text-align:right;"/></td>
 					<td><input class="txt" id="txtTotal.*" type="text" style="width:96%; text-align:right;"/></td>
 					<td><input class="txt" id="txtMemo.*" type="text" style="width:98%;"/></td>

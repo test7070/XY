@@ -122,6 +122,8 @@ dbo.getComma(mount,1) mount,
 dbo.getComma(stock,1) stock,
 dbo.getComma(price,4) price,
 dbo.getComma(total,0) total,
+replace(comp,'~#$',char(39)) comp,
+replace(conn,'~#$',char(39)) conn,
 *
 from @tmp
 order by noa,pageno,recno,gno;
@@ -238,6 +240,7 @@ dbo.getComma(mount,1) mount,
 dbo.getComma(stock,1) stock,
 dbo.getComma(price,4) price,
 dbo.getComma(total,0) total,
+replace(comp,'~#$',char(39)) comp,
 *
 from @tmp
 order by noa,pageno,recno,gno;
@@ -276,7 +279,7 @@ declare @tmp table(
 )
 
 insert @tmp
-select '0',b.datea,a.custno,a.comp,a.noa,a.memo
+select '0',b.datea,a.custno,replace(a.comp,'~#$',char(39)),a.noa,a.memo
 ,b.no2,b.productno,b.product,b.spec,b.mount
 ,isnull(c.mount,0),b.mount-isnull(c.mount,0),b.memo
 from view_orde a left join view_ordes b on a.noa=b.noa
@@ -285,6 +288,5 @@ where b.datea!='' and b.mount!=0
 and  ((b.datea between @t_bdate and @t_edate) or (b.mount-c.mount>0))
 and  (b.productno between @t_bpno and @t_epno)
 and  (a.custno between @t_bcustno and @t_ecustno)
-
 
 select * from @tmp order by datea,custno,ordeno,no2;

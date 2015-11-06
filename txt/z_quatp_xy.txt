@@ -181,6 +181,7 @@ dbo.getComma(tax,0) tax,
 dbo.getComma(mount,0) mount,
 dbo.getComma(price,2) price,
 dbo.getComma(total,0) total,
+replace(comp,'~#$',char(39)) comp,
 *
 ,'<img width="60px" src="http://59.125.143.171/images/logo1_xy.png">' logo1
 ,case when @t_logo2=0 then '' else '<img width="90px" src="http://59.125.143.171/images/logo2_xy.png">' end logo2

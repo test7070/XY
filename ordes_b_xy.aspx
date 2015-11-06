@@ -99,6 +99,7 @@
 						<input class="txt" id="txtNo2.*" type="text"  style="width:98%;"/>
 					</td>
 					<td style="width:15%;">
+						<input id="txtCustno.*" type="hidden" />
 						<input class="txt" id="txtComp.*" type="text" style="width:98%; text-align:left;"/>
 					</td>
 					<td>

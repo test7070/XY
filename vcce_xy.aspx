@@ -67,7 +67,7 @@
 					var t_bdate = $('#txtBdate').val();
 					var t_edate = $('#txtEdate').val();
 					
-					var t_where = "noa in (select noa from view_vccs where isnull(mount,0)-isnull(tranmoney2,0)>0 or isnull(tranmoney3,0)>0 and noa not in(select ordeno from view_vcces where isnull(enda,0)=0 and noa!='"+$('#txtNoa').val()+"' ) group by noa )";
+					var t_where = "exists (select noa from view_vccs where (isnull(mount,0)-isnull(tranmoney2,0)>0 or isnull(tranmoney3,0)>0) and not exists (select ordeno from view_vcces where isnull(enda,0)=0 and noa!='"+$('#txtNoa').val()+"' and ordeno=view_vccs.noa ) group by noa having noa=view_vcc.noa )";
 					if(t_post.length>0)
 						t_where+=" and left((case when isnull(post2,'')!='' then post2 else post end),"+t_post.length+")='"+t_post+"'";
 					if(t_vccno.length>0)
@@ -132,10 +132,11 @@
 	                                if(b_ret[i].typea=='2'){
 	                                	b_ret[i].total=-1*dec(b_ret[i].total);
 	                                }
+	                                b_ret[i].unpay=q_sub(dec(b_ret[i].total),dec(b_ret[i].weight));
                                 }
                             }
 							
-							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount', b_ret.length, b_ret, 'noa,custno,comp,datea,total,unpay', 'txtOrdeno');
+							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount,txtSize,txtClass', b_ret.length, b_ret, 'noa,custno,comp,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
 						}
 						sum();
 						break;
@@ -189,8 +190,9 @@
 								if(as_vcc[i].typea=='2'){
 									as_vcc[i].total=-1*dec(as_vcc[i].total);
 								}
+								as_vcc[i].unpay=q_sub(dec(as_vcc[i].total),dec(as_vcc[i].weight));
                             }
-							q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount', as_vcc.length, as_vcc, 'noa,custno,comp,datea,total,unpay', 'txtOrdeno');
+							q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount,txtSize,txtClass', as_vcc.length, as_vcc, 'noa,custno,comp,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
 						}else{
 							alert('出貨單已派車或無出貨資料!!');
 						}
@@ -288,6 +290,37 @@
 						sum();
 					}
 				});
+				
+				$('#checkDime').click(function() {
+					if(q_cur==1 || q_cur==2){
+						if($('#checkDime').prop('checked')){
+							for (var j = 0; j < q_bbsCount; j++) {
+								$('#checkDime_'+j).prop('checked',true);
+							}
+						}else{
+							for (var j = 0; j < q_bbsCount; j++) {
+								$('#checkDime_'+j).prop('checked',false);
+							}
+						}
+					}
+				});
+				
+				$('#checkWidth').click(function() {
+					if(q_cur==1 || q_cur==2){
+						if($('#checkWidth').prop('checked')){
+							for (var j = 0; j < q_bbsCount; j++) {
+								$('#checkWidth_'+j).prop('checked',true);
+								if($('#txtClass_'+j).val().indexOf('不')>-1){
+									$('#checkWidth_'+j).prop('checked',false);
+								}
+							}
+						}else{
+							for (var j = 0; j < q_bbsCount; j++) {
+								$('#checkWidth_'+j).prop('checked',false);
+							}
+						}
+					}
+				});
 			}
 
 			function btnIns() {
@@ -364,6 +397,8 @@
 				change_check();
 				if(t_para){
 					$('#chkEnda').attr('disabled', 'disabled');
+					$('#checkDime').attr('disabled', 'disabled');
+					$('#checkWidth').attr('disabled', 'disabled');
 					$('#btnVccimport').attr('disabled', 'disabled');
 					for (var j = 0; j < q_bbsCount; j++) {
 						$('#checkDime_'+j).attr('disabled', 'disabled');
@@ -371,6 +406,8 @@
 					}
 				}else{
 					$('#chkEnda').removeAttr('disabled');
+					$('#checkDime').removeAttr('disabled');
+					$('#checkWidth').removeAttr('disabled');
 					$('#btnVccimport').removeAttr('disabled');
 					for (var j = 0; j < q_bbsCount; j++) {
 						$('#checkDime_'+j).removeAttr('disabled');
@@ -481,6 +518,39 @@
 						$('#checkWidth_'+i).prop('checked',false);
 					}else{
 						$('#checkWidth_'+i).prop('checked',true);
+					}
+					
+					//判斷是否要顯示驗收
+					if($('#txtClass_'+i).val().indexOf('不')>-1){
+						$('#checkWidth_'+i).hide();
+						if(q_cur==1 || q_cur==2){
+							$('#checkWidth_'+i).prop('checked',false);
+							$('#txtWidth_'+i).val(0);
+						}
+					}
+				}
+				//判斷是否能修改資料 有新增權限才能刪除表身和修改表頭資料
+				if(!q_authRun(1) && (q_cur==1 || q_cur==2)){
+					$('#txtDatea').attr('disabled', 'disabled');
+					$('#lblAcomp').attr('disabled', 'disabled');
+					$('#txtCno').attr('disabled', 'disabled');
+					$('#lblSaless').attr('disabled', 'disabled');
+					$('#txtSalesno').attr('disabled', 'disabled');
+					$('#lblCardeal').attr('disabled', 'disabled');
+					$('#txtCardealno').attr('disabled', 'disabled');
+					$('#lblDriver').attr('disabled', 'disabled');
+					$('#txtDriverno').attr('disabled', 'disabled');
+					$('#combDriver').attr('disabled', 'disabled');
+					$('#txtCarno').attr('disabled', 'disabled');
+					$('#txtOrdeno').attr('disabled', 'disabled');
+					$('#txtZip_post').attr('disabled', 'disabled');
+					$('#txtBdate').attr('disabled', 'disabled');
+					$('#txtEdate').attr('disabled', 'disabled');
+					$('#txtMemo').attr('disabled', 'disabled');
+					$('#btnVccimport').attr('disabled', 'disabled');
+					$('#btnPlus').attr('disabled', 'disabled');
+					for (var i = 0; i < q_bbsCount; i++) {
+						$('#btnMinus_'+i).attr('disabled', 'disabled');
 					}
 				}
 			}
@@ -741,9 +811,9 @@
 						<td align="center" style="width:20px;">未收金額</td>
 						<td align="center" style="width:50px;">已送貨<input id="chkEnda" type="checkbox"/></td>
 						<td align="center" style="width:20px;">已收金額</td>
-						<td align="center" style="width:15px;">簽收</td>
+						<td align="center" style="width:50px;">簽收<input id="checkDime" type="checkbox"/></td>
 						<td align="center" style="width:20px;">簽收日期</td>
-						<td align="center" style="width:15px;">驗收</td>
+						<td align="center" style="width:50px;">驗收<input id="checkWidth" type="checkbox"/></td>
 						<td align="center" style="width:20px;">驗收日期</td>
 						<td align="center" style="width:20px;"><a id='lblMemo_s'> </a></td>
 					</tr>
@@ -770,7 +840,11 @@
 							<input id="txtWidth.*" type="hidden" />
 						</td>
 						<td><input class="txt c1" id="txtHandle2.*" type="text" /></td>
-						<td><input class="txt c1" id="txtMemo.*" type="text" /></td>
+						<td>
+							<input class="txt c1" id="txtMemo.*" type="text" />
+							<input class="txt c1" id="txtSize.*" type="hidden" /><!--收款方式-->
+							<input class="txt c1" id="txtClass.*" type="hidden" /><!--驗單需求-->
+						</td>
 					</tr>
 				</table>
 			</div>

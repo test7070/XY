@@ -635,13 +635,14 @@
 						var t_post2 = '';
 						var t_addr2 = '';
 						var t_custorde = '';
-						for ( i = 0; i < as.length; i++) {
+						//1113不要訂單號碼
+						/*for ( i = 0; i < as.length; i++) {
 							t_memo = t_memo + as[i].noa + (as[i].memo.length>0? ':':'') + as[i].memo + (as[i].memo.length>0? '\n':(as.length-1==i?'':','));
 							t_post2 = t_post2+(t_post2.length>0?';':'')+as[i].post2;
 							t_addr2 = t_addr2+(t_addr2.length>0?';':'')+as[i].addr;
 							t_custorde = t_custorde+(t_custorde.length>0?';':'')+as[i].custorde;
 						}
-						$('#txtMemo').val((t_custorde.length>0?('客戶訂單編號：'+t_custorde+'\n'):'')+t_memo);
+						$('#txtMemo').val((t_custorde.length>0?('客戶訂單編號：'+t_custorde+'\n'):'')+t_memo);*/
 						$('#txtPost2').val(t_post2);
 						$('#txtAddr2').val(t_addr2);
 						
@@ -662,6 +663,7 @@
 							$('#cmbTaxtype').val(as[0].taxtype);
 							$('#cmbCoin').val(as[0].coin);
 							$('#txtFloata').val(as[0].floata);
+							$('#txtWeight').val(as[0].weight);
 						}
 						sum();
 						break;
@@ -1764,13 +1766,18 @@
 						<td><input id="txtTotalus" type="text" class="txt num c1"/></td>
 					</tr>
 					<tr>
-						<td><span> </span><a id="lblWorker" class="lbl"> </a></td>
-						<td><input id="txtWorker" type="text" class="txt c1"/></td>
-						<td><input id="txtWorker2" type="text" class="txt c1"/></td>
-						<td><span> </span><a id='lblAccc' class="lbl btn"> </a></td>
-						<td colspan='2'><input id="txtAccno" type="text" class="txt c1"/></td>
+						<td><span> </span><a class="lbl">訂金</a></td>
+						<td colspan='2'><input id="txtWeight" type="text" class="txt num c1"/></td>
 						<td><span> </span><a class="lbl">運費單價</a></td>
-						<td><input id="txtPrice" type="text" class="txt num c1"/></td>
+						<td colspan='2'><input id="txtPrice" type="text" class="txt num c1"/></td>
+					</tr>
+					<tr>
+						<td><span> </span><a id="lblWorker" class="lbl"> </a></td>
+						<td colspan='2'><input id="txtWorker" type="text" class="txt c1"/></td>
+						<td><span> </span><a id="lblWorker2" class="lbl"> </a></td>
+						<td colspan='2'><input id="txtWorker2" type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblAccc' class="lbl btn"> </a></td>
+						<td><input id="txtAccno" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMemo" class="lbl"> </a></td>

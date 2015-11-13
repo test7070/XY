@@ -613,3 +613,58 @@ BEGIN
 	EXECUTE sp_executesql @cmd
 END
 ;
+-------------------------------------------------------------------------------------------------------------
+quatimport:--quatimport
+--取得最新報價明細
+declare @datea nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @custno nvarchar(50)=case when '#non'=[2] then '' else [2] end
+declare @productno nvarchar(50)=case when '#non'=[3] then '' else [3] end
+declare @custno2 nvarchar(50)=left(@custno,5)
+
+declare @tmp table(
+	noa nvarchar(30),
+	no3 nvarchar(10),
+	custno  nvarchar(50),
+	datea nvarchar(10),
+	odate nvarchar(10),
+	productno nvarchar(30),
+	product nvarchar(max),
+	spec nvarchar(max),
+	sizea nvarchar(max),
+	dime float,
+	class nvarchar(50),
+	classa nvarchar(50),
+	unit nvarchar(10),
+	price float,
+	mount float,
+	total float,
+	memo nvarchar(max)
+)
+
+insert @tmp
+select a.noa,b.no3,a.custno,a.datea,a.odate 
+,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit,b.price,b.mount,b.total,b.memo
+from view_quat a left join view_quats b on a.noa=b.noa
+where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 
+and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))--含總店 集團
+and b.datea>=@datea --有效日
+and isnull(b.gweight,0)=1 --成交
+and (len(@productno)=0 or b.productno=@productno)
+
+--只保留最新報價
+delete a from @tmp a 
+outer apply (
+	select MAX(odate)odate,custno,productno from @tmp group by custno,productno
+	having custno=a.custno and productno=a.productno
+)b where a.odate!=b.odate
+
+--只保留最後的訂單號
+delete a from @tmp a 
+outer apply (
+	select MAX(noa)noa,custno,productno from @tmp group by custno,productno
+	having custno=a.custno and productno=a.productno
+)b where a.noa!=b.noa
+
+select * from @tmp order by noa,no3
+
+;

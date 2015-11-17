@@ -18,6 +18,7 @@
 	declare @t_showprice nvarchar(max) = case when '#non'=[15] then '' else [15] end
 	declare @t_cobtype nvarchar(max) = case when '#non'=[16] then '' else [16] end
 	declare @t_order nvarchar(max) = case when '#non'=[17] then 'noa' else [17] end
+	declare @s_status nvarchar(max) = '[18]'
 	---------------------------------------------------------------------------------------
 IF OBJECT_ID('tempdb..#tmp')is not null
 BEGIN
@@ -61,8 +62,9 @@ END
 	select 0,a.noa,a.comp,a.nick,(select top 1 namea from custtype where a.typea=noa)
 	,a.serial,a.tel,a.fax,a.mobile,a.zip_comp,a.addr_comp,a.paytype,a.trantype,b.conn 
 	,a.boss,a.sales,a.startdate,a.[getdate],a.invoicetitle,REPLACE(a.memo,'chr(10)','<BR>') 
-	,b.checkmemo,b.vccmemo,b.taxtype,b.invomemo,b.postmemo,b.tranprice
-	,case when isnull(b.notprice,0)=0 then 'Y' else 'N' end,b.p23,a.status
+	,b.checkmemo,b.vccmemo,b.taxtype	,b.invomemo,b.postmemo,b.tranprice
+	,case when isnull(b.notprice,0)=0 then 'Y' else 'N' end,b.p23
+	,isnull((select top 1 item from dbo.fnSplit(@s_status) where n=a.status),'')
 	from cust a left join custm b on a.noa=b.noa 
 	where (a.noa between @t_bcustno and @t_ecustno) 
 	and (isnull(a.salesno,'') between @t_bsales and @t_esales)
@@ -84,6 +86,59 @@ END
 	,@t_namea ww 
 	,zip_comp zc 
 	,addr_comp ac 
+	,*
+	from #tmp order by rr
+	
+	
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	set @cmd = 'drop table #tmp'
+	EXECUTE sp_executesql @cmd
+END
+	;
+-------------------------------------------------------------------------------------------------------------------------------------------
+z_cust_xy02:--z_cust_xy02
+	SET QUOTED_IDENTIFIER OFF
+	declare @cmd nvarchar(max)
+	declare @t_accy nvarchar(max) = '[1]'
+	declare @t_namea nvarchar(max) = '[2]'
+	declare @t_bpno nvarchar(50) = case when '#non'=[19] then '' else [19] end
+	declare @t_epno nvarchar(50) = case when '#non'=[20] then CHAR(255) else [20] end
+	declare @t_product nvarchar(max) = case when '#non'=[21] then '' else [21] end
+	declare @t_ucctypea nvarchar(max) = case when '#non'=[22] then '' else [22] end
+	declare @t_groupa nvarchar(max) = case when '#non'=[23] then '' else [23] end
+	declare @t_order nvarchar(max) = case when '#non'=[24] then 'noa' else [24] end
+	---------------------------------------------------------------------------------------
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	set @cmd = 'drop table #tmp'
+	EXECUTE sp_executesql @cmd
+END
+
+	create table #tmp(
+		recno int,
+		noa nvarchar(max),
+		product nvarchar(max),
+		spec nvarchar(max),
+		style nvarchar(max),
+		unit nvarchar(max),
+		saleprice float
+	)
+
+	insert into #tmp
+	select 0,a.noa,a.product,a.spec,a.style,a.unit,a.saleprice
+	from ucc a  
+	where (a.noa between @t_bpno and @t_epno) 
+	and (len(@t_product)=0 or charindex(isnull(@t_product,''),a.product)>0)
+	and (len(@t_ucctypea)=0 or isnull(a.typea,'')=@t_ucctypea)
+	and (len(@t_groupa)=0 or isnull(a.groupano,'')=@t_groupa)
+	
+	EXEC("update a set recno=RowNum
+	from (select recno,ROW_NUMBER()over (order by "+@t_order+",noa)RowNum from #tmp)a")
+
+	select '0' gno 
+	,recno rr 
+	,@t_namea ww 
 	,*
 	from #tmp order by rr
 	

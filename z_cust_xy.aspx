@@ -16,16 +16,12 @@
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
             
-            var custtypeItem='';
-            
             $(document).ready(function() {
                 _q_boxClose();
                 q_getId();
-                if (custtypeItem.length == 0) {
-					q_gt('custtype', '', 0, 0, 0, "");
-				}
-                
+				q_gt('custtype', '', 0, 0, 0, "");
             });
+            
             function q_gfPost() {
                 $('#q_report').q_report({
                     fileName : 'z_cust_xy',
@@ -89,6 +85,31 @@
 						type : '5',
 						name : 'xcustorder',
                         value : 'noa@編號,comp@公司名稱,zip_comp@郵編,serial@統編,checkmemo@驗單需求,taxtype@課稅方式,invomemo@發票開立,postmemo@寄單方式,showprice@顯示單價,vccmemo@貨單開立'.split(',')
+                    }, {//[18]
+                        type : '0',
+                        name : 'custstatus',
+                        value : q_getPara('cust.status')
+                    }, {/*1 [19],[20]*/
+                        type : '2',
+                        name : 'xuccno',
+                        dbf : 'ucc',
+                        index : 'noa,product',
+                        src : 'ucc_b.aspx'
+                    }, {/*5-[21]*/
+                        type : '6',
+                        name : 'xproduct'
+                    }, {/*6-[22]*/
+						type : '5',
+						name : 'xucctypea',
+                        value : ('#non@全部,'+q_getPara('ucc.typea')).split(',')
+                    }, {/*6-[23]*/
+						type : '5',
+						name : 'xuccgroupa',
+                        value : t_uccga.split(',')
+                    }, {/*6-[24]*/
+						type : '5',
+						name : 'xuccorder',
+                        value : 'noa@品號,product@品名,style@版別,unit@單位'.split(',')
                     }]
                 });
                 q_popAssign();
@@ -114,16 +135,53 @@
             }
 
             function q_boxClose(s2) {
+            	
             }
-
+			
+			var t_custtype='',t_uccga='',t_uccgb='',t_uccgc='';
             function q_gtPost(t_name) {
 				switch (t_name) {
 					case 'custtype':
 						var as = _q_appendData("custtype", "", true);
-						custtypeItem = "#non@全部";
+						t_custtype = "#non@全部";
 						for ( i = 0; i < as.length; i++) {
-							custtypeItem = custtypeItem + (custtypeItem.length > 0 ? ',' : '') + as[i].noa + '@' + as[i].namea;
+							t_custtype = t_custtype + (t_custtype.length > 0 ? ',' : '') + as[i].noa + '@' + as[i].namea;
 						}
+						q_gt('uccga', '', 0, 0, 0, "");
+						break;
+					case 'uccga':
+						var as = _q_appendData("uccga", "", true);
+						if (as[0] != undefined) {
+							t_uccga = "#non@全部";
+							for ( i = 0; i < as.length; i++) {
+								t_uccga = t_uccga + (t_uccga.length > 0 ? ',' : '') + as[i].noa + '@' + as[i].namea;
+							}
+						}
+						
+						q_gt('uccgb', '', 0, 0, 0, "");
+						break;
+					case 'uccgb':
+						//中類
+						var as = _q_appendData("uccgb", "", true);
+						if (as[0] != undefined) {
+							t_uccgb = "#non@全部";
+							for ( i = 0; i < as.length; i++) {
+								t_uccgb = t_uccgb + (t_uccgb.length > 0 ? ',' : '') + as[i].noa + '@' + as[i].namea;
+							}
+						}
+						
+						q_gt('uccgc', '', 0, 0, 0, "");
+						break;
+					case 'uccgc':
+						//小類
+						var as = _q_appendData("uccgc", "", true);
+						if (as[0] != undefined) {
+							t_uccgc = "#non@全部";
+							for ( i = 0; i < as.length; i++) {
+								t_uccgc = t_uccgc + (t_uccgc.length > 0 ? ',' : '') + as[i].noa + '@' + as[i].namea;
+							}
+						}
+						
 						q_gf('', 'z_cust_xy');
 						break;
 				}

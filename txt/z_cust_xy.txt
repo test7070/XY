@@ -59,8 +59,10 @@ END
 	)
 
 	insert into #tmp
-	select 0,a.noa,a.comp,a.nick,(select top 1 namea from custtype where a.typea=noa)
-	,a.serial,a.tel,a.fax,a.mobile,a.zip_comp,a.addr_comp,a.paytype,a.trantype,b.conn 
+	select 0,a.noa
+	,replace(a.comp,'~#$',char(39)),replace(a.nick,'~#$',char(39))
+	,(select top 1 namea from custtype where a.typea=noa)
+	,a.serial,a.tel,a.fax,a.mobile,a.zip_comp,a.addr_comp,a.paytype,a.trantype,replace(b.conn,'~#$',char(39)) 
 	,a.boss,a.sales,a.startdate,a.[getdate],a.invoicetitle,REPLACE(a.memo,'chr(10)','<BR>') 
 	,b.checkmemo,b.vccmemo,b.taxtype	,b.invomemo,b.postmemo,b.tranprice
 	,case when isnull(b.notprice,0)=0 then 'Y' else 'N' end,b.p23

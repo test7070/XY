@@ -249,15 +249,15 @@ begin
 	while(@@FETCH_STATUS <> -1) 
 	begin 
 	
-		if(@classa='印' or @classa='印刷' or @classa='客製')
+		if(charindex('印',@classa)>0 or charindex('客',@classa)>0 )
 		begin
 			set @pnokey='Y'
 		end
-		else if(@classa='空白')
+		else if(charindex('空',@classa)>0)
 		begin
 			set @pnokey='K'
 		end
-		else if(@classa='公版')
+		else if(charindex('公',@classa)>0)
 		begin
 			set @pnokey='G'
 		end
@@ -266,7 +266,7 @@ begin
 			set @pnokey='B'
 		end
 	
-		if(@classa='印' or @classa='印刷' or @classa='客製')
+		if(charindex('印',@classa)>0 or charindex('客',@classa)>0)
 		begin
 			set @newpno=@pnokey+@custno+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,len(@custno))=@custno and len(noa)>5),'000'),3) as int)+1 as nvarchar(10)),3)
 		end
@@ -580,15 +580,15 @@ begin
 		while(@@FETCH_STATUS <> -1) 
 		begin 
 			
-			if(@classa='印' or @classa='印刷' or @classa='客製')
+			if(charindex('印',@classa)>0 or charindex('客',@classa)>0 )
 			begin
 				set @pnokey='Y'
 			end
-			else if(@classa='空白')
+			else if(charindex('空',@classa)>0)
 			begin
 				set @pnokey='K'
 			end
-			else if(@classa='公版')
+			else if(charindex('公',@classa)>0)
 			begin
 				set @pnokey='G'
 			end
@@ -597,7 +597,7 @@ begin
 				set @pnokey='B'
 			end
 		
-			if(@classa='印' or @classa='印刷' or @classa='客製')
+			if(charindex('印',@classa)>0 or charindex('客',@classa)>0)
 			begin
 				set @newpno=@pnokey+@custno+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,len(@custno))=@custno and len(noa)>5),'000'),3) as int)+1 as nvarchar(10)),3)
 			end

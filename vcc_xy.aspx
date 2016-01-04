@@ -306,6 +306,11 @@
 							
 							var t_oredeno = b_ret[0].noa;
 							var t_datea = b_ret[0].datea;
+							
+							//105/01/04 出貨日根據訂單的預交日
+							if(t_datea.length>0)
+								$('#txtDatea').val(t_datea);
+							
 							if (t_oredeno.length > 0) {
 								//取得表身資料
 								var t_where = "where=^^ a.noa='"+t_oredeno+"' and (len(a.datea)=0 or a.datea='"+t_datea+"') and (a.mount-isnull(b.vccdime,0))>0 ^^";
@@ -1169,7 +1174,7 @@
 				$('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val('AUTO');
 				$('#txtCno').val(z_cno);
 				$('#txtAcomp').val(z_acomp);
-				$('#txtDatea').val(q_date());
+				$('#txtDatea').val(q_cdn(q_date(),1));//105/01/04 當天不會實際出貨 所以當天打得出貨單預設隔天出貨
 				$('#cmbTypea').val('1');
 				typea_chang();
 				$('#txtDatea').focus();

@@ -18,7 +18,7 @@
 			q_tables = 's';
 			var q_name = "vcc";
 			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice'];
-			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtSpec','txtStore','txtStore2','txtMount'];
+			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtStore','txtStore2','txtMount'];//txtSpec
 			var bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1],['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
 			var bbsNum = [];
 			var bbmMask = [];
@@ -1303,8 +1303,10 @@
 				_readonly(t_para, empty);
 				if (t_para) {
 					$('#combAddr').attr('disabled', 'disabled');
+					$('.bbsprice').attr('disabled', 'disabled');
 				} else {
 					$('#combAddr').removeAttr('disabled');
+					$('.bbsprice').attr('disabled', 'disabled');
 				}
 				HiddenTreat();
 				//限制帳款月份的輸入 只有在備註的第一個字為*才能手動輸入
@@ -1829,7 +1831,7 @@
 					<td style="display: none;"><input id="txtWidth.*" type="text" class="txt num c1"/></td>
 					<td><input id="txtDime.*" type="text" class="txt num c1"/></td>
 					<td><select id="cmbItemno.*" class="txt c1"> </select></td>
-					<td><input id="txtPrice.*" type="text" class="txt num c1"/>
+					<td><input id="txtPrice.*" type="text" class="txt num c1 bbsprice"/>
 						<input id="txtSprice.*" type="hidden" class="txt num c1"/>
 					</td>
 					<td><input id="txtTotal.*" type="text" class="txt num c1"/></td>

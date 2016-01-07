@@ -307,8 +307,8 @@
 							var t_oredeno = b_ret[0].noa;
 							var t_datea = b_ret[0].datea;
 							
-							//105/01/04 出貨日根據訂單的預交日
-							if(t_datea.length>0)
+							//105/01/04 出貨日根據訂單的預交日 //0106 當預交日小於出貨日不變動
+							if(t_datea.length>0 && t_datea>$('#txtDatea').val())
 								$('#txtDatea').val(t_datea);
 							
 							if (t_oredeno.length > 0) {

@@ -1671,7 +1671,7 @@
 					$('#lblCust').show();$('#lblCustx').hide();
 					$('#btnOrdei').removeAttr('disabled');
 					$('#combAddr').attr('disabled', 'disabled');
-					$('#btnOrdetoVcc').removeAttr('disabled');
+					$('#btnOrdetoVcc').attr('disabled', 'disabled');// 0107暫時不開放 .removeAttr('disabled');
 					$('#txtOdate').datepicker( 'destroy' );
 					for (var j = 0; j < q_bbsCount; j++) {
 						$('#combGroupbno_'+j).attr('disabled', 'disabled');

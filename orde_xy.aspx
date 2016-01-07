@@ -913,6 +913,13 @@
 							}
 						}
 						break;
+					case 'btnDel_orde':
+						var as = _q_appendData("view_vccs", "", true);
+						if (as[0] != undefined) {
+							alert('訂單已出貨【'+as[0].noa+'】禁止刪除!!');
+						}else{
+							_btnDele();
+						}
 					case q_name:
 						if (q_cur == 4)
 							q_Seek_gtPost();
@@ -1835,7 +1842,10 @@
 			}
 
 			function btnDele() {
-				_btnDele();
+				//_btnDele();
+				//0107 判斷是否轉出貨單
+				var t_where = "where=^^ ordeno='"+$('#txtNoa').val()+"' ^^";
+				q_gt('view_vccs', t_where, 0, 0, 0, "btnDel_orde");
 			}
 
 			function btnCancel() {

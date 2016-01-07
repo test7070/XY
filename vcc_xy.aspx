@@ -18,7 +18,7 @@
 			q_tables = 's';
 			var q_name = "vcc";
 			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice'];
-			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtSpec','txtStore','txtStore2','txtMount'];
+			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtStore','txtStore2','txtMount'];//txtSpec
 			var bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1],['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
 			var bbsNum = [];
 			var bbmMask = [];
@@ -306,6 +306,11 @@
 							
 							var t_oredeno = b_ret[0].noa;
 							var t_datea = b_ret[0].datea;
+							
+							//105/01/04 出貨日根據訂單的預交日 //0106 當預交日小於出貨日不變動
+							if(t_datea.length>0 && t_datea>$('#txtDatea').val())
+								$('#txtDatea').val(t_datea);
+							
 							if (t_oredeno.length > 0) {
 								//取得表身資料
 								var t_where = "where=^^ a.noa='"+t_oredeno+"' and (len(a.datea)=0 or a.datea='"+t_datea+"') and (a.mount-isnull(b.vccdime,0))>0 ^^";
@@ -1169,7 +1174,7 @@
 				$('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val('AUTO');
 				$('#txtCno').val(z_cno);
 				$('#txtAcomp').val(z_acomp);
-				$('#txtDatea').val(q_date());
+				$('#txtDatea').val(q_cdn(q_date(),1));//105/01/04 當天不會實際出貨 所以當天打得出貨單預設隔天出貨
 				$('#cmbTypea').val('1');
 				typea_chang();
 				$('#txtDatea').focus();
@@ -1298,8 +1303,10 @@
 				_readonly(t_para, empty);
 				if (t_para) {
 					$('#combAddr').attr('disabled', 'disabled');
+					$('.bbsprice').attr('disabled', 'disabled');
 				} else {
 					$('#combAddr').removeAttr('disabled');
+					$('.bbsprice').attr('disabled', 'disabled');
 				}
 				HiddenTreat();
 				//限制帳款月份的輸入 只有在備註的第一個字為*才能手動輸入
@@ -1824,7 +1831,7 @@
 					<td style="display: none;"><input id="txtWidth.*" type="text" class="txt num c1"/></td>
 					<td><input id="txtDime.*" type="text" class="txt num c1"/></td>
 					<td><select id="cmbItemno.*" class="txt c1"> </select></td>
-					<td><input id="txtPrice.*" type="text" class="txt num c1"/>
+					<td><input id="txtPrice.*" type="text" class="txt num c1 bbsprice"/>
 						<input id="txtSprice.*" type="hidden" class="txt num c1"/>
 					</td>
 					<td><input id="txtTotal.*" type="text" class="txt num c1"/></td>

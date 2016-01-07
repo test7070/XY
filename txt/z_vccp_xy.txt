@@ -112,21 +112,28 @@ set pageno=ceiling(cast(recno as float)/cast(@t_pageline as float))
 where gno='0'
 
 update a 
-set total=(select SUM(total) from @tmp where noa=a.noa and pageno=a.pageno and gno='0')+tax
+set total=(select SUM(total) from @tmp where noa=a.noa and gno='0')+tax
 from @tmp a where gno='2'
 
-select case when isnull(productno,'')='' then null else  recno end no,
-dbo.getComma(money,0) money,
-dbo.getComma(tax,0) tax,
-dbo.getComma(mount,1) mount,
-dbo.getComma(stock,1) stock,
-dbo.getComma(price,2) price,
-dbo.getComma(total,0) total,
-replace(comp,'~#$',char(39)) comp,
-replace(conn,'~#$',char(39)) conn,
-*
-from @tmp
-order by noa,pageno,recno,gno;
+update @tmp set money=null,tax=null,total=null
+from @tmp a
+left join (select noa,MAX(pageno)pageno from @tmp group by noa)b on a.noa=b.noa
+where a.gno='2' and a.noa=b.noa and a.pageno!=b.pageno
+
+select case when isnull(a.productno,'')='' then null else a.recno end no,
+dbo.getComma(a.money,0) money,
+dbo.getComma(a.tax,0) tax,
+dbo.getComma(a.mount,1) mount,
+dbo.getComma(a.stock,1) stock,
+dbo.getComma(a.price,2) price,
+dbo.getComma(a.total,0) total,
+replace(a.comp,'~#$',char(39)) comp,
+replace(a.conn,'~#$',char(39)) conn,
+a.*,
+case when b.typea='2' then '<a style="font-size:18px'+CHAR(59)+'">'+'退貨'+'</a>'+a.amemo else a.amemo end memo
+from @tmp a
+left join view_vcc b on a.noa=b.noa
+order by a.noa,a.pageno,a.recno,a.gno;
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 z_vccp_xy2:--z_vccp_xy2
 declare @t_bxnoa nvarchar(20)

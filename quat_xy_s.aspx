@@ -15,7 +15,10 @@
 		<script type="text/javascript">
             var q_name = "quat_s";
             var aPop = new Array(['txtCustno', '', 'cust', 'noa,comp,invoicetitle', 'txtCustno', '']
-            , ['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno', '']);
+            , ['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno', '']
+            , ['txtWorker', '', 'sss', 'namea,noa', 'txtWorker', '']
+            , ['txtWorker2', '', 'sss', 'namea,noa', 'txtWorker2', '']
+            );
             $(document).ready(function() {
                 main();
             });
@@ -30,7 +33,7 @@
                 q_getFormat();
                 q_langShow();
 
-                bbmMask = [['txtBdate', r_picd], ['txtEdate', r_picd]];
+                bbmMask = [['txtBdate', r_picd], ['txtEdate', r_picd],['txtBodate', r_picd], ['txtEodate', r_picd]];
                 q_mask(bbmMask);
                 
                 q_cmbParse("cmbGweight", '@全部,0@未成交,1@成交');
@@ -43,14 +46,21 @@
                 t_noa = $('#txtNoa').val();
                 t_bdate = $('#txtBdate').val();
                 t_edate = $('#txtEdate').val();
+                t_bodate = $('#txtBodate').val();
+                t_eodate = $('#txtEodate').val();
                 t_custno = $('#txtCustno').val();
                 t_salesno = $('#txtSalesno').val();
                 t_sales = $('#txtSales').val();
+                t_worker = $('#txtWorker').val();
+                t_worker2 = $('#txtWorker2').val();
                 t_cust = $('#txtCust').val();
                 t_gweight = $('#cmbGweight').val();
                 t_eweight = $('#cmbEweight').val();
 
-                var t_where = " 1=1 " + q_sqlPara2("noa", t_noa)+ q_sqlPara2("datea", t_bdate, t_edate) + q_sqlPara2("salesno", t_salesno)  ;
+                var t_where = " 1=1 " + q_sqlPara2("noa", t_noa)+ q_sqlPara2("datea", t_bdate, t_edate) 
+                + q_sqlPara2("odate", t_bodate, t_eodate)  + q_sqlPara2("salesno", t_salesno)  
+                + q_sqlPara2("worker", t_worker)+ q_sqlPara2("worker2", t_worker2)
+                ;
 				if (t_sales.length>0)
 		        	t_where += " and charindex('"+t_sales+"',sales)>0";
 		        	
@@ -85,42 +95,48 @@
 		<div style='width:400px; text-align:center;padding:15px;' >
 			<table id="seek"  border="1"   cellpadding='3' cellspacing='2' style='width:100%;' >
 				<tr class='seek_tr'>
-					<td   style="width:35%;" ><a id='lblDatea'></a></td>
+					<td   style="width:35%;" ><a id='lblDatea'> </a></td>
 					<td style="width:65%;  ">
-					<input class="txt" id="txtBdate" type="text" style="width:90px; font-size:medium;" />
-					<span style="display:inline-block; vertical-align:middle">&sim;</span>
-					<input class="txt" id="txtEdate" type="text" style="width:93px; font-size:medium;" />
+						<input class="txt" id="txtBdate" type="text" style="width:90px; font-size:medium;" />
+						<span style="display:inline-block; vertical-align:middle">&sim;</span>
+						<input class="txt" id="txtEdate" type="text" style="width:93px; font-size:medium;" />
 					</td>
 				</tr>
 				<tr class='seek_tr'>
-					<td class='seek'  style="width:20%;"><a id='lblCustno'></a></td>
-					<td>
-					<input class="txt" id="txtCustno" type="text" style="width:215px; font-size:medium;" />
+					<td   style="width:35%;" ><a id='lblOdate'>報價日</a></td>
+					<td style="width:65%;  ">
+						<input class="txt" id="txtBodate" type="text" style="width:90px; font-size:medium;" />
+						<span style="display:inline-block; vertical-align:middle">&sim;</span>
+						<input class="txt" id="txtEodate" type="text" style="width:93px; font-size:medium;" />
 					</td>
 				</tr>
 				<tr class='seek_tr'>
-					<td class='seek'  style="width:20%;"><a id='lblCust'></a></td>
-					<td>
-					<input class="txt" id="txtCust" type="text" style="width:215px; font-size:medium;" />
-					</td>
+					<td class='seek'  style="width:20%;"><a id='lblCustno'> </a></td>
+					<td><input class="txt" id="txtCustno" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 				<tr class='seek_tr'>
-					<td class='seek'  style="width:20%;"><a id='lblNoa'></a></td>
-					<td>
-					<input class="txt" id="txtNoa" type="text" style="width:215px; font-size:medium;" />
-					</td>
+					<td class='seek'  style="width:20%;"><a id='lblCust'> </a></td>
+					<td><input class="txt" id="txtCust" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 				<tr class='seek_tr'>
-					<td class='seek'  style="width:20%;"><a id='lblSalesno'></a></td>
-					<td>
-					<input class="txt" id="txtSalesno" type="text" style="width:215px; font-size:medium;" />
-					</td>
+					<td class='seek'  style="width:20%;"><a id='lblNoa'> </a></td>
+					<td><input class="txt" id="txtNoa" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 				<tr class='seek_tr'>
-					<td class='seek'  style="width:20%;"><a id='lblSales'></a></td>
-					<td>
-					<input class="txt" id="txtSales" type="text" style="width:215px; font-size:medium;" />
-					</td>
+					<td class='seek'  style="width:20%;"><a id='lblSalesno'> </a></td>
+					<td><input class="txt" id="txtSalesno" type="text" style="width:215px; font-size:medium;" /></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a id='lblSales'> </a></td>
+					<td><input class="txt" id="txtSales" type="text" style="width:215px; font-size:medium;" /></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a id='lblWorker'>操作者</a></td>
+					<td><input class="txt" id="txtWorker" type="text" style="width:215px; font-size:medium;" /></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a id='lblWorker2'>修改者</a></td>
+					<td><input class="txt" id="txtWorker2" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 				<tr class='seek_tr'>
 	                <td class='seek'  style="width:20%;"><a>成交</a></td>

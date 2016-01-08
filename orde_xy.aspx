@@ -1557,6 +1557,7 @@
 				}
 				_bbsAssign();
 				HiddenTreat();
+				$('.yellow').css('background-color','yellow');
 				if (q_cur<1 && q_cur>2) {
 					for (var j = 0; j < q_bbsCount; j++) {
 						$('#txtDatea_'+j).datepicker( 'destroy' );
@@ -1606,7 +1607,7 @@
 				_btnModi();
 				copy_field();
 				$('#txtCustno').focus();
-
+				$('.yellow').css('background-color','yellow');
 				if (!emp($('#txtCustno').val())) {
 					var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 					q_gt('custaddr', t_where, 0, 0, 0, "");

@@ -1129,12 +1129,8 @@
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
 							if($('#cmbSource_' + b_seq).val()!='0'){
-								//105/01/08 寄庫、寄出 備註 直接為 寄庫、寄出X件 其他則清空備註
-								if($('#cmbSource_' + b_seq).val()=='1' || $('#cmbSource_' + b_seq).val()=='2'){
-									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
-								}else{
-									$('#txtMemo_'+b_seq).val('');
-								}
+								//105/01/08 寄庫、寄出... 備註 直接為 寄庫、寄出...X件 
+								$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
 																
 								/*
 								if(!emp($('#txtMemo_'+b_seq).val()))

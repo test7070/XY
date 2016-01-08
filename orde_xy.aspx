@@ -35,7 +35,7 @@
 			brwCount2 = 11;
 			
 			aPop = new Array(
-					['txtProductno_', 'btnProduct_', 'ucaucc', 'noa,product,unit,spec', 'txtProductno_,txtProduct_,txtUnit_,txtSpec_', 'ucaucc_b.aspx'],
+					['txtProductno_', '', 'ucaucc', 'noa,product,unit,spec', 'txtProductno_,txtProduct_,txtUnit_,txtSpec_', 'ucaucc_b.aspx'],
 					['txtSalesno', 'lblSales', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx'],
 					['txtCno', 'lblAcomp', 'acomp', 'noa,acomp', 'txtCno,txtAcomp', 'acomp_b.aspx'],
 					['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp,txtNick,txtTel', 'cust_b.aspx'],
@@ -45,7 +45,7 @@
 			$(document).ready(function() {
 				bbmKey = ['noa'];
 				bbsKey = ['noa', 'no2'];
-				q_bbsLen = 10;
+				//q_bbsLen = 10;
 				q_brwCount();
 				//q_gt(q_name, q_content, q_sqlCount, 1, 0, '', r_accy);
 				q_gt('acomp', 'stop=1 ', 0, 0, 0, "cno_acomp");
@@ -393,6 +393,19 @@
 			function q_boxClose(s2) {
 				var ret;
 				switch (b_pop) {
+					case 'btn_ucaucc':
+						if (q_cur > 0 && q_cur < 4) {
+							b_ret = getb_ret();
+							if (!b_ret || b_ret.length == 0)
+								return;
+							if(b_ret[0]!=undefined){
+								$('#txtProductno_'+b_seq).val(b_ret[0].noa);
+								$('#txtProduct_'+b_seq).val(b_ret[0].product);
+								$('#txtUnit_'+b_seq).val(b_ret[0].unit);
+								$('#txtSpec_'+b_seq).val(b_ret[0].spec);
+							}
+						}
+						break;
 					case 'quats':
 						if (q_cur > 0 && q_cur < 4) {
 							b_ret = getb_ret();
@@ -419,7 +432,7 @@
 							sum();
 							bbsAssign();
 						}
-						break;c
+						break;
 					case 'cust':
 						if (q_cur > 0 && q_cur < 4) {
 							b_ret = getb_ret();
@@ -1061,11 +1074,15 @@
 							btnMinus($(this).attr('id'));
 							AutoNo2();
 						});
-						$('#btnProductno_' + j).click(function() {
+						$('#btnProduct_' + j).click(function() {
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
-							pop('ucc');
+							var t_where='';
+							if($('#txtCustno').val().length>0){
+								t_where=" exists (select * from view_quats where custno='"+$('#txtCustno').val()+"' and view_ucaucc.noa=productno)";
+								q_box("ucaucc_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+r_accy, 'btn_ucaucc', "550px", "700px", '');	
+							}
 						});
 						$('#txtProductno_' + j).focusin(function() {
 							pno_keyin_apop=false;
@@ -1112,10 +1129,20 @@
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
 							if($('#cmbSource_' + b_seq).val()!='0'){
+								//105/01/08 寄庫、寄出 備註 直接為 寄庫、寄出X件 其他則清空備註
+								if($('#cmbSource_' + b_seq).val()=='1' || $('#cmbSource_' + b_seq).val()=='2'){
+									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
+								}else{
+									$('#txtMemo_'+b_seq).val('');
+								}
+																
+								/*
 								if(!emp($('#txtMemo_'+b_seq).val()))
 									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val()+','+$('#txtMemo_'+b_seq).val());
 								else 
 									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
+								*/
+									
 								if($('#cmbSource_' + b_seq).val()=='2' || $('#cmbSource_' + b_seq).val()=='3' || $('#cmbSource_' + b_seq).val()=='4'){
 									$('#txtPrice_'+b_seq).val('0');
 								}
@@ -1689,7 +1716,7 @@
 						$('#combGroupbno_'+j).removeAttr('disabled');
 						$('#combClassa_'+j).removeAttr('disabled');
 					}
-				}	
+				}
 				var emp_productno=false;
 				for (var j = 0; j < q_bbsCount; j++) {
 					if(emp($('#txtProductno_'+j).val()) && !emp($('#txtProduct_'+j).val()))
@@ -1699,6 +1726,7 @@
 				$('#div_addr2').hide();
 				readonly_addr2();
 				HiddenTreat();
+				$('.yellow').css('background-color','yellow');
 			}
 			
 			function AutoNo2(){
@@ -2529,11 +2557,11 @@
 					<td><input id="txtSizea.*" type="text" class="txt c1"/></td>
 					<td><input id="txtDime.*" type="text" class="txt c1 num"/></td>
 					<td align="center"><input class="txt c7" id="txtUnit.*" type="text"/></td>
-					<td><input class="txt num c7" id="txtMount.*" type="text"/></td>
+					<td><input class="txt num c7 yellow" id="txtMount.*" type="text"/></td>
 					<td><select id="cmbSource.*" class="txt c1"> </select></td>
 					<td><input class="txt num c7" id="txtPrice.*" type="text" /></td>
 					<td><input class="txt num c7" id="txtTotal.*" type="text" /></td>
-					<td><input class="txt c7" id="txtDatea.*" type="text" /></td>
+					<td><input class="txt c7 yellow" id="txtDatea.*" type="text" /></td>
 					<!--<td class="bonus"><input class="txt num c7 bonus" id="txtClass.*" type="text" /></td>-->
 					<td><input class="txt num c1" id="txtC1.*" type="text" /></td>
 					<td><input class="txt num c1" id="txtNotv.*" type="text" /></td>

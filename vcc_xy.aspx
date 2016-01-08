@@ -18,7 +18,7 @@
 			q_tables = 's';
 			var q_name = "vcc";
 			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice'];
-			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtStore','txtStore2','txtMount'];//txtSpec
+			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtStore','txtStore2','txtMount','txtProductno'];//txtSpec
 			var bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1],['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
 			var bbsNum = [];
 			var bbmMask = [];
@@ -946,7 +946,7 @@
 								q_bodyId($(this).attr('id'));
 								b_seq = t_IdSeq;
 								var t_err = q_chkEmpField([['txtCustno', q_getMsg('lblCust')]]);
-								if (t_err.length > 0) {
+								if (t_err.length > 0 && $('#txtProductno_'+b_seq).val().length>0) {
 									alert(t_err);
 									$(this).val('');
 									return;
@@ -1303,11 +1303,13 @@
 				_readonly(t_para, empty);
 				if (t_para) {
 					$('#combAddr').attr('disabled', 'disabled');
-					$('.bbsprice').attr('disabled', 'disabled');
 				} else {
 					$('#combAddr').removeAttr('disabled');
-					$('.bbsprice').attr('disabled', 'disabled');
 				}
+				$('.bbsprice').attr('disabled', 'disabled');
+				//1050108 鎖住
+				$('.bbsitem').attr('disabled', 'disabled');
+				
 				HiddenTreat();
 				//限制帳款月份的輸入 只有在備註的第一個字為*才能手動輸入
 				if ($('#txtMemo').val().substr(0,1)=='*')
@@ -1821,8 +1823,8 @@
 					<td align="center"><input class="btn"  id="btnMinus.*" type="button" value='－' style=" font-weight: bold;" /></td>
 					<td align="center"><input id="txtNoq.*" type="text" class="txt c1"/></td>
 					<td align="center">
-						<input class="txt c1"  id="txtProductno.*" type="text" style="width: 85%;" />
-						<input class="btn"  id="btnProductno.*" type="button" value='.' style=" font-weight: bold;" />
+						<input class="txt c1"  id="txtProductno.*" type="text" style="width: 95%;" />
+						<input class="btn"  id="btnProductno.*" type="button" value='.' style=" font-weight: bold;display: none;" />
 					</td>
 					<td><input id="txtProduct.*" type="text" class="txt c1" /></td>
 					<td><input id="txtSpec.*" type="text" class="txt c1" /></td>
@@ -1830,7 +1832,7 @@
 					<td style="display: none;"><input id="txtMount.*" type="text" class="txt num c1"/></td>
 					<td style="display: none;"><input id="txtWidth.*" type="text" class="txt num c1"/></td>
 					<td><input id="txtDime.*" type="text" class="txt num c1"/></td>
-					<td><select id="cmbItemno.*" class="txt c1"> </select></td>
+					<td><select id="cmbItemno.*" class="txt c1 bbsitem"> </select></td>
 					<td><input id="txtPrice.*" type="text" class="txt num c1 bbsprice"/>
 						<input id="txtSprice.*" type="hidden" class="txt num c1"/>
 					</td>

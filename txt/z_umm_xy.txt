@@ -369,6 +369,15 @@ update a
 set custno=b.noa,comp=b.comp,post=b.zip_invo,addr=b.addr_invo,serial=b.serial,tel=b.tel,salesno=b.salesno,sales=b.sales
 from #result a outer apply(select top 1 * from cust where serial=a.xserial order by noa)b
 
+--可處理瓦城抬頭用--目前不使用
+--update a 
+--set custno=isnull(c.noa,b.noa),comp=isnull(c.comp,b.comp),post=isnull(c.zip_invo,b.zip_invo)
+--,addr=isnull(c.addr_invo,b.addr_invo),serial=isnull(c.serial,b.serial),tel=isnull(c.tel,b.tel)
+--,salesno=isnull(c.salesno,b.salesno),sales=isnull(c.sales,b.sales)from #result a 
+--outer apply(select top 1 * from cust where serial=a.xserial order by noa)b
+--outer apply(select top 1 grpno from cust where serial=a.xserial order by noa)g
+--outer apply(select top 1 * from cust where noa=g.grpno order by noa)c
+
 insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial)
 select '1','','000',@t_mon+'/00',@t_mon,custno,MAX(comp),xcustno,MAX(xcomp),MAX(post),MAX(addr),MAX(tel),MAX(serial)
 from #result a where gno='0' 

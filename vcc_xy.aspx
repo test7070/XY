@@ -1306,7 +1306,7 @@
 				} else {
 					$('#combAddr').removeAttr('disabled');
 				}
-				$('.bbsprice').attr('disabled', 'disabled');
+				//$('.bbsprice').attr('disabled', 'disabled');
 				//1050108 鎖住
 				$('.bbsitem').attr('disabled', 'disabled');
 				

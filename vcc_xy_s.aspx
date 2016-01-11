@@ -29,6 +29,7 @@
 				q_mask(bbmMask);
 				q_gt('acomp', '', 0, 0, 0, "");
 				q_gt('part', '', 0, 0, 0, "");
+				q_cmbParse("cmbTypea", "@全部,1@出,2@退");
 				q_cmbParse("cmbStatus", "@全部,Y@已收完,N@未收完");
 				q_cmbParse("cmbStype", '@全部,'+q_getPara('vcc.stype'));
 				$('#txtNoa').focus();
@@ -56,6 +57,7 @@
             }
 
 			function q_seekStr() {
+				t_typea=$('#cmbTypea').val();
 				t_status = $('#cmbStatus').val();
 				t_cno = $('#cmbCno').val();
 				t_partno = $('#cmbPart').val();
@@ -73,6 +75,7 @@
 				t_memo = $('#txtMemo').val();
 				
 				var t_where = " 1=1 "
+				+ q_sqlPara2("typea", t_typea)
 				+ q_sqlPara2("cno", t_cno)
 				+ q_sqlPara2("partno", t_partno)
 				+ q_sqlPara2("partno2", t_partno2)
@@ -126,6 +129,10 @@
 	>
 		<div style="width:95%; text-align:center;padding:15px;" >
 			<table id="seek" border="1" cellpadding="3" cellspacing="2" style="width:100%;">
+				<tr class='seek_tr'>
+					<td style="width: 30%;"><a id='lblTypea'> </a></td>
+					<td style="width: 70%;"><select id="cmbTypea"> </select></td>
+				</tr>
 				<tr class='seek_tr'>
 					<td style="width: 30%;"><a id='lblAcomp'> </a></td>
 					<td style="width: 70%;"><select id="cmbCno"> </select></td>

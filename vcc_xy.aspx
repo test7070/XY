@@ -17,7 +17,7 @@
  
 			q_tables = 's';
 			var q_name = "vcc";
-			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice'];
+			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice','textStatus','txtDriver'];
 			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtStore','txtStore2','txtMount','txtProductno'];//txtSpec
 			var bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1],['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
 			var bbsNum = [];
@@ -25,7 +25,7 @@
 			var bbsMask = [];
 			q_sqlCount = 6;
 			brwCount = 6;
-			brwCount2 = 12;
+			brwCount2 = 14;
 			brwList = [];
 			brwNowPage = 0;
 			brwKey = 'datea';
@@ -38,6 +38,7 @@
 				['txtCno', 'lblAcomp', 'acomp', 'noa,acomp', 'txtCno,txtAcomp', 'acomp_b.aspx'],
 				['txtSalesno', 'lblSales', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx'],
 				['txtCustno2', 'lblCust2', 'cust', 'noa,comp', 'txtCustno2,txtComp2', 'cust_b.aspx'],
+				['txtDriverno', 'lblDriver', 'sss', 'noa,namea', 'txtDriverno,txtDriver', 'sss_b.aspx'],
 				['txtProductno_', 'btnProductno_', 'ucaucc', 'noa,product,spec,unit', 'txtProductno_,txtProduct_,txtSpec_,txtUnit_', 'ucaucc_b.aspx']
 			);
 
@@ -102,6 +103,16 @@
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				//104/08/17 要跟訂單一樣 單行判斷出貨.寄庫.庫出
 				q_cmbParse("cmbItemno",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品','s');
+				//1050111
+				q_gt('sss', "where=^^ typea='司機' ^^", 0, 0, 0, "driver_sss");
+				
+				$('#combDriver').change(function() {
+					if(q_cur>0&&q_cur<4){
+						$('#txtDriverno').val($('#combDriver').val())
+						$('#txtDriver').val($('#combDriver').find("option:selected").text());
+					}
+					$('#combDriver')[0].selectedIndex=0;
+				});
 				
 				//限制帳款月份的輸入 只有在備註的第一個字為*才能手動輸入					
 				$('#txtMemo').change(function(){
@@ -203,6 +214,9 @@
 					sum();
 				});
 				
+				$('#cmbTrantype').change(function() {
+					Trantype_cardeal();
+				});
 				
 				$('#txtAddr').change(function() {
 					var t_custno = trim($(this).val());
@@ -360,6 +374,35 @@
 			function q_gtPost(t_name) {
 				var as;
 				switch (t_name) {
+					case 'driver_sss':
+						var as = _q_appendData("sss", "", true);
+						var t_item = " @ ";
+						if (as[0] != undefined) {
+							for ( i = 0; i < as.length; i++) {
+								t_item = t_item + (t_item.length > 0 ? ',' : '') + as[i].noa + '@' + as[i].namea;
+							}
+						}
+						q_cmbParse("combDriver", t_item);
+						break;
+					case 'umms':
+						var as = _q_appendData("umms", "", true);
+						var z_msg = "", t_paysale = 0,t_tpaysale=0;
+						if (as[0] != undefined) {
+							for (var i = 0; i < as.length; i++) {
+								t_paysale = parseFloat(as[i].paysale.length == 0 ? "0" : as[i].paysale);
+								t_tpaysale+= parseFloat(as[i].paysale.length == 0 ? "0" : as[i].paysale);
+								if (t_paysale != 0)
+									z_msg += (as[i].noa+';');
+							}
+							
+							if (z_msg.length > 0) {
+								z_msg='已收款：'+FormatNumber(t_tpaysale)+'，收款單號【'+z_msg.substr(0,z_msg.length-1)+ '】。 '
+							}
+						}else{
+							z_msg='未收款。'
+						}
+						$('#textStatus').val(z_msg);
+						break;
 					case 'sssissales':
 						var as = _q_appendData("sss", "", true);
 	                        if (as[0] != undefined) {
@@ -657,6 +700,7 @@
 							$('#txtNick').val(as[0].nick);
 							$('#txtPaytype').val(as[0].paytype);
 							$('#cmbTrantype').val(as[0].trantype);
+							Trantype_cardeal();
 							$('#txtTel').val(as[0].tel);
 							$('#txtFax').val(as[0].fax);
 							$('#txtPost').val(as[0].post);
@@ -711,6 +755,7 @@
 							$('#txtAddr2').val(as[0].addr_home);
 							$('#txtPaytype').val(as[0].paytype);
 							$('#cmbTrantype').val(as[0].trantype);
+							Trantype_cardeal();
 							$('#txtSalesno').val(as[0].salesno);
 							$('#txtSales').val(as[0].sales);
 							$('#txtCustno2').val(as[0].custno2);
@@ -1167,6 +1212,7 @@
 				_bbsAssign();
 				HiddenTreat();
 				//$('.store2').hide();//104/02/06 不用昌庫104/02/26恢復用倉庫(不判斷客戶)
+				$('.bbsitem').attr('disabled', 'disabled');
 			}
 
 			function btnIns() {
@@ -1252,6 +1298,10 @@
 				typea_chang();
 				$('#div_stk').hide();
 				$('#div_store2').hide();
+				if(!emp($('#txtNoa').val())){ //1050111
+					var t_where = " where=^^ vccno='" + $('#txtNoa').val() + "'^^";
+					q_gt('umms', t_where, 0, 0, 0, '', r_accy);
+				}
 			}
 			
 			function AutoNoq(){
@@ -1264,6 +1314,17 @@
 					if(emp($('#txtProductno_'+j).val()) && emp($('#txtProduct_'+j).val())){
 						$('#txtNoq_'+j).val('');
 					}
+				}
+			}
+			
+			function Trantype_cardeal(){//1050111
+				if($('#cmbTrantype').val()=='送達'){
+					$('#txtCardealno').val('YUDA');
+					$('#txtCardeal').val('有達實業有限公司');
+				}
+				if($('#cmbTrantype').val()=='貨運'){
+					$('#txtCardealno').val('H002');
+					$('#txtCardeal').val('新竹貨運物流');
 				}
 			}
 
@@ -1739,17 +1800,29 @@
 						<td align="right"><input id="btnStore2" type="button" value="寄庫顯示"/></td>
 					</tr>
 					<tr>
-						<td><span> </span><a id='lblSales' class="lbl btn"> </a></td>
-						<td><input id="txtSalesno" type="text" class="txt c1"/></td>
-						<td><input id="txtSales" type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblCardeal" class="lbl btn"> </a></td>
 						<td><input id="txtCardealno" type="text" class="txt c1"/></td>
 						<td><input id="txtCardeal" type="text" class="txt c1"/></td>
-						<td><span> </span><a id='lblCarno' class="lbl"> </a></td>
-						<td>
+						<td style="display: none;"><span> </span><a id='lblCarno' class="lbl"> </a></td>
+						<td style="display: none;">
 							<input id="txtCarno"  type="text" class="txt" style="width:75%;"/>
 							<select id="combCarno" style="width: 20%;"> </select>
 						</td>
+						<td><span> </span><a id="lblDriver" class="lbl btn"> </a></td>
+						<td>
+							<input id="txtDriverno"  type="text" class="txt c1" style="width: 85px;"/>
+							<select id="combDriver" class="txt c1" style="width: 20px"> </select>
+						</td>
+						<td><input id="txtDriver"  type="text" class="txt c1"/></td>
+					</tr>
+					<tr>
+						<td><span> </span><a id='lblSales' class="lbl btn"> </a></td>
+						<td><input id="txtSalesno" type="text" class="txt c1"/></td>
+						<td><input id="txtSales" type="text" class="txt c1"/></td>
+						<td><span> </span><a class="lbl">訂金</a></td>
+						<td colspan='2'><input id="txtWeight" type="text" class="txt num c1"/></td>
+						<td><span> </span><a class="lbl">運費單價</a></td>
+						<td ><input id="txtPrice" type="text" class="txt num c1"/></td>
 						<!--<td><select id="cmbTranstyle" style="width: 100%;"> </select></td>-->
 					</tr>
 					<tr>
@@ -1776,12 +1849,6 @@
 						<td><input id="txtTotalus" type="text" class="txt num c1"/></td>
 					</tr>
 					<tr>
-						<td><span> </span><a class="lbl">訂金</a></td>
-						<td colspan='2'><input id="txtWeight" type="text" class="txt num c1"/></td>
-						<td><span> </span><a class="lbl">運費單價</a></td>
-						<td colspan='2'><input id="txtPrice" type="text" class="txt num c1"/></td>
-					</tr>
-					<tr>
 						<td><span> </span><a id="lblWorker" class="lbl"> </a></td>
 						<td colspan='2'><input id="txtWorker" type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblWorker2" class="lbl"> </a></td>
@@ -1792,6 +1859,10 @@
 					<tr>
 						<td><span> </span><a id="lblMemo" class="lbl"> </a></td>
 						<td colspan='7'><textarea id="txtMemo" cols="10" rows="5" style="width: 99%;height: 50px;"> </textarea></td>
+					</tr>
+					<tr>
+						<td class="td1"><span> </span><a class="lbl">收款情況</a></td>
+						<td class="td2" colspan='7'><input id="textStatus" type="text" class="txt c1"/></td>
 					</tr>
 				</table>
 			</div>

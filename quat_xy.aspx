@@ -138,7 +138,7 @@
 				q_cmbParse("combClassa",' ,便,印','s');
 				q_cmbParse("combDay",'0@ ,15@15天,30@30天,45@45天');
 				
-				var t_where = "where=^^ 1=1 ^^";
+				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 
 				$('#txtFloata').change(function() {
@@ -1118,7 +1118,7 @@
 				$('#txtSalesno').val(r_userno);
 				$('#txtSales').val(r_name);
 
-				var t_where = "where=^^ 1=1 ^^";
+				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 			}
 			

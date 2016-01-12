@@ -21,7 +21,7 @@
 			q_desc = 1;
 			q_tables = 's';
 			var q_name = "orde";
-			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno','txtVccno'];
+			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno','txtVccno','txtApv'];
 			var q_readonlys = ['txtTotal', 'txtQuatno', 'txtNo2', 'txtNo3', 'txtC1', 'txtNotv'];
 			var bbmNum = [['txtTotal', 10, 0, 1], ['txtMoney', 10, 0, 1], ['txtTax', 10, 0, 1],['txtFloata', 10, 5, 1], ['txtTotalus', 15, 2, 1]];
 			var bbsNum = [];
@@ -156,7 +156,7 @@
 				q_cmbParse("combClassa",' ,便,印','s');
 				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品','s');
 
-				var t_where = "where=^^ 1=1 ^^";
+				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				
 				$('#btnPlusCust').click(function(){
@@ -224,6 +224,17 @@
 						q_box("z_credit.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";custno='" + $('#txtCustno').val() + "';" + r_accy + ";" + q_cur, 'ordei', "95%", "95%", q_getMsg('btnCredit'));
 					}
 				});
+				
+				$('#btnApv').click(function(e){
+					if(r_rank>"4"){
+	                    Lock(1, {
+	                        opacity : 0
+						});
+						q_func('qtxt.query.apv', 'orde.txt,apv,'+ encodeURI(r_userno) + ';' + encodeURI($('#txtNoa').val()));
+					}else{
+						alert("無核可權限!!");
+					}
+                });
 				
 				$('#btnStore2').click(function() {
 					if(!emp($('#txtCustno').val())){
@@ -1593,7 +1604,7 @@
 				$('#txtCustno').focus();
 				$('#txtVccno').val('');
 
-				var t_where = "where=^^ 1=1 ^^";
+				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 			}
 
@@ -1724,6 +1735,11 @@
 				readonly_addr2();
 				HiddenTreat();
 				$('.yellow').css('background-color','yellow');
+				
+				if (q_cur == 1 || q_cur == '2')
+                    $('#btnApv').attr('disabled', 'disabled');
+                else
+                    $('#btnApv').removeAttr('disabled');
 			}
 			
 			function AutoNo2(){
@@ -1975,6 +1991,28 @@
 			
 			function q_funcPost(t_func, result) {
 				switch(t_func) {
+					case 'qtxt.query.apv':
+                        var as = _q_appendData("tmp0", "", true, true);
+                        if (as[0] != undefined) {
+                            var err = as[0].err;
+                            var msg = as[0].msg;
+                            var ordeno = as[0].ordeno;
+                            var userno = as[0].userno;
+                            var namea = as[0].namea;
+                            if (err == '1') {
+                                $('#txtApv').val(namea);
+                                for (var i = 0; i < abbm.length; i++) {
+                                    if (abbm[i].noa == ordeno) {
+                                        abbm[i].apv = namea;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                alert(msg);
+                            }
+                        }
+                        Unlock(1);
+                        break;
 					case 'qtxt.query.quatimport':
 						var as = _q_appendData("tmp0", "", true, true);
 						//移除相同的報價單
@@ -2480,7 +2518,10 @@
 						<td class="td4"><span> </span><a class="lbl">訂金</a></td>
 						<td class="td6" colspan='2'><input id="txtWeight" type="text" class="txt num c1" /></td>
 						<td class="td7"><input id="btnStore2" type="button" style="float: right;" value="寄庫顯示"/></td>
-						<td class="td8"> </td>
+						<td class="td8">
+							<input id="btnApv" type="button" style="float: left;" value="核可"/>
+							<input id="txtApv" type="text" class="txt c1" style="width: 50px;"/>
+						</td>
 					</tr>
 					<tr class="tr11">
 						<td class="td1"><span> </span><a id='lblMemo' class='lbl'> </a></td>

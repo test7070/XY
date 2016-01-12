@@ -99,7 +99,7 @@
 				//q_cmbParse("cmbCoin", q_getPara('sys.coin'));
 				q_cmbParse("combPay", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
-				var t_where = "where=^^ 1=1  ^^";
+				var t_where = "where=^^ 1=0  ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				//104/08/17 要跟訂單一樣 單行判斷出貨.寄庫.庫出
 				q_cmbParse("cmbItemno",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品','s');
@@ -147,6 +147,8 @@
 						t_where = t_where;*/
 					
 						t_where = "isnull(enda,0)!=1 and productno!='' and a.mount-isnull(b.mount,0)>0";
+						//1050112 加上核可判斷
+						t_where += " and exists (select * from view_orde where noa=a.noa and len(isnull(apv,''))>0 )";
 						if (t_custno.length>0)
 							t_where += " and (a.custno='"+t_custno+"')";
 						if (!emp($('#txtOrdeno').val()))
@@ -321,9 +323,11 @@
 							var t_oredeno = b_ret[0].noa;
 							var t_datea = b_ret[0].datea;
 							
-							//105/01/04 出貨日根據訂單的預交日 //0106 當預交日小於出貨日不變動
-							if(t_datea.length>0 && t_datea>$('#txtDatea').val())
+							//105/01/04 出貨日根據訂單的預交日 //0106 當預交日小於出貨日不變動//01/12 有日期表示優先出貨
+							if(t_datea.length>0 && t_datea>=$('#txtDatea').val()){
 								$('#txtDatea').val(t_datea);
+								$('#txtMemo').val('優先'+$('#txtMemo').val());
+							}
 							
 							if (t_oredeno.length > 0) {
 								//取得表身資料
@@ -374,6 +378,14 @@
 			function q_gtPost(t_name) {
 				var as;
 				switch (t_name) {
+					case 'checkVccno_btnOk':
+						var as = _q_appendData("view_vcc", "", true);
+                        if (as[0] != undefined) {
+                            alert('出貨單號已存在!!!');
+                        } else {
+                            wrServer($('#txtNoa').val());
+                        }
+						break;
 					case 'driver_sss':
 						var as = _q_appendData("sss", "", true);
 						var t_item = " @ ";
@@ -941,10 +953,16 @@
 				sum();
 
 				var s1 = $('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val();
-				if (s1.length == 0 || s1 == "AUTO")
+				if (s1.length == 0 || s1 == "AUTO"){
 					q_gtnoa(q_name, replaceAll(q_getPara('sys.key_vcc') + $('#txtDatea').val(), '/', ''));
-				else
-					wrServer(s1);
+				}else{
+					if (q_cur == 1){
+						t_where = "where=^^ noa='" + $('#txtNoa').val() + "'^^";
+                    	q_gt('view_vcc', t_where, 0, 0, 0, "checkVccno_btnOk", r_accy);
+					}else{
+						wrServer(s1);
+					}
+				}
 			}
 
 			function _btnSeek() {
@@ -1211,6 +1229,7 @@
 				}
 				_bbsAssign();
 				HiddenTreat();
+				refreshBbm();
 				//$('.store2').hide();//104/02/06 不用昌庫104/02/26恢復用倉庫(不判斷客戶)
 				$('.bbsitem').attr('disabled', 'disabled');
 			}
@@ -1225,8 +1244,9 @@
 				typea_chang();
 				$('#txtDatea').focus();
 				$('#cmbTaxtype').val('0');
-				var t_where = "where=^^ 1=1  ^^";
+				var t_where = "where=^^ 1=0  ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
+				refreshBbm();
 			}
 
 			function btnModi() {
@@ -1302,6 +1322,7 @@
 					var t_where = " where=^^ vccno='" + $('#txtNoa').val() + "'^^";
 					q_gt('umms', t_where, 0, 0, 0, '', r_accy);
 				}
+				refreshBbm();
 			}
 			
 			function AutoNoq(){
@@ -1378,6 +1399,14 @@
 				else
 					$('#txtMon').attr('readonly', 'readonly');
 			}
+			
+			function refreshBbm() {
+                if (q_cur == 1 && r_rank>='7') {
+                    $('#txtNoa').css('color', 'black').css('background', 'white').removeAttr('readonly');
+                } else {
+                    $('#txtNoa').css('color', 'green').css('background', 'RGB(237,237,237)').attr('readonly', 'readonly');
+                }
+            }
 
 			function btnMinus(id) {
 				_btnMinus(id);

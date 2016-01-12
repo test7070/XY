@@ -120,6 +120,10 @@ from @tmp a
 left join (select noa,MAX(pageno)pageno from @tmp group by noa)b on a.noa=b.noa
 where a.gno='2' and a.noa=b.noa and a.pageno!=b.pageno
 
+update a
+set topage=(select MAX(pageno) from @tmp where noa=a.noa)
+from @tmp a 
+
 select case when isnull(a.productno,'')='' then null else a.recno end no,
 dbo.getComma(a.money,0) money,
 dbo.getComma(a.tax,0) tax,
@@ -131,6 +135,8 @@ replace(a.comp,'~#$',char(39)) comp,
 replace(a.conn,'~#$',char(39)) conn,
 a.*,
 case when b.typea='2' then '<a style="font-size:18px'+CHAR(59)+'">'+'退貨'+'</a>'+a.amemo else a.amemo end memo
+,case when isnull(b.tranadd,0)>1 then '('+cast(isnull(b.tranadd,0) as nvarchar(10))+')' else '' end tranadd
+,case when topage>1 then cast(pageno as nvarchar(10))+'/'+cast(topage as nvarchar(10)) else '' end pagememo
 from @tmp a
 left join view_vcc b on a.noa=b.noa
 order by a.noa,a.pageno,a.recno,a.gno;

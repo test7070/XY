@@ -711,3 +711,27 @@ outer apply (
 select * from @tmp order by noa,no3
 
 ;
+---------------------------------------------------------------------------------------------------------------------------------
+vccprintcount:--vccprintcount
+SET QUOTED_IDENTIFIER OFF
+--更新出貨單列印筆數
+declare @bnoa nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @enoa nvarchar(50)=case when '#non'=[2] then '' else [2] end
+declare @accy nvarchar(50)
+declare @noa nvarchar(50)
+
+declare cursor_table cursor for 
+select accy,noa from view_vcc where noa between @bnoa and @enoa
+open cursor_table 
+fetch next from cursor_table 
+into @accy,@noa
+while(@@FETCH_STATUS <> -1) 
+begin 
+			EXEC("update vcc"+@accy+" set tranadd=isnull(tranadd,0)+1 where noa='"+@noa+"' " )
+			
+	fetch next from cursor_table 
+	into @accy,@noa
+end 
+close cursor_table 
+deallocate cursor_table 
+;

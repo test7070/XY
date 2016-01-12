@@ -21,52 +21,122 @@
             $(document).ready(function() {
             	q_getId();
                 q_gf('', 'z_vccp_xy');
+                
             });
             function q_gfPost() {
-               $('#q_report').q_report({
-                        fileName : 'z_vccp_xy',
-                        options : [{
-	                        type : '0', //[1]
-	                        name : 'accy',
-	                        value : r_accy
-	                    }, {
-	                        type : '1', //[2][3]
-	                        name : 'xnoa'
-	                    }, {
-	                        type : '1', //[4][5]
-	                        name : 'xdate'
-	                    }, {
-							type : '2',
-							name : 'xproduct', //[6][7]
-							dbf : 'ucc',
-							index : 'noa,product',
-							src : 'ucc_b.aspx'
-						}, {
-							type : '2',
-							name : 'xcust', //[8][9]
-							dbf : 'cust',
-							index : 'noa,comp',
-							src : 'cust_b.aspx'
-						}]
-                    });
+				$('#q_report').q_report({
+					fileName : 'z_vccp_xy',
+					options : [{
+						type : '0', //[1]
+						name : 'accy',
+						value : r_accy
+					}, {
+						type : '1', //[2][3]
+						name : 'xnoa'
+					}, {
+						type : '1', //[4][5]
+						name : 'xdate'
+					}, {
+						type : '2',
+						name : 'xproduct', //[6][7]
+						dbf : 'ucc',
+						index : 'noa,product',
+						src : 'ucc_b.aspx'
+					}, {
+						type : '2',
+						name : 'xcust', //[8][9]
+						dbf : 'cust',
+						index : 'noa,comp',
+						src : 'cust_b.aspx'
+					}]
+				});
                 q_popAssign();
+                q_getFormat();
+                q_langShow();
                 
                 $('#txtXdate1').mask('999/99/99');
                 $('#txtXdate2').mask('999/99/99');
                 
                 $('#txtXdate1').val(q_cdn(q_date(),1));
                 $('#txtXdate2').val(q_cdn(q_date(),1));
-	                
+                
+                $('#btnOk').click(function() {
+                	if($('#q_report').data('info').radioIndex==0)
+                		q_gt('view_vcc', "where=^^ noa between '"+$('#txtXnoa1').val()+"' and '"+$('#txtXnoa2').val()+"' ^^", 0, 0, 0, "getcustno");
+				});
+				
+				var tmp = document.getElementById("btnWebPrint");
+				var tmpbtn = document.createElement("input");
+				tmpbtn.id="btnWebPrint2"
+				tmpbtn.type="button"
+				tmpbtn.value="雲端列印"
+				tmpbtn.style.cssText = "font-size:medium;color: #0000FF;";
+				tmp.parentNode.insertBefore(tmpbtn, tmp);
+				$('#btnWebPrint').hide();
+				
+				$('#btnWebPrint2').click(function() {
+					if($('#q_report').data('info').radioIndex==0){
+						var t_noa1=emp($('#txtXnoa1').val())?'#non':$('#txtXnoa1').val();
+						var t_noa2=emp($('#txtXnoa2').val())?'#non':$('#txtXnoa2').val();
+						var t_where = t_noa1+ ';'+t_noa2;
+						q_func('qtxt.query.vccprintcount_xy', 'cust_ucc_xy.txt,vccprintcount,' + t_where);
+					}else{
+						$('#btnWebPrint').click();
+					}
+				});
+				
 	            var t_noa=typeof(q_getId()[3])=='undefined'?'':q_getId()[3];
                 t_noa  =  t_noa.replace('noa=','');
-                $('#txtXnoa1').val(t_noa);
-                $('#txtXnoa2').val(t_noa);
-				
+                if(t_noa.length>0){
+	                $('#txtXnoa1').val(t_noa);
+	                $('#txtXnoa2').val(t_noa);
+				}
             }
 
             function q_boxClose(s2) {
             }
-            function q_gtPost(s2) {
+            
+            function q_funcPost(t_func, result) {
+				switch(t_func) {
+					case 'qtxt.query.vccprintcount_xy':
+					isprint=true;
+					$('#btnOk').click();
+					$('#txtUrl').val('');
+					$('#txtUrl2').val('');
+					break;
+				}
+			}
+			
+            var invono="",isprint=false;;
+            function q_gtPost(t_name) {
+				switch (t_name) {
+					case 'getcustno':
+						var as = _q_appendData("view_vcc", "", true);
+						if (as[0] != undefined) {
+							invono=as[0].invono;
+							q_gt('custm', "where=^^ noa = '"+as[0].custno+"' ^^", 0, 0, 0, "getinvomemo");	
+						}
+						break;
+					case 'getinvomemo':
+						var as = _q_appendData("custm", "", true);
+						if(as[0] != undefined){
+							if(invono.length==0 && as[0].invomemo=='隨貨'){
+								alert("請輸入發票號後再列印 !!");
+							}else{
+								if(isprint){
+									$('#btnWebPrint').click();
+									isprint=false;
+								}
+							}
+						}else{
+							//無資料
+							if(isprint){
+								$('#btnWebPrint').click();
+								isprint=false;
+							}
+						}
+						break;
+				}
             }
 		</script>
 		<style type="text/css">

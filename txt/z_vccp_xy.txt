@@ -47,13 +47,17 @@ select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0
 ,case when isnull(cm.notprice,0)=1 then null else a.tax end
 ,cm.invomemo,cm.checkmemo
 --,c.paytype
-,case when cast(c.startdate as int)-1>0 then cast(cast(c.startdate as int)-1 as nvarchar(10))+'日' else '月底' end
-,b.productno,b.product,b.spec,b.unit,b.mount+b.tranmoney3-b.tranmoney2
+,case when c.paytype='貨到現金' or c.paytype='貨到收現' then '收現'
+when c.paytype='貨運代收' then '貨運代收'
+when cast(c.startdate as int)-1>0 then cast(cast(c.startdate as int)-1 as nvarchar(10))+'日' else '月底' end
+,b.productno,b.product,b.spec,b.unit
+,b.dime --1050111 數量要出來不判斷是否是寄庫 ,b.mount+b.tranmoney3-b.tranmoney2
 ,isnull((select sum(isnull(vb.tranmoney2,0))-sum(isnull(vb.tranmoney3,0)) from view_vcc va left join view_vccs vb on va.noa=vb.noa where a.custno=va.custno and b.productno=vb.productno and a.noa>=va.noa),0)
 --,b.tranmoney2
 ,case when isnull(cm.notprice,0)=1 then null else (case when b.mount=0 then 0 else b.price end) end
 ,case when isnull(cm.notprice,0)=1 then null else (case when b.mount=0 then 0 else b.total end) end
-,replace(b.memo,'chr(10)','<BR>'),case when a.worker2!='' then a.worker2 else a.worker end
+,case when a.typea='2' then '退貨 ' else '' end+replace(b.memo,'chr(10)','<BR>')
+,case when a.worker2!='' then a.worker2 else a.worker end
 ,stuff((select ','+custorde from view_orde where CHARINDEX(noa,a.ordeno)>0 and custorde!='' for xml path('')),1,1,'')
 from view_vcc a left join view_vccs b on a.noa=b.noa left join cust c on a.custno=c.noa left join custm cm on a.custno=cm.noa
 left join ucc d on b.productno=d.noa
@@ -133,8 +137,9 @@ dbo.getComma(a.price,2) price,
 dbo.getComma(a.total,0) total,
 replace(a.comp,'~#$',char(39)) comp,
 replace(a.conn,'~#$',char(39)) conn,
-a.*,
-case when b.typea='2' then '<a style="font-size:18px'+CHAR(59)+'">'+'退貨'+'</a>'+a.amemo else a.amemo end memo
+a.*
+--,case when b.typea='2' then '<a style="font-size:18px'+CHAR(59)+'">'+'退貨'+'</a>'+a.amemo else a.amemo end memo
+,a.amemo memo
 ,case when isnull(b.tranadd,0)>1 then '('+cast(isnull(b.tranadd,0) as nvarchar(10))+')' else '' end tranadd
 ,case when topage>1 then cast(pageno as nvarchar(10))+'/'+cast(topage as nvarchar(10)) else '' end pagememo
 from @tmp a

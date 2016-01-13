@@ -21,7 +21,7 @@
 			q_desc = 1;
 			q_tables = 's';
 			var q_name = "orde";
-			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno','txtVccno','txtApv'];
+			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno','txtVccno','txtApv','textInvomemo'];
 			var q_readonlys = ['txtTotal', 'txtQuatno', 'txtNo2', 'txtNo3', 'txtC1', 'txtNotv'];
 			var bbmNum = [['txtTotal', 10, 0, 1], ['txtMoney', 10, 0, 1], ['txtTax', 10, 0, 1],['txtFloata', 10, 5, 1], ['txtTotalus', 15, 2, 1]];
 			var bbsNum = [];
@@ -226,7 +226,7 @@
 				});
 				
 				$('#btnApv').click(function(e){
-					if(r_rank>"4"){
+					if(r_rank>"2"){//1050111 5以上 //1050113改成3以上
 	                    Lock(1, {
 	                        opacity : 0
 						});
@@ -366,6 +366,20 @@
 				});
 				
 				$('#btnOrdetoVcc').click(function() {
+					//20160113 多預交日不轉單，或單一預交日
+					var t_datea=$('#txtDatea_0').val();
+					var date_rep=false;
+					for(var i=0;i<q_bbsCount;i++){
+						if(t_datea!=$('#txtDatea_'+i).val()){
+							date_rep=true;
+							break;
+						}
+					}
+					if(date_rep){
+						alert("多預交日禁止轉出貨單!!");
+						return;
+					}
+					
 					//檢查是否已收款
 					if(!x_ordevccumm && !emp($('#txtVccno').val())){
 						var t_where = " where=^^ vccno='" + $('#txtVccno').val() + "'^^";
@@ -523,6 +537,12 @@
 			var issales=false;
 			function q_gtPost(t_name) {
 				switch (t_name) {
+					case 'custm':
+						var as = _q_appendData("custm", "", true);
+						if (as[0] != undefined) {
+							$('#textInvomemo').val(as[0].invomemo);
+						}
+						break;
 					case 'uccgb':
 						//中類
 						var as = _q_appendData("uccgb", "", true);
@@ -819,6 +839,7 @@
 									taxtype=xy_taxtypetmp[i].split('@')[0];
 							}
 							$('#cmbTaxtype').val(taxtype);
+							$('#textInvomemo').val(as[0].invomemo);
 						}
 						break;
 					case 'store2_store2':
@@ -1692,6 +1713,10 @@
 					if(emp($('#txtProductno_'+j).val()) && !emp($('#txtProduct_'+j).val()))
 						emp_productno=true;
 				}
+				if(!emp($('#txtCustno').val())){//1050113
+					t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
+					q_gt('custm', t_where, 0, 0, 0, '', r_accy);
+				}
 			}
 
 			function readonly(t_para, empty) {
@@ -1978,10 +2003,11 @@
 						break;
 					}
 				}
-				if(isorde_ucc){
+				//if(isorde_ucc){ //1050113暫時拿掉 判斷是否會進來做q_stPost
 					var t_paras = $('#txtNoa').val()+ ';'+r_accy;
 					q_func('qtxt.query.orde_ucc', 'cust_ucc_xy.txt,orde_ucc,' + t_paras);
-				}
+					//isorde_ucc=false;
+				//}
 				
 				if(q_cur==2 && !emp($('#txtVccno').val())){//修改後重新產生 避免資料不對應
 					if (confirm("是否要更新出貨單?"))
@@ -2536,6 +2562,9 @@
 							<input id="chkCancel" type="checkbox"/>
 							<span> </span><a id='lblCancel'> </a>
 							<input id="txtPostname" type="hidden" />
+							<BR>
+							<span style="float: left;"> </span><a class="lbl" style="float: left;">發票開立</a><span style="float: left;"> </span>
+							<input id="textInvomemo" type="text" class="txt c1" style="width: 60%;"/>
 						</td>
 					</tr>
 				</table>

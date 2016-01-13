@@ -107,20 +107,21 @@
 				}
 			}
 			
-            var invono="",isprint=false;;
+            var invono="",vcctype="",isprint=false;;
             function q_gtPost(t_name) {
 				switch (t_name) {
 					case 'getcustno':
 						var as = _q_appendData("view_vcc", "", true);
 						if (as[0] != undefined) {
 							invono=as[0].invono;
+							vcctype=as[0].typea;
 							q_gt('custm', "where=^^ noa = '"+as[0].custno+"' ^^", 0, 0, 0, "getinvomemo");	
 						}
 						break;
 					case 'getinvomemo':
 						var as = _q_appendData("custm", "", true);
 						if(as[0] != undefined){
-							if(invono.length==0 && as[0].invomemo=='隨貨'){
+							if(invono.length==0 && vcctype=='1' && as[0].invomemo=='隨貨'){
 								alert("請輸入發票號後再列印 !!");
 							}else{
 								if(isprint){

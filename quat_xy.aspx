@@ -550,7 +550,7 @@
 				}
 				
 				t_err = '';
-				t_err = q_chkEmpField([['txtNoa', q_getMsg('lblNoa')], ['txtSalesno', q_getMsg('lblSales')], ['txtOdate', q_getMsg('lblOdate')]]);
+				t_err = q_chkEmpField([['txtNoa', q_getMsg('lblNoa')], ['txtSalesno', q_getMsg('lblSales')], ['txtOdate', q_getMsg('lblOdate')], ['txtCustno', q_getMsg('lblCust')]]);
 				if (t_err.length > 0) {
 					alert(t_err);
 					return;

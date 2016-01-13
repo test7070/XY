@@ -17,7 +17,7 @@
  
 			q_tables = 's';
 			var q_name = "vcc";
-			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice','textStatus','txtDriver'];
+			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice','textStatus','txtDriver','textInvomemo'];
 			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtStore','txtStore2','txtMount','txtProductno'];//txtSpec
 			var bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1],['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
 			var bbsNum = [];
@@ -278,13 +278,13 @@
 			}
 
 			function q_funcPost(t_func, result) {
-				if (result.substr(0, 5) == '<Data') {
+				/*if (result.substr(0, 5) == '<Data') {
 					var Asss = _q_appendData('sss', '', true);
 					var Acar = _q_appendData('car', '', true);
 					var Acust = _q_appendData('cust', '', true);
 					alert(Asss[0]['namea'] + '^' + Acar[0]['car'] + '^' + Acust[0]['comp']);
 				} else
-					alert(t_func + '\r' + result);
+					alert(t_func + '\r' + result);*/
 			}
 
 			function q_boxClose(s2) {
@@ -378,6 +378,12 @@
 			function q_gtPost(t_name) {
 				var as;
 				switch (t_name) {
+					case 'custm':
+						var as = _q_appendData("custm", "", true);
+						if (as[0] != undefined) {
+							$('#textInvomemo').val(as[0].invomemo);
+						}
+						break;
 					case 'checkVccno_btnOk':
 						var as = _q_appendData("view_vcc", "", true);
                         if (as[0] != undefined) {
@@ -785,6 +791,7 @@
 									taxtype=xy_taxtypetmp[i].split('@')[0];
 							}
 							$('#cmbTaxtype').val(taxtype);
+							$('#textInvomemo').val(as[0].invomemo);
 						}
 						break;
 					case 'btnDele':
@@ -953,8 +960,10 @@
 				sum();
 
 				var s1 = $('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val();
-				if (s1.length == 0 || s1 == "AUTO"){
+				if ((s1.length == 0 || s1 == "AUTO") && $('#cmbTypea').val() == '1'){
 					q_gtnoa(q_name, replaceAll(q_getPara('sys.key_vcc') + $('#txtDatea').val(), '/', ''));
+				}else if ((s1.length == 0 || s1 == "AUTO") && $('#cmbTypea').val() == '2'){
+					q_gtnoa(q_name, replaceAll('R' + $('#txtDatea').val(), '/', ''));
 				}else{
 					if (q_cur == 1){
 						t_where = "where=^^ noa='" + $('#txtNoa').val() + "'^^";
@@ -1321,6 +1330,10 @@
 				if(!emp($('#txtNoa').val())){ //1050111
 					var t_where = " where=^^ vccno='" + $('#txtNoa').val() + "'^^";
 					q_gt('umms', t_where, 0, 0, 0, '', r_accy);
+				}
+				if(!emp($('#txtCustno').val())){ //1050113
+					t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
+					q_gt('custm', t_where, 0, 0, 0, '', r_accy);
 				}
 				refreshBbm();
 			}
@@ -1843,6 +1856,8 @@
 							<select id="combDriver" class="txt c1" style="width: 20px"> </select>
 						</td>
 						<td><input id="txtDriver"  type="text" class="txt c1"/></td>
+						<td><span> </span><a class="lbl">發票開立</a></td>
+						<td colspan='2'><input id="textInvomemo" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblSales' class="lbl btn"> </a></td>

@@ -658,7 +658,7 @@ insert @tmp
 select a.noa,b.no3,a.custno,a.datea,a.odate 
 ,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit,b.price,b.mount,b.total,b.memo
 from view_quat a left join view_quats b on a.noa=b.noa
-where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 
+where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 and isnull(a.custno,'')!=''
 and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))--含總店 集團
 and b.datea>=@datea --有效日
 and isnull(b.gweight,0)=1 --成交

@@ -341,8 +341,8 @@ create table #result(
 
 insert into #result
 select '0' gno, a.typea, a.noa, b.noq, a.datea , (case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) mon
-		,a.custno custno, isnull(c.comp,'') comp
-		,left(a.custno,5),'',isnull(c.serial,'')
+		,(case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end) custno, isnull(c.comp,'') comp
+		,a.custno,a.comp,''
 		, isnull(c.zip_home,'') post, isnull(c.addr_home,'') addr,isnull(c.tel,'') tel,isnull(c.serial,'')serial 
 		,(case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) salesno
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales 
@@ -350,17 +350,47 @@ select '0' gno, a.typea, a.noa, b.noq, a.datea , (case when isnull(a.mon,'')='' 
 		,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
 		,a.taxtype,a.total,0 paysale,a.payed payed,0 punpay,a.unpay,0
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
-	left join cust c on a.custno = c.noa
+	left join cust c on  (case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end) = c.noa
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) = @t_mon)) 
 		and (a.datea between @t_bdate and @t_edate)
-		and ((case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end) between @t_bcustno and @t_ecustno)
+		and (a.custno between @t_bcustno and @t_ecustno)
 		and ((case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) between @t_bsalesno and @t_esalesno)
 		and  a.taxtype!='6' --1050112 作廢不顯示 
 		order by (case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end),gno,a.mon,a.datea,a.noa,b.noq
 
+
 update #result
 set total=(case when (select count(*) from ucca )>0 then amoney+(case when taxtype='1' then tax else 0 end) else total end)
 ,amoney=(case when (select count(*) from ucca )>0 then total-(case when taxtype='3' then tax else 0 end) else amoney end)		
+
+update a
+set xserial=isnull((select serial from cust where noa=a.xcustno),'')
+from #result a
+
+update a 
+set custno=b.noa,comp=b.comp,post=b.zip_invo,addr=b.addr_invo,serial=b.serial,tel=b.tel,salesno=b.salesno,sales=b.sales
+from #result a outer apply(select top 1 * from cust where serial=a.xserial order by noa)b
+
+--可處理瓦城抬頭用--目前不使用
+--update a 
+--set custno=isnull(c.noa,b.noa),comp=isnull(c.comp,b.comp),post=isnull(c.zip_invo,b.zip_invo)
+--,addr=isnull(c.addr_invo,b.addr_invo),serial=isnull(c.serial,b.serial),tel=isnull(c.tel,b.tel)
+--,salesno=isnull(c.salesno,b.salesno),sales=isnull(c.sales,b.sales)from #result a 
+--outer apply(select top 1 * from cust where serial=a.xserial order by noa)b
+--outer apply(select top 1 grpno from cust where serial=a.xserial order by noa)g
+--outer apply(select top 1 * from cust where noa=g.grpno order by noa)c
+
+insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial)
+select '1','','000',@t_mon+'/00',@t_mon,custno,MAX(comp),xcustno,MAX(xcomp),MAX(post),MAX(addr),MAX(tel),MAX(serial)
+from #result a where gno='0' 
+and exists (select custno from #result where gno='0' and custno=a.custno)
+group by custno,xcustno
+
+insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial,mount,money)
+select '2','','000',@t_mon+'/00',@t_mon,custno,MAX(comp),xcustno,MAX(xcomp),MAX(post),MAX(addr),MAX(tel),MAX(serial),count(*),SUM(money)
+from #result a where gno='0' 
+and exists (select custno from #result where gno='0' and custno=a.custno)
+group by custno,xcustno
 
 insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,amoney,tax,total,punpay,unpay)
 select '3',CHAR(255),CHAR(255),'',@t_mon,a.custno,MAX(comp),CHAR(255),''

@@ -81,7 +81,7 @@
 			}
 
 			function mainPost() {
-				if(r_rank<'5')
+				if(r_rank<'7')
 					q_readonlys.push('txtPrice');
 					
 				q_getFormat();
@@ -828,6 +828,7 @@
 							}
 						}
 						_btnModi();
+						$('.bbsitem').attr('disabled', 'disabled');
 						Unlock(1);
 						$('#txtDatea').focus();
 

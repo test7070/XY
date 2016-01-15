@@ -23,7 +23,7 @@ declare @nowdate nvarchar(30) --今天日期
 set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
 set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
 
-declare @t_pageline int = 8   --------一頁幾行
+declare @t_pageline int = 16   --------一頁幾行
 -------------------------------------------------------------------------------------------------------------------------
 --收款
 declare @umms table(
@@ -320,7 +320,7 @@ declare @nowdate nvarchar(30) --今天日期
 set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
 set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
 
-declare @t_pageline int = 8   --------一頁幾行
+declare @t_pageline int = 16   --------一頁幾行
 -------------------------------------------------------------------------------------------------------------------------
 declare @cmd nvarchar(max)
 IF OBJECT_ID('tempdb..#result')is not null
@@ -599,7 +599,7 @@ set @t_bsalesno = case when '#non'=[6] then '' else [6] end
 set @t_esalesno = case when '#non'=[7] then char(255) else [7] end
 set @t_showbranch = case when '#non'=[9] then '' else [9] end
 set @t_paging = case when '#non'=[10] then '' else [10] end
-declare @t_pageline int = 8   --------一頁幾行
+declare @t_pageline int = 13   --------一頁幾行
 -------------------------------------------------------------------------------------------------------------------------
 declare @cmd nvarchar(max)
 IF OBJECT_ID('tempdb..#result')is not null

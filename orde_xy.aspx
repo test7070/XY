@@ -1175,6 +1175,8 @@
 									$('#txtPrice_'+b_seq).val('0');
 								}
 							}else{
+								$('#txtMemo_'+b_seq).val('');
+								
 								if(!emp($('#txtQuatno_'+b_seq).val()) && !emp($('#txtNo3_'+b_seq).val())){
 									var t_where="where=^^noa='"+$('#txtQuatno_'+b_seq).val()+"' and no3='"+$('#txtNo3_'+b_seq).val()+"' ^^"
 									q_gt('view_quats', t_where, 0, 0, 0, "keyin_productno_xy");

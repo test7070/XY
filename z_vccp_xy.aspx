@@ -60,10 +60,11 @@
                 $('#txtXdate1').val(q_cdn(q_date(),1));
                 $('#txtXdate2').val(q_cdn(q_date(),1));
                 
-                $('#btnOk').click(function() {
+				//20160115判斷隨貨發票是否存在 暫時拿掉
+               /* $('#btnOk').click(function() {
                 	if($('#q_report').data('info').radioIndex==0)
                 		q_gt('view_vcc', "where=^^ noa between '"+$('#txtXnoa1').val()+"' and '"+$('#txtXnoa2').val()+"' ^^", 0, 0, 0, "getcustno");
-				});
+				});*/
 				
 				var tmp = document.getElementById("btnWebPrint");
 				var tmpbtn = document.createElement("input");
@@ -75,7 +76,11 @@
 				$('#btnWebPrint').hide();
 				
 				$('#btnWebPrint2').click(function() {
-					if($('#q_report').data('info').radioIndex==0){
+					if($('#q_report').data('info').radioIndex==0){//先判斷是否可列印
+						//20160115判斷隨貨發票是否存在 暫時拿掉
+						//q_gt('view_vcc', "where=^^ noa between '"+$('#txtXnoa1').val()+"' and '"+$('#txtXnoa2').val()+"' ^^", 0, 0, 0, "getcustno2");
+						
+						//列印次數+1
 						var t_noa1=emp($('#txtXnoa1').val())?'#non':$('#txtXnoa1').val();
 						var t_noa2=emp($('#txtXnoa2').val())?'#non':$('#txtXnoa2').val();
 						var t_where = t_noa1+ ';'+t_noa2;
@@ -99,10 +104,11 @@
             function q_funcPost(t_func, result) {
 				switch(t_func) {
 					case 'qtxt.query.vccprintcount_xy':
-					isprint=true;
-					$('#btnOk').click();
+					//isprint=true;
+					//$('#btnOk').click();
 					$('#txtUrl').val('');
 					$('#txtUrl2').val('');
+					$('#btnWebPrint').click();
 					break;
 				}
 			}
@@ -110,6 +116,28 @@
             var invono="",vcctype="",isprint=false;;
             function q_gtPost(t_name) {
 				switch (t_name) {
+					case 'getcustno2':
+						var as = _q_appendData("view_vcc", "", true);
+						if (as[0] != undefined) {
+							invono=as[0].invono;
+							vcctype=as[0].typea;
+							q_gt('custm', "where=^^ noa = '"+as[0].custno+"' ^^", 0, 0, 0, "getinvomemo2");	
+						}
+						break;
+					case 'getinvomemo2':
+						var as = _q_appendData("custm", "", true);
+						if(as[0] != undefined){
+							if(invono.length==0 && vcctype=='1' && as[0].invomemo=='隨貨'){
+								alert("請輸入發票號後再列印 !!");
+							}else{
+								//列印次數+1
+								var t_noa1=emp($('#txtXnoa1').val())?'#non':$('#txtXnoa1').val();
+								var t_noa2=emp($('#txtXnoa2').val())?'#non':$('#txtXnoa2').val();
+								var t_where = t_noa1+ ';'+t_noa2;
+								q_func('qtxt.query.vccprintcount_xy', 'cust_ucc_xy.txt,vccprintcount,' + t_where);
+							}
+						}
+						break;
 					case 'getcustno':
 						var as = _q_appendData("view_vcc", "", true);
 						if (as[0] != undefined) {

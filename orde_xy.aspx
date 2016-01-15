@@ -1074,7 +1074,7 @@
 			function _btnSeek() {
 				if (q_cur > 0 && q_cur < 4)
 					return;
-				q_box('orde_xy_s.aspx', q_name + '_s', "500px", "450px", q_getMsg("popSeek"));
+				q_box('orde_xy_s.aspx', q_name + '_s', "500px", "500px", q_getMsg("popSeek"));
 			}
 
 			function combPaytype_chg() {
@@ -2058,6 +2058,18 @@
 							q_gt('view_quat', t_where, 0, 0, 0, "", r_accy);
 						}
 						
+						var t_n=0,t_emp=false;
+						for (var i = 0; i < q_bbsCount; i++) {
+							if(emp($('#txtProductno_'+i).val()) && emp($('#txtProduct_'+i).val()) && emp($('#txtSpec_'+i).val())){
+								t_n=i;
+								t_emp=true;
+								break;
+							}
+						}
+						if(!t_emp && t_n==0){
+							t_n=q_bbsCount;
+						}
+						
 						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtSizea,txtDime,txtUnit,txtPrice,txtMount,txtQuatno,txtNo3,txtClassa,txtClass'
 						, as.length, as, 'productno,product,spec,sizea,dime,unit,price,mount,noa,no3,classa,class', 'txtProductno,txtProduct,txtSpec');
 						sum();
@@ -2068,7 +2080,7 @@
 									$('#txtMount_'+i).val('');
 							}
 						}
-						$('#txtMount_0').focus();
+						$('#txtMount_'+t_n).focus();
 						AutoNo2();
 						bbsAssign();
 						break;

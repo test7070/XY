@@ -71,6 +71,10 @@
                         type : '8', //[10]
                         name : 'paging',
                         value:'Y@統編分頁'.split(',')
+                    }, {
+                        type : '8', //[11]
+                        name : 'showinvomemo',
+                        value:'Y@顯示備註與發票號碼'.split(',')
                     }]
                 });
 

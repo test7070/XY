@@ -30,6 +30,7 @@
         q_mask(bbmMask);
      
         q_cmbParse("cmbStype", '@全部,'+q_getPara('vcc.stype'));
+        q_cmbParse("cmbApv", '@全部,Y@已核可,N未核可');
 
         $('#txtBdate').focus();
     }
@@ -44,6 +45,8 @@
         t_stype = $('#cmbStype').val();
         t_quatno = $('#txtQuatno').val();
         t_contract = $('#txtContract').val();
+        t_apv = $('#cmbApv').val();
+        t_custorde = $('#txtCustorde').val();
 
         t_bdate = t_bdate.length > 0 && t_bdate.indexOf("_") > -1 ? t_bdate.substr(0, t_bdate.indexOf("_")) : t_bdate;  /// 100.  .
         t_edate = t_edate.length > 0 && t_edate.indexOf("_") > -1 ? t_edate.substr(0, t_edate.indexOf("_")) : t_edate;  /// 100.  .
@@ -52,9 +55,15 @@
         		+ q_sqlPara2("odate", t_bdate, t_edate) 
         		+ q_sqlPara2("noa", t_noa) //+ q_sqlPara2("comp", t_comp) 
         		 +q_sqlPara2("salesno", t_salesno) + q_sqlPara2("custno", t_custno)
-        		 +q_sqlPara2("stype", t_stype)+ q_sqlPara2("contract", t_contract);
+        		 +q_sqlPara2("stype", t_stype)+ q_sqlPara2("contract", t_contract)
+        		 + q_sqlPara2("custorde", t_custorde)
+        		 ;
 		if(t_quatno.length>0)
-		       		t_where += " and exists(select noa from view_ordes"+r_accy+" where view_ordes"+r_accy+".noa=view_orde"+r_accy+".noa and view_ordes"+r_accy+".quatno='"+t_quatno+"')";
+			t_where += " and exists(select noa from view_ordes"+r_accy+" where view_ordes"+r_accy+".noa=view_orde"+r_accy+".noa and view_ordes"+r_accy+".quatno='"+t_quatno+"')";
+		if(t_apv=='Y')
+			t_where+=" and len(apv)>0 ";
+		if(t_apv=='N')
+			t_where+=" and len(apv)=0 ";
 		
 		if(t_comp.length>0)
 			t_where="("+t_where+") or charindex('"+t_comp+"',comp)>0"
@@ -72,35 +81,43 @@
 <div style='width:400px; text-align:center;padding:15px;' >
        <table id="seek"  border="1"   cellpadding='3' cellspacing='2' style='width:100%;' >
             <tr class='seek_tr'>
-                <td   style="width:35%;" ><a id='lblDatea'></a></td>
+                <td   style="width:35%;" ><a id='lblDatea'> </a></td>
                 <td style="width:65%;  "><input class="txt" id="txtBdate" type="text" style="width:90px; font-size:medium;" />
                 <span style="display:inline-block; vertical-align:middle">～</span>
                 <input class="txt" id="txtEdate" type="text" style="width:93px; font-size:medium;" /></td>
             </tr>
             <tr class='seek_tr'>
-                <td class='seek'  style="width:20%;"><a id='lblStype'></a></td>
+                <td class='seek'  style="width:20%;"><a id='lblStype'> </a></td>
                 <td><select id="cmbStype" class="txt c1" style="font-size:medium;"> </select></td>
              </tr>
+              <tr class='seek_tr'>
+                <td class='seek'  style="width:20%;"><a id='lblApv'>核可</a></td>
+                <td><select id="cmbApv" class="txt c1" style="font-size:medium;"> </select></td>
+             </tr>
              <tr class='seek_tr'>
-                <td class='seek'  style="width:20%;"><a id='lblCustno'></a></td>
+                <td class='seek'  style="width:20%;"><a id='lblCustno'> </a></td>
                 <td><input class="txt" id="txtCustno" type="text" style="width:90px; font-size:medium;" />&nbsp;<input class="txt" id="txtComp" type="text" style="width:115px;font-size:medium;" /></td>
              </tr>
              <tr class='seek_tr'>
-                <td class='seek'  style="width:20%;"><a id='lblNoa'></a></td>
+                <td class='seek'  style="width:20%;"><a id='lblNoa'> </a></td>
                 <td><input class="txt" id="txtNoa" type="text" style="width:215px; font-size:medium;" /></td>
             </tr>
              <tr class='seek_tr'>
-                <td class='seek'  style="width:20%;"><a id='lblSales'></a></td>
+                <td class='seek'  style="width:20%;"><a id='lblSales'> </a></td>
                 <td><input class="txt" id="txtSalesno" type="text" style="width:90px; font-size:medium;" />&nbsp;
                 	<input class="txt" id="txtSales" type="text" style="width:115px; font-size:medium;" /></td>
              </tr>
              <tr class='seek_tr'>
-                <td class='seek'  style="width:20%;"><a id='lblQuatno'></a></td>
+                <td class='seek'  style="width:20%;"><a id='lblQuatno'> </a></td>
                 <td><input class="txt" id="txtQuatno" type="text" style="width:215px; font-size:medium;" /></td>
             </tr>
             <tr class='seek_tr'>
-                <td class='seek'  style="width:20%;"><a id='lblContract'></a></td>
+                <td class='seek'  style="width:20%;"><a id='lblContract'> </a></td>
                 <td><input class="txt" id="txtContract" type="text" style="width:215px; font-size:medium;" /></td>
+            </tr>
+            <tr class='seek_tr'>
+                <td class='seek'  style="width:20%;"><a id='lblCustorde'>客單編號 </a></td>
+                <td><input class="txt" id="txtCustorde" type="text" style="width:215px; font-size:medium;" /></td>
             </tr>
         </table>
   <!--#include file="../inc/seek_ctrl.inc"--> 

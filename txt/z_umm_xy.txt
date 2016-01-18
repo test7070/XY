@@ -40,6 +40,7 @@ begin
 	insert @umms
 	select '',isnull(c.custno,''),isnull(a.mon,''),isnull(a.datea,''),sum(b.paysale)
 	from umms b left join umm a on a.noa=b.noa left join view_vcc c on b.vccno=c.noa
+	where c.custno between @t_bcustno and @t_ecustno
 	group by isnull(c.custno,''),isnull(a.mon,''),isnull(a.datea,'')
 end
 else
@@ -47,7 +48,8 @@ begin
 	insert @umms
 	select isnull(acc2,''),isnull(a.custno,''),isnull(a.mon,''),isnull(a.datea,''),SUM(money) 
 	from umms b left join umm a on a.noa=b.noa
-	where money!=0 group by isnull(acc2,''),isnull(a.custno,''),isnull(a.mon,''),isnull(a.datea,'')
+	where money!=0 and a.custno between @t_bcustno and @t_ecustno 
+	group by isnull(acc2,''),isnull(a.custno,''),isnull(a.mon,''),isnull(a.datea,'')
 end
 ---------------------------------------------------------------------------
 --前期
@@ -81,7 +83,7 @@ select  '0',a.typea, a.noa, a.datea , (case when isnull(a.mon,'')='' then left(a
 		,(case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) salesno
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales 
 		,a.money,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
-		,a.taxtype,a.total,0 payed,0 unpay
+		,a.taxtype,a.total,a.payed payed,a.unpay unpay
 	from view_vcc a left join cust c on  (case when isnull(a.custno2,'')!='' and @t_showcust!='1' then a.custno2 else a.custno end) = c.noa
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) < @t_mon) )
 		and (len(@t_bdate)=0 or a.datea < @t_bdate)
@@ -104,14 +106,16 @@ set total=(case when typea='1' then 1 else -1 end)*isnull(total,0)
 --from @tmp a
 --group by a.custno
 
-insert @tmp (gno,custno,comp,post,addr,tel,serial,noa,money,tax,total,payed) 
+insert @tmp (gno,custno,comp,post,addr,tel,serial,noa,money,tax,total,payed,unpay) 
 select '1',a.custno,MAX(comp),MAX(post),MAX(addr),MAX(tel),MAX(serial),CHAR(255),sum(money),sum(tax),sum(total) 
-,isnull((select SUM(money) from @umms where (len(@t_mon)=0 or mon<@t_mon) and (len(@t_bdate)=0 or datea < @t_bdate) and custno=a.custno),0) 
+--,isnull((select SUM(money) from @umms where (len(@t_mon)=0 or mon<@t_mon) and (len(@t_bdate)=0 or datea < @t_bdate) and custno=a.custno),0)
+--折讓不顯示直接顯示抓vcc資料
+,SUM(payed),SUM(unpay) 
 from @tmp a 
 group by a.custno 
 
 delete @tmp where gno='0'
-update @tmp set unpay=total-isnull(payed,0) where gno='1'
+--update @tmp set unpay=total-isnull(payed,0) where gno='1'
 
 -------------------------------------------------------------------------------------------------------------------------
 --本期
@@ -276,7 +280,7 @@ case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa
 case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 then '' else case when typea='1' then '銷' when typea='2' then '退' else '' end end typea,
 case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 then '' else right(datea,2) end day,
 case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 then '' else right(invono,2) end invono,
-case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 then null else dbo.getComma(case when typea='2' then -1 else 1 end*tax,0) end tax,
+case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 and (gno in ('2','5')) then null else dbo.getComma(case when typea='2' then -1 else 1 end*tax,0) end tax,
 case when typea='1' then '銷' when typea='2' then '退' else '' end typea,
 case when gno='2' then right(datea,2) else '' end day,
 dbo.getComma(case when typea='2' then -1 else 1 end*mount,0) mount,
@@ -409,7 +413,7 @@ outer apply (
 		,MAX((case when typea='1' then 1 else -1 end)*tax)tax
 		,MAX((case when typea='1' then 1 else -1 end)*total)total 
 		,MAX((case when typea='1' then 1 else -1 end)*unpay)unpay 
-		from #result where custno=a.custno and gno='0' group by custno,noa
+		from #result where custno=a.custno and gno='2' group by custno,noa
 	)tmp group by custno
 ) b
 group by a.custno
@@ -456,8 +460,8 @@ update a set mpage=(select MAX(page) from #result where custno=a.custno) from #r
 
 --計算出貨筆數
 update a
-set counts=isnull((select count(*) from #result where custno=a.custno),0)
-from #result a where gno='2'
+set counts=isnull((select count(*) from #result where custno=a.custno and gno='2' and replace(noa,char(255),'')!=''),0)
+from #result a 
 
 --插入表頭
 insert #result (gno,idno,page,mpage,noa,noq,datea,custno,comp,xcustno,xcomp,xserial,post,addr,tel,serial,salesno,sales,mon,counts)
@@ -480,7 +484,7 @@ case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa
 case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 then '' else case when typea='1' then '銷' when typea='2' then '退' else '' end end typea,
 case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 then '' else right(datea,2) end day,
 case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 then '' else right(invono,2) end invono,
-case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 then null else dbo.getComma(case when typea='2' then -1 else 1 end*tax,0) end tax,
+case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 and gno in ('2','5') then null else dbo.getComma(case when typea='2' then -1 else 1 end*tax,0) end tax,
 case when typea='1' then '銷' when typea='2' then '退' else '' end typea,
 case when gno='2' then right(datea,2) else '' end day,
 dbo.getComma(case when typea='2' then -1 else 1 end*mount,0) mount,

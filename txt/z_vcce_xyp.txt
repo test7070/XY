@@ -17,7 +17,7 @@ set @t_carno = case when '#non' = [8] then '' else [8] end
 --------------------------------------------------------------------------------------------------------------
 declare @tmp table(
 	gno nvarchar(1),
-	accy nvarchar(20),
+	recno int,
 	datea nvarchar(20),
 	noa nvarchar(30),
 	noq nvarchar(20),
@@ -28,36 +28,44 @@ declare @tmp table(
 	sales nvarchar(100),
 	custno nvarchar(50),
 	comp nvarchar(100),
-	vccno nvarchar(50),
+	vccnoa nvarchar(50),
+	vccnoq nvarchar(50),
 	vdate nvarchar(20),
-	vtotal float,
-	enda nvarchar(20),
-	utotal float,
+	productno nvarchar(100),
+	product nvarchar(MAX),
+	spec nvarchar(MAX),
+	unit nvarchar(50),
+	mount float,
+	vtotal float,--收現金額 --依據未收金額去判斷是否要收費
+	ecount float,--未收金額 前端會依據出貨單的付款條件是否是收現和貨到現金判斷是否有金額
+	ewidth float,
 	memo nvarchar(MAX)
 )
 
-insert into @tmp
-	select '0' gno,a.accy,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver,a.salesno,a.sales,c.custno,c.comp,a.ordeno,c.datea,c.total,
-	case when isnull(b.enda,0)=1 then 'Y' else 'N' end,b.adjcount,b.memo
-	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vcc c on b.ordeno=c.noa
-	where a.datea between @t_bdate and @t_edate 
-	and isnull(c.custno,'') between @t_bcust and @t_ecust
-	and a.driverno between @t_bdriver and @t_edriver
-	and (len(@t_carno)=0 or a.carno=@t_carno)
-	
+insert @tmp 
+select '0' gno,ROW_NUMBER() over (partition by a.datea,a.driverno  order by a.datea,a.driverno,a.noa,b.noq,b.ordeno,c.noq) recno
+,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver,a.salesno,a.sales
+,b.custno,b.comp,b.ordeno,c.noq,b.odate,c.productno,c.product,c.spec,c.unit,(case when c.typea='2' then -1 else 1 end)*c.mount
+,case when b.ecount!=0 then (case when c.typea='2' then -1 else 1 end)*c.total else 0 end vtotal,b.ecount,b.width,b.memo
+from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
+where a.datea between @t_bdate and @t_edate 
+and isnull(b.custno,'') between @t_bcust and @t_ecust
+and a.driverno between @t_bdriver and @t_edriver
+and (len(@t_carno)=0 or a.carno=@t_carno) 
+
 if((select count(*) from @tmp)>0)
 begin
-	insert @tmp (gno,vtotal,utotal)
-	select 1,sum(vtotal),sum(utotal) from @tmp
+	insert @tmp (gno,datea,driverno)
+	select '1' gno,datea,driverno from @tmp where gno='0' group by datea,driverno
 end
 
 select 
-case when @t_bdate=@t_edate then @t_bdate else @t_bdate+'~'+@t_edate end mdate,
-dbo.getComma(vtotal,0) vtotal,
-dbo.getComma(utotal,0) utotal,
-'vcce_xy?noa=$noa?'+accy qhref ,
-*
-from @tmp order by gno,datea,carno,custno,noq;
+dbo.getComma(mount,-1) mount,
+dbo.getComma(vtotal,-1) vtotal,
+dbo.getComma(ecount,-1) ecount,
+case when ewidth>0 then 'V' else '' end width,
+* 
+from @tmp order by datea,driverno,gno,recno;
 --**************************************************************************************************************
 z_vcce_xyp2:--z_vcce_xyp2
 declare @t_bdate nvarchar(20)
@@ -75,249 +83,93 @@ set @t_ecust = case when '#non' = [5] then CHAR(255) else [5] end
 set @t_bdriver = case when '#non' = [6] then '' else [6] end
 set @t_edriver = case when '#non' = [7] then CHAR(255) else [7] end
 set @t_carno = case when '#non' = [8] then '' else [8] end
---------------------------------------------------------------------------------------------------------------
+
+declare @pagelien nvarchar(20)=25
+-------------------------------------------------------------------------------------------------------------- 
+
 declare @tmp table(
-	idno int identity(0,1),
-	gno nvarchar(1),
+	recno int,
 	datea nvarchar(20),
-	noa nvarchar(30),
-	noq nvarchar(20),
 	carno nvarchar(20),
 	driverno nvarchar(50),
 	driver nvarchar(100),
 	custno nvarchar(50),
 	comp nvarchar(100),
 	productno nvarchar(100),
-	product nvarchar(100),
-	vccno nvarchar(50),
-	vccnoq nvarchar(50),
-	vcctypea nvarchar(50),
-	mount float,
-	memo nvarchar(MAX)
+	product nvarchar(MAX),
+	spec nvarchar(MAX),
+	unit nvarchar(50),
+	mount float
 )
-
-insert into @tmp
-select case when c.typea='1' then '2' else '5' end gno,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver
-,c.custno,c.comp,d.productno,d.product,c.noa,d.noq,c.typea,d.mount,d.memo
-from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vcc c on b.ordeno=c.noa
-left join view_vccs d on c.noa=d.noa
-where a.datea between @t_bdate and @t_edate 
-and isnull(c.custno,'') between @t_bcust and @t_ecust
-and a.driverno between @t_bdriver and @t_edriver
-and (len(@t_carno)=0 or a.carno=@t_carno)
-and isnull(b.ordeno,'')!='' and isnull(c.noa,'')!=''
-order by a.driverno,gno,c.custno,c.noa
 
 declare @tmpa table(
-	idno int identity(0,1),
-	pageno int,
-	oidno int,
-	gno nvarchar(1),
+	gno nvarchar(10),
+	page int,
+	mpage int,
 	datea nvarchar(20),
-	noa nvarchar(30),
-	noq nvarchar(20),
 	carno nvarchar(20),
 	driverno nvarchar(50),
 	driver nvarchar(100),
-	custno nvarchar(50),
-	comp nvarchar(100),
-	productno nvarchar(100),
-	product nvarchar(100),
-	vccno nvarchar(50),
-	vccnoq nvarchar(50),
-	vcctypea nvarchar(50),
-	mount float,
-	memo nvarchar(MAX)
+	
+	rr1 int,
+	custno1 nvarchar(50),
+	comp1 nvarchar(100),
+	productno1 nvarchar(100),
+	product1 nvarchar(MAX),
+	spec1 nvarchar(MAX),
+	unit1 nvarchar(50),
+	mount1 float,
+	
+	rr2 int,
+	custno2 nvarchar(50),
+	comp2 nvarchar(100),
+	productno2 nvarchar(100),
+	product2 nvarchar(MAX),
+	spec2 nvarchar(MAX),
+	unit2 nvarchar(50),
+	mount2 float
 )
 
-declare @driverno nvarchar(MAX)
-declare @t_driverno nvarchar(MAX)='XXXXXX'
-declare @driver nvarchar(MAX)
-declare @vccno nvarchar(MAX)
-declare @vccnoq nvarchar(MAX)
-declare @gno nvarchar(10)
-declare @t_gno nvarchar(10)
-declare @vcc2count int --退貨筆數
-declare @vcc2now_count int --已寫入退貨筆數
-declare @vcccount int=1 --目前筆數
-declare @page int=30 --一張筆數
-declare @now_page int=1--目前頁數
-declare @idno int
+insert @tmp 
+select ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,c.product,c.spec) recno
+,a.datea,MAX(a.carno),a.driverno,MAX(a.driver)
+,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,'',c.productno,c.product,c.spec,c.unit,SUM(c.mount)
+from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
+where a.datea between @t_bdate and @t_edate 
+and isnull(b.custno,'') between @t_bcust and @t_ecust
+and a.driverno between @t_bdriver and @t_edriver
+and (len(@t_carno)=0 or a.carno=@t_carno) and c.typea='1'
+group by a.datea,a.driverno,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,c.productno,c.product,c.spec,c.unit
 
-declare cursor_table cursor for
-select idno,driverno,driver,gno,vccno,vccnoq from @tmp order by driverno,gno,custno,vccno
-open cursor_table
-fetch next from cursor_table
-into @idno,@driverno,@driver,@gno,@vccno,@vccnoq
-while(@@FETCH_STATUS <> -1)
-begin
-	if(@t_driverno!=@driverno)
-	begin
-		if(@t_driverno!='XXXXXX')
-		begin
-			if(@t_gno='2')
-			begin
-				if(@vcccount%@page<@page-1)
-				begin
-					while(@vcccount%@page<@page-1)
-					begin
-						insert @tmpa(pageno,driverno,gno)
-						select @now_page,@t_driverno,'2'
-						set @vcccount=@vcccount+1
-					end
-				end
-				insert into @tmpa (gno,pageno,driverno,mount,carno)
-				select '3',@now_page,@driverno,SUM(mount),MAX(carno) from @tmp where gno='2' and driverno=@t_driverno
-			end
-			
-			if(@t_gno='5')
-			begin
-				if(@vcccount%@page<@page)
-				begin
-					while(@vcccount%@page>0)
-					begin
-						insert @tmpa(pageno,driverno,gno)
-						select @now_page,@t_driverno,'5'
-						set @vcccount=@vcccount+1
-					end
-				end
-			end
-		
-			insert @tmpa(gno,pageno,driverno)
-			select '6',@now_page,@driverno
-			set @now_page=1
-		end
-		
-		--第一頁新增表頭
-		insert @tmpa(pageno,gno,driverno,driver,datea)
-		select @now_page,'1',@driverno,@driver,''
-		set @vcccount=1
-	end
-	else
-	begin
-		if(@vcccount%@page=0)
-		begin
-			insert @tmpa(gno,pageno,driverno)
-			select '6',@now_page,@driverno
-			set @now_page=@now_page+1
-			if (@t_gno='2')
-			begin
-				insert @tmpa(gno,pageno,driverno,driver,datea)
-				select '1',@now_page,@driverno,@driver,''
-				set @vcccount=1
-			end
-			if (@t_gno='5')
-			begin
-				insert @tmpa(gno,pageno,driverno,driver,datea)
-				select '4',@now_page,@driverno,@driver,''
-				set @vcccount=2
-			end
-		end
-	end
-	
-	if (@gno='5')
-	begin
-		--退貨筆數
-		set @vcc2count=(select count(*) from @tmp where driverno=@driverno and gno='5')
-		--已存在退貨筆數
-		set @vcc2now_count=(select count(*) from @tmpa where driverno=@driverno and gno='5')
-		
-		--判斷當頁是否有空間 插入退貨
-		if(@vcccount%@page<@page-3-@vcc2count and @vcc2now_count=0) --有
-		begin
-			while(@vcccount%@page<@page-3-@vcc2count)
-			begin
-				insert @tmpa(pageno,driverno,gno)
-				select @now_page,@driverno,'2'
-				set @vcccount=@vcccount+1
-			end
-			--合計
-			insert into @tmpa (gno,pageno,driverno,driver,mount,carno)
-			select '3',@now_page,@driverno,@driver,SUM(mount),MAX(carno) from @tmp where gno='2' and driverno=@driverno
-			set @vcccount=@vcccount+1
-			
-			--插入退貨表頭
-			insert into @tmpa (gno,pageno,driverno,driver)
-			select '4',@now_page,@driverno,@driver
-			set @vcccount=@vcccount+2
-		end
-		else if (@vcc2now_count=0)
-		begin
-			--當頁全部補滿
-			while(@vcccount%@page<@page and @vcccount%@page!=0)
-			begin
-				insert @tmpa(pageno,driverno,gno)
-				select @now_page,@driverno,'9'
-				set @vcccount=@vcccount+1				
-			end
-			
-			--合計
-			insert into @tmpa (gno,pageno,driverno,driver,mount,carno)
-			select '3',@now_page,@driverno,@driver,SUM(mount),MAX(carno) from @tmp where gno='2' and driverno=@driverno
-			set @vcccount=@vcccount+1
-			
-			set @now_page=@now_page+1
-			
-			--插入分頁
-			insert @tmpa(pageno,gno,driverno)
-			select @now_page,'6',@t_driverno
-			
-			--插入退貨表頭
-			insert into @tmpa (gno,pageno,driverno,driver)
-			select '4',@now_page,@driverno,@driver
-			set @vcccount=@vcccount+2
-		end
-	end
-	
-	insert @tmpa
-	select @now_page,* from @tmp where idno=@idno
-	set @vcccount=@vcccount+1
-	
-	set @t_driverno=@driverno
-	set @t_gno=@gno
-	
-	fetch next from cursor_table
-	into @idno,@driverno,@driver,@gno,@vccno,@vccnoq
-end
-close cursor_table
-deallocate cursor_table
+update a
+set comp=isnull((select top 1 nick from cust where noa=a.custno),'')
+from @tmp a
+where custno!=''
 
-if(@t_driverno!='XXXXXX')
+insert @tmpa
+select '0'gno,CEILING(cast(a.recno as float)/(@pagelien*2)),0 mpage,a.datea,a.carno,a.driverno,a.driver
+,a.recno,a.custno,a.comp,a.productno,a.product,a.spec,a.unit,a.mount
+,b.recno,b.custno,b.comp,b.productno,b.product,b.spec,b.unit,b.mount
+from @tmp a
+left join @tmp b on a.datea=b.datea and a.carno=b.carno and a.driverno=b.driverno and a.recno+@pagelien=b.recno
+where a.recno % (@pagelien*2)<=(@pagelien) and a.recno % (@pagelien*2)!=0
+group by a.datea,a.carno,a.driverno,a.driver
+,a.recno,a.custno,a.comp,a.productno,a.product,a.spec,a.unit,a.mount
+,b.recno,b.custno,b.comp,b.productno,b.product,b.spec,b.unit,b.mount
+
+update a
+set mpage=(select MAX(page) from @tmpa where datea=a.datea and driverno=a.driverno)
+from @tmpa a
+
+if((select count(*) from @tmpa)>0)
 begin
-	if(@t_gno='2')
-	begin
-		if(@vcccount%@page<@page-1 and @vcccount%@page!=0)
-		begin
-			while(@vcccount%@page<@page-1)
-			begin
-				insert @tmpa(pageno,driverno,gno)
-				select @now_page,@driverno,'2'
-				set @vcccount=@vcccount+1
-			end
-		end
-	
-		insert into @tmpa (gno,pageno,driverno,mount,carno)
-		select '3',@now_page,@driverno,SUM(mount),MAX(carno) from @tmp where gno='2' and driverno=@t_driverno
-	end
-	
-	if(@t_gno='5')
-	begin
-		if(@vcccount%@page<@page and @vcccount%@page!=0)
-		begin
-			while(@vcccount%@page<@page)
-			begin
-				insert @tmpa(pageno,driverno,gno)
-				select @now_page,@driverno,'5'
-				set @vcccount=@vcccount+1
-			end
-		end
-	end
-	
+	insert @tmpa (gno,datea,driverno,page,mpage)
+	select '1' gno,datea,driverno,page,mpage from @tmpa where gno='0' group by datea,driverno,page,mpage
 end
 
 select 
-case when @t_bdate=@t_edate then @t_bdate else @t_bdate+'~'+@t_edate end mdate,
-dbo.getComma(mount,0) mount,
-*
-from @tmpa order by idno;
+dbo.getComma(mount1,-1) mount1,
+dbo.getComma(mount2,-2) mount2,
+* 
+from @tmpa order by datea,driverno,page,gno,rr1;
 --**************************************************************************************************************

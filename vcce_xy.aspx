@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 	<head>
-		<title></title>
+		<title> </title>
 		<script src="../script/jquery.min.js" type="text/javascript"></script>
 		<script src='../script/qj2.js' type="text/javascript"></script>
 		<script src='qset.js' type="text/javascript"></script>
@@ -135,6 +135,17 @@
 	                                b_ret[i].unpay=q_sub(dec(b_ret[i].total),dec(b_ret[i].weight));
                                 }
                             }
+                            
+                            b_ret.sort(compare);
+                            /*var maxnoq='001';
+                            for (var j = 0; j < q_bbsCount; j++) {
+                            	if(maxnoq<$('#txtNoq_'+j).val())
+                            		maxnoq=$('#txtNoq_'+j).val();
+                            }
+                            for (var i = 0; i < b_ret.length; i++) {
+                            	maxnoq='000'+(dec(maxnoq)+1).slice(-3);
+                            	b_ret[i].checkseq= maxnoq
+                            }*/
 							
 							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount,txtSize,txtClass', b_ret.length, b_ret, 'noa,custno,comp,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
 						}
@@ -145,6 +156,14 @@
 						break;
 				}
 				b_pop = '';
+			}
+			
+			function compare(a,b) {
+				if (a.checkseq < b.checkseq)
+					return -1;
+				if (a.checkseq > b.checkseq)
+					return 1;
+				return 0;
 			}
 
 			var z_cno = r_cno, z_acomp = r_comp, z_nick = r_comp.substr(0, 2);
@@ -800,28 +819,25 @@
 			<div class='dbbs' style="width: 1500px;">
 				<table id="tbbs" class='tbbs'  border="1"  cellpadding='2' cellspacing='1'  >
 					<tr style='color:White; background:#003366;' >
-						<td align="center">
-							<input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  />
-						</td>
-						<td align="center" style="width:30px;">客戶編號</td>
-						<td align="center" style="width:80px;">客戶名稱</td>
-						<td align="center" style="width:40px;">出貨單號</td>
-						<td align="center" style="width:20px;">出貨日期</td>
-						<td align="center" style="width:20px;">出貨金額</td>
-						<td align="center" style="width:20px;">未收金額</td>
-						<td align="center" style="width:50px;">已送貨<input id="chkEnda" type="checkbox"/></td>
-						<td align="center" style="width:20px;">已收金額</td>
-						<td align="center" style="width:50px;">簽收<input id="checkDime" type="checkbox"/></td>
-						<td align="center" style="width:20px;">簽收日期</td>
-						<td align="center" style="width:50px;">驗收<input id="checkWidth" type="checkbox"/></td>
-						<td align="center" style="width:20px;">驗收日期</td>
-						<td align="center" style="width:20px;"><a id='lblMemo_s'> </a></td>
+						<td align="center"><input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  /></td>
+						<td align="center" style="width:30px;display: none;">序</td>
+						<td align="center" style="width:120px;">客戶編號</td>
+						<td align="center" style="width:175px;">客戶名稱</td>
+						<td align="center" style="width:130px;">出貨單號</td>
+						<td align="center" style="width:100px;">出貨日期</td>
+						<td align="center" style="width:100px;">出貨金額</td>
+						<td align="center" style="width:100px;">未收金額</td>
+						<td align="center" style="width:80px;">已送貨<input id="chkEnda" type="checkbox"/></td>
+						<td align="center" style="width:100px;">已收金額</td>
+						<td align="center" style="width:80px;">簽收<input id="checkDime" type="checkbox"/></td>
+						<td align="center" style="width:100px;">簽收日期</td>
+						<td align="center" style="width:80px;">驗收<input id="checkWidth" type="checkbox"/></td>
+						<td align="center" style="width:100px;">驗收日期</td>
+						<td align="center" ><a id='lblMemo_s'> </a></td>
 					</tr>
 					<tr style='background:#cad3ff;'>
-						<td style="width:1%;">
-							<input class="btn"  id="btnMinus.*" type="button" value='-' style=" font-weight: bold;" />
-							<input id="txtNoq.*" type="text" style="display:none;"/>
-						</td>
+						<td style="width:1%;"><input class="btn"  id="btnMinus.*" type="button" value='-' style=" font-weight: bold;" /></td>
+						<td style="display: none;"><input class="txt c1" id="txtNoq.*" type="text"/></td>
 						<td><input class="txt c1" id="txtCustno.*" type="text" /></td>
 						<td><input class="txt c1" id="txtComp.*" type="text" /></td>
 						<td><input class="txt c1" id="txtOrdeno.*" type="text" /></td>

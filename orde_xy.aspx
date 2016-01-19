@@ -1617,7 +1617,7 @@
 					curData.paste();
 				}
 				
-				copy_field();
+				//copy_field();
 				
 				$('#chkIsproj').attr('checked', true);
 				$('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val('AUTO');
@@ -1635,7 +1635,7 @@
 				if (emp($('#txtNoa').val()))
 					return;
 				_btnModi();
-				copy_field();
+				//copy_field();
 				$('#txtCustno').focus();
 				$('.yellow').css('background-color','yellow');
 				if (!emp($('#txtCustno').val())) {
@@ -1813,7 +1813,7 @@
 						$('#combGroupbno_'+j).removeAttr('disabled');
 						$('#combClassa_'+j).removeAttr('disabled');
 					}
-					copy_field();
+					//copy_field();
 				}
 				
 				if(emp($('#txtOrdbno').val()) && q_cur<1 && q_cur>2){
@@ -1826,6 +1826,7 @@
 					
 			}
 			
+			//20160109 取消該功能
 			function copy_field() {
 				if(!emp($('#txtPostname').val()) && (q_cur==1||q_cur==2) ){
 					for(var i=0 ;i<fbbm.length;i++){

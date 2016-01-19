@@ -30,7 +30,7 @@
         q_mask(bbmMask);
      
         q_cmbParse("cmbStype", '@全部,'+q_getPara('vcc.stype'));
-        q_cmbParse("cmbApv", '@全部,Y@已核可,N未核可');
+        q_cmbParse("cmbApv", '@全部,Y@已核可,N@未核可');
 
         $('#txtBdate').focus();
     }

@@ -709,6 +709,8 @@
 							t_custorde = t_custorde+(t_custorde.length>0?';':'')+as[i].custorde;
 						}
 						$('#txtMemo').val((t_custorde.length>0?('客戶訂單編號：'+t_custorde+'\n'):'')+t_memo);*/
+						//20160120 要備註
+						$('#txtMemo').val(t_memo+(t_memo.length>0 &&as[0].memo.length>0 ?',':'')+as[0].memo);
 						$('#txtPost2').val(t_post2);
 						$('#txtAddr2').val(t_addr2);
 						

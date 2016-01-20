@@ -302,8 +302,9 @@ select '0',b.datea,a.custno,replace(a.comp,'~#$',char(39)),a.noa,a.memo
 ,isnull(c.mount,0),b.mount-isnull(c.mount,0),b.memo
 from view_orde a left join view_ordes b on a.noa=b.noa
 outer apply (select sum(mount)mount from view_vccs where ordeno=a.noa and no2=b.no2 ) c
-where b.datea!='' and b.mount!=0
-and  ((b.datea between @t_bdate and @t_edate) or (b.mount-c.mount>0))
+where b.mount!=0
+and ((b.datea <= @t_edate) or isnull(b.datea,'')='' ) 
+and ((b.datea between @t_bdate and @t_edate) or (b.mount-c.mount>0)) 
 and  (b.productno between @t_bpno and @t_epno)
 and  (a.custno between @t_bcustno and @t_ecustno)
 

@@ -42,9 +42,9 @@
                 q_popAssign();
                 q_getFormat();
                 q_langShow();
-                $('#txtXdate1').mask(r_picm);
+                $('#txtXdate1').mask(r_picd);
                 $('#txtXdate1').datepicker();
-                $('#txtXdate2').mask(r_picm);
+                $('#txtXdate2').mask(r_picd);
                 $('#txtXdate2').datepicker();
                 $('#txtXdate1').val(q_date());
                 $('#txtXdate2').val(q_date());

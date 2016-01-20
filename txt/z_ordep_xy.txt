@@ -217,6 +217,9 @@ set @t_edate = case when '#non'=[3] then char(255) else [3] end
 		ptotal float,
 		e nvarchar(10),
 		c nvarchar(10),
+		apv nvarchar(50),
+		worker nvarchar(50),
+		w2 nvarchar(50),
 		pcount int,
 		memo nvarchar(max),
 		primary key (odate,gno,noa,no2)
@@ -226,7 +229,7 @@ set @t_edate = case when '#non'=[3] then char(255) else [3] end
 		,case when isnull(a.nick,'')!='' then a.nick else a.comp end,
 		   b.productno pno,b.product,b.spec,
 		   b.unit, b.mount pmount, b.weight pweight, b.price,
-		   b.total ptotal, b.enda e, b.cancel c, 0 pcount,b.memo	
+		   b.total ptotal, b.enda e, b.cancel c,a.apv,a.worker,a.worker2, 0 pcount,b.memo	
 	from view_ordes b
 	left join view_orde a on a.noa=b.noa
 	left join ucc c on b.productno=c.noa
@@ -267,7 +270,7 @@ set @t_edate = case when '#non'=[3] then char(255) else [3] end
 			insert into @result
 			select '1' gno, '小計' noa, '' no2, '' datea, @t_odate, '' oldno, '' chkstatus, '' custno, '' comp,
 				   '' pno,'' pname,'' spec , '' unit, @t_pmount pmount, @t_pweight pweight, 0 price,
-				   @t_ptotal ptotal, '' e, '' c, @t_pcount pcount, '' memo
+				   @t_ptotal ptotal, '' e, '' c,'' apv,''worker,'' w2, @t_pcount pcount, '' memo
 		end
 		if @t_odate!=@odate
 		begin
@@ -297,11 +300,11 @@ set @t_edate = case when '#non'=[3] then char(255) else [3] end
 		insert into @result
 		select '1' gno, '小計' noa, '' no2, '' datea, @t_odate odate, '' oldno, '' chkstatus, '' custno, '' comp,
 			   '' pno,'' pname,'' spec, '' unit, @t_pmount pmount, @t_pweight pweight, 0 price,
-			   @t_ptotal ptotal, '' e, '' c, @t_pcount pcount, '' memo	
+			   @t_ptotal ptotal, '' e, '' c,'' apv,''worker,'' w2, @t_pcount pcount, '' memo	
 		insert into @result
 		select '2' gno, '總計' noa, '' no2, '' datea, @t_odate odate, '' oldno, '' chkstatus, '' custno, '' comp,
 			   '' pno,'' pname,'' spec, '' unit, @tot_pmount pmount, @tot_pweight pweight, 0 price,
-			   @tot_ptotal ptotal, '' e, '' c, @t_pcount pcount, '' memo
+			   @tot_ptotal ptotal, '' e, '' c,'' apv,''worker,'' w2, @t_pcount pcount, '' memo
 	end
 	
 	select gno,noa,no2,datea,odate,custorder,oldno,custno,replace(comp,'~#$',char(39)) comp,pno,pname,spec,unit
@@ -309,7 +312,7 @@ set @t_edate = case when '#non'=[3] then char(255) else [3] end
 	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,pweight),1)),0,30)) pweight
 	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,price),1)),0,30)) price
 	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,ptotal),1)),4,30)) ptotal
-	,case e when '1' then 'Y' else 'N' end e,c,pcount,memo
+	,case e when '1' then 'Y' else 'N' end e,c,pcount,memo,apv,worker,w2
 	from @result;
 
 

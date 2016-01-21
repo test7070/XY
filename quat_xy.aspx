@@ -476,10 +476,10 @@
 							btnModi();
 						}*/
 						
-						//10/30暫不鎖定
-						//if (as[0] != undefined) {
-						//	quat_no3_disabled=true;
-						//}
+						//10/30暫不鎖定 20160121 鎖定
+						if (as[0] != undefined) {
+							quat_no3_disabled=true;
+						}
 						orde_quat=true;
 						btnModi();
 						break;
@@ -1055,7 +1055,7 @@
 						$('#combGroupbno_'+j).removeAttr('disabled');
 					}
 					//獎金已完成不能修改
-					/*if($('#checkEweight_'+j).prop('checked') && r_rank<9){
+					if($('#checkEweight_'+j).prop('checked') && r_rank<9){
 						$('#btnMinus_'+j).attr('disabled', 'disabled');
 						$('#txtNo3_'+j).attr('disabled', 'disabled');
 						$('#txtProductno_'+j).attr('disabled', 'disabled');
@@ -1091,7 +1091,7 @@
 						$('#txtTotal_'+j).removeAttr('disabled');
 						$('#txtMemo_'+j).removeAttr('disabled');
 						$('#txtAddno1_'+j).removeAttr('disabled');
-					}*/
+					}
 				}
 			}
 

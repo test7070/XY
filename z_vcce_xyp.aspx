@@ -53,10 +53,10 @@
 
                 $('#txtDate1').mask('999/99/99');
                 $('#txtDate1').datepicker();
-                $('#txtDate1').val(q_date());
+                $('#txtDate1').val(q_cdn(q_date(),1));
                 $('#txtDate2').mask('999/99/99');
                 $('#txtDate2').datepicker();
-				$('#txtDate2').val(q_date());
+				$('#txtDate2').val(q_cdn(q_date(),1));
                 
             }
 

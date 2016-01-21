@@ -141,7 +141,7 @@ a.*
 --,case when b.typea='2' then '<a style="font-size:18px'+CHAR(59)+'">'+'退貨'+'</a>'+a.amemo else a.amemo end memo
 ,a.amemo memo
 ,case when isnull(b.tranadd,0)>1 then '('+cast(isnull(b.tranadd,0) as nvarchar(10))+')' else '' end tranadd
-,case when topage>1 then cast(pageno as nvarchar(10))+'/'+cast(topage as nvarchar(10)) else '' end pagememo
+,case when topage>1 then '- '+cast(pageno as nvarchar(10))+'/'+cast(topage as nvarchar(10)) else '' end pagememo
 from @tmp a
 left join view_vcc b on a.noa=b.noa
 order by a.noa,a.pageno,a.recno,a.gno;

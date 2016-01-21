@@ -11,6 +11,7 @@ declare @tmp table(
 	pageno int,
 	topage int,
 	noa nvarchar(100),
+	noq nvarchar(100),
 	datea nvarchar(15),
 	custno nvarchar(90),
 	comp nvarchar(150),
@@ -36,12 +37,13 @@ declare @tmp table(
 	total float,
 	bmemo nvarchar(MAX),
 	worker nvarchar(MAX),
-	custorde nvarchar(MAX)
+	custorde nvarchar(MAX),
+	prodspec nvarchar(MAX)
 )
 
 insert into @tmp 
 select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0
-,a.noa,a.datea,a.custno,a.comp,a.tel,c.mobile,case when a.addr2!='' then a.addr2 else a.addr end,cm.conn,cm.trantime
+,a.noa,b.noq,a.datea,a.custno,a.comp,a.tel,c.mobile,case when a.addr2!='' then a.addr2 else a.addr end,cm.conn,cm.trantime
 ,a.invono,replace(a.memo,'chr(10)','<BR>')
 ,case when isnull(cm.notprice,0)=1 then null else a.money end
 ,case when isnull(cm.notprice,0)=1 then null else a.tax end
@@ -59,10 +61,52 @@ when cast(c.startdate as int)-1>0 then cast(cast(c.startdate as int)-1 as nvarch
 ,case when a.typea='2' then '退貨 ' else '' end+replace(b.memo,'chr(10)','<BR>')
 ,case when a.worker2!='' then a.worker2 else a.worker end
 ,stuff((select ','+custorde from view_orde where CHARINDEX(noa,a.ordeno)>0 and custorde!='' for xml path('')),1,1,'')
+,dbo.charbr(b.product+' '+b.spec,37)
 from view_vcc a left join view_vccs b on a.noa=b.noa left join cust c on a.custno=c.noa left join custm cm on a.custno=cm.noa
 left join ucc d on b.productno=d.noa
 where a.noa between @t_bxnoa and @t_exnoa
+--1050121----------------------------------------------------------------------------------------------------------------------------
+declare @noa nvarchar(50)
+declare @noq nvarchar(50)
+declare @prodspec nvarchar(MAX)
+declare @mcount int
+--分行
+declare cursor_table cursor for
+select noa,noq,prodspec from @tmp order by noa,noq
+open cursor_table
+fetch next from cursor_table
+into @noa,@noq,@prodspec
+while(@@FETCH_STATUS <> -1)
+begin
+	set @mcount=1
+	if (CHARINDEX('<BR>',@prodspec)>0)
+	begin
+		update @tmp
+		set prodspec=SUBSTRING(@prodspec,0,CHARINDEX('<BR>',@prodspec))
+		where noa=@noa and noq=@noq
+		
+		set @prodspec=SUBSTRING(@prodspec,CHARINDEX('<BR>',@prodspec)+4,LEN(@prodspec))
+	
+		insert @tmp(
+			gno,recno,pageno,topage,noa,noq,datea,custno,comp,tel,mobile,addr,conn,timea,invono,amemo,money,tax,invopay,checkvcc,paytype
+			,productno,product,spec,unit,mount,stock,price,total,bmemo,worker,custorde,prodspec)
+			
+		select gno,recno,pageno,topage,noa,noq+'-'++cast(@mcount as nvarchar(10)),datea,custno,comp,tel,mobile,addr,conn,timea,invono,amemo,money,tax,invopay,checkvcc,paytype
+			,productno,product,spec,unit,null,null,null,null,null,worker,custorde,@prodspec
+		from @tmp where noa=@noa and noq=@noq
+	end
 
+	fetch next from cursor_table
+	into @noa,@noq,@prodspec
+end
+close cursor_table
+deallocate cursor_table
+
+--更新順序
+update a
+set recno=rr
+from (select recno,ROW_NUMBER()over(partition by noa order by noa,noq)rr from @tmp) a
+--1050121----------------------------------------------------------------------------------------------------------------------------
 declare @t_noa nvarchar(50)
 declare @count int
 declare @t_count int

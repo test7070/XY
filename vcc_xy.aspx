@@ -81,7 +81,7 @@
 			}
 
 			function mainPost() {
-				if(r_rank<'7')
+				if(r_rank<'5')
 					q_readonlys.push('txtPrice');
 					
 				q_getFormat();

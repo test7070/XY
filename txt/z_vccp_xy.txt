@@ -69,7 +69,6 @@ where a.noa between @t_bxnoa and @t_exnoa
 declare @noa nvarchar(50)
 declare @noq nvarchar(50)
 declare @prodspec nvarchar(MAX)
-declare @mcount int
 --分行
 declare cursor_table cursor for
 select noa,noq,prodspec from @tmp order by noa,noq
@@ -78,7 +77,6 @@ fetch next from cursor_table
 into @noa,@noq,@prodspec
 while(@@FETCH_STATUS <> -1)
 begin
-	set @mcount=1
 	if (CHARINDEX('<BR>',@prodspec)>0)
 	begin
 		update @tmp
@@ -91,7 +89,7 @@ begin
 			gno,recno,pageno,topage,noa,noq,datea,custno,comp,tel,mobile,addr,conn,timea,invono,amemo,money,tax,invopay,checkvcc,paytype
 			,productno,product,spec,unit,mount,stock,price,total,bmemo,worker,custorde,prodspec)
 			
-		select gno,recno,pageno,topage,noa,noq+'-'++cast(@mcount as nvarchar(10)),datea,custno,comp,tel,mobile,addr,conn,timea,invono,amemo,money,tax,invopay,checkvcc,paytype
+		select gno,recno,pageno,topage,noa,noq+'-1',datea,custno,comp,tel,mobile,addr,conn,timea,invono,amemo,money,tax,invopay,checkvcc,paytype
 			,productno,product,spec,unit,null,null,null,null,null,worker,custorde,@prodspec
 		from @tmp where noa=@noa and noq=@noq
 	end

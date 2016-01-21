@@ -733,6 +733,7 @@
 							$('#cmbCoin').val(as[0].coin);
 							$('#txtFloata').val(as[0].floata);
 							$('#txtWeight').val(as[0].weight);
+							Trantype_cardeal();
 						}
 						sum();
 						break;
@@ -1259,6 +1260,7 @@
 				var t_where = "where=^^ 1=0  ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				refreshBbm();
+				Trantype_cardeal();
 			}
 
 			function btnModi() {
@@ -1358,10 +1360,12 @@
 				if($('#cmbTrantype').val()=='送達'){
 					$('#txtCardealno').val('YUDA');
 					$('#txtCardeal').val('有達實業有限公司');
-				}
-				if($('#cmbTrantype').val()=='貨運'){
+				}else if($('#cmbTrantype').val()=='貨運'){
 					$('#txtCardealno').val('H002');
 					$('#txtCardeal').val('新竹貨運物流');
+				}else{
+					$('#txtCardealno').val('');
+					$('#txtCardeal').val('');
 				}
 			}
 

@@ -66,8 +66,11 @@
 					var t_vccno = $('#txtOrdeno').val();
 					var t_bdate = $('#txtBdate').val();
 					var t_edate = $('#txtEdate').val();
+					var t_cardealno = $('#txtCardealno').val();
 					
 					var t_where = "exists (select noa from view_vccs where (isnull(mount,0)-isnull(tranmoney2,0)>0 or isnull(tranmoney3,0)>0) and not exists (select ordeno from view_vcces where isnull(enda,0)=0 and noa!='"+$('#txtNoa').val()+"' and ordeno=view_vccs.noa ) group by noa having noa=view_vcc.noa )";
+					if(t_cardealno.length>0)
+						t_where+=" and cardealno='"+t_cardealno+"'";
 					if(t_post.length>0)
 						t_where+=" and left((case when isnull(post2,'')!='' then post2 else post end),"+t_post.length+")='"+t_post+"'";
 					if(t_vccno.length>0)
@@ -348,9 +351,11 @@
 				$('#txtCno').val(z_cno);
 				$('#txtAcomp').val(z_acomp);
 				$('#txtDatea').val(q_date());
+				$('#txtCardealno').val('YUDA');
+				$('#txtCardeal').val('有達實業有限公司');
 				$('#txtCardealno').focus();
-				$('#txtBdate').val(q_date());
-				$('#txtEdate').val(q_date());
+				$('#txtBdate').val(q_cdn(q_date(),1));
+				$('#txtEdate').val(q_cdn(q_date(),1));
 				
 				$('#txtSalesno').val(r_userno);
 				$('#txtSales').val(r_name);

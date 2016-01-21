@@ -466,13 +466,21 @@
 							q_cmbParse("combGroupbno", t_item,'s');
 						}
 						break;
-					case 'view_ordes':
+					case 'quat_Dele':
+						var as = _q_appendData("view_ordes", "", true);
+						if (as[0] != undefined) {
+							alert('已轉訂單禁止刪除!!!');
+						}else{
+							_btnDele();
+						}
+						break;
+					case 'quat_Modi':
 						var as = _q_appendData("view_ordes", "", true);
 						//暫不鎖定
 						/*if (as[0] != undefined) {
 							alert('已轉訂單禁止修改!!!');
 						}else{
-							orde_quat=true;
+							orde_quat_modi=true;
 							btnModi();
 						}*/
 						
@@ -480,7 +488,7 @@
 						if (as[0] != undefined) {
 							quat_no3_disabled=true;
 						}
-						orde_quat=true;
+						orde_quat_modi=true;
 						btnModi();
 						break;
 					case 'cust_detail':
@@ -1122,13 +1130,13 @@
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 			}
 			
-			var orde_quat=false,quat_no3_disabled=false;
+			var orde_quat_modi=false,quat_no3_disabled=false;
 			function btnModi() {
 				if (emp($('#txtNoa').val()))
 					return;
-				if(!orde_quat){
+				if(!orde_quat_modi){
 					var t_where = "where=^^ quatno='" + $('#txtNoa').val() + "' ^^";
-					q_gt('view_ordes', t_where, 0, 0, 0, "");
+					q_gt('view_ordes', t_where, 0, 0, 0, "quat_Modi");
 					return;
 				}
 				
@@ -1140,7 +1148,7 @@
 					var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 					q_gt('custaddr', t_where, 0, 0, 0, "");
 				}
-				orde_quat=false;
+				orde_quat_modi=false;
 			}
 
 			function btnPrint() {
@@ -1317,9 +1325,16 @@
 			function q_brwAssign(s1) {
 				_q_brwAssign(s1);
 			}
-
+			
+			var orde_quat_modi=false;
 			function btnDele() {
-				_btnDele();
+				if(!orde_quat_modi){
+					var t_where = "where=^^ quatno='" + $('#txtNoa').val() + "' ^^";
+					q_gt('view_ordes', t_where, 0, 0, 0, "quat_Dele");
+					return;
+				}
+				
+				//_btnDele();
 			}
 
 			function btnCancel() {

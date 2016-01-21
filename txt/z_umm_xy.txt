@@ -166,7 +166,7 @@ select '2' gno,0 idno,0 page,0 mpage, a.typea, a.noa, b.noq, a.datea , (case whe
 		, isnull(c.zip_home,'') post, isnull(c.addr_home,'') addr,isnull(c.tel,'') tel,isnull(c.serial,'')serial 
 		,(case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) salesno
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales ,a.invono
-		,b.productno, b.product,b.spec, b.unit,b.mount,b.price,b.total money,a.money
+		,b.productno, b.product,b.spec, b.unit,b.dime,b.price,b.total money,a.money
 		,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
 		,a.taxtype,a.total,0 paysale,0 discounts,a.payed payed,0 punpay,a.unpay,0,b.memo
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
@@ -384,7 +384,7 @@ select '2' gno,0 idno,0 page,0 mpage, a.typea, a.noa, b.noq, a.datea , (case whe
 		, isnull(c.zip_home,'') post, isnull(c.addr_home,'') addr,isnull(c.tel,'') tel,isnull(c.serial,'')serial 
 		,(case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) salesno
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales ,a.invono
-		,b.productno, b.product,b.spec, b.unit,b.mount,b.price,b.total money,a.money
+		,b.productno, b.product,b.spec, b.unit,b.dime,b.price,b.total money,a.money
 		,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
 		,a.taxtype,a.total,0 paysale,a.payed payed,0 punpay,a.unpay,0,b.memo
 	from view_vccs b left join view_vcc a on a.noa = b.noa 

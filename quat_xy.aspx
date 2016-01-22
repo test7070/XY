@@ -1047,7 +1047,13 @@
 				}
 				
 				for (var j = 0; j < q_bbsCount; j++) {
-					if(quat_no3_disabled && q_cur!=1){
+					//1050122 目前暫時都開放修改 除序號及刪除
+					if(r_rank<=8){ 
+						$('#btnMinus_'+j).attr('disabled', 'disabled');
+						$('#txtNo3_'+j).attr('disabled', 'disabled');
+					}
+					
+					/*if(quat_no3_disabled && q_cur!=1){
 						$('#btnMinus_'+j).attr('disabled', 'disabled');
 						$('#txtNo3_'+j).attr('disabled', 'disabled');
 						$('#txtProductno_'+j).attr('disabled', 'disabled');
@@ -1099,7 +1105,8 @@
 						$('#txtTotal_'+j).removeAttr('disabled');
 						$('#txtMemo_'+j).removeAttr('disabled');
 						$('#txtAddno1_'+j).removeAttr('disabled');
-					}
+					}*/
+					
 				}
 			}
 
@@ -1326,13 +1333,9 @@
 				_q_brwAssign(s1);
 			}
 			
-			var orde_quat_modi=false;
 			function btnDele() {
-				if(!orde_quat_modi){
-					var t_where = "where=^^ quatno='" + $('#txtNoa').val() + "' ^^";
-					q_gt('view_ordes', t_where, 0, 0, 0, "quat_Dele");
-					return;
-				}
+				var t_where = "where=^^ quatno='" + $('#txtNoa').val() + "' ^^";
+				q_gt('view_ordes', t_where, 0, 0, 0, "quat_Dele");
 				
 				//_btnDele();
 			}

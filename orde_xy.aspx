@@ -537,6 +537,23 @@
 			var issales=false;
 			function q_gtPost(t_name) {
 				switch (t_name) {
+					case 'btnDel_orde':
+						var as = _q_appendData("view_vccs", "", true);
+						if (as[0] != undefined) {
+							alert('訂單已出貨【'+as[0].noa+'】禁止刪除!!');
+						}else{
+							_btnDele();
+						}
+					case 'orde_Modi':
+						var as = _q_appendData("view_vccs", "", true);
+						if (as[0] != undefined) {
+							orde2vcc_modi=false;
+							alert('已轉出貨【'+as[0].noa+'】禁止修改!!!');
+						}else{
+							orde2vcc_modi=true;
+							btnModi();
+						}
+						break;
 					case 'custm':
 						var as = _q_appendData("custm", "", true);
 						if (as[0] != undefined) {
@@ -958,13 +975,6 @@
 							}
 						}
 						break;
-					case 'btnDel_orde':
-						var as = _q_appendData("view_vccs", "", true);
-						if (as[0] != undefined) {
-							alert('訂單已出貨【'+as[0].noa+'】禁止刪除!!');
-						}else{
-							_btnDele();
-						}
 					case q_name:
 						if (q_cur == 4)
 							q_Seek_gtPost();
@@ -1630,10 +1640,17 @@
 				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 			}
-
+			
+			var orde2vcc_modi=false;
 			function btnModi() {
 				if (emp($('#txtNoa').val()))
 					return;
+				if(!orde2vcc_modi){
+					var t_where = "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^";
+					q_gt('view_vccs', t_where, 0, 0, 0, "orde_Modi");
+					return;
+				}
+					
 				_btnModi();
 				//copy_field();
 				$('#txtCustno').focus();
@@ -1642,6 +1659,7 @@
 					var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 					q_gt('custaddr', t_where, 0, 0, 0, "");
 				}
+				orde2vcc_modi=false;
 			}
 
 			function btnPrint() {

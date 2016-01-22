@@ -53,6 +53,7 @@ where a.datea between @t_bdate and @t_edate
 and isnull(b.custno,'') between @t_bcust and @t_ecust
 and a.driverno between @t_bdriver and @t_edriver
 and (len(@t_carno)=0 or a.carno=@t_carno) 
+and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
 
 declare @datea nvarchar(50)
 declare @driverno nvarchar(50)
@@ -177,6 +178,7 @@ where a.datea between @t_bdate and @t_edate
 and isnull(b.custno,'') between @t_bcust and @t_ecust
 and a.driverno between @t_bdriver and @t_edriver
 and (len(@t_carno)=0 or a.carno=@t_carno) and c.typea='1'
+and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
 group by a.datea,a.driverno,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,c.productno,c.product,c.spec,c.unit
 
 declare @recno nvarchar(50)

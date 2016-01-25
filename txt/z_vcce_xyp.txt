@@ -91,6 +91,10 @@ begin
 	
 	insert @tmp (gno,datea,driverno,page)
 	select '1' gno,datea,driverno,page from @tmp where gno='0' group by datea,driverno,page
+	
+	insert @tmp (gno,datea,driverno,page,mount,vtotal,ecount)
+	select '2' gno,datea,driverno,MAX(page),sum(mount),sum(vtotal),sum(ecount) 
+	from @tmp where gno='0' group by datea,driverno
 end
 
 select 
@@ -99,7 +103,7 @@ dbo.getComma(vtotal,-1) vtotal,
 dbo.getComma(ecount,-1) ecount,
 case when ewidth>0 then 'V' else '' end width,
 * 
-from @tmp order by datea,driverno,page,gno,recno;
+from @tmp order by datea,driverno,page,case when gno='2' then '1' when gno='1' then '2' else gno end,recno;
 --**************************************************************************************************************
 z_vcce_xyp2:--z_vcce_xyp2
 declare @t_bdate nvarchar(20)

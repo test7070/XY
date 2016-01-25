@@ -1,4 +1,4 @@
-tmp_cust_ucc:--tmp_cust_ucc --建立暫存的客戶資料 與 產品(便品)
+tmp_cust_ucc:--tmp_cust_ucc --建立暫存的客戶資料 與 產品(便品) --已不用
 SET QUOTED_IDENTIFIER OFF
 declare @noa nvarchar(MAX) = [1]
 declare @worker nvarchar(MAX) = [2]
@@ -56,7 +56,7 @@ close cursor_table
 deallocate cursor_table 
 ;
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
-change_tmpcustno:--change_tmpcustno --更換客戶編號
+change_tmpcustno:--change_tmpcustno --更換客戶編號 --已不用
 SET QUOTED_IDENTIFIER OFF
 declare @tmp_custno nvarchar(MAX) = [1]
 declare @chg_custno nvarchar(MAX) = [2]
@@ -157,7 +157,7 @@ close cursor_table
 deallocate cursor_table 
 ;
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
-change_tmpuccno:--change_tmpuccno --更換產品編號
+change_tmpuccno:--change_tmpuccno --更換產品編號 --已不用
 SET QUOTED_IDENTIFIER OFF
 declare @tmp_uccno nvarchar(MAX) = [1]
 declare @chg_uccno nvarchar(MAX) = [2]
@@ -268,7 +268,8 @@ begin
 	
 		if(charindex('印',@classa)>0 or charindex('客',@classa)>0)
 		begin
-			set @newpno=@pnokey+@custno+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,len(@custno))=@custno and len(noa)>5),'000'),3) as int)+1 as nvarchar(10)),3)
+			--set @newpno=@pnokey+@custno+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,len(@custno))=@custno and len(noa)>5),'000'),3) as int)+1 as nvarchar(10)),3)
+			set @newpno=@pnokey+left(@custno,5)+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,6)=@pnokey+left(@custno,5) and len(noa)>6 ),'000'),3) as int)+1 as nvarchar(10)),3)
 		end
 		else--便品
 		begin
@@ -612,7 +613,7 @@ begin
 		
 			if(charindex('印',@classa)>0 or charindex('客',@classa)>0)
 			begin
-				set @newpno=@pnokey+@custno+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,len(@custno))=@custno and len(noa)>5),'000'),3) as int)+1 as nvarchar(10)),3)
+				set @newpno=@pnokey+left(@custno,5)+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,6)=@pnokey+left(@custno,5) and len(noa)>6 ),'000'),3) as int)+1 as nvarchar(10)),3)
 			end
 			else--便品
 			begin

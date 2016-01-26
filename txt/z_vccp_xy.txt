@@ -92,7 +92,7 @@ begin
 			,productno,product,spec,unit,mount,stock,price,total,bmemo,worker,custorde,prodspec)
 			
 		select gno,recno,pageno,topage,noa,noq+'-1',datea,custno,comp,tel,mobile,addr,conn,timea,invono,amemo,salesno,sales,money,tax,invopay,checkvcc,paytype
-			,productno,product,spec,unit,null,null,null,null,null,worker,custorde,@prodspec
+			,productno,product,spec,null,null,null,null,null,null,worker,custorde,@prodspec
 		from @tmp where noa=@noa and noq=@noq
 	end
 
@@ -103,9 +103,9 @@ close cursor_table
 deallocate cursor_table
 
 --更新順序
-update a
-set recno=rr
-from (select recno,ROW_NUMBER()over(partition by noa order by noa,noq)rr from @tmp) a
+--update a
+--set recno=rr
+--from (select recno,ROW_NUMBER()over(partition by noa order by noa,noq)rr from @tmp) a
 --1050121----------------------------------------------------------------------------------------------------------------------------
 declare @t_noa nvarchar(50)
 declare @count int

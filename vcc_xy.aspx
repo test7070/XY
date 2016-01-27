@@ -425,8 +425,13 @@
 						var as = _q_appendData("sss", "", true);
 	                        if (as[0] != undefined) {
 	                        	issales=(as[0].issales=="true"?true:false);
-	                        	if(issales)
-	                        		q_content = "where=^^salesno='" + r_userno + "'^^";
+	                        	if(issales){
+	                        		if(q_content.length>0){
+	                        			q_content = "where=^^salesno='" + r_userno + "' and "+replaceAll(q_content,'where=^^','');
+	                        		}else{
+	                        			q_content = "where=^^salesno='" + r_userno + "'^^";
+	                        		}
+	                        	}
 							}
 							q_gt(q_name, q_content, q_sqlCount, 1, 0, '', r_accy);
 						break;

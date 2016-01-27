@@ -1807,7 +1807,8 @@
 				
 				for (var j = 0; j < q_bbsCount; j++) {
 					if(!emp($('#txtQuatno_'+j).val()) || !q_authRun(7)){
-						$('#txtProductno_'+j).attr('disabled', 'disabled');
+						//$('#txtProductno_'+j).attr('disabled', 'disabled'); //1050127 開放修改 輸入相同產品 
+						//$('#btnProduct_'+j).attr('disabled', 'disabled');
 						$('#txtProduct_'+j).attr('disabled', 'disabled');
 						$('#txtSpec_'+j).attr('disabled', 'disabled');
 						$('#txtClassa_'+j).attr('disabled', 'disabled');
@@ -1815,11 +1816,11 @@
 						$('#txtDime_'+j).attr('disabled', 'disabled');
 						$('#txtUnit_'+j).attr('disabled', 'disabled');
 						$('#txtPrice_'+j).attr('disabled', 'disabled');
-						$('#btnProduct_'+j).attr('disabled', 'disabled');
 						$('#combGroupbno_'+j).attr('disabled', 'disabled');
 						$('#combClassa_'+j).attr('disabled', 'disabled');
 					}else{
-						$('#txtProductno_'+j).removeAttr('disabled');
+						//$('#txtProductno_'+j).removeAttr('disabled');
+						//$('#btnProduct_'+j).removeAttr('disabled');
 						$('#txtProduct_'+j).removeAttr('disabled');
 						$('#txtSpec_'+j).removeAttr('disabled');
 						$('#txtClassa_'+j).removeAttr('disabled');
@@ -1827,7 +1828,6 @@
 						$('#txtDime_'+j).removeAttr('disabled');
 						$('#txtUnit_'+j).removeAttr('disabled');
 						$('#txtPrice_'+j).removeAttr('disabled');
-						$('#btnProduct_'+j).removeAttr('disabled');
 						$('#combGroupbno_'+j).removeAttr('disabled');
 						$('#combClassa_'+j).removeAttr('disabled');
 					}

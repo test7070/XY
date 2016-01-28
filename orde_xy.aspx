@@ -380,6 +380,11 @@
 						return;
 					}
 					
+					if(emp($('#txtApv').val())){
+						alert("請先核准!!");
+						return;
+					}
+					
 					//檢查是否已收款
 					if(!x_ordevccumm && !emp($('#txtVccno').val())){
 						var t_where = " where=^^ vccno='" + $('#txtVccno').val() + "'^^";
@@ -1751,7 +1756,11 @@
 					$('#lblCust').show();$('#lblCustx').hide();
 					$('#btnOrdei').removeAttr('disabled');
 					$('#combAddr').attr('disabled', 'disabled');
-					$('#btnOrdetoVcc').attr('disabled', 'disabled');// 0107暫時不開放 .removeAttr('disabled');
+					if(r_rank<'3') // 0107暫時不開放 //1028重新開放並限制權限
+						$('#btnOrdetoVcc').attr('disabled', 'disabled');
+					else
+						$('#btnOrdetoVcc').removeAttr('disabled');
+						
 					$('#txtOdate').datepicker( 'destroy' );
 					for (var j = 0; j < q_bbsCount; j++) {
 						$('#combGroupbno_'+j).attr('disabled', 'disabled');
@@ -2031,8 +2040,9 @@
 				//}
 				
 				if(q_cur==2 && !emp($('#txtVccno').val())){//修改後重新產生 避免資料不對應
-					if (confirm("是否要更新出貨單?"))
-						$('#btnOrdetoVcc').click();
+					alert('請核准後更新出貨單!!');
+					/*if (confirm("是否要更新出貨單?"))
+						$('#btnOrdetoVcc').click();*/
 				}
 			}
 			

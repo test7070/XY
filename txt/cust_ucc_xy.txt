@@ -426,7 +426,7 @@ declare @ordedate nvarchar(20)
 if(@condition='1')
 begin
 	--105/01/13 先判斷有預交日就以預交日為主(限表身皆是同一個預交日)
-	set @ordecount=isnull( select count(*) from ( (select datea from view_ordes where noa=@noa group by datea) )tmp ,0)
+	set @ordecount=isnull((select count(*) from ( (select datea from view_ordes where noa=@noa group by datea) )tmp) ,0)
 	set @ordedate=isnull((select MIN(datea) from view_ordes where noa=@noa),'')
 	if(@ordedate!='')
 		set @nowdate=@ordedate

@@ -160,7 +160,7 @@ set pageno=ceiling(cast(recno as float)/cast(@t_pageline as float))
 where gno='0'
 
 update a 
-set total=(select SUM(total) from @tmp where noa=a.noa and gno='0')+tax
+set total=(select total from view_vcc where noa=a.noa )
 from @tmp a where gno='2'
 
 update @tmp set money=null,tax=null,total=null

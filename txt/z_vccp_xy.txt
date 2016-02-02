@@ -8,6 +8,7 @@ set @t_exnoa = case when '#non' = [3] then CHAR(255) else [3] end
 declare @tmp table(
 	gno nvarchar(1),
 	recno int,
+	xrecno int,
 	pageno int,
 	topage int,
 	noa nvarchar(100),
@@ -44,7 +45,7 @@ declare @tmp table(
 )
 
 insert into @tmp 
-select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0
+select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0
 ,a.noa,b.noq,a.datea,a.custno,a.comp,a.tel,c.mobile,case when a.addr2!='' then a.addr2 else a.addr end,cm.conn,cm.trantime
 ,a.invono,replace(a.memo,'chr(10)','<BR>'),a.salesno,a.sales
 ,case when isnull(cm.notprice,0)=1 then null else a.money end
@@ -103,9 +104,9 @@ close cursor_table
 deallocate cursor_table
 
 --更新順序
---update a
---set recno=rr
---from (select recno,ROW_NUMBER()over(partition by noa order by noa,noq)rr from @tmp) a
+update a
+set recno=rr
+from (select recno,ROW_NUMBER()over(partition by noa order by noa,noq)rr from @tmp) a
 --1050121----------------------------------------------------------------------------------------------------------------------------
 declare @t_noa nvarchar(50)
 declare @count int
@@ -172,7 +173,7 @@ update a
 set topage=(select MAX(pageno) from @tmp where noa=a.noa)
 from @tmp a 
 
-select case when isnull(a.productno,'')='' then null else a.recno end no,
+select a.xrecno no,
 dbo.getComma(a.money,0) money,
 dbo.getComma(a.tax,0) tax,
 dbo.getComma(a.mount,1) mount,
@@ -185,7 +186,7 @@ a.*
 --,case when b.typea='2' then '<a style="font-size:18px'+CHAR(59)+'">'+'退貨'+'</a>'+a.amemo else a.amemo end memo
 ,a.amemo memo
 ,case when isnull(b.tranadd,0)>1 then '('+cast(isnull(b.tranadd,0) as nvarchar(10))+')' else '' end tranadd
-,case when topage>1 then '- '+cast(pageno as nvarchar(10))+'/'+cast(topage as nvarchar(10)) else '' end pagememo
+,case when topage>1 then ' ('+cast(pageno as nvarchar(10))+'/'+cast(topage as nvarchar(10))+')' else '' end pagememo
 from @tmp a
 left join view_vcc b on a.noa=b.noa
 order by a.noa,a.pageno,a.recno,a.gno;

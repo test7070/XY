@@ -1650,7 +1650,7 @@
 			function btnModi() {
 				if (emp($('#txtNoa').val()))
 					return;
-				if(!orde2vcc_modi){
+				if(!orde2vcc_modi && r_rank<"8"){
 					var t_where = "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^";
 					q_gt('view_vccs', t_where, 0, 0, 0, "orde_Modi");
 					return;

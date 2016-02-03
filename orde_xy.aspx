@@ -551,10 +551,21 @@
 						}
 					case 'orde_Modi':
 						var as = _q_appendData("view_vccs", "", true);
-						if (as[0] != undefined) {
-							orde2vcc_modi=false;
-							alert('已轉出貨【'+as[0].noa+'】禁止修改!!!');
-						}else{
+						if(r_rank<"5"){ //4以下禁止修改
+							if (as[0] != undefined) {
+								orde2vcc_modi=false;
+								alert('已轉出貨【'+as[0].noa+'】禁止修改!!!');
+							}else{
+								orde2vcc_modi=true;
+								btnModi();
+							}
+						}else{//5~7可修改數量
+							if (as[0] != undefined) {
+								alert('已轉出貨【'+as[0].noa+'】只可修改數量!!!');
+								orde2vcc57=true;
+							}else{
+								orde2vcc57=false;
+							}
 							orde2vcc_modi=true;
 							btnModi();
 						}
@@ -1647,9 +1658,11 @@
 			}
 			
 			var orde2vcc_modi=false;
+			var orde2vcc57=false;
 			function btnModi() {
 				if (emp($('#txtNoa').val()))
 					return;
+				//105/02/03 開放5~7可以修改數量
 				if(!orde2vcc_modi && r_rank<"8"){
 					var t_where = "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^";
 					q_gt('view_vccs', t_where, 0, 0, 0, "orde_Modi");
@@ -1840,6 +1853,29 @@
 						$('#combGroupbno_'+j).removeAttr('disabled');
 						$('#combClassa_'+j).removeAttr('disabled');
 					}
+					
+					if(orde2vcc57 && q_cur==2 && r_rank<'8'){
+						$('#btnPlus').attr('disabled', 'disabled');
+						for (var j = 0; j < q_bbsCount; j++) {
+							$('#btnMinus_'+j).attr('disabled', 'disabled');
+							$('#txtProductno_'+j).attr('disabled', 'disabled');
+							$('#btnProduct_'+j).attr('disabled', 'disabled');
+							$('#txtProduct_'+j).attr('disabled', 'disabled');
+							$('#combGroupbno_'+j).attr('disabled', 'disabled');
+							$('#txtSpec_'+j).attr('disabled', 'disabled');
+							$('#btnSpec_'+j).attr('disabled', 'disabled');
+							$('#txtClassa_'+j).attr('disabled', 'disabled');
+							$('#combClassa_'+j).attr('disabled', 'disabled');
+							$('#txtSizea_'+j).attr('disabled', 'disabled');
+							$('#txtDime_'+j).attr('disabled', 'disabled');
+							$('#txtUnit_'+j).attr('disabled', 'disabled');
+							$('#txtPrice_'+j).attr('disabled', 'disabled');
+							$('#cmbSource_'+j).attr('disabled', 'disabled');
+							$('#txtDatea_'+j).attr('disabled', 'disabled');
+							$('#txtMemo_'+j).attr('disabled', 'disabled');
+						}
+					}
+					
 					//copy_field();
 				}
 				

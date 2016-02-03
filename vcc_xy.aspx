@@ -17,7 +17,7 @@
  
 			q_tables = 's';
 			var q_name = "vcc";
-			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice','textStatus','txtDriver','textInvomemo'];
+			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice','textStatus','txtDriver','textInvomemo','txtCustno2'];
 			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtStore','txtStore2'];//txtSpec
 			var bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1],['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
 			var bbsNum = [];
@@ -743,8 +743,18 @@
 							$('#txtFloata').val(as[0].floata);
 							$('#txtWeight').val(as[0].weight);
 							Trantype_cardeal();
+							//取得收款客戶
+							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
+							q_gt('cust', t_where, 0, 0, 0, "cust_orde");
 						}
 						sum();
+						break;
+					case 'cust_orde':
+						var as = _q_appendData("cust", "", true);
+						if (as[0] != undefined) {
+							$('#txtCustno2').val(as[0].custno2);
+							$('#txtComp2').val(as[0].cust2);
+						}
 						break;
 					case 'ordes_xy2':
 						var as = _q_appendData("view_ordes", "", true);
@@ -1898,7 +1908,7 @@
 						<td><input id="txtTotal" type="text" class="txt num c1 istax"/></td>
 					</tr>
 					<tr>
-						<td><span> </span><a id="lblCust2" class="lbl btn"> </a></td>
+						<td><span> </span><a id="lblCust2" class="lbl"> </a></td>
 						<td colspan='2'>
 							<input id="txtCustno2" type="text" class="txt c2"/>
 							<input id="txtComp2" type="text" class="txt c3"/>

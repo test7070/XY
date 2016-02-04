@@ -10,7 +10,11 @@
 		<link href="../qbox.css" rel="stylesheet" type="text/css" />
 		<script type="text/javascript">
             var q_name = "orde_s";
-            var aPop = new Array(['txtCustno', '', 'cust', 'noa,nick,invoicetitle', 'txtCustno,txtComp', ''], ['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno,txtSales', '']);
+            var aPop = new Array(
+            	['txtCustno', '', 'cust', 'noa,nick,invoicetitle', 'txtCustno,txtComp', ''], 
+            	['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno,txtSales', ''],
+            	['txtWorker', '', 'sss', 'namea,noa', 'txtWorker', '']
+            	);
             $(document).ready(function() {
                 main();
             });
@@ -50,6 +54,7 @@
                 t_custorde = $('#txtCustorde').val();
                 t_enda = $('#cmbEnda').val();
                 t_cancel = $('#cmbCancel').val();
+                t_worker =$('#txtWorker').val();
 
                 t_bdate = t_bdate.length > 0 && t_bdate.indexOf("_") > -1 ? t_bdate.substr(0, t_bdate.indexOf("_")) : t_bdate;
                 /// 100.  .
@@ -57,7 +62,8 @@
                 /// 100.  .
 
                 var t_where = " 1=1 " + q_sqlPara2("odate", t_bdate, t_edate) + q_sqlPara2("noa", t_noa)// +  q_sqlPara2("comp", t_comp)
-                +q_sqlPara2("salesno", t_salesno) + q_sqlPara2("custno", t_custno) + q_sqlPara2("stype", t_stype) + q_sqlPara2("contract", t_contract) + q_sqlPara2("custorde", t_custorde);
+                +q_sqlPara2("salesno", t_salesno) + q_sqlPara2("custno", t_custno) + q_sqlPara2("stype", t_stype) 
+                + q_sqlPara2("contract", t_contract) + q_sqlPara2("custorde", t_custorde) + q_sqlPara2("worker", t_worker);
                 if (t_quatno.length > 0)
                     t_where += " and exists(select noa from view_ordes" + r_accy + " where view_ordes" + r_accy + ".noa=view_orde" + r_accy + ".noa and view_ordes" + r_accy + ".quatno='" + t_quatno + "')";
                 if (t_apv == 'Y')
@@ -147,6 +153,10 @@
 				<tr class='seek_tr'>
 					<td class='seek'  style="width:20%;"><a id='lblCustorde'>客單編號 </a></td>
 					<td><input class="txt" id="txtCustorde" type="text" style="width:215px; font-size:medium;" /></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a id='lblWorker'>操作者 </a></td>
+					<td><input class="txt" id="txtWorker" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 			</table>
 			<!--#include file="../inc/seek_ctrl.inc"-->

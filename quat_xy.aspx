@@ -1111,11 +1111,16 @@
 			}
 
 			function btnIns() {
+				var t_bbscounts=q_bbsCount;
 				if ($('#checkCopy').is(':checked'))
 					curData.copy();
 				_btnIns();
-				if ($('#checkCopy').is(':checked'))
+				if ($('#checkCopy').is(':checked')){
+					while(t_bbscounts>=q_bbsCount){
+						q_bbs_addrow('bbs',0,0);
+					}
 					curData.paste();
+				}
 				
 				$('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val('AUTO');
 				$('#txtOdate').val(q_date());

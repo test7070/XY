@@ -835,6 +835,8 @@ set @t_ecustno = case when '#non'=[5] then char(255) else [5] end
 set @t_bsalesno = case when '#non'=[6] then '' else [6] end
 set @t_esalesno = case when '#non'=[7] then char(255) else [7] end
 
+declare @pageline int = 28 
+
 -------------------------------------------------------------------------------------------------------------------------
 IF OBJECT_ID('tempdb..#tmp')is not null
 BEGIN
@@ -865,7 +867,9 @@ create table #result(
 	title nvarchar(100),
 	torder nvarchar(10),
 	m01 float,m02 float,m03 float,m04 float,m05 float,m06 float,
-	m07 float,m08 float,m09 float,m10 float,m11 float,m12 float
+	m07 float,m08 float,m09 float,m10 float,m11 float,m12 float,
+	idno int,
+	page int
 )
 
 create table #tmp(
@@ -909,9 +913,6 @@ set comp=isnull((select case when isnull(nick,'')!='' then nick else comp end fr
 ,paytype=(select isnull(postmemo,'') from custm where noa=a.custno)
 from #tmp a
 
---表頭
-insert #result (gno)
-select '1'
 --明細
 insert #result (gno,paytype,custno,comp,salesno,sales,punpay,total,payed,unpay)
 select '2',paytype,custno,comp,salesno,sales,punpay,total,payed,unpay
@@ -920,13 +921,31 @@ from #tmp
 insert #result (gno,custno,comp,salesno,sales,punpay,total,payed,unpay)
 select '3','','','','',SUM(punpay),SUM(total),SUM(payed),SUM(unpay)
 from #tmp 
+
+--順序
+update a
+set idno=rr,page=CEILING(cast(rr as float)/@pageline)
+from (select idno,page,ROW_NUMBER()over (order by gno,salesno,paytype,custno)rr from #result) a
+
+declare @maxpage int=(select MAX(page) from #result)
+
 --業務小計
-insert #result (gno,custno,comp,salesno,sales,punpay,total,payed,unpay)
-select '4','','',salesno,sales,SUM(punpay),SUM(total),SUM(payed),SUM(unpay)
+insert #result (gno,page,custno,comp,salesno,sales,punpay,total,payed,unpay)
+select '4',@maxpage,'','',salesno,sales,SUM(punpay),SUM(total),SUM(payed),SUM(unpay)
 from #tmp group by salesno,sales
---分頁
-insert #result (gno)
-select '5'
+
+if((select count(*) from #result)>0)
+begin
+	--表頭
+	insert #result (gno,idno,page)
+	select '1',MIN(idno),page
+	from #result group by page
+
+	--分頁
+	insert #result (gno,idno,page)
+	select '5',MAX(idno),page
+	from #result where gno!='1' group by page
+end
 
 declare @t_year nvarchar(50)=left(@t_mon,3)
 declare @mon nvarchar(50)='01'
@@ -983,16 +1002,16 @@ set sales=isnull((select namea from sss where noa=a.salesno),'')
 from #tmpa a
 
 --表頭
-insert #result(gno)
-select '6'
+insert #result(gno,page)
+select '6',@maxpage
 --明細
-insert #result(gno,salesno,sales,title,torder,m01,m02,m03,m04,m05,m06,m07,m08,m09,m10,m11,m12)
-select '7',salesno,MAX(sales),MAX(title),torder
+insert #result(gno,page,salesno,sales,title,torder,m01,m02,m03,m04,m05,m06,m07,m08,m09,m10,m11,m12)
+select '7',@maxpage,salesno,MAX(sales),MAX(title),torder
 ,SUM(m01),SUM(m02),SUM(m03),SUM(m04),SUM(m05),SUM(m06),SUM(m07),SUM(m08),SUM(m09),SUM(m10),SUM(m11),SUM(m12)
 from #tmpa group by salesno,torder
 --總計
-insert #result(gno,salesno,sales,title,torder,m01,m02,m03,m04,m05,m06,m07,m08,m09,m10,m11,m12)
-select '8','','',MAX(title),torder
+insert #result(gno,page,salesno,sales,title,torder,m01,m02,m03,m04,m05,m06,m07,m08,m09,m10,m11,m12)
+select '8',@maxpage,'','',MAX(title),torder
 ,SUM(m01),SUM(m02),SUM(m03),SUM(m04),SUM(m05),SUM(m06),SUM(m07),SUM(m08),SUM(m09),SUM(m10),SUM(m11),SUM(m12)
 from #tmpa group by torder
 
@@ -1014,7 +1033,7 @@ dbo.getComma(m10,-1)m10,
 dbo.getComma(m11,-1)m11,
 dbo.getComma(m12,-1)m12,
 replace(comp,'~#$',char(39)) comp,
-* from #result order by gno,salesno,paytype,custno,torder
+* from #result order by page,gno,salesno,paytype,custno,torder
 
 IF OBJECT_ID('tempdb..#tmp')is not null
 BEGIN

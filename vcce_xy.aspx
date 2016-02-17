@@ -283,6 +283,15 @@
 						$('#txtAdjcount_' + j).change(function() {
 							sum();
 						});
+						
+						$('#txtOrdeno_'+j).bind('contextmenu',function(e) {
+	                    	/*滑鼠右鍵*/
+	                    	e.preventDefault();
+	                    	if($(this).val().length>0){
+	                    		q_box("vcc_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + r_accy, 'vcc_xy', "95%", "95%", '出貨單');
+	                    	}
+	                   });
+						
 						$('#chkEnda_' + j).click(function() {
 							t_IdSeq = -1;  /// 要先給  才能使用 q_bodyId()
 							q_bodyId($(this).attr('id'));

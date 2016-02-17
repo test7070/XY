@@ -286,15 +286,15 @@ case when typea='1' then '銷' when typea='2' then '退' else '' end typea,
 case when gno='2' then right(datea,2) else '' end day,
 dbo.getComma(case when typea='2' then -1 else 1 end*mount,0) mount,
 dbo.getComma(price,-1) price,
-dbo.getComma(case when typea='2' then -1 else 1 end*money,0) money,
-dbo.getComma(case when typea='2' then -1 else 1 end*amoney,0) amoney,
---dbo.getComma(case when typea='2' then -1 else 1 end*tax,0) tax,
-dbo.getComma(case when typea='2' then -1 else 1 end*total,0) total,
-dbo.getComma(paysale,0) paysale,
-dbo.getComma(discounts,0) discounts,
-dbo.getComma(payed,0) payed,
-dbo.getComma(punpay,0) punpay,
-dbo.getComma(unpay,0) unpay,
+dbo.getComma(case when typea='2' then -1 else 1 end*round(money,0),0) money,
+dbo.getComma(case when typea='2' then -1 else 1 end*round(amoney,0),0) amoney,
+--dbo.getComma(case when typea='2' then -1 else 1 end*round(tax,0),0) tax,
+dbo.getComma(case when typea='2' then -1 else 1 end*round(total,0),0) total,
+dbo.getComma(round(paysale,0),0) paysale,
+dbo.getComma(round(discounts,0),0) discounts,
+dbo.getComma(round(payed,0),0) payed,
+dbo.getComma(round(punpay,0),0) punpay,
+dbo.getComma(round(unpay,0),0) unpay,
 replace(comp,'~#$',char(39)) comp,
 @nowdate qtoday,
 noa xnoa,noq xnoq,
@@ -868,6 +868,8 @@ create table #result(
 	torder nvarchar(10),
 	m01 float,m02 float,m03 float,m04 float,m05 float,m06 float,
 	m07 float,m08 float,m09 float,m10 float,m11 float,m12 float,
+	umoney float,
+	udis float,
 	idno int,
 	page int
 )
@@ -881,7 +883,9 @@ create table #tmp(
 	punpay float,
 	total float,
 	payed float,
-	unpay float
+	unpay float,
+	umoney float,
+	udis float
 )
 
 insert #tmp (custno,salesno,total,payed)
@@ -902,24 +906,34 @@ from view_vcc a where mon<@t_mon
 and (case when a.custno2!='' then a.custno2 else a.custno end) between @t_bcustno and @t_ecustno
 and a.salesno between @t_bsalesno and @t_esalesno
 and not exists (select * from #tmp where custno=(case when a.custno2!='' then a.custno2 else a.custno end) and salesno=a.salesno)
+and isnull(a.unpay,0)!=0
 group by case when a.custno2!='' then a.custno2 else a.custno end,a.salesno
 
 update #tmp
 set unpay=punpay+total-payed
 
+insert #tmp(custno,salesno,punpay,total,payed)
+select ua.custno,c.salesno,0,0,0 from umm ua left join umms ub on ua.noa=ub.noa 
+left join cust c on ua.custno=c.noa
+where left(ua.datea,6)=@t_mon
+and not exists (select * from #tmp where custno=ua.custno and salesno=c.salesno)
+group by ua.custno,c.salesno
+
 update a
 set comp=isnull((select case when isnull(nick,'')!='' then nick else comp end from cust where noa=a.custno),'')
 ,sales=isnull((select namea from sss where noa=a.salesno),'')
 ,paytype=(select isnull(postmemo,'') from custm where noa=a.custno)
+,umoney=isnull((select SUM(ub.money) from umm ua left join umms ub on ua.noa=ub.noa left join cust c on ua.custno=c.noa where left(ua.datea,6)=@t_mon and ua.custno=a.custno and c.salesno=a.salesno and ub.acc1 not in ('6015.','4202.','6020.')),0)
+,udis=isnull((select SUM(ub.money) from umm ua left join umms ub on ua.noa=ub.noa left join cust c on ua.custno=c.noa where left(ua.datea,6)=@t_mon and ua.custno=a.custno and c.salesno=a.salesno and ub.acc1 in ('6015.','4202.','6020.')),0)
 from #tmp a
 
 --明細
-insert #result (gno,paytype,custno,comp,salesno,sales,punpay,total,payed,unpay)
-select '2',paytype,custno,comp,salesno,sales,punpay,total,payed,unpay
+insert #result (gno,paytype,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis)
+select '2',paytype,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis
 from #tmp
 --總計
-insert #result (gno,custno,comp,salesno,sales,punpay,total,payed,unpay)
-select '3','','','','',SUM(punpay),SUM(total),SUM(payed),SUM(unpay)
+insert #result (gno,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis)
+select '3','','','','',SUM(punpay),SUM(total),SUM(payed),SUM(unpay),sum(umoney),sum(udis)
 from #tmp 
 
 --順序
@@ -930,8 +944,8 @@ from (select idno,page,ROW_NUMBER()over (order by gno,salesno,paytype,custno)rr 
 declare @maxpage int=(select MAX(page) from #result)
 
 --業務小計
-insert #result (gno,page,custno,comp,salesno,sales,punpay,total,payed,unpay)
-select '4',@maxpage,'','',salesno,sales,SUM(punpay),SUM(total),SUM(payed),SUM(unpay)
+insert #result (gno,page,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis)
+select '4',@maxpage,'','',salesno,sales,SUM(punpay),SUM(total),SUM(payed),SUM(unpay),sum(umoney),sum(udis)
 from #tmp group by salesno,sales
 
 if((select count(*) from #result)>0)
@@ -1016,22 +1030,24 @@ select '8',@maxpage,'','',MAX(title),torder
 from #tmpa group by torder
 
 select
-dbo.getComma(punpay,-1)punpay,
-dbo.getComma(total,-1)total,
-dbo.getComma(payed,-1)payed,
-dbo.getComma(unpay,-1)unpay,
-dbo.getComma(m01,-1)m01,
-dbo.getComma(m02,-1)m02,
-dbo.getComma(m03,-1)m03,
-dbo.getComma(m04,-1)m04,
-dbo.getComma(m05,-1)m05,
-dbo.getComma(m06,-1)m06,
-dbo.getComma(m07,-1)m07,
-dbo.getComma(m08,-1)m08,
-dbo.getComma(m09,-1)m09,
-dbo.getComma(m10,-1)m10,
-dbo.getComma(m11,-1)m11,
-dbo.getComma(m12,-1)m12,
+dbo.getComma(round(punpay,0),-1)punpay,
+dbo.getComma(round(total,0),-1)total,
+dbo.getComma(round(payed,0),-1)payed,
+dbo.getComma(round(unpay,0),-1)unpay,
+dbo.getComma(round(m01,0),-1)m01,
+dbo.getComma(round(m02,0),-1)m02,
+dbo.getComma(round(m03,0),-1)m03,
+dbo.getComma(round(m04,0),-1)m04,
+dbo.getComma(round(m05,0),-1)m05,
+dbo.getComma(round(m06,0),-1)m06,
+dbo.getComma(round(m07,0),-1)m07,
+dbo.getComma(round(m08,0),-1)m08,
+dbo.getComma(round(m09,0),-1)m09,
+dbo.getComma(round(m10,0),-1)m10,
+dbo.getComma(round(m11,0),-1)m11,
+dbo.getComma(round(m12,0),-1)m12,
+dbo.getComma(round(umoney,0),-1)umoney,
+dbo.getComma(round(udis,0),-1)udis,
 replace(comp,'~#$',char(39)) comp,
 * from #result order by page,gno,salesno,paytype,custno,torder
 

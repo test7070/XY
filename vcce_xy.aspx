@@ -563,7 +563,20 @@
 					}
 				}
 				//判斷是否能修改資料 有新增權限才能刪除表身和修改表頭資料
-				if(!q_authRun(1) && (q_cur==1 || q_cur==2)){
+				var isadd=false;
+				for (var i=0;i<q_auth.length;i++){
+					var t_auth=q_auth[i].split(',');
+					if(t_auth[0]==q_name){
+						if(t_auth[2]=='1'){
+							isadd=true;
+						}else{
+							isadd=false;
+						}
+						break;
+					}
+				}
+				
+				if(!isadd && (q_cur==1 || q_cur==2)){
 					$('#txtDatea').attr('disabled', 'disabled');
 					$('#lblAcomp').attr('disabled', 'disabled');
 					$('#txtCno').attr('disabled', 'disabled');

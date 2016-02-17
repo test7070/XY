@@ -780,7 +780,8 @@
 							$('#txtSalesno').val(as[0].salesno);
 							$('#txtSales').val(as[0].sales);
 							$('#txtContract').val(as[0].contract);
-							$('#cmbTrantype').val(as[0].trantype);
+							//105/02/17 交運方式不變動
+							//$('#cmbTrantype').val(as[0].trantype);
 							//104/09/14 報價地址不覆蓋
 							//$('#txtTel').val(as[0].tel);
 							//$('#txtFax').val(as[0].fax);
@@ -860,6 +861,18 @@
 							$('#cmbTrantype').val(as[0].trantype);
 							$('#txtSalesno').val(as[0].salesno);
 							$('#txtSales').val(as[0].sales);
+							
+							if(as[0].status!='1' && as[0].status!='2'){
+								var t_status=q_getPara('cust.status').split(',');
+								var x_status='';
+								for(var i=0;i<t_status.length;i++){
+									if(as[0].status==t_status[i].split('@')[0]){
+										x_status=t_status[i].split('@')[1];
+										break;
+									}
+								}
+								alert('客戶'+x_status+'禁止輸入訂貨!!');
+							}
 						}
 						break;
 					case 'cust_detail2':
@@ -1047,6 +1060,28 @@
 				t_err = q_chkEmpField([['txtNoa', q_getMsg('lblNoa')], ['txtCustno', q_getMsg('lblCustno')], ['txtCno', q_getMsg('btnAcomp')]]);
 				if (t_err.length > 0) {
 					alert(t_err);
+					return;
+				}
+				
+				//105/0217 //檢查客戶是否可以出貨
+				var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
+				q_gt('cust', t_where, 0, 0, 0, "getcuststatus", r_accy, 1);
+				var as = _q_appendData("cust", "", true);
+				if (as[0] != undefined) {
+					if(as[0].status!='1' && as[0].status!='2'){
+						var t_status=q_getPara('cust.status').split(',');
+						var x_status='';
+						for(var i=0;i<t_status.length;i++){
+							if(as[0].status==t_status[i].split('@')[0]){
+								x_status=t_status[i].split('@')[1];
+								break;
+							}
+						}
+						alert('客戶'+x_status+'禁止輸入訂貨!!');
+						return;
+					}
+				}else{
+					alert('客戶編號錯誤!!');
 					return;
 				}
 				

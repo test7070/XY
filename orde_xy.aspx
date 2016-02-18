@@ -776,11 +776,12 @@
 						if (as[0] != undefined) {
 							$('#txtFloata').val(as[0].floata);
 							$('#cmbCoin').val(as[0].coin);
-							$('#txtPaytype').val(as[0].paytype);
-							$('#txtSalesno').val(as[0].salesno);
-							$('#txtSales').val(as[0].sales);
+							//105/02/18 付款和業務不覆蓋
+							//$('#txtPaytype').val(as[0].paytype);
+							//$('#txtSalesno').val(as[0].salesno);
+							//$('#txtSales').val(as[0].sales);
 							$('#txtContract').val(as[0].contract);
-							//105/02/17 交運方式不變動
+							//105/02/17 交運方式不覆蓋
 							//$('#cmbTrantype').val(as[0].trantype);
 							//104/09/14 報價地址不覆蓋
 							//$('#txtTel').val(as[0].tel);

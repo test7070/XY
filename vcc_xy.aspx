@@ -175,7 +175,7 @@
 					if(!emp($('#txtCustno').val())){
 						var t_custno=$('#txtCustno').val();
 						//取最近的出貨單>>先取最後50筆出貨單
-						var t_where = " exists (select * from (select top 50 noa from view_vcc where custno='"+t_custno+"' and typea='1' and noa!='"+$('#txtNoa').val()+"' order by datea desc) tmp where noa=view_vccs"+r_accy+".noa ) "
+						var t_where = " exists (select * from (select top 50 noa from view_vcc where custno='"+t_custno+"' and typea='1' and noa!='"+$('#txtNoa').val()+"' order by datea desc) tmp where noa=view_vccs"+r_accy+".noa ) order by datea desc,noa desc,noq "
 						q_box("vccs_b_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+ r_accy, 'vccs_xy', "95%", "650px", q_getMsg('popOrde'));
 					}else{
 						alert("請輸入客戶編號!!");
@@ -1838,7 +1838,7 @@
 						</td>
 						<td><span> </span><a id='lblPay' class="lbl"> </a></td>
 						<td><input id="txtPaytype" type="text" class="txt c1"/></td>
-						<td><select id="combPay" style="width: 100%;" onchange='combPay_chg()'> </select></td>
+						<td><select id="combPay" style="width: 98%;" onchange='combPay_chg()'> </select></td>
 						<td align="right"><input id="btnOrdes" type="button"/></td>
 						<td align="right"><input id="btnVccs" type="button" value="退貨單匯入"/></td>
 					</tr>
@@ -1848,7 +1848,7 @@
 						<td><span> </span><a id="lblFax" class="lbl"> </a></td>
 						<td colspan='2'><input id="txtFax" type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblTrantype' class="lbl"> </a></td>
-						<td><select id="cmbTrantype" style="width: 100%;"> </select></td>
+						<td><select id="cmbTrantype" style="width: 98%;"> </select></td>
 					</tr>
 					<tr>
 						<td><span> </span><a class="lbl">郵遞區號</a></td>
@@ -1900,21 +1900,19 @@
 						<td><span> </span><a id="lblMoney" class="lbl"> </a></td>
 						<td colspan='2'><input id="txtMoney" type="text" class="txt num c1"/></td>
 						<td><span> </span><a id='lblTax' class="lbl"> </a></td>
-						<td colspan='2'>
-							<input id="txtTax" type="text" class="txt num c1 istax"  style="width: 49%;"/>
-							<select id="cmbTaxtype" style="width: 49%;" onchange="calTax();"> </select>
-						</td>
+						<td><input id="txtTax" type="text" class="txt num c1 istax" /></td>
+						<td><select id="cmbTaxtype" class="txt c1" onchange="calTax();"> </select></td>
 						<td><span> </span><a id='lblTotal' class="lbl istax"> </a></td>
 						<td><input id="txtTotal" type="text" class="txt num c1 istax"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblCust2" class="lbl"> </a></td>
 						<td colspan='2'>
-							<input id="txtCustno2" type="text" class="txt c2"/>
-							<input id="txtComp2" type="text" class="txt c3"/>
+							<input id="txtCustno2" type="text" class="txt c2" style="width: 95px;"/>
+							<input id="txtComp2" type="text" class="txt c3" style="width: 120px;"/>
 						</td>
 						<td><span> </span><a id='lblFloata' class="lbl"> </a></td>
-						<td><select id="cmbCoin" style="width: 100%;" onchange='coin_chg()'> </select></td>
+						<td><select id="cmbCoin" style="width: 98%;" onchange='coin_chg()'> </select></td>
 						<td><input id="txtFloata" type="text" class="txt num c1"/></td>
 						<td><span> </span><a id="lblTotalus" class="lbl"> </a></td>
 						<td><input id="txtTotalus" type="text" class="txt num c1"/></td>

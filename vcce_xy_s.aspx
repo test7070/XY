@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title></title>
+		<title> </title>
 		<script src="../script/jquery.min.js" type="text/javascript"></script>
 		<script src='../script/qj2.js' type="text/javascript"></script>
 		<script src='qset.js' type="text/javascript"></script>
@@ -16,7 +16,8 @@
             var q_name = "vcce_xy_s";
             var aPop = new Array(
 				['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno,txtSales', ''],
-				['txtDriverno', '', 'sss', 'noa,namea', 'txtDriverno,txtDriver', '']
+				['txtDriverno', '', 'sss', 'noa,namea', 'txtDriverno,txtDriver', ''],
+				['txtCustno', '', 'cust', 'noa,comp', 'txtCustno,txtComp', '']
 			);
 
             $(document).ready(function() {
@@ -43,6 +44,8 @@
 				$('#txtDriver').css('background', t_background2);
 				$('#txtSales').attr('disabled', 'disabled');
 				$('#txtSales').css('background', t_background2);
+				$('#txtComp').attr('disabled', 'disabled');
+				$('#txtComp').css('background', t_background2);
             }
 
             function q_seekStr() {
@@ -53,6 +56,7 @@
                 t_vccno = $.trim($('#txtVccno').val());
                 t_bdate = $.trim($('#txtBdate').val());
                 t_edate = $.trim($('#txtEdate').val());
+                t_custno = $.trim($('#txtCustno').val());
 
                 var t_where = " 1=1 " + q_sqlPara2("noa", t_noa) 
                 + q_sqlPara2("driverno", t_driverno) 
@@ -62,6 +66,9 @@
 
                 if (t_vccno.length > 0)
                     t_where += " and noa in (select noa from view_vcces where ordeno='"+t_vccno+"')";
+                    
+                if (t_custno.length > 0)
+                    t_where += " and noa in (select noa from view_vcces where custno='"+t_custno+"')";    
 
                 t_where = ' where=^^' + t_where + '^^ ';
                 return t_where;
@@ -85,43 +92,45 @@
 				<tr class='seek_tr'>
 					<td   style="width:35%;"><a id='lblDatea'> </a></td>
 					<td style="width:65%;  ">
-					<input class="txt" id="txtBdate" type="text" style="width:90px; font-size:medium;" />
-					<span style="display:inline-block; vertical-align:middle">&sim;</span>
-					<input class="txt" id="txtEdate" type="text" style="width:93px; font-size:medium;" />
+						<input class="txt" id="txtBdate" type="text" style="width:90px; font-size:medium;" />
+						<span style="display:inline-block; vertical-align:middle">&sim;</span>
+						<input class="txt" id="txtEdate" type="text" style="width:93px; font-size:medium;" />
 					</td>
 				</tr>
 				<tr class='seek_tr'>
 					<td class='seek'  style="width:20%;"><a id='lblNoa'> </a></td>
-					<td>
-					<input class="txt" id="txtNoa" type="text" style="width:215px; font-size:medium;" />
-					</td>
+					<td><input class="txt" id="txtNoa" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td class='seek'  style="width:20%;"><a id='lblCarno'> </a></td>
-					<td>
-					<input class="txt" id="txtCarno" type="text" style="width:215px; font-size:medium;" />
-					</td>
+					<td><input class="txt" id="txtCarno" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td class='seek'  style="width:20%;"><a id='lblDriver'> </a></td>
 					<td>
-					<input class="txt" id="txtDriverno" type="text" style="width:90px; font-size:medium;" />
-					&nbsp;
-					<input class="txt" id="txtDriver" type="text" style="width:115px; font-size:medium;" />
+						<input class="txt" id="txtDriverno" type="text" style="width:90px; font-size:medium;" />
+						&nbsp;
+						<input class="txt" id="txtDriver" type="text" style="width:115px; font-size:medium;" />
 					</td>
 				</tr>
 				<tr class='seek_tr'>
 					<td class='seek'  style="width:20%;"><a id='lblSales'> </a></td>
 					<td>
-					<input class="txt" id="txtSalesno" type="text" style="width:90px; font-size:medium;" />
-					&nbsp;
-					<input class="txt" id="txtSales" type="text" style="width:115px; font-size:medium;" />
+						<input class="txt" id="txtSalesno" type="text" style="width:90px; font-size:medium;" />
+						&nbsp;
+						<input class="txt" id="txtSales" type="text" style="width:115px; font-size:medium;" />
 					</td>
 				</tr>
 				<tr class='seek_tr'>
 					<td class='seek'  style="width:20%;"><a id='lblVccno'> </a></td>
+					<td><input class="txt" id="txtVccno" type="text" style="width:215px; font-size:medium;" /></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a id='lblCustno'> </a></td>
 					<td>
-					<input class="txt" id="txtVccno" type="text" style="width:215px; font-size:medium;" />
+						<input class="txt" id="txtCustno" type="text" style="width:90px; font-size:medium;" />
+						&nbsp;
+						<input class="txt" id="txtComp" type="text" style="width:115px; font-size:medium;" />
 					</td>
 				</tr>
 			</table>

@@ -41,9 +41,9 @@
                     }, {
                         type : '2',
                         name : 'driver',
-                        dbf : 'driver',
+                        dbf : 'sss',
                         index : 'noa,namea',
-                        src : 'driver_b.aspx'
+                        src : 'sss_b.aspx'
                     }, {
                         type : '6',
                         name : 'xcarno'

@@ -55,6 +55,10 @@ and a.driverno between @t_bdriver and @t_edriver
 and (len(@t_carno)=0 or a.carno=@t_carno) 
 and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
 
+update a
+set ecount=case when rr>1 then 0 else ecount end
+from (select *,ROW_NUMBER() over (partition by vccnoa order by vccnoa,vccnoq)rr from @tmp) a
+
 declare @datea nvarchar(50)
 declare @driverno nvarchar(50)
 declare @count int
@@ -99,8 +103,8 @@ end
 
 select 
 dbo.getComma(mount,-1) mount,
-dbo.getComma(vtotal,-1) vtotal,
-dbo.getComma(ecount,-1) ecount,
+dbo.getComma(case when vtotal=0 then null else vtotal end,-1) vtotal,
+dbo.getComma(case when ecount=0 then null else ecount end,-1) ecount,
 case when ewidth>0 then 'V' else '' end width,
 * 
 from @tmp order by datea,driverno,page,case when gno='2' then '1' when gno='1' then '2' else gno end,recno;

@@ -161,7 +161,9 @@ set pageno=ceiling(cast(recno as float)/cast(@t_pageline as float))
 where gno='0'
 
 update a 
-set total=(select total from view_vcc where noa=a.noa )
+set total=(select case when isnull(cm.notprice,0)=1 then null else va.total end 
+from view_vcc va left join custm cm on va.custno=cm.noa
+where va.noa=a.noa )
 from @tmp a where gno='2'
 
 update @tmp set money=null,tax=null,total=null

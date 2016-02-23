@@ -48,6 +48,10 @@
 						dbf : 'cust',
 						index : 'noa,comp',
 						src : 'cust_b.aspx'
+					},{
+						type : '0', //[10]
+						name : 'userno',
+						value : r_userno
 					}]
 				});
                 q_popAssign();

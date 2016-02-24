@@ -285,7 +285,7 @@ case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa
 case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 and (gno in ('2','6')) then null else dbo.getComma(case when typea='2' then -1 else 1 end*tax,0) end tax,
 case when typea='1' then '銷' when typea='2' then '退' else '' end typea,
 case when gno='2' then right(datea,2) else '' end day,
-dbo.getComma(case when typea='2' then -1 else 1 end*mount,0) mount,
+dbo.getComma(case when typea='2' then -1 else 1 end*mount,-1) mount,
 dbo.getComma(price,-1) price,
 dbo.getComma(case when typea='2' then -1 else 1 end*round(money,0),0) money,
 dbo.getComma(case when typea='2' then -1 else 1 end*round(amoney,0),0) amoney,
@@ -490,7 +490,7 @@ case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa
 case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 and gno in ('2','6') then null else dbo.getComma(case when typea='2' then -1 else 1 end*tax,0) end tax,
 case when typea='1' then '銷' when typea='2' then '退' else '' end typea,
 case when gno='2' then right(datea,2) else '' end day,
-dbo.getComma(case when typea='2' then -1 else 1 end*mount,0) mount,
+dbo.getComma(case when typea='2' then -1 else 1 end*mount,-1) mount,
 dbo.getComma(price,-1) price,
 dbo.getComma(case when typea='2' then -1 else 1 end*money,0) money,
 dbo.getComma(case when typea='2' then -1 else 1 end*amoney,0) amoney,
@@ -576,7 +576,7 @@ insert @tmp (gno,salesno,saless,utotal,vtotal,bonus)
 select '3',MAX(salesno),MAX(saless),sum(utotal),sum(vtotal),sum(bonus) from @tmp where gno = '1'
 
 select 
-dbo.getComma(mount,0) mount,
+dbo.getComma(mount,-1) mount,
 dbo.getComma(price,4) price,
 dbo.getComma(utotal,0) utotal,
 dbo.getComma(paysale,0) paysale,
@@ -805,7 +805,7 @@ CEILING(cast(ROW_NUMBER()over(partition by custno order by custno,isnull(xserial
 (cast((counts)as int)/@t_pageline)+1 mpage,
 case when typea='1' then '銷' when typea='2' then '退' else '' end typea,
 case when gno='0' then right(datea,2) else '' end day,
-dbo.getComma(mount,0) mount,
+dbo.getComma(mount,-1) mount,
 dbo.getComma(price,2) price,
 dbo.getComma(money,0) money,
 dbo.getComma(amoney,0) amoney,

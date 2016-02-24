@@ -278,9 +278,10 @@
 								}
 							}
 						}
-						if(x_err.length>0)
+						if(x_err.length>0){
 							alert(x_err);
 							return;
+						}
 					}else{
 						alert('客戶編號錯誤!!');
 						return;

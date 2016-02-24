@@ -226,6 +226,66 @@
 				});
 				
 				$('#btnApv').click(function(e){
+					//1050224 檢查客戶是否可以核可 同時判斷總店含集團
+					var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
+					q_gt('cust', t_where, 0, 0, 0, "getcuststatus", r_accy, 1);
+					var x_err="";
+					var t_status=q_getPara('cust.status').split(',');
+					var as = _q_appendData("cust", "", true);
+					if (as[0] != undefined) {
+						if(as[0].status!='1' && as[0].status!='2'){
+							var x_status='';
+							for(var i=0;i<t_status.length;i++){
+								if(as[0].status==t_status[i].split('@')[0]){
+									x_status=t_status[i].split('@')[1];
+									break;
+								}
+							}
+							x_err='客戶【'+x_status+'】請聯絡業務!!';
+						}
+						if(x_err.length==0 && $('#txtCustno').val().length>5){ //判斷總店
+							var t_tcustno=$('#txtCustno').val().substr(0,5);
+							var t_where = "where=^^ noa='" + t_tcustno + "' ^^";
+							q_gt('cust', t_where, 0, 0, 0, "getcuststatus2", r_accy, 1);
+							var as2 = _q_appendData("cust", "", true);
+							if (as2[0] != undefined) {
+								if(as2[0].status!='1' && as2[0].status!='2'){
+									var x_status='';
+									for(var i=0;i<t_status.length;i++){
+										if(as2[0].status==t_status[i].split('@')[0]){
+											x_status=t_status[i].split('@')[1];
+											break;
+										}
+									}
+									x_err='總店【'+x_status+'】請聯絡業務!!';
+								}
+							}
+						}
+						if(x_err.length==0 && as[0].grpno!=''){//判斷集團
+							var t_where = "where=^^ noa='" + as[0].grpno + "' ^^";
+							q_gt('cust', t_where, 0, 0, 0, "getcuststatus3", r_accy, 1);
+							var as3 = _q_appendData("cust", "", true);
+							if (as3[0] != undefined) {
+								if(as3[0].status!='1' && as3[0].status!='2'){
+									var x_status='';
+									for(var i=0;i<t_status.length;i++){
+										if(as3[0].status==t_status[i].split('@')[0]){
+											x_status=t_status[i].split('@')[1];
+											break;
+										}
+									}
+									x_err='集團【'+x_status+'】請聯絡業務!!';
+								}
+							}
+						}
+						if(x_err.length>0)
+							alert(x_err);
+							return;
+					}else{
+						alert('客戶編號錯誤!!');
+						return;
+					}
+					
 					if(r_rank>"2"){//1050111 5以上 //1050113改成3以上
 	                    Lock(1, {
 	                        opacity : 0
@@ -852,6 +912,7 @@
 						break;
 					case 'cust_detail':
 						var as = _q_appendData("cust", "", true);
+						var x_err='';
 						if (as[0] != undefined) {
 							$('#txtFax').val(as[0].fax);
 							$('#txtPost').val(as[0].zip_comp);
@@ -872,8 +933,46 @@
 										break;
 									}
 								}
-								alert('客戶'+x_status+'禁止輸入訂貨!!');
+								x_err='客戶【'+x_status+'】請聯絡業務!!';
 							}
+							
+							if(x_err.length==0 && as[0].noa.length>5){ //判斷總店
+								var t_tcustno=as[0].noa.substr(0,5);
+								var t_where = "where=^^ noa='" + t_tcustno + "' ^^";
+								q_gt('cust', t_where, 0, 0, 0, "getcuststatus2", r_accy, 1);
+								var as2 = _q_appendData("cust", "", true);
+								if (as2[0] != undefined) {
+									if(as2[0].status!='1' && as2[0].status!='2'){
+										var x_status='';
+										for(var i=0;i<t_status.length;i++){
+											if(as2[0].status==t_status[i].split('@')[0]){
+												x_status=t_status[i].split('@')[1];
+												break;
+											}
+										}
+										x_err='總店【'+x_status+'】請聯絡業務!!';
+									}
+								}
+							}
+							if(x_err.length==0 && as[0].grpno!=''){//判斷集團
+								var t_where = "where=^^ noa='" + as[0].grpno + "' ^^";
+								q_gt('cust', t_where, 0, 0, 0, "getcuststatus3", r_accy, 1);
+								var as3 = _q_appendData("cust", "", true);
+								if (as3[0] != undefined) {
+									if(as3[0].status!='1' && as3[0].status!='2'){
+										var x_status='';
+										for(var i=0;i<t_status.length;i++){
+											if(as3[0].status==t_status[i].split('@')[0]){
+												x_status=t_status[i].split('@')[1];
+												break;
+											}
+										}
+										x_err='集團【'+x_status+'】請聯絡業務!!';
+									}
+								}
+							}
+							if(x_err.length>0)
+								alert(x_err);
 						}
 						break;
 					case 'cust_detail2':
@@ -1064,13 +1163,14 @@
 					return;
 				}
 				
-				//105/0217 //檢查客戶是否可以出貨
+				//105/0217 //檢查客戶是否可以出貨 //0224 可打訂單並提示但不可核可 同時判斷總店含集團
 				var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 				q_gt('cust', t_where, 0, 0, 0, "getcuststatus", r_accy, 1);
+				var x_err="";
+				var t_status=q_getPara('cust.status').split(',');
 				var as = _q_appendData("cust", "", true);
 				if (as[0] != undefined) {
 					if(as[0].status!='1' && as[0].status!='2'){
-						var t_status=q_getPara('cust.status').split(',');
 						var x_status='';
 						for(var i=0;i<t_status.length;i++){
 							if(as[0].status==t_status[i].split('@')[0]){
@@ -1078,9 +1178,45 @@
 								break;
 							}
 						}
-						alert('客戶'+x_status+'禁止輸入訂貨!!');
-						return;
+						x_err='客戶【'+x_status+'】請聯絡業務!!';
 					}
+					if(x_err.length==0 && $('#txtCustno').val().length>5){ //判斷總店
+						var t_tcustno=$('#txtCustno').val().substr(0,5);
+						var t_where = "where=^^ noa='" + t_tcustno + "' ^^";
+						q_gt('cust', t_where, 0, 0, 0, "getcuststatus2", r_accy, 1);
+						var as2 = _q_appendData("cust", "", true);
+						if (as2[0] != undefined) {
+							if(as2[0].status!='1' && as2[0].status!='2'){
+								var x_status='';
+								for(var i=0;i<t_status.length;i++){
+									if(as2[0].status==t_status[i].split('@')[0]){
+										x_status=t_status[i].split('@')[1];
+										break;
+									}
+								}
+								x_err='總店【'+x_status+'】請聯絡業務!!';
+							}
+						}
+					}
+					if(x_err.length==0 && as[0].grpno!=''){//判斷集團
+						var t_where = "where=^^ noa='" + as[0].grpno + "' ^^";
+						q_gt('cust', t_where, 0, 0, 0, "getcuststatus3", r_accy, 1);
+						var as3 = _q_appendData("cust", "", true);
+						if (as3[0] != undefined) {
+							if(as3[0].status!='1' && as3[0].status!='2'){
+								var x_status='';
+								for(var i=0;i<t_status.length;i++){
+									if(as3[0].status==t_status[i].split('@')[0]){
+										x_status=t_status[i].split('@')[1];
+										break;
+									}
+								}
+								x_err='集團【'+x_status+'】請聯絡業務!!';
+							}
+						}
+					}
+					if(x_err.length>0)
+						alert(x_err);
 				}else{
 					alert('客戶編號錯誤!!');
 					return;

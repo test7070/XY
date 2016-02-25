@@ -213,6 +213,18 @@
 					q_msg($(this),'請輸入客戶編號');
 				});
 				
+				$('#txtCustorde').change(function() {
+					//105/02/25 //檢查客單編號同一個客戶是否重覆 給提示 考慮類似西雅圖跟瓦城
+					if(!emp($('#txtCustorde').val())){
+						var t_where = "where=^^ noa!='" + $('#txtNoa').val() + "' and custno='"+$('#txtCustno').val()+"' and custorde='"+$('#txtCustorde').val()+"' ^^";
+						q_gt('view_orde', t_where, 0, 0, 0, "checkcustorde", r_accy, 1);
+						var as = _q_appendData("view_orde", "", true);
+						if (as[0] != undefined) {
+							alert('客單編號重複輸入，請檢查是否重覆下訂單!!');
+						}
+					}
+				});
+				
 				$('#lblCustx').click(function() {
 					if(copycustno!=''){
 						q_box("cust_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";left(noa,5)='" + copycustno.substr(0,5) + "';" + r_accy + ";" + q_cur, 'custx', "95%", "95%", q_getMsg('lblCust'));
@@ -1162,6 +1174,16 @@
 				if (t_err.length > 0) {
 					alert(t_err);
 					return;
+				}
+				
+				//105/02/25 //檢查客單編號同一個客戶是否重覆 給提示 考慮類似西雅圖跟瓦城
+				if(!emp($('#txtCustorde').val())){
+					var t_where = "where=^^ noa!='" + $('#txtNoa').val() + "' and custno='"+$('#txtCustno').val()+"' and custorde='"+$('#txtCustorde').val()+"' ^^";
+					q_gt('view_orde', t_where, 0, 0, 0, "checkcustorde", r_accy, 1);
+					var as = _q_appendData("view_orde", "", true);
+					if (as[0] != undefined) {
+						alert('客單編號重複輸入，請檢查是否重覆下訂單!!');
+					}
 				}
 				
 				//105/0217 //檢查客戶是否可以出貨 //0224 可打訂單並提示但不可核可 同時判斷總店含集團

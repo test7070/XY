@@ -385,7 +385,7 @@
 					case 'custm':
 						var as = _q_appendData("custm", "", true);
 						if (as[0] != undefined) {
-							$('#textInvomemo').val(as[0].invomemo);
+							$('#textInvomemo').val(as[0].invomemo+(as[0].p23!=''?(" "+as[0].p23+"聯"):''));
 						}
 						break;
 					case 'checkVccno_btnOk':
@@ -813,7 +813,7 @@
 									taxtype=xy_taxtypetmp[i].split('@')[0];
 							}
 							$('#cmbTaxtype').val(taxtype);
-							$('#textInvomemo').val(as[0].invomemo);
+							$('#textInvomemo').val(as[0].invomemo+(as[0].p23!=''?(" "+as[0].p23+"聯"):''));
 						}
 						break;
 					case 'btnDele':

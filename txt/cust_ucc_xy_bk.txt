@@ -242,6 +242,7 @@ begin
 
 	declare cursor_table cursor for 
 	select accy,noa,no2,product,spec,unit,classa,quatno,no3 from view_ordes where noa=@noa and productno=''
+	and (classa='印' or classa='客') --1050206 只產生 印刷品
 	open cursor_table 
 	fetch next from cursor_table 
 	into @accy,@t_noa,@t_no2,@product,@spec,@unit,@classa,@quatno,@no3

@@ -297,6 +297,7 @@ dbo.getComma(round(payed,0),0) payed,
 dbo.getComma(round(punpay,0),0) punpay,
 dbo.getComma(round(unpay,0),0) unpay,
 replace(comp,'~#$',char(39)) comp,
+replace(addr,'~#$',char(39)) addr,
 @nowdate qtoday,
 noa xnoa,noq xnoq,
 'vcc_xy?noa=$noa?'+raccy ghref,
@@ -502,6 +503,7 @@ dbo.getComma(punpay,0) punpay,
 dbo.getComma(unpay,0) unpay,
 replace(comp,'~#$',char(39)) comp,
 replace(xcomp,'~#$',char(39)) xcomp,
+replace(addr,'~#$',char(39)) addr,
 @nowdate qtoday,
 noa xnoa,noq xnoq,
 * from #result order by custno,xcustno,page,idno,gno,datea,xnoa,xnoq
@@ -813,6 +815,7 @@ dbo.getComma(tax,0) tax,
 dbo.getComma(total,0) total,
 replace(comp,'~#$',char(39)) comp,
 replace(xcomp,'~#$',char(39)) xcomp,
+replace(addr,'~#$',char(39)) addr,
 * 
 from #result order by custno,isnull(xserial,CHAR(255)),xcustno,case when gno='0' then '1' when gno='1' then '0' else gno end,datea,noa,noq
 

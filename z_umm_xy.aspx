@@ -75,6 +75,10 @@
                         type : '8', //[11]
                         name : 'showinvomemo',
                         value:'Y@顯示備註與發票號碼'.split(',')
+                    }, {
+                        type : '5', //[12]
+                        name : 'xorder',
+                        value:'cust@業務-客戶,paytype@業務-寄單-客戶'.split(',')
                     }]
                 });
 

@@ -833,12 +833,14 @@ declare @t_bcustno nvarchar(20)
 declare @t_ecustno nvarchar(20)
 declare @t_bsalesno nvarchar(20)
 declare @t_esalesno nvarchar(20)
+declare @t_order nvarchar(20)
 
 set @t_mon = case when '#non'=[1] then '' else [1] end
 set @t_bcustno = case when '#non'=[4] then '' else [4] end
 set @t_ecustno = case when '#non'=[5] then char(255) else [5] end
 set @t_bsalesno = case when '#non'=[6] then '' else [6] end
 set @t_esalesno = case when '#non'=[7] then char(255) else [7] end
+set @t_order =  case when '#non'=[12] then 'cust' else [12] end
 
 declare @pageline int = 28 
 
@@ -923,6 +925,7 @@ left join cust c on ua.custno=c.noa
 where left(ua.datea,6)=@t_mon
 and not exists (select * from #tmp where custno=ua.custno and salesno=c.salesno)
 and c.salesno between @t_bsalesno and @t_esalesno
+and ua.custno between @t_bcustno and @t_ecustno
 group by ua.custno,c.salesno
 
 update a
@@ -1035,27 +1038,54 @@ select '8',@maxpage,'','',MAX(title),torder
 ,SUM(m01),SUM(m02),SUM(m03),SUM(m04),SUM(m05),SUM(m06),SUM(m07),SUM(m08),SUM(m09),SUM(m10),SUM(m11),SUM(m12)
 from #tmpa group by torder
 
-select
-dbo.getComma(round(punpay,0),-1)punpay,
-dbo.getComma(round(total,0),-1)total,
-dbo.getComma(round(payed,0),-1)payed,
-dbo.getComma(round(unpay,0),-1)unpay,
-dbo.getComma(round(m01,0),-1)m01,
-dbo.getComma(round(m02,0),-1)m02,
-dbo.getComma(round(m03,0),-1)m03,
-dbo.getComma(round(m04,0),-1)m04,
-dbo.getComma(round(m05,0),-1)m05,
-dbo.getComma(round(m06,0),-1)m06,
-dbo.getComma(round(m07,0),-1)m07,
-dbo.getComma(round(m08,0),-1)m08,
-dbo.getComma(round(m09,0),-1)m09,
-dbo.getComma(round(m10,0),-1)m10,
-dbo.getComma(round(m11,0),-1)m11,
-dbo.getComma(round(m12,0),-1)m12,
-dbo.getComma(round(umoney,0),-1)umoney,
-dbo.getComma(round(udis,0),-1)udis,
-replace(comp,'~#$',char(39)) comp,
-* from #result order by page,gno,salesno,paytype,custno,torder
+if(@t_order='cust')
+begin
+	select
+	dbo.getComma(round(punpay,0),-1)punpay,
+	dbo.getComma(round(total,0),-1)total,
+	dbo.getComma(round(payed,0),-1)payed,
+	dbo.getComma(round(unpay,0),-1)unpay,
+	dbo.getComma(round(m01,0),-1)m01,
+	dbo.getComma(round(m02,0),-1)m02,
+	dbo.getComma(round(m03,0),-1)m03,
+	dbo.getComma(round(m04,0),-1)m04,
+	dbo.getComma(round(m05,0),-1)m05,
+	dbo.getComma(round(m06,0),-1)m06,
+	dbo.getComma(round(m07,0),-1)m07,
+	dbo.getComma(round(m08,0),-1)m08,
+	dbo.getComma(round(m09,0),-1)m09,
+	dbo.getComma(round(m10,0),-1)m10,
+	dbo.getComma(round(m11,0),-1)m11,
+	dbo.getComma(round(m12,0),-1)m12,
+	dbo.getComma(round(umoney,0),-1)umoney,
+	dbo.getComma(round(udis,0),-1)udis,
+	replace(comp,'~#$',char(39)) comp,
+	* from #result order by page,gno,salesno,custno,torder
+end
+else
+begin
+	select
+	dbo.getComma(round(punpay,0),-1)punpay,
+	dbo.getComma(round(total,0),-1)total,
+	dbo.getComma(round(payed,0),-1)payed,
+	dbo.getComma(round(unpay,0),-1)unpay,
+	dbo.getComma(round(m01,0),-1)m01,
+	dbo.getComma(round(m02,0),-1)m02,
+	dbo.getComma(round(m03,0),-1)m03,
+	dbo.getComma(round(m04,0),-1)m04,
+	dbo.getComma(round(m05,0),-1)m05,
+	dbo.getComma(round(m06,0),-1)m06,
+	dbo.getComma(round(m07,0),-1)m07,
+	dbo.getComma(round(m08,0),-1)m08,
+	dbo.getComma(round(m09,0),-1)m09,
+	dbo.getComma(round(m10,0),-1)m10,
+	dbo.getComma(round(m11,0),-1)m11,
+	dbo.getComma(round(m12,0),-1)m12,
+	dbo.getComma(round(umoney,0),-1)umoney,
+	dbo.getComma(round(udis,0),-1)udis,
+	replace(comp,'~#$',char(39)) comp,
+	* from #result order by page,gno,salesno,paytype,custno,torder
+end
 
 IF OBJECT_ID('tempdb..#tmp')is not null
 BEGIN

@@ -877,6 +877,7 @@ create table #result(
 	m07 float,m08 float,m09 float,m10 float,m11 float,m12 float,
 	umoney float,
 	udis float,
+	opay float,
 	idno int,
 	page int
 )
@@ -892,7 +893,8 @@ create table #tmp(
 	payed float,
 	unpay float,
 	umoney float,
-	udis float
+	udis float,
+	opay float
 )
 
 insert #tmp (custno,salesno,total,payed)
@@ -934,15 +936,16 @@ set comp=isnull((select case when isnull(nick,'')!='' then nick else comp end fr
 ,paytype=(select isnull(postmemo,'') from custm where noa=a.custno)
 ,umoney=isnull((select SUM(ub.money) from umm ua left join umms ub on ua.noa=ub.noa left join cust c on ua.custno=c.noa where left(ua.datea,6)=@t_mon and ua.custno=a.custno and c.salesno=a.salesno and ub.acc1 not in ('6015.','4202.','6020.')),0)
 ,udis=isnull((select SUM(ub.money) from umm ua left join umms ub on ua.noa=ub.noa left join cust c on ua.custno=c.noa where left(ua.datea,6)=@t_mon and ua.custno=a.custno and c.salesno=a.salesno and ub.acc1 in ('6015.','4202.','6020.')),0)
+,opay=isnull((select SUM(ua.opay-ua.unopay) from umm ua left join cust c on ua.custno=c.noa where left(ua.datea,6)<=@t_mon and ua.custno=a.custno and c.salesno=a.salesno),0)
 from #tmp a
 
 --明細
-insert #result (gno,paytype,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis)
-select '2',paytype,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis
+insert #result (gno,paytype,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis,opay)
+select '2',paytype,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis,opay
 from #tmp
 --總計
-insert #result (gno,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis)
-select '3','','','','',SUM(punpay),SUM(total),SUM(payed),SUM(unpay),sum(umoney),sum(udis)
+insert #result (gno,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis,opay)
+select '3','','','','',SUM(punpay),SUM(total),SUM(payed),SUM(unpay),sum(umoney),sum(udis),sum(opay)
 from #tmp 
 
 --順序
@@ -953,8 +956,8 @@ from (select idno,page,ROW_NUMBER()over (order by gno,salesno,paytype,custno)rr 
 declare @maxpage int=(select MAX(page) from #result)
 
 --業務小計
-insert #result (gno,page,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis)
-select '4',@maxpage,'','',salesno,sales,SUM(punpay),SUM(total),SUM(payed),SUM(unpay),sum(umoney),sum(udis)
+insert #result (gno,page,custno,comp,salesno,sales,punpay,total,payed,unpay,umoney,udis,opay)
+select '4',@maxpage,'','',salesno,sales,SUM(punpay),SUM(total),SUM(payed),SUM(unpay),sum(umoney),sum(udis),sum(opay)
 from #tmp group by salesno,sales
 
 if((select count(*) from #result)>0)
@@ -1059,6 +1062,7 @@ begin
 	dbo.getComma(round(m12,0),-1)m12,
 	dbo.getComma(round(umoney,0),-1)umoney,
 	dbo.getComma(round(udis,0),-1)udis,
+	dbo.getComma(round(opay,0),-1)opay,
 	replace(comp,'~#$',char(39)) comp,
 	* from #result order by page,gno,salesno,custno,torder
 end
@@ -1083,6 +1087,7 @@ begin
 	dbo.getComma(round(m12,0),-1)m12,
 	dbo.getComma(round(umoney,0),-1)umoney,
 	dbo.getComma(round(udis,0),-1)udis,
+	dbo.getComma(round(opay,0),-1)opay,
 	replace(comp,'~#$',char(39)) comp,
 	* from #result order by page,gno,salesno,paytype,custno,torder
 end

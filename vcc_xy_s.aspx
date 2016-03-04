@@ -32,6 +32,8 @@
 				q_cmbParse("cmbTypea", "@全部,1@出,2@退");
 				q_cmbParse("cmbStatus", "@全部,Y@已收完,N@未收完");
 				q_cmbParse("cmbStype", '@全部,'+q_getPara('vcc.stype'));
+				q_cmbParse("cmbDime", "@全部,Y@已簽收,N@未簽收");
+				q_cmbParse("cmbWidth", "@全部,Y@已驗收,N@未驗收");
 				$('#txtNoa').focus();
 			}
 			function q_gtPost(t_name) {
@@ -73,6 +75,9 @@
 				t_salesno = $('#txtSalesno').val();
 				t_stype = $('#cmbStype').val();
 				t_memo = $('#txtMemo').val();
+				t_dime=$('#cmbDime').val();//簽收
+				t_width=$('#cmbWidth').val();//驗收
+				
 				
 				var t_where = " 1=1 "
 				+ q_sqlPara2("typea", t_typea)
@@ -100,6 +105,18 @@
                 	
 				if(t_ordeno.length>0)
                 	t_where += " and (noa in (select noa from view_vccs where ordeno='"+t_ordeno+"') or noa in (select noa from view_vcc where ordeno='"+t_ordeno+"'))";
+                
+                //簽收
+                if(t_dime=='Y')
+                	t_where += " and noa in (select ordeno from view_vcces where dime=1) ";
+                if(t_dime=='N')
+                	t_where += " and noa in (select ordeno from view_vcces where dime=0) ";
+                //驗收	
+                if(t_width=='Y')
+                	t_where += " and noa in (select ordeno from view_vcces where width=1) ";
+                if(t_width=='N')
+                	t_where += " and noa in (select ordeno from view_vcces where width=0 and charindex('不',class)==0) ";
+
                 	
 				t_where = ' where=^^ ' + t_where + ' ^^ ';
 				return t_where;
@@ -192,6 +209,14 @@
 				<tr class='seek_tr'>
 					<td><a id='lblMemo'>備註 </a></td>
 					<td><input id="txtMemo" type="text"/></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td style="width: 30%;"><a>簽收 </a></td>
+					<td style="width: 70%;"><select id="cmbDime"> </select></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td style="width: 30%;"><a>驗收</a></td>
+					<td style="width: 70%;"><select id="cmbWidth"> </select></td>
 				</tr>
 			</table>
 			<!--#include file="../inc/seek_ctrl.inc"-->

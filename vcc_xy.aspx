@@ -150,7 +150,7 @@
 							t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0";
 						t_where = t_where;*/
 					
-						t_where = "isnull(enda,0)!=1 and productno!='' and a.mount-isnull(b.mount,0)>0";
+						t_where = "isnull(enda,0)!=1 and isnull(cancel,0)!=1 and productno!='' and a.mount-isnull(b.mount,0)>0";
 						//1050112 加上核可判斷
 						t_where += " and exists (select * from view_orde where noa=a.noa and len(isnull(apv,''))>0 )";
 						if (t_custno.length>0)

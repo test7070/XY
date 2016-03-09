@@ -124,12 +124,15 @@ END
 		spec nvarchar(max),
 		style nvarchar(max),
 		unit nvarchar(max),
-		saleprice float
+		saleprice float,
+		custno nvarchar(max),
+		comp nvarchar(max)
 	)
 
 	insert into #tmp
-	select 0,a.noa,a.product,a.spec,a.style,a.unit,a.saleprice
+	select 0,a.noa,a.product,a.spec,a.style,a.unit,a.saleprice,b.noa,b.comp
 	from ucc a  
+	outer apply (select noa,comp from cust where left(a.noa,5)=noa and charindex('-',a.noa)>0 ) b
 	where (a.noa between @t_bpno and @t_epno) 
 	and (len(@t_product)=0 or charindex(isnull(@t_product,''),a.product)>0)
 	and (len(@t_ucctypea)=0 or isnull(a.typea,'')=@t_ucctypea)

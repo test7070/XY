@@ -238,6 +238,15 @@
 				});
 				
 				$('#btnApv').click(function(e){
+					if($('#chkCancel').prop('checked')){
+						alert('訂單已取消');
+						return;
+					}
+					if($('#chkEnda').prop('checked')){
+						alert('訂單已結案');
+						return;
+					}
+					
 					//1050224 檢查客戶是否可以核可 同時判斷總店含集團
 					var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 					q_gt('cust', t_where, 0, 0, 0, "getcuststatus", r_accy, 1);

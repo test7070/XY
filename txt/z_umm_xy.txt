@@ -935,7 +935,7 @@ group by ua.custno,c.salesno
 update a
 set comp=isnull((select case when isnull(nick,'')!='' then nick else comp end from cust where noa=a.custno),'')
 ,sales=isnull((select namea from sss where noa=a.salesno),'')
-,paytype=(select isnull(postmemo,'') from custm where noa=a.custno)
+,paytype=isnull((select isnull(postmemo,'') from custm where noa=a.custno),'')
 ,umoney=isnull((select SUM(ub.money) from umm ua left join umms ub on ua.noa=ub.noa left join cust c on ua.custno=c.noa where left(ua.datea,6)=@t_mon and ua.custno=a.custno and c.salesno=a.salesno and ub.acc1 not in ('6015.','4202.','6020.')),0)
 ,udis=isnull((select SUM(ub.money) from umm ua left join umms ub on ua.noa=ub.noa left join cust c on ua.custno=c.noa where left(ua.datea,6)=@t_mon and ua.custno=a.custno and c.salesno=a.salesno and ub.acc1 in ('6015.','4202.','6020.')),0)
 ,popay=isnull((select SUM(ua.opay-ua.unopay) from umm ua left join cust c on ua.custno=c.noa where left(ua.datea,6)<@t_mon and ua.custno=a.custno and c.salesno=a.salesno),0)
@@ -952,9 +952,18 @@ select '3','','','','',SUM(punpay),SUM(total),SUM(payed),SUM(unpay),sum(umoney),
 from #tmp 
 
 --順序
-update a
-set idno=rr,page=CEILING(cast(rr as float)/@pageline)
-from (select idno,page,ROW_NUMBER()over (order by gno,salesno,paytype,custno)rr from #result) a
+if(@t_order='cust')
+begin
+	update a
+	set idno=rr,page=CEILING(cast(rr as float)/@pageline)
+	from (select idno,page,ROW_NUMBER()over (order by gno,salesno,custno,paytype)rr from #result) a
+end
+else
+begin
+	update a
+	set idno=rr,page=CEILING(cast(rr as float)/@pageline)
+	from (select idno,page,ROW_NUMBER()over (order by gno,salesno,paytype,custno)rr from #result) a
+end
 
 declare @maxpage int=(select MAX(page) from #result)
 

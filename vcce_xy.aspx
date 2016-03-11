@@ -72,7 +72,8 @@
 					var t_edate = $('#txtEdate').val();
 					var t_cardealno = $('#txtCardealno').val();
 					
-					var t_where = "left(memo,1)!='#' and exists (select noa from view_vccs where (isnull(mount,0)-isnull(tranmoney2,0)>0 or isnull(tranmoney3,0)>0) and not exists (select ordeno from view_vcces where isnull(enda,0)=0 and noa!='"+$('#txtNoa').val()+"' and ordeno=view_vccs.noa ) group by noa having noa=view_vcc.noa )";
+					var t_where = "left(memo,1)!='#' and exists (select noa from view_vccs where (isnull(mount,0)-isnull(tranmoney2,0)>0 or isnull(tranmoney3,0)>0) and not exists (select ordeno from view_vcces where isnull(enda,0)=1 and noa!='"+$('#txtNoa').val()+"' and ordeno=view_vccs.noa ) group by noa having noa=view_vcc.noa )";
+					t_where+=" and not exists (select * from view_vcces where datea='"+$('#txtDatea').val()+"' and ordeno=view_vcc.noa) ";
 					if(t_cardealno.length>0)
 						t_where+=" and cardealno='"+t_cardealno+"'";
 					if(t_post.length>0)

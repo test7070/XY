@@ -128,6 +128,13 @@
 				$('#txtMon').click(function(){
 					if ($('#txtMon').attr("readonly")=="readonly" && (q_cur==1 || q_cur==2))
 						q_msg($('#txtMon'), "月份要另外設定，請在"+q_getMsg('lblMemo')+"的第一個字打'*'字");
+				}).change(function() {
+					if(!emp($('#txtMon').val())){
+						if($('#txtMon').val()<=q_getPara('sys.edate').substr(0,6)){
+							alert('帳款月份禁止低於關帳日');
+							$('#txtMon').val('');
+						}
+					}
 				});
 								
 				$('#txtCardealno').change(function(){
@@ -951,6 +958,12 @@
 					q_gt('cust', t_where, 0, 0, 0, "startdate", r_accy);
 					return;
 				}
+				
+				if($('#txtMon').val()<=q_getPara('sys.edate').substr(0,6)){
+					alert('帳款月份禁止低於關帳日');
+					return;
+				}
+				
 				//判斷出貨商品是否有寄庫 如果有要先將寄庫出貨完畢才能出貨
 				//104/03/02 等寄庫存完整再判斷
 				/*if(!check_stock){

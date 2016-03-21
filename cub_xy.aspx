@@ -149,6 +149,7 @@
 				q_mask(bbmMask);
 				
 				//q_cmbParse("combTypea", '西餐紙,火柴,筷子套,刀叉套,比薩盒,蛋糕盒,店卡,名片,餐盒,聯單,背心袋,炸雞盤,薯條杯,雜類,炸雞盒,紙袋,手提紙袋,瓦楞紙,帽子,桌巾紙,紙盒,公文袋,牙千套,紙包吸,紙包可吸,紙包可彩吸,紙包彩吸,紙包白色吸,白色吸,其他');
+				q_cmbParse("cmbTypea", '製造部,加工部,委外部');
 				
 				//$('title').text("連續製令單"); //IE8會有問題
 				document.title='連續製令單'
@@ -817,11 +818,8 @@
 					<tr>
 						<td><span> </span><a id="lblDatea" class="lbl"> </a></td>
 						<td><input id="txtDatea" type="text" class="txt c1"/></td>
-						<!--<td><span> </span><a class="lbl">類別</a></td>
-						<td>
-							<input id="txtTypea" type="text" class="txt c1" style="width: 85%;"/>
-							<select id="combTypea" class="txt" style="width: 15%;" onchange='combTypea_chg()'> </select>
-						</td>-->
+						<td><span> </span><a class="lbl">類別</a></td>
+						<td><select id="cmbTypea" class="txt c1"> </select></td>
 						<td><span> </span><a id="lblNoa" class="lbl"> </a></td>
 						<td><input id="txtNoa" type="text" class="txt c1"/></td>
 						<td>

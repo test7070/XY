@@ -35,6 +35,7 @@
                 q_mask(bbmMask);
 				$('#txtNoa').focus();
 				$('.readonly').attr('readonly',true);
+				q_cmbParse("cmbTypea", '@全部,製造部,加工部,委外部');
 			}
 
 			function q_gtPost(t_name) {
@@ -50,8 +51,10 @@
 				var t_pno = $.trim($('#txtProductno').val());
 				var t_ordeno = $.trim($('#txtOrdeno').val());
 				var t_no2 = $.trim($('#txtNo2').val());
+				var t_typea = $.trim($('#cmbTypea').val());
 				
 				var t_where = " 1=1 " + q_sqlPara2("datea", t_bdate,t_edate) + q_sqlPara2("noa", t_noa)+
+										q_sqlPara2("typea", t_typea) +
 										q_sqlPara2("custno", t_custno) +
 										q_sqlPara2("productno", t_pno) +
 										q_sqlPara2("ordeno", t_ordeno)+q_sqlPara2("no2", t_no2) ;
@@ -92,6 +95,10 @@
 				<tr class='seek_tr'>
 					<td class='seek' style="width:90px;"><a id='lblNoa'> </a></td>
 					<td><input class="txt" id="txtNoa" type="text" style="width:220px;" /></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek' style="width:90px;"><a id='lblTypea'>類別</a></td>
+					<td><select id="cmbTypea" class="txt c1"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td class='seek' style="width:90px;"><a id='lblCust'> </a></td>

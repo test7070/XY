@@ -517,8 +517,11 @@ z_cub_xyp4:--z_cub_xyp4
 	
 	delete #tmp5 where not(tggno between @t_btggno and @t_etggno)
 	
-	insert into #tmp5(gno,[money],pay,unpay)
-	select '2',SUM(ISNULL([money],0)),SUM(ISNULL(pay,0)),SUM(ISNULL(unpay,0)) from #tmp5
+	if((select count(*) from #tmp5)>0)
+	begin
+		insert into #tmp5(gno,[money],pay,unpay)
+		select '2',SUM(ISNULL([money],0)),SUM(ISNULL(pay,0)),SUM(ISNULL(unpay,0)) from #tmp5
+	end
 	
 	select a.*,b.nick
 	,reverse(substring(reverse(convert(nvarchar(15),CONVERT(money,[money]),1)),4,12)) aa1

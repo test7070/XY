@@ -23,7 +23,7 @@
 			q_tables = 's';
 			var q_name = "vcce";
 			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtAcomp', 'txtSales','txtDriver','txtCardeal','txtWeight','txtTotal'];
-			var q_readonlys = ['txtCustno','txtComp','txtOrdeno','txtOdate','txtAdjweight','txtEcount'];
+			var q_readonlys = ['txtCustno','txtComp','txtOdate','txtAdjweight','txtEcount'];
 			var bbmNum = [['txtWeight', 15, 0, 1],['txtTotal', 15, 0, 1]];
 			var bbsNum = [['txtAdjcount', 10, 0, 1], ['txtAdjweight', 10, 0, 1], ['txtEcount', 10, 0, 1]];
 			var bbmMask = [];
@@ -64,6 +64,10 @@
 				bbmMask = [['txtDatea', r_picd],['txtBdate', r_picd],['txtEdate', r_picd]];
 				q_mask(bbmMask);
 				bbsMask = [['txtHandle', r_picd], ['txtHandle2', r_picd]];
+				
+				if(r_rank<9){
+					q_readonlys.push('txtOrdeno');
+				}
 
 				$('#btnVccimport').click(function() {
 					var t_post = $('#txtZip_post').val();
@@ -72,7 +76,8 @@
 					var t_edate = $('#txtEdate').val();
 					var t_cardealno = $('#txtCardealno').val();
 					
-					var t_where = "left(memo,1)!='#' and exists (select noa from view_vccs where (isnull(mount,0)-isnull(tranmoney2,0)>0 or isnull(tranmoney3,0)>0) and not exists (select ordeno from view_vcces where isnull(enda,0)=1 and noa!='"+$('#txtNoa').val()+"' and ordeno=view_vccs.noa ) group by noa having noa=view_vcc.noa )";
+					//var t_where = "left(memo,1)!='#' and exists (select noa from view_vccs where (isnull(mount,0)-isnull(tranmoney2,0)>0 or isnull(tranmoney3,0)>0) and not exists (select ordeno from view_vcces where isnull(enda,0)=1 and noa!='"+$('#txtNoa').val()+"' and ordeno=view_vccs.noa ) group by noa having noa=view_vcc.noa )";
+					var t_where = "left(memo,1)!='#' and exists (select noa from view_vccs where not exists (select ordeno from view_vcces where isnull(enda,0)=1 and noa!='"+$('#txtNoa').val()+"' and ordeno=view_vccs.noa ) group by noa having noa=view_vcc.noa )";
 					t_where+=" and not exists (select * from view_vcces where datea='"+$('#txtDatea').val()+"' and ordeno=view_vcc.noa) ";
 					if(t_cardealno.length>0)
 						t_where+=" and cardealno='"+t_cardealno+"'";
@@ -295,7 +300,40 @@
 	                    	if($(this).val().length>0){
 	                    		q_box("vcc_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + r_accy, 'vcc_xy', "95%", "95%", '出貨單');
 	                    	}
-	                   });
+	                   	}).change(function() {
+							t_IdSeq = -1;  /// 要先給  才能使用 q_bodyId()
+							q_bodyId($(this).attr('id'));
+							b_seq = t_IdSeq;
+							
+							if(!emp($('#txtOrdeno_'+b_seq).val())){
+								var t_where = "where=^^ noa='" + $('#txtOrdeno_'+b_seq).val() + "' ^^";
+								q_gt('view_vcc', t_where, 0, 0, 0, "getvcc", r_accy,1);
+								var as = _q_appendData("view_vcc", "", true);
+								if (as[0] != undefined) {
+									$('#txtOrdeno_'+b_seq).val(as[0].noa);
+									$('#txtCustno_'+b_seq).val(as[0].custno);
+									$('#txtComp_'+b_seq).val(as[0].comp);
+									$('#txtOdate_'+b_seq).val(as[0].datea);
+									if(as[i].typea=='2'){
+										as[0].total=-1*dec(as[0].total);
+									}
+									if(!(as[0].paytype.indexOf('收現')>-1|| as[0].paytype.indexOf('貨到現金')>-1))
+										$('#txtAdjweight_'+b_seq).val(0);
+									else
+										$('#txtAdjweight_'+b_seq).val(as[0].total);
+									$('#txtEcount_'+b_seq).val(as[0].unpay);
+									$('#txtSize_'+b_seq).val(as[0].paytype);
+									q_gt('custm', "where=^^noa ='"+as[0].custno+"' ^^", 0, 0, 0, "getcustm", r_accy,1);
+									var ass = _q_appendData("custm", "", true);
+									if (ass[0] != undefined) {
+										$('#txtClass_'+b_seq).val(ass[0].checkmemo);
+									}
+								}else{
+									alert('無此出貨單!!');
+									$('#txtOrdeno_'+b_seq).val('');
+								}
+							}
+						});
 						
 						$('#chkEnda_' + j).click(function() {
 							t_IdSeq = -1;  /// 要先給  才能使用 q_bodyId()

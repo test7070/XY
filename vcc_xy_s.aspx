@@ -11,7 +11,9 @@
 		<script type="text/javascript">
 			var q_name = "vcc_s";
             aPop = new Array( ['txtCustno', '', 'cust', 'noa,nick,invoicetitle', 'txtCustno', '']
-            , ['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno', '']);
+            , ['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno', '']
+            , ['txtCardealno', '', 'cardeal', 'noa,comp', 'txtCardealno', '']
+            );
 			$(document).ready(function() {
 				main();
 			});
@@ -77,7 +79,7 @@
 				t_memo = $('#txtMemo').val();
 				t_dime=$('#cmbDime').val();//簽收
 				t_width=$('#cmbWidth').val();//驗收
-				
+				t_cardealno = $('#txtCardealno').val();
 				
 				var t_where = " 1=1 "
 				+ q_sqlPara2("typea", t_typea)
@@ -90,6 +92,7 @@
 				+ q_sqlPara2("datea", t_bdate, t_edate)
 				+ q_sqlPara2("accno", t_accno)
 				+ q_sqlPara2("custno", t_custno)
+				+ q_sqlPara2("cardealno", t_cardealno)
 				+ q_sqlPara2("invono", t_invono);
 				
 				if(t_salesno.length>0)
@@ -205,6 +208,10 @@
 				<tr class='seek_tr'>
 					<td><a id='lblOrdeno'> </a></td>
 					<td><input id="txtOrdeno" type="text"/></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td><a id='lblCardealno'>車行</a></td>
+					<td><input id="txtCardealno" type="text"/></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td><a id='lblMemo'>備註 </a></td>

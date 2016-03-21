@@ -17,7 +17,7 @@
  
 			q_tables = 's';
 			var q_name = "vcc";
-			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice','textStatus','txtDriver','textInvomemo'];
+			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice','textStatus','txtDriver','textInvomemo','textConn'];
 			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtStore','txtStore2'];//txtSpec
 			var bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1],['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
 			var bbsNum = [];
@@ -393,6 +393,7 @@
 						var as = _q_appendData("custm", "", true);
 						if (as[0] != undefined) {
 							$('#textInvomemo').val(as[0].invomemo+(as[0].p23!=''?(" "+as[0].p23+"聯"):''));
+							$('#textConn').val(as[0].conn);
 						}
 						break;
 					case 'checkVccno_btnOk':
@@ -821,6 +822,7 @@
 							}
 							$('#cmbTaxtype').val(taxtype);
 							$('#textInvomemo').val(as[0].invomemo+(as[0].p23!=''?(" "+as[0].p23+"聯"):''));
+							$('#textConn').val(as[0].conn);
 						}
 						break;
 					case 'btnDele':
@@ -1014,7 +1016,7 @@
 			function _btnSeek() {
 				if (q_cur > 0 && q_cur < 4)// 1-3
 					return;
-				q_box('vcc_xy_s.aspx', q_name + '_s', "500px", "750px", q_getMsg("popSeek"));
+				q_box('vcc_xy_s.aspx', q_name + '_s', "500px", "800px", q_getMsg("popSeek"));
 			}
 
 			function combPay_chg() {
@@ -1896,8 +1898,6 @@
 							<select id="combDriver" class="txt c1" style="width: 20px"> </select>
 						</td>
 						<td><input id="txtDriver"  type="text" class="txt c1"/></td>
-						<td><span> </span><a class="lbl">發票開立</a></td>
-						<td colspan='2'><input id="textInvomemo" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblSales' class="lbl btn"> </a></td>
@@ -1937,6 +1937,12 @@
 						<td colspan='2'><input id="txtWorker2" type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblAccc' class="lbl btn"> </a></td>
 						<td><input id="txtAccno" type="text" class="txt c1"/></td>
+					</tr>
+					<tr>
+						<td><span> </span><a class="lbl">發票開立</a></td>
+						<td colspan='2'><input id="textInvomemo" type="text" class="txt c1"/></td>
+						<td><span> </span><a class="lbl">聯絡人員</a></td>
+						<td colspan="2"><input id="textConn" type="text" class="txt c1" /></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMemo" class="lbl"> </a></td>

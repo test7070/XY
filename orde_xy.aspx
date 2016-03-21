@@ -21,7 +21,7 @@
 			q_desc = 1;
 			q_tables = 's';
 			var q_name = "orde";
-			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno','txtVccno','txtApv','textInvomemo'];
+			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno','txtVccno','txtApv','textInvomemo','textConn'];
 			var q_readonlys = ['txtTotal', 'txtQuatno', 'txtNo2', 'txtNo3', 'txtC1', 'txtNotv'];
 			var bbmNum = [['txtTotal', 10, 0, 1], ['txtMoney', 10, 0, 1], ['txtTax', 10, 0, 1],['txtFloata', 10, 5, 1], ['txtTotalus', 15, 2, 1]];
 			var bbsNum = [];
@@ -656,6 +656,7 @@
 						var as = _q_appendData("custm", "", true);
 						if (as[0] != undefined) {
 							$('#textInvomemo').val(as[0].invomemo);
+							$('#textConn').val(as[0].conn);
 						}
 						break;
 					case 'uccgb':
@@ -946,8 +947,8 @@
 							$('#txtSalesno').val(as[0].salesno);
 							$('#txtSales').val(as[0].sales);
 							
+							var t_status=q_getPara('cust.status').split(',');
 							if(as[0].status!='1' && as[0].status!='2'){
-								var t_status=q_getPara('cust.status').split(',');
 								var x_status='';
 								for(var i=0;i<t_status.length;i++){
 									if(as[0].status==t_status[i].split('@')[0]){
@@ -1008,6 +1009,7 @@
 							}
 							$('#cmbTaxtype').val(taxtype);
 							$('#textInvomemo').val(as[0].invomemo);
+							$('#textConn').val(as[0].conn);
 						}
 						break;
 					case 'store2_store2':
@@ -2832,6 +2834,12 @@
 							<input id="txtApv" type="text" class="txt c1" style="width: 50px;"/>
 						</td>
 					</tr>
+					<tr class="tr10">
+						<td class="td1"><span> </span><a class="lbl">發票開立</a></td>
+						<td class="td2" colspan="2"><input id="textInvomemo" type="text" class="txt c1" /></td>
+						<td class="td1"><span> </span><a class="lbl">聯絡人員</a></td>
+						<td class="td2" colspan="2"><input id="textConn" type="text" class="txt c1" /></td>
+					</tr>
 					<tr class="tr11">
 						<td class="td1"><span> </span><a id='lblMemo' class='lbl'> </a></td>
 						<td class="td2" colspan='5'>
@@ -2845,9 +2853,6 @@
 							<input id="chkCancel" type="checkbox"/>
 							<span> </span><a id='lblCancel'> </a>
 							<input id="txtPostname" type="hidden" />
-							<BR>
-							<span style="float: left;"> </span><a class="lbl" style="float: left;">發票開立</a><span style="float: left;"> </span>
-							<input id="textInvomemo" type="text" class="txt c1" style="width: 60%;"/>
 						</td>
 					</tr>
 				</table>

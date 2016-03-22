@@ -358,6 +358,7 @@
 				$('#txtNoa').val('AUTO');
 				$('#txtDatea').val(q_date());
 				$('#txtDatea').focus();
+				$('#chkIsproj').prop('checked',true);
 			}
 
 			function btnModi() {
@@ -786,7 +787,7 @@
 	ondrop="event.dataTransfer.dropEffect='none';event.stopPropagation(); event.preventDefault();"
 	>
 		<!--#include file="../inc/toolbar.inc"-->
-		<div id='dmain'>
+		<div id='dmain' style="overflow:hidden;width: 1260px;">
 			<div class="dview" id="dview" >
 				<table class="tview" id="tview" >
 					<tr>

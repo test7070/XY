@@ -223,6 +223,17 @@
 						$('#txtPrice_' + j).change(function() {
 							sum();
 						});
+						
+						$('#txtRc2no_' + i).click(function() {
+                            t_IdSeq = -1;
+                            q_bodyId($(this).attr('id'));
+                            b_seq = t_IdSeq;
+                            var t_cubno = $.trim($("#txtRc2no_" + b_seq).val());
+                            if (t_cubno.length > 0) {
+                                var t_where = "noa='" + t_cubno + "'";
+                                q_box("cub_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, q_name, "98%", "98%", q_getMsg("popSeek"));
+                            }
+                        });
 					}
 				}
 				_bbsAssign();

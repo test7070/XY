@@ -17,7 +17,7 @@
 			this.errorHandler = null;
 			q_tables = 't';
 			var q_name = "cub";
-			var q_readonly = ['txtNoa','txtComp','txtProduct','txtSpec','txtWorker','txtWorker2','txtNotv'];
+			var q_readonly = ['txtNoa','txtComp','txtProduct','txtSpec','txtWorker','txtWorker2','txtNotv','txtC1'];
 			var q_readonlys = ['txtDate2', 'txtOrdeno', 'txtNo2','txtMo','txtW01'];
 			var q_readonlyt = [];
 			var bbmNum = [['txtMount',10,0,1],['txtNotv',10,0,1]];
@@ -32,7 +32,7 @@
 			brwNowPage = 0;
 			brwKey = 'noa';
 			q_desc = 1;
-			brwCount2 = 7;
+			brwCount2 = 8;
 			aPop = new Array(
 				['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,spec,mount,custno,comp,memo', 'txtOrdeno,txtNo2,txtProductno,txtProduct,txtSpec,txtMount,txtCustno,txtComp,txtMemo', ''],
 				['txtCustno', 'lblCust', 'cust', 'noa,comp', 'txtCustno,txtComp', 'cust_b.aspx'],
@@ -157,19 +157,19 @@
 				$('#btnOrdes').click(function() {
 					var t_custno = trim($('#txtCustno').val());
 					var t_where = '';
+					t_where = " isnull(enda,0)!=1 and isnull(cancel,0)!=1";
+					t_where += " and left(productno,2)!='##' and left(custno,2)!='##' ";//非正式編號
 					if (t_custno.length > 0) {
-						t_where = " isnull(enda,0)!=1 and isnull(cancel,0)!=1";
-						t_where += " and left(productno,2)!='##' and left(custno,2)!='##' ";//非正式編號
 						t_where += " and custno='"+t_custno+"'";
 						//只有印刷才會進來 印刷編號=客戶編號-流水號
 						t_where += " and charindex('"+t_custno+"-',productno)=1 ";
-						if (!emp($('#txtOrdeno').val()))
-							t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0 ";
-						t_where = t_where;
-					} else {
-						alert('請輸入客戶編號!!');
-						return;
+					} else{
+						t_where += " and charindex('-',productno)=1 ";
 					}
+					
+					if (!emp($('#txtOrdeno').val()))
+						t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0 ";
+					t_where = t_where;
 					q_box("ordes_b_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes', "95%", "650px", q_getMsg('popOrde'));
 				});
 				
@@ -862,10 +862,14 @@
 						<td><input id="txtMo" type="text" class="txt num c1"/></td>
 					</tr>
 					<tr>
-						<td><span> </span><a id="lblMemo" class="lbl" > </a></td>
-						<td colspan="3"><input id="txtMemo" type="text" class="txt c1"/></td>
+						<td><span> </span><a id="lblC1" class="lbl" >已交量</a></td>
+						<td><input id="txtC1" type="text" class="txt num c1"/></td>
 						<td><span> </span><a id="lblNotv" class="lbl" >未交量</a></td>
 						<td><input id="txtNotv" type="text" class="txt num c1"/></td>
+					</tr>
+					<tr>
+						<td><span> </span><a id="lblMemo" class="lbl" > </a></td>
+						<td colspan="5"><input id="txtMemo" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblWorker" class="lbl" > </a></td>

@@ -164,7 +164,7 @@
 						//只有印刷才會進來 印刷編號=客戶編號-流水號
 						t_where += " and charindex('"+t_custno+"-',productno)=1 ";
 					} else{
-						t_where += " and charindex('-',productno)=1 ";
+						t_where += " and charindex('-',productno)>0 ";
 					}
 					
 					if (!emp($('#txtOrdeno').val()))

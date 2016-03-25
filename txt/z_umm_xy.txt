@@ -1121,3 +1121,142 @@ BEGIN
    drop table #result
 END
 ;
+--********************************************************************************************
+z_umm_xy6:--z_umm_xy6
+SET QUOTED_IDENTIFIER OFF
+declare @t_xmon nvarchar(10)
+declare @t_bcustno nvarchar(20)
+declare @t_ecustno nvarchar(20)
+declare @t_bsalesno nvarchar(20)
+declare @t_esalesno nvarchar(20)
+
+set @t_xmon = case when '#non'=[1] then '' else [1] end
+set @t_bcustno = case when '#non'=[4] then '' else [4] end
+set @t_ecustno = case when '#non'=[5] then char(255) else [5] end
+set @t_bsalesno = case when '#non'=[6] then '' else [6] end
+set @t_esalesno = case when '#non'=[7] then char(255) else [7] end
+-------------------------------------------------------------------------------------------------------------------------
+SET QUOTED_IDENTIFIER OFF
+declare @cmd nvarchar(max)
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	set @cmd = 'drop table #tmp'
+	EXECUTE sp_executesql @cmd
+END
+
+create table #tmp(
+	gno nvarchar(1),
+	salesno nvarchar(50),
+	custno nvarchar(50),	
+	mon nvarchar(10),
+	money float, --前期未收款
+	pmoney float, --前期已收款
+	total float,--本期應收
+	payed float, --本期已收
+	umoney float,--本期收款
+	dis float,--本期折讓
+	unpay float,--應收總計
+	popay float--前期預收
+)
+
+insert #tmp(gno,salesno,custno,mon,money,pmoney)
+select '9',salesno,custno,mon
+,SUM((case when typea='2' then -1 else 1 end*total)-isnull(b.paysale,0)),SUM(c.paysale)
+from view_vcc a
+outer apply (select paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))<@t_xmon)b
+outer apply (select paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))=@t_xmon)c
+where a.total!=0 
+and a.mon<@t_xmon
+and a.custno between @t_bcustno and @t_ecustno
+and a.salesno between @t_bsalesno and @t_esalesno
+group by custno,salesno,mon
+having SUM((case when typea='2' then -1 else 1 end*total)-isnull(b.paysale,0))!=0
+order by salesno,custno,mon
+
+insert #tmp(gno,salesno,custno,mon,total,payed)
+select '1',salesno,custno,mon
+,SUM(case when typea='2' then -1 else 1 end*total),SUM(b.paysale)
+from view_vcc a
+outer apply (select paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))=@t_xmon)b
+where a.total!=0 
+and a.mon=@t_xmon
+and a.custno between @t_bcustno and @t_ecustno
+and a.salesno between @t_bsalesno and @t_esalesno
+group by custno,salesno,mon
+order by salesno,custno,mon
+
+insert #tmp(gno,salesno,custno,mon,umoney,dis)
+select '2',c.salesno,a.custno,@t_xmon
+,sum(case when b.acc1 not in ('6015.','4202.','6020.') then money else 0 end)
+,sum(case when b.acc1 in ('6015.','4202.','6020.') then money else 0 end)
+from umm a left join umms b on a.noa=b.noa
+left join cust c on a.custno=c.noa
+where left(a.datea,len(@t_xmon))=@t_xmon
+and a.custno between @t_bcustno and @t_ecustno
+and c.salesno between @t_bsalesno and @t_esalesno
+group by c.salesno,a.custno
+
+insert #tmp(gno,salesno,custno,mon,popay)
+select '3',c.salesno,a.custno,@t_xmon,SUM(a.opay-a.unopay)
+from umm a left join umms b on a.noa=b.noa
+left join cust c on a.custno=c.noa
+where left(a.datea,len(@t_xmon))<@t_xmon
+and a.custno between @t_bcustno and @t_ecustno
+and c.salesno between @t_bsalesno and @t_esalesno
+group by c.salesno,a.custno
+
+insert #tmp(gno,salesno,custno,mon,total,payed,umoney,dis,popay)
+select '0',salesno,custno,mon,SUM(total),SUM(payed),SUM(umoney),SUM(dis),SUM(popay)
+from #tmp where gno!='9'
+group by salesno,custno,mon
+
+delete #tmp where gno!='0' and gno!='9'
+
+update a
+set unpay=isnull(a.total,0)-ISNULL(a.payed,0)+isnull(b.punpay,0)
+from #tmp a
+outer apply (select SUM(isnull(money,0)-isnull(pmoney,0))punpay from #tmp where gno='9'
+and custno=a.custno and salesno=a.salesno) b
+where gno='0'
+
+update a
+set mon=b.mon,money=b.money,pmoney=b.pmoney
+from #tmp a
+outer apply(select top 1 * from #tmp where gno='9' and custno=a.custno and salesno=a.salesno order by mon)b
+ where a.gno='0'
+
+delete a
+from #tmp a where gno='9'
+and exists (select * from #tmp where gno='0' and mon=a.mon and custno=a.custno and salesno=a.salesno)
+
+update #tmp set gno=case when gno='9' then '2' else '1' end
+
+delete #tmp where isnull(money,0)=0 and isnull(pmoney,0)=0 and isnull(total,0)=0
+and isnull(payed,0)=0 and isnull(umoney,0)=0 and isnull(dis,0)=0 and isnull(unpay,0)=0 and isnull(popay,0)=0
+
+insert #tmp (gno,salesno,custno,mon,money,pmoney,total,payed,umoney,dis,unpay,popay)
+select '3',CHAR(255),CHAR(255),CHAR(255)
+,sum(money),sum(pmoney),sum(total),sum(payed),sum(umoney),sum(dis),sum(unpay),sum(popay)
+from #tmp
+
+select 
+dbo.getComma(isnull(money,0),0) money,
+dbo.getComma(isnull(pmoney,0),0)pmoney, 
+dbo.getComma(isnull(total,0),0) total,
+dbo.getComma(isnull(payed,0),0) payed,
+dbo.getComma(isnull(umoney,0),0) umoney,
+dbo.getComma(isnull(dis,0),0) dis,
+dbo.getComma(isnull(unpay,0),0) unpay,
+dbo.getComma(isnull(popay,0),0) popay,
+b.nick comp,
+c.namea sales,
+a.* from #tmp a left join cust b on a.custno=b.noa
+left join sss c on a.salesno=c.noa
+order by a.salesno,a.custno,a.gno,a.mon
+
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	set @cmd = 'drop table #tmp'
+	EXECUTE sp_executesql @cmd
+END
+;

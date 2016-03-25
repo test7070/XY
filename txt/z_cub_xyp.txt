@@ -69,6 +69,7 @@ declare @result table(
 	bdate nvarchar(30),
 	pno nvarchar(30),
 	pdt nvarchar(max),
+	spec nvarchar(max),
 	unit nvarchar(20),
 	mount float,
 	c1 float,
@@ -82,7 +83,7 @@ declare @result table(
 	no2 nvarchar(max)
 )
 insert @result
-select '0',a.datea,a.productno,a.product,a.unit,a.mount,a.c1,a.notv
+select '0',a.datea,a.productno,a.product,a.spec,a.unit,a.mount,a.c1,a.notv
 	   ,b.tggno,b.tgg,a.custno,a.comp,a.noa,a.ordeno,a.no2
 from view_cub a  outer apply (select top 1 * from view_cubs where noa=a.noa order by noq desc)b
 where a.bdate between @t_bdate and @t_edate 

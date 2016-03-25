@@ -48,7 +48,7 @@ declare @tmp table(
 insert into @tmp 
 select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0
 ,a.noa,b.noq,a.datea,a.custno,a.comp,a.tel,c.mobile,case when a.addr2!='' then a.addr2 else a.addr end,cm.conn,cm.trantime
-,a.invono,replace(a.memo,'chr(10)','<BR>'),a.salesno,replace(a.sales,'~#$',char(39))
+,a.invono,replace(a.memo+' '+a.trantype,'chr(10)','<BR>'),a.salesno,replace(a.sales,'~#$',char(39))
 ,case when isnull(cm.notprice,0)=1 then null else a.money end
 ,case when isnull(cm.notprice,0)=1 then null else a.tax end
 ,cm.invomemo,cm.checkmemo

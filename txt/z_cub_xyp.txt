@@ -56,6 +56,7 @@ declare @t_bpno nvarchar(30)
 declare @t_epno nvarchar(30)
 declare @t_btgg nvarchar(30)
 declare @t_etgg nvarchar(30)
+declare @t_typea nvarchar(30)
 
 set @t_bdate =case when '#non'=[8] then '' else [8] end
 set @t_edate =case when '#non'=[9] then char(255) else [9] end
@@ -63,6 +64,7 @@ set @t_bpno = case when '#non'=[10] then '' else [10] end
 set @t_epno = case when '#non'=[11] then char(255) else [11] end
 set @t_btgg = case when '#non'=[12] then '' else [12] end
 set @t_etgg = case when '#non'=[13] then char(255) else [13] end
+set @t_typea = case when '#non'=[16] then '' else [16] end
 ---------------------------------------------------------------------------------------
 declare @result table(
 	gno nvarchar(10),
@@ -89,6 +91,7 @@ from view_cub a  outer apply (select top 1 * from view_cubs where noa=a.noa orde
 where a.bdate between @t_bdate and @t_edate 
 and a.productno between @t_bpno and @t_epno
 and isnull(b.tggno,'') between @t_btgg and @t_etgg
+and (len(@t_typea)=0 or a.typea=@t_typea)
 	  
 insert @result (gno,mount,c1,notv) 
 select '1',sum(mount),sum(c1),sum(notv) from @result 

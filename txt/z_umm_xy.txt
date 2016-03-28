@@ -1129,12 +1129,14 @@ declare @t_bcustno nvarchar(20)
 declare @t_ecustno nvarchar(20)
 declare @t_bsalesno nvarchar(20)
 declare @t_esalesno nvarchar(20)
+declare @showpayed nvarchar(20)
 
 set @t_xmon = case when '#non'=[1] then '' else [1] end
 set @t_bcustno = case when '#non'=[4] then '' else [4] end
 set @t_ecustno = case when '#non'=[5] then char(255) else [5] end
 set @t_bsalesno = case when '#non'=[6] then '' else [6] end
 set @t_esalesno = case when '#non'=[7] then char(255) else [7] end
+set @showpayed = case when '#non'=[13] then 'Y' else [13] end
 -------------------------------------------------------------------------------------------------------------------------
 SET QUOTED_IDENTIFIER OFF
 declare @cmd nvarchar(max)
@@ -1172,6 +1174,9 @@ and a.salesno between @t_bsalesno and @t_esalesno
 group by custno,salesno,mon
 having SUM((case when typea='2' then -1 else 1 end*total)-isnull(b.paysale,0))!=0
 order by salesno,custno,mon
+
+if(@showpayed='N')
+	delete #tmp where gno='9' and isnull(money,0)-isnull(pmoney,0)=0
 
 insert #tmp(gno,salesno,custno,mon,total,payed)
 select '1',salesno,custno,mon
@@ -1240,8 +1245,8 @@ select '3',CHAR(255),CHAR(255),CHAR(255)
 from #tmp
 
 select 
-dbo.getComma(isnull(money,0),0) money,
-dbo.getComma(isnull(pmoney,0),0)pmoney, 
+dbo.getComma(money,0) money,
+dbo.getComma(case when money is not null then isnull(pmoney,0) else pmoney end,0)pmoney, 
 dbo.getComma(isnull(total,0),0) total,
 dbo.getComma(isnull(payed,0),0) payed,
 dbo.getComma(isnull(umoney,0),0) umoney,

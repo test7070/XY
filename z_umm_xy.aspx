@@ -79,18 +79,22 @@
                         type : '5', //[12]
                         name : 'xorder',
                         value:'cust@業務-客戶,paytype@業務-寄單-客戶'.split(',')
+                    }, {
+                        type : '5', //[13]
+                        name : 'showpayed',
+                        value:'Y@顯示已收,N@顯示未收'.split(',')
                     }]
                 });
 
                 q_popAssign();
                 q_langShow();
                 
-                $('#txtXmon').mask('999/99');
-                $('#txtXmon').val(q_date().substr(0, 6));
+                $('#txtXmon').mask(r_picm);
+                $('#txtXmon').val(q_date().substr(0, r_lenm));
                 
-                $('#txtXdate1').mask('999/99/99');
+                $('#txtXdate1').mask(r_picd);
                 $('#txtXdate1').datepicker();
-                $('#txtXdate2').mask('999/99/99');
+                $('#txtXdate2').mask(r_picd);
                 $('#txtXdate2').datepicker();
             }
 

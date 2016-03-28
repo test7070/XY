@@ -1165,8 +1165,8 @@ insert #tmp(gno,salesno,custno,mon,money,pmoney)
 select '9',salesno,custno,mon
 ,SUM((case when typea='2' then -1 else 1 end*total)-isnull(b.paysale,0)),SUM(c.paysale)
 from view_vcc a
-outer apply (select paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))<@t_xmon)b
-outer apply (select paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))=@t_xmon)c
+outer apply (select sum(paysale)paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))<@t_xmon)b
+outer apply (select sum(paysale)paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))=@t_xmon)c
 where a.total!=0 
 and a.mon<@t_xmon
 and a.custno between @t_bcustno and @t_ecustno
@@ -1182,7 +1182,7 @@ insert #tmp(gno,salesno,custno,mon,total,payed)
 select '1',salesno,custno,mon
 ,SUM(case when typea='2' then -1 else 1 end*total),SUM(b.paysale)
 from view_vcc a
-outer apply (select paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))=@t_xmon)b
+outer apply (select sum(paysale)paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))=@t_xmon)b
 where a.total!=0 
 and a.mon=@t_xmon
 and a.custno between @t_bcustno and @t_ecustno

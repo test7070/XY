@@ -474,7 +474,7 @@
                         	t_IdSeq = -1;
                             q_bodyId($(this).attr('id'));
                             b_seq = t_IdSeq;  	
-                            if($('#txtMount_' + b_seq).val()>0 && $('#txtPrice_' + b_seq).val()>0){
+                            if(dec($('#txtMount_' + b_seq).val())>0 && dec($('#txtPrice_' + b_seq).val())>0){
                             	t_mount = dec($('#txtMount_' + b_seq).val());
                             	t_price = dec($('#txtPrice_' + b_seq).val());
                             	$('#txtMo_' + b_seq).val(q_mul(t_mount,t_price));
@@ -491,7 +491,7 @@
                         	t_IdSeq = -1;
                             q_bodyId($(this).attr('id'));
                             b_seq = t_IdSeq;  	
-                            if($('#txtMount_' + b_seq).val()>0 && $('#txtPrice_' + b_seq).val()>0){
+                            if(dec($('#txtMount_' + b_seq).val())>0 && dec($('#txtPrice_' + b_seq).val())>0){
                             	t_mount = dec($('#txtMount_' + b_seq).val());
                             	t_price = dec($('#txtPrice_' + b_seq).val());
                             	$('#txtMo_' + b_seq).val(q_mul(t_mount,t_price));

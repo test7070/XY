@@ -51,7 +51,7 @@
                         type : '2', //[4][5]
                         name : 'xcust',
                         dbf : 'cust',
-                        index : 'noa,comp',
+                        index : 'noa,comp,serial,invoicetitle',
                         src : 'cust_b.aspx'
                     }, {
                         type : '2', //[6][7]

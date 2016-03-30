@@ -1203,8 +1203,7 @@ group by c.salesno,a.custno
 
 insert #tmp(gno,salesno,custno,mon,popay)
 select '3',c.salesno,a.custno,@t_xmon,SUM(a.opay-a.unopay)
-from umm a left join umms b on a.noa=b.noa
-left join cust c on a.custno=c.noa
+from umm a left join cust c on a.custno=c.noa
 where left(a.datea,len(@t_xmon))<@t_xmon
 and a.custno between @t_bcustno and @t_ecustno
 and c.salesno between @t_bsalesno and @t_esalesno
@@ -1217,6 +1216,12 @@ group by salesno,custno,mon
 
 delete #tmp where gno!='0' and gno!='9'
 
+insert #tmp(gno,salesno,custno,mon,total,payed,umoney,dis,popay)
+select '0',a.salesno,a.custno,@t_xmon,0,0,0,0,0
+from #tmp a 
+where gno='9' and not exists (select * from #tmp where gno='0' and salesno=a.salesno and custno=a.custno)
+group by a.salesno,a.custno
+
 update a
 set unpay=isnull(a.total,0)-ISNULL(a.payed,0)+isnull(b.punpay,0)
 from #tmp a
@@ -1228,7 +1233,7 @@ update a
 set mon=b.mon,money=b.money,pmoney=b.pmoney
 from #tmp a
 outer apply(select top 1 * from #tmp where gno='9' and custno=a.custno and salesno=a.salesno order by mon)b
- where a.gno='0'
+where a.gno='0'
 
 delete a
 from #tmp a where gno='9'

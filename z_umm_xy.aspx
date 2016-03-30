@@ -34,13 +34,15 @@
 						if($('#q_report div div').text().indexOf('業務出貨獎金明細表')>-1)
 							$('#q_report div div').eq(delete_report).hide();
 						
-						delete_report=999;
-						for(var i=0;i<$('#q_report').data().info.reportData.length;i++){
-							if($('#q_report').data().info.reportData[i].report=='z_umm_xy5')
-								delete_report=i;
+						if(r_rank<5){
+							delete_report=999;
+							for(var i=0;i<$('#q_report').data().info.reportData.length;i++){
+								if($('#q_report').data().info.reportData[i].report=='z_umm_xy5')
+									delete_report=i;
+							}
+							if($('#q_report div div').text().indexOf('對帳年月銷貨總帳統計表')>-1)
+								$('#q_report div div').eq(delete_report).hide();
 						}
-						if($('#q_report div div').text().indexOf('對帳年月銷貨總帳統計表')>-1)
-							$('#q_report div div').eq(delete_report).hide();
 					}
 				});
 

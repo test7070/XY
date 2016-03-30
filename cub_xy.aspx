@@ -162,7 +162,7 @@
 					if (t_custno.length > 0) {
 						t_where += " and custno='"+t_custno+"'";
 						//只有印刷才會進來 印刷編號=客戶編號-流水號
-						t_where += " and charindex('"+t_custno+"-',productno)=1 ";
+						t_where += " and charindex('"+t_custno.substr(0,5)+"-',productno)=1 ";
 					} else{
 						t_where += " and charindex('-',productno)>0 ";
 					}

@@ -298,6 +298,8 @@
                     });
                     if($('#txtDatea').val()>='105/03/21')
                     	q_gt('view_rc2', "where=^^postname='" + $('#txtNoa').val() + "'^^", 0, 0, 0, "stpost_rc2_0");
+                    else
+                    Unlock(1);
                 }
 			}
 
@@ -346,7 +348,7 @@
 				if (q_cur > 0 && q_cur < 4)
 					return;
 					
-				q_box('cub_xy_s.aspx', q_name + '_s', "500px", "400px", q_getMsg("popSeek"));
+				q_box('cub_xy_s.aspx', q_name + '_s', "500px", "450px", q_getMsg("popSeek"));
 			}
 
 			function btnIns() {

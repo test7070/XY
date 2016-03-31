@@ -36,6 +36,7 @@
 				$('#txtNoa').focus();
 				$('.readonly').attr('readonly',true);
 				q_cmbParse("cmbTypea", '@全部,製造部,加工部,委外部');
+				q_cmbParse("cmbEnda", '@全部,Y@Y,N@N');
 			}
 
 			function q_gtPost(t_name) {
@@ -52,12 +53,20 @@
 				var t_ordeno = $.trim($('#txtOrdeno').val());
 				var t_no2 = $.trim($('#txtNo2').val());
 				var t_typea = $.trim($('#cmbTypea').val());
+				var t_enda = $('#cmbEnda').val();
+                var t_worker =$('#txtWorker').val();
 				
 				var t_where = " 1=1 " + q_sqlPara2("datea", t_bdate,t_edate) + q_sqlPara2("noa", t_noa)+
 										q_sqlPara2("typea", t_typea) +
 										q_sqlPara2("custno", t_custno) +
 										q_sqlPara2("productno", t_pno) +
-										q_sqlPara2("ordeno", t_ordeno)+q_sqlPara2("no2", t_no2) ;
+										q_sqlPara2("ordeno", t_ordeno)+q_sqlPara2("no2", t_no2) + q_sqlPara2("worker", t_worker);
+										
+				if(t_enda=='Y')
+					t_where += " and isnull(enda,0)=1 ";
+				if(t_enda=='N')
+					t_where += " and isnull(enda,0)=0 ";
+				
 				t_where = ' where=^^' + t_where + '^^ ';
 				return t_where;
 			}
@@ -101,6 +110,10 @@
 					<td><select id="cmbTypea" class="txt c1"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a id='lblEnda'>結案</a></td>
+					<td><select id="cmbEnda" class="txt c1" style="font-size:medium;"> </select></td>
+				</tr>
+				<tr class='seek_tr'>
 					<td class='seek' style="width:90px;"><a id='lblCust'> </a></td>
 					<td style="width:215px;">
 						<input class="txt" id="txtCustno" type="text" style="width:90px;" />
@@ -123,6 +136,10 @@
 						&nbsp;
 						<input class="txt" id="txtNo2" type="text" style="width:60px;" />
 					</td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek'  style="width:20%;"><a id='lblWorker'>操作者 </a></td>
+					<td><input class="txt" id="txtWorker" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 			</table>
 			<!--#include file="../inc/seek_ctrl.inc"-->

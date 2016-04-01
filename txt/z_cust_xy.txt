@@ -55,7 +55,11 @@ END
 		tranprice nvarchar(max),
 		showprice nvarchar(max),
 		cobtype nvarchar(max),
-		status nvarchar(max)
+		status nvarchar(max),
+		grpno nvarchar(max),
+		grpname nvarchar(max),
+		custno2 nvarchar(max),
+		cust2 nvarchar(max),
 	)
 
 	insert into #tmp
@@ -67,6 +71,7 @@ END
 	,b.checkmemo,b.vccmemo,b.taxtype	,b.invomemo,b.postmemo,b.tranprice
 	,case when isnull(b.notprice,0)=0 then 'Y' else 'N' end,b.p23
 	,isnull((select top 1 item from dbo.fnSplit(@s_status) where n=a.status),'')
+	,a.grpno,a.grpname,a.custno2,a.cust2
 	from cust a left join custm b on a.noa=b.noa 
 	where (a.noa between @t_bcustno and @t_ecustno) 
 	and (isnull(a.salesno,'') between @t_bsales and @t_esales)

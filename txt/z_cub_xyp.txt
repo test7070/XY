@@ -57,6 +57,7 @@ declare @t_epno nvarchar(30)
 declare @t_btgg nvarchar(30)
 declare @t_etgg nvarchar(30)
 declare @t_typea nvarchar(30)
+declare @t_enda nvarchar(30)
 
 set @t_bdate =case when '#non'=[8] then '' else [8] end
 set @t_edate =case when '#non'=[9] then char(255) else [9] end
@@ -65,6 +66,7 @@ set @t_epno = case when '#non'=[11] then char(255) else [11] end
 set @t_btgg = case when '#non'=[12] then '' else [12] end
 set @t_etgg = case when '#non'=[13] then char(255) else [13] end
 set @t_typea = case when '#non'=[16] then '' else [16] end
+set @t_enda = case when '#non'=[17] then '' else [17] end
 ---------------------------------------------------------------------------------------
 declare @result table(
 	gno nvarchar(10),
@@ -82,19 +84,29 @@ declare @result table(
 	comp nvarchar(max),
 	noa nvarchar(max),
 	ordeno nvarchar(max),
-	no2 nvarchar(max)
+	no2 nvarchar(max),
+	enda bit
 )
 insert @result
 select '0',a.datea,a.productno,a.product,a.spec,a.unit,a.mount,a.c1,a.notv
-	   ,b.tggno,b.tgg,a.custno,a.comp,a.noa,a.ordeno,a.no2
+	   ,b.tggno,b.tgg,a.custno,a.comp,a.noa,a.ordeno,a.no2,isnull(a.enda,0)
 from view_cub a  outer apply (select top 1 * from view_cubs where noa=a.noa order by noq desc)b
 where a.bdate between @t_bdate and @t_edate 
 and a.productno between @t_bpno and @t_epno
 and isnull(b.tggno,'') between @t_btgg and @t_etgg
 and (len(@t_typea)=0 or a.typea=@t_typea)
-	  
-insert @result (gno,mount,c1,notv) 
-select '1',sum(mount),sum(c1),sum(notv) from @result 
+
+if(@t_enda='Y')
+	delete @result where enda=0
+
+if(@t_enda='N')
+	delete @result where enda=1
+
+if((select count(*) from @result)>0)
+begin
+	insert @result (gno,mount,c1,notv) 
+	select '1',sum(mount),sum(c1),sum(notv) from @result 
+end
 
 select dbo.getComma(mount,[2]) mount,
 dbo.getComma(c1,[2]) c1,

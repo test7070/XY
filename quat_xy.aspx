@@ -194,6 +194,11 @@
 				});
 				
 				$('#checkGweight').click(function(){
+					//105/04/11 報價成交 有效日 跳成999/99/99
+					if($('#checkGweight').prop('checked')){
+						$('#txtDatea').val('999/99/99');
+					}
+					
 					for (var i = 0; i < q_bbsCount; i++) {
 						if(!emp($('#txtProductno_'+i).val()) || !emp($('#txtProduct_'+i).val())){
 							if($('#checkGweight').prop('checked')){
@@ -708,7 +713,16 @@
 							b_seq = t_IdSeq;
 							
 							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
-								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)){
+								//取得客戶集團105/04/11
+								var t_grpno='';
+								var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
+								q_gt('cust', t_where, 0, 0, 0, "getcustgrpno", r_accy, 1);
+								if (as[0] != undefined) {
+									t_grpno=as[i].grpno;
+								}
+								
+								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
+								|| $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno.substr(0,5) ){
 									$('#txtProductno_' + b_seq).val('');
 								}
 							}

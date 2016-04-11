@@ -70,6 +70,10 @@
                         type : '5',
                         name : 'xtypea',
                         value : ['#non@全部','製造部','加工部','委外部']
+                    }, {//[17]
+						type : '5',
+						name : 'xenda',
+                        value : '#non@全部,Y@結案,N@未結案'.split(',')
                     }]
                 });
                 

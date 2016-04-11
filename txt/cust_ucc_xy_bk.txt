@@ -680,6 +680,12 @@ outer apply (
 	having custno=a.custno and productno=a.productno
 )b where a.noa!=b.noa
 
+--105/04/11訂單 匯入報價 第二次不帶入數量
+update a
+set mount=case when xcount>0 then 0 else mount end
+,total=case when xcount>0 then 0 else total end
+from @tmp a outer apply (select count(*)xcount from view_orde where quatno=a.noa and no3=a.no3)b
+
 select * from @tmp order by noa,no3
 ;
 ---------------------------------------------------------------------------------------------------------------------------------

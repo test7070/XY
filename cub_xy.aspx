@@ -479,7 +479,7 @@
                             if(dec($('#txtMount_' + b_seq).val())>0 && dec($('#txtPrice_' + b_seq).val())>0){
                             	t_mount = dec($('#txtMount_' + b_seq).val());
                             	t_price = dec($('#txtPrice_' + b_seq).val());
-                            	$('#txtMo_' + b_seq).val(q_mul(t_mount,t_price));
+                            	$('#txtMo_' + b_seq).val(round(q_mul(t_mount,t_price),0));
                             	if ($('#chkSale_' + b_seq).is(':checked')) {
 	                                var t_taxrate = q_div(parseFloat(q_getPara('sys.taxrate')), 100);
 	                                $('#txtW02_' + b_seq).css('color', 'green').css('background', 'RGB(237,237,237)').attr('readonly', 'readonly');
@@ -496,7 +496,7 @@
                             if(dec($('#txtMount_' + b_seq).val())>0 && dec($('#txtPrice_' + b_seq).val())>0){
                             	t_mount = dec($('#txtMount_' + b_seq).val());
                             	t_price = dec($('#txtPrice_' + b_seq).val());
-                            	$('#txtMo_' + b_seq).val(q_mul(t_mount,t_price));
+                            	$('#txtMo_' + b_seq).val(round(q_mul(t_mount,t_price),0));
                             	if ($('#chkSale_' + b_seq).is(':checked')) {
 	                                var t_taxrate = q_div(parseFloat(q_getPara('sys.taxrate')), 100);
 	                                $('#txtW02_' + b_seq).css('color', 'green').css('background', 'RGB(237,237,237)').attr('readonly', 'readonly');

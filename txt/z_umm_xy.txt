@@ -842,7 +842,7 @@ set @t_bsalesno = case when '#non'=[6] then '' else [6] end
 set @t_esalesno = case when '#non'=[7] then char(255) else [7] end
 set @t_order =  case when '#non'=[12] then 'cust' else [12] end
 
-declare @pageline int = 28 
+declare @pageline int = 27 
 
 -------------------------------------------------------------------------------------------------------------------------
 IF OBJECT_ID('tempdb..#tmp')is not null

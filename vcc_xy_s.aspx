@@ -92,8 +92,10 @@
 				+ q_sqlPara2("datea", t_bdate, t_edate)
 				+ q_sqlPara2("accno", t_accno)
 				+ q_sqlPara2("custno", t_custno)
-				+ q_sqlPara2("cardealno", t_cardealno)
-				+ q_sqlPara2("invono", t_invono);
+				+ q_sqlPara2("cardealno", t_cardealno);
+				
+				if(t_invono.length>0)
+					t_where += " and charindex('"+t_invono+"',invono)>0 ";	
 				
 				if(t_salesno.length>0)
 					t_where += " and (salesno='"+t_salesno+"' or salesno2='"+t_salesno+"') ";

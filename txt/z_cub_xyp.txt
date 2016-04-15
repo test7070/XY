@@ -18,6 +18,7 @@ z_cub_xyp1:--z_cub_xyp1
 		comp nvarchar(100),
 		pno nvarchar(50),
 		product nvarchar(150),
+		spec nvarchar(MAX),
 		amemo nvarchar(MAX),
 		tggno nvarchar(100),
 		tggs nvarchar(100),
@@ -31,13 +32,13 @@ z_cub_xyp1:--z_cub_xyp1
 	)
 	
 	insert into @result
-	select '0'gno,a.noa,b.noq,a.datea,a.ordeno+'_'+a.no2,a.custno,a.comp,a.productno,a.product,a.memo
+	select '0'gno,a.noa,b.noq,a.datea,a.ordeno+'_'+a.no2,a.custno,a.comp,a.productno,a.product,a.spec,a.memo
 	,b.tggno,b.tgg,b.processno,b.process,b.mount,b.need,b.memo,'',''
 	from view_cub a left join view_cubs b on a.noa=b.noa
 	where a.noa between @t_bxnoa and @t_exnoa
 	
 	insert into @result
-	select '2' gno,a.noa,b.noq,a.datea,a.ordeno+'_'+a.no2,a.custno,a.comp,a.productno,a.product,a.memo
+	select '2' gno,a.noa,b.noq,a.datea,a.ordeno+'_'+a.no2,a.custno,a.comp,a.productno,a.product,a.spec,a.memo
 	,'','','','',b.mount,'',b.memo,b.productno,b.product
 	from view_cub a left join view_cubt b on a.noa=b.noa
 	where a.noa between @t_bxnoa and @t_exnoa and b.noa!=''

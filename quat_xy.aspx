@@ -1052,6 +1052,15 @@
 							b_seq = t_IdSeq;
 							$('#checkEweight_'+b_seq).prop('checked',true);
 						});
+						
+						$('#checkGweight_'+j).click(function() {
+							t_IdSeq = -1;
+							q_bodyId($(this).attr('id'));
+							b_seq = t_IdSeq;
+							if($('#checkGweight_'+b_seq).prop('checked')){
+								$('#txtDatea').val('999/99/99');
+							}
+						});
 					}
 				}
 				_bbsAssign();

@@ -323,6 +323,14 @@
 								$('#txtMount').val(b_ret[0].mount);
 								$('#txtMemo').val(b_ret[0].memo);
 								$('#txtBdate').val(b_ret[0].datea);
+								//105/04/15 抓產品主檔 規格+製造規格(英文名稱)
+								if(!emp($('#txtProductno').val())){
+									q_gt('ucc', "where=^^noa='" +$('#txtProductno').val() + "'^^", 0, 0, 0, "getuccspec",r_accy,1);
+									var as = _q_appendData("ucc", "", true);
+				                    if (as[0] != undefined) {
+				                    	$('#txtSpec').val(as[0].spec+' '+as[0].engpro);
+				                    }
+								}
 							}
 						}
 						break;

@@ -9,16 +9,19 @@
 	declare @t_esales nvarchar(20) = case when '#non'=[6] then CHAR(255) else [6] end
 	declare @t_bcust2 nvarchar(20) = case when '#non'=[7] then '' else [7] end
 	declare @t_ecust2 nvarchar(20) = case when '#non'=[8] then CHAR(255) else [8] end
-	declare @t_status nvarchar(max) = case when '#non'=[9] then '' else [9] end
-	declare @t_startdate nvarchar(max) = case when '#non'=[10] then '' else [10] end
-	declare @t_invo nvarchar(max) = case when '#non'=[11] then '' else [11] end
-	declare @t_paytype nvarchar(max) = case when '#non'=[12] then '' else [12] end
-	declare @t_post nvarchar(max) = case when '#non'=[13] then '' else [13] end
-	declare @t_trantype nvarchar(max) = case when '#non'=[14] then '' else [14] end
-	declare @t_showprice nvarchar(max) = case when '#non'=[15] then '' else [15] end
-	declare @t_cobtype nvarchar(max) = case when '#non'=[16] then '' else [16] end
-	declare @t_order nvarchar(max) = case when '#non'=[17] then 'noa' else [17] end
-	declare @s_status nvarchar(max) = '[18]'
+	declare @t_bgrpno nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_egrpno nvarchar(20) = case when '#non'=[10] then CHAR(255) else [10] end
+	declare @t_status nvarchar(max) = case when '#non'=[11] then '' else [11] end
+	declare @t_startdate nvarchar(max) = case when '#non'=[12] then '' else [12] end
+	declare @t_invo nvarchar(max) = case when '#non'=[13] then '' else [13] end
+	declare @t_paytype nvarchar(max) = case when '#non'=[14] then '' else [14] end
+	declare @t_post nvarchar(max) = case when '#non'=[15] then '' else [15] end
+	declare @t_trantype nvarchar(max) = case when '#non'=[16] then '' else [16] end
+	declare @t_showprice nvarchar(max) = case when '#non'=[17] then '' else [17] end
+	declare @t_cobtype nvarchar(max) = case when '#non'=[18] then '' else [18] end
+	declare @t_order nvarchar(max) = case when '#non'=[19] then 'noa' else [19] end
+	declare @t_addr nvarchar(max) = case when '#non'=[20] then '' else [20] end
+	declare @s_status nvarchar(max) = '[21]'
 	---------------------------------------------------------------------------------------
 IF OBJECT_ID('tempdb..#tmp')is not null
 BEGIN
@@ -38,6 +41,8 @@ END
 		mobile nvarchar(max),
 		zip_comp nvarchar(max),
 		addr_comp nvarchar(max),
+		zip_home nvarchar(max),
+		addr_home nvarchar(max),
 		paytype nvarchar(max),
 		trantype nvarchar(max),
 		conn nvarchar(max),
@@ -66,7 +71,7 @@ END
 	select 0,a.noa
 	,replace(a.comp,'~#$',char(39)),replace(a.nick,'~#$',char(39))
 	,(select top 1 namea from custtype where a.typea=noa)
-	,a.serial,a.tel,a.fax,a.mobile,a.zip_comp,a.addr_comp,a.paytype,a.trantype,replace(b.conn,'~#$',char(39)) 
+	,a.serial,a.tel,a.fax,a.mobile,a.zip_comp,a.addr_comp,a.zip_home,a.addr_home,a.paytype,a.trantype,replace(b.conn,'~#$',char(39)) 
 	,a.boss,a.sales,a.startdate,a.[getdate],a.invoicetitle,REPLACE(a.memo,'chr(10)','<BR>') 
 	,b.checkmemo,b.vccmemo,b.taxtype	,b.invomemo,b.postmemo,b.tranprice
 	,case when isnull(b.notprice,0)=0 then 'Y' else 'N' end,b.p23
@@ -74,16 +79,29 @@ END
 	,a.grpno,a.grpname,a.custno2,a.cust2
 	from cust a left join custm b on a.noa=b.noa 
 	where (a.noa between @t_bcustno and @t_ecustno) 
-	and (isnull(a.salesno,'') between @t_bsales and @t_esales)
-	and (isnull(a.custno2,'') between @t_bcust2 and @t_ecust2)
-	and (len(@t_status)=0 or isnull(a.status,'')=@t_status)
-	and (len(@t_startdate)=0 or isnull(a.startdate,'')=@t_startdate)
-	and (len(@t_invo)=0 or isnull(b.invomemo,'')=@t_invo)
-	and (len(@t_paytype)=0 or charindex(isnull(@t_paytype,''),a.paytype)>0)
-	and (len(@t_post)=0 or isnull(b.postmemo,'')=@t_post)
-	and (len(@t_trantype)=0 or isnull(a.trantype,'')=@t_trantype)
-	and (len(@t_showprice)=0 or case when isnull(b.notprice,0)=0 then 'Y' else 'N' end=@t_showprice)
-	and (len(@t_cobtype)=0 or isnull(b.p23,'')=@t_cobtype)
+	and (isnull(a.salesno,'') between @t_bsales and @t_esales) 
+	and (isnull(a.custno2,'') between @t_bcust2 and @t_ecust2) 
+	and (len(@t_status)=0 or isnull(a.status,'')=@t_status) 
+	and (len(@t_startdate)=0 or isnull(a.startdate,'')=@t_startdate) 
+	and (len(@t_invo)=0 or @t_invo='空值' or isnull(b.invomemo,'')=@t_invo) 
+	and (len(@t_paytype)=0 or @t_paytype='空值' or charindex(isnull(@t_paytype,''),a.paytype)>0) 
+	and (len(@t_post)=0 or @t_post='空值' or isnull(b.postmemo,'')=@t_post) 
+	and (len(@t_trantype)=0 or @t_trantype='空值' or isnull(a.trantype,'')=@t_trantype) 
+	and (len(@t_showprice)=0 or case when isnull(b.notprice,0)=0 then 'Y' else 'N' end=@t_showprice) 
+	and (len(@t_cobtype)=0 or @t_cobtype='空值' or isnull(b.p23,'')=@t_cobtype) 
+	and isnull(a.grpno,'') between @t_bgrpno and @t_egrpno 
+	and (len(@t_addr)=0 or charindex(@t_addr,a.addr_home)>0) 
+	
+	if(@t_invo='空值')
+		delete #tmp where isnull(invomemo,'')!=''
+	if(@t_paytype='空值')
+		delete #tmp where isnull(paytype,'')!=''
+	if(@t_post='空值')
+		delete #tmp where isnull(postmemo,'')!=''
+	if(@t_trantype='空值')
+		delete #tmp where isnull(trantype,'')!=''
+	if(@t_cobtype='空值')
+		delete #tmp where isnull(cobtype,'')!=''
 	
 	EXEC("update a set recno=RowNum
 	from (select recno,ROW_NUMBER()over (order by "+@t_order+",noa)RowNum from #tmp)a")
@@ -93,7 +111,9 @@ END
 	,@t_namea ww 
 	,zip_comp zc 
 	,addr_comp ac 
-	,*
+	,zip_home zh
+	,addr_home ah
+	,*,'cust?noa=$noa	' ghref
 	from #tmp order by rr
 	
 	
@@ -109,12 +129,12 @@ z_cust_xy02:--z_cust_xy02
 	declare @cmd nvarchar(max)
 	declare @t_accy nvarchar(max) = '[1]'
 	declare @t_namea nvarchar(max) = '[2]'
-	declare @t_bpno nvarchar(50) = case when '#non'=[19] then '' else [19] end
-	declare @t_epno nvarchar(50) = case when '#non'=[20] then CHAR(255) else [20] end
-	declare @t_product nvarchar(max) = case when '#non'=[21] then '' else [21] end
-	declare @t_ucctypea nvarchar(max) = case when '#non'=[22] then '' else [22] end
-	declare @t_groupa nvarchar(max) = case when '#non'=[23] then '' else [23] end
-	declare @t_order nvarchar(max) = case when '#non'=[24] then 'noa' else [24] end
+	declare @t_bpno nvarchar(50) = case when '#non'=[22] then '' else [22] end
+	declare @t_epno nvarchar(50) = case when '#non'=[23] then CHAR(255) else [23] end
+	declare @t_product nvarchar(max) = case when '#non'=[24] then '' else [24] end
+	declare @t_ucctypea nvarchar(max) = case when '#non'=[25] then '' else [25] end
+	declare @t_groupa nvarchar(max) = case when '#non'=[26] then '' else [26] end
+	declare @t_order nvarchar(max) = case when '#non'=[27] then 'noa' else [27] end
 	---------------------------------------------------------------------------------------
 IF OBJECT_ID('tempdb..#tmp')is not null
 BEGIN

@@ -51,62 +51,71 @@
                         dbf : 'cust',
                         index : 'noa,comp',
                         src : 'cust_b.aspx'
-                    }, {/*4-[9]*/
+                    }, {/*1 [9],[10]*/
+                        type : '2',
+                        name : 'xgrp',
+                        dbf : 'cust',
+                        index : 'noa,comp',
+                        src : 'cust_b.aspx'
+                    }, {/*4-[11]*/
                         type : '5',
                         name : 'xstatus',
                         value : ('#non@全部,'+q_getPara('cust.status')).split(',')
-                    }, {/*5-[10]*/
+                    }, {/*5-[12]*/
                         type : '6',
                         name : 'xstartdate'
-                    }, {/*6-[11]*/
+                    }, {/*6-[13]*/
 						type : '5',
 						name : 'xinvo',
-                        value : '#non@全部,須@須,不須@不須'.split(',')
-                    }, {/*7-[12]*/
+                        value : '#non@全部,須@須,不須@不須,空值@空值'.split(',')
+                    }, {/*7-[14]*/
                         type : '6',
                         name : 'xpaytype'
-                    }, {/*8-[13]*/
+                    }, {/*8-[15]*/
                         type : '5',
                         name : 'xpost', 
-                        value : '#non@全部,不寄單@不寄單,不寄單扣貨款@不寄單扣貨款,送單收現@送單收現,送單@送單,郵寄附回郵@郵寄附回郵,郵寄@郵寄,郵寄附回郵不寄單@郵寄附回郵不寄單'.split(',')
-                    }, {/*6-[14]*/
+                        value : '#non@全部,不寄單@不寄單,不寄單扣貨款@不寄單扣貨款,送單收現@送單收現,送單@送單,郵寄附回郵@郵寄附回郵,郵寄@郵寄,郵寄附回郵不寄單@郵寄附回郵不寄單,空值@空值'.split(',')
+                    }, {/*6-[16]*/
 						type : '5',
 						name : 'xtrantype',
-                        value : ('#non@全部,'+q_getPara('sys.tran')).split(',')
-                    }, {/*6-[15]*/
+                        value : ('#non@全部,'+q_getPara('sys.tran')+',空值@空值').split(',')
+                    }, {/*6-[17]*/
 						type : '5',
 						name : 'xshowprice',
                         value : '#non@全部,Y@Y,N@N'.split(',')
-                    }, {/*6-[16]*/
+                    }, {/*6-[18]*/
 						type : '5',
 						name : 'xcobtype',
-                        value : '#non@全部,2@2聯,3@3聯'.split(',')
-                    }, {/*6-[17]*/
+                        value : '#non@全部,2@2聯,3@3聯,空值@空值'.split(',')
+                    }, {/*6-[19]*/
 						type : '5',
 						name : 'xcustorder',
                         value : 'noa@編號,comp@公司名稱,zip_comp@郵編,serial@統編,checkmemo@驗單需求,taxtype@課稅方式,invomemo@發票開立,postmemo@寄單方式,showprice@顯示單價,vccmemo@貨單開立'.split(',')
-                    }, {//[18]
+                    }, {/*5-[20]*/
+                        type : '6',
+                        name : 'xaddr'
+                    }, {//[21]
                         type : '0',
                         name : 'custstatus',
                         value : q_getPara('cust.status')
-                    }, {/*1 [19],[20]*/
+                    }, {/*1 [22],[23]*/
                         type : '2',
                         name : 'xuccno',
                         dbf : 'ucc',
                         index : 'noa,product',
                         src : 'ucc_b.aspx'
-                    }, {/*5-[21]*/
+                    }, {/*5-[24]*/
                         type : '6',
                         name : 'xproduct'
-                    }, {/*6-[22]*/
+                    }, {/*6-[25]*/
 						type : '5',
 						name : 'xucctypea',
                         value : ('#non@全部,'+q_getPara('ucc.typea')).split(',')
-                    }, {/*6-[23]*/
+                    }, {/*6-[26]*/
 						type : '5',
 						name : 'xuccgroupa',
                         value : t_uccga.split(',')
-                    }, {/*6-[24]*/
+                    }, {/*6-[27]*/
 						type : '5',
 						name : 'xuccorder',
                         value : 'noa@品號,product@品名,style@版別,unit@單位'.split(',')
@@ -125,7 +134,7 @@
 				//selectbox.attachEvent('onchange',combPay_chg);
 				//selectbox.onchange="combPay_chg";
 				tmp.parentNode.appendChild(selectbox, tmp);
-				q_cmbParse("combPay", '@全部,' + q_getPara('vcc.paytype').substr(1));
+				q_cmbParse("combPay", '@全部,' + q_getPara('vcc.paytype').substr(1)+',空值@空值');
 				
 				$('#combPay').change(function() {
 					var cmb = document.getElementById("combPay")

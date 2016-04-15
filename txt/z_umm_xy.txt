@@ -1244,10 +1244,14 @@ update #tmp set gno=case when gno='9' then '2' else '1' end
 delete #tmp where isnull(money,0)=0 and isnull(pmoney,0)=0 and isnull(total,0)=0
 and isnull(payed,0)=0 and isnull(umoney,0)=0 and isnull(dis,0)=0 and isnull(unpay,0)=0 and isnull(popay,0)=0
 
+insert #tmp (gno,salesno,mon,money,pmoney,total,payed,umoney,dis,unpay,popay)
+select '3',salesno,CHAR(255),sum(money),sum(pmoney),sum(total),sum(payed),sum(umoney),sum(dis),sum(unpay),sum(popay)
+from #tmp group by salesno
+
 insert #tmp (gno,salesno,custno,mon,money,pmoney,total,payed,umoney,dis,unpay,popay)
-select '3',CHAR(255),CHAR(255),CHAR(255)
+select '4',CHAR(255),CHAR(255),CHAR(255)
 ,sum(money),sum(pmoney),sum(total),sum(payed),sum(umoney),sum(dis),sum(unpay),sum(popay)
-from #tmp
+from #tmp where gno='3'
 
 select 
 dbo.getComma(money,0) money,
@@ -1262,7 +1266,7 @@ b.nick comp,
 c.namea sales,
 a.* from #tmp a left join cust b on a.custno=b.noa
 left join sss c on a.salesno=c.noa
-order by a.salesno,a.custno,a.gno,a.mon
+order by case when gno='1' or gno='2' then 0 else 1 end,a.salesno,a.custno,a.gno,a.mon
 
 IF OBJECT_ID('tempdb..#tmp')is not null
 BEGIN

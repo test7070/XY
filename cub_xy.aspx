@@ -297,8 +297,15 @@
 				$('#txtDatea').val(q_date());
 				$('#txtDatea').focus();
 				$('#chkIsproj').prop('checked',true);
+				$('#chkEnda').prop('checked',false);
+				$('#chkCancel').prop('checked',false);
 				for (var i = 0; i < q_bbsCount; i++) {
 					$('#txtOrdeno_'+i).val('');
+					$('#txtDatea_'+i).val('');
+					$('#chkCut_'+i).prop('checked',false);
+				}
+				if(r_userno.substr(0,1).toUpperCase()=='C'){
+					$('#cmbTypea').val('委外部');	
 				}
 			}
 
@@ -361,6 +368,7 @@
 				_refresh(recno);
 				//取得類別
 				//q_gt('cub_typea', '', 0, 0, 0, "cub_typea");
+				$("[name='checkCut']").prop('checked',false);
 			}
 
 			function readonly(t_para, empty) {
@@ -472,6 +480,19 @@
 					}
 				}
 				_bbsAssign();
+				$("[name='checkCut']").click(function() {
+					if((q_cur==1 || q_cur==2)){
+						for (var j = 0; j < q_bbsCount; j++) {
+							if($("[name='checkCut']").prop('checked')){
+								$('#chkCut_'+j).prop('checked',true);
+								$('#chkCut_'+j).click();
+								$('#chkCut_'+j).prop('checked',true);	
+							}else{
+								$('#chkCut_'+j).prop('checked',false);
+							}
+						}
+					}
+				});
 			}
 
 			function bbtAssign() {
@@ -764,10 +785,6 @@
 						<td><select id="cmbTypea" class="txt c1"> </select></td>
 						<td><span> </span><a id="lblNoa" class="lbl"> </a></td>
 						<td><input id="txtNoa" type="text" class="txt c1"/></td>
-						<td>
-							<input id="checkCopy" type="checkbox" style="float:left;"/>
-							<span> </span><a id='lblCopy' class="lbl" style="float:left;"> </a>
-						</td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblCust" class="lbl btn" >客戶</a></td>
@@ -844,7 +861,10 @@
 						<td style="width:100px;"><a id='lblTxa_s'>稅金</a></td>
 						<td style="width:100px;"><a id='lblW01_s'>總金額</a></td>
 						<td style="width:150px;"><a id='lblNeed_s'>製造要求</a><BR><a id='lblMemo_s'>備註</a></td>
-						<td style="width:40px;"><a id='lblPay_s'>請款</a></td>
+						<td style="width:40px;">
+							<a id='lblPay_s'>請款</a>
+							<input name="checkCut" type="checkbox" class="txt c1"/>
+						</td>
 						<td style="width:80px;"><a id='lblDatea_s'>帳款日期</a></td>
 						<td style="width:150px;"><a id='lblOrdeno_s'>進貨單號</a></td>
 					</tr>

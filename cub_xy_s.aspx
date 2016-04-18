@@ -50,6 +50,7 @@
 				var t_noa = $.trim($('#txtNoa').val());
 				var t_custno = $.trim($('#txtCustno').val());
 				var t_pno = $.trim($('#txtProductno').val());
+				var t_product = $.trim($('#txtProduct').val());
 				var t_ordeno = $.trim($('#txtOrdeno').val());
 				var t_no2 = $.trim($('#txtNo2').val());
 				var t_typea = $.trim($('#cmbTypea').val());
@@ -66,6 +67,9 @@
 					t_where += " and isnull(enda,0)=1 ";
 				if(t_enda=='N')
 					t_where += " and isnull(enda,0)=0 ";
+					
+				if(t_product.length>0)
+					t_where += " and charindex('"+t_product+"',product)>0 ";
 				
 				t_where = ' where=^^' + t_where + '^^ ';
 				return t_where;
@@ -126,7 +130,7 @@
 					<td style="width:215px;">
 						<input class="txt" id="txtProductno" type="text" style="width:90px;" />
 						&nbsp;
-						<input class="txt readonly" id="txtProduct" type="text" style="width:120px;" />
+						<input class="txt" id="txtProduct" type="text" style="width:120px;" />
 					</td>
 				</tr>
 				<tr class='seek_tr'>

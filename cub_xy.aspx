@@ -36,7 +36,7 @@
 			q_copy=1;
 			aPop = new Array(
 				['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,spec,mount,custno,comp,memo', 'txtOrdeno,txtNo2,txtProductno,txtProduct,txtSpec,txtMount,txtCustno,txtComp,txtMemo', ''],
-				['txtCustno', 'lblCust', 'cust', 'noa,comp', 'txtCustno,txtComp', 'cust_b.aspx'],
+				['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp', 'cust_b.aspx'],
 				['txtProductno', 'lblProduct', 'ucc', 'noa,product,spec,unit', 'txtProductno,txtProduct,txtSpec,txtUnit', 'ucc_b.aspx'],
 				['txtTggno_', '', 'tgg', 'noa,comp', 'txtTggno_,txtTgg_', ""],
 				['txtProcessno_', 'btnProcessno_', 'process', 'noa,process,tggno,tgg', 'txtProcessno_,txtProcess_,txtTggno_,txtTgg_', 'process_b.aspx'],
@@ -583,8 +583,18 @@
 			        		$('#txtProductno').val(orde_pno);
 			        		$('#txtProduct').val(orde_product);
 			        	}
-			   			
-			        break;
+			        	break;
+					case 'txtProductno':
+						if(!emp($('#txtProductno').val()) && $('#txtProductno').val().indexOf('-')>0){
+							var t_custno=$('#txtProductno').val().substr(0,5);
+							q_gt('cust', "where=^^noa='" + t_custno + "'^^", 0, 0, 0, "getcust",r_accy,1);
+							var as = _q_appendData("cust", "", true);
+	                		if(as[0]!=undefined){
+	                			$('#txtCustno').val(as[0].noa);
+	                			$('#txtComp').val(as[0].comp);
+	                		}
+						}
+						break;
 			   	}
 			}
 			

@@ -131,7 +131,7 @@
 					case 'getinvomemo2':
 						var as = _q_appendData("custm", "", true);
 						if(as[0] != undefined){
-							if(invono.length==0 && vcctype=='1' && as[0].invomemo=='隨貨'){
+							if(invono.length==0 && vcctype=='1' && as[0].invomemo=='隨貨' && dec(as[0].total)>0 ){
 								alert("請輸入發票號後再列印 !!");
 							}else{
 								//列印次數+1

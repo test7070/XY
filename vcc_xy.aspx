@@ -397,6 +397,14 @@
 						if (as[0] != undefined) {
 							$('#textInvomemo').val(as[0].invomemo+(as[0].p23!=''?(" "+as[0].p23+"聯"):''));
 							$('#textConn').val(as[0].conn);
+							
+							var t_custno=as[0].noa;
+							var t_where = "where=^^ noa='" + t_custno + "' ^^";
+							q_gt('cust', t_where, 0, 0, 0, "getcust",r_accy,1);
+							var ass = _q_appendData("cust", "", true);
+							if (ass[0] != undefined) {
+								$('#textInvomemo').val($('#textInvomemo').val()+' '+ass[0].invoicetitle);
+							}
 						}
 						break;
 					case 'checkVccno_btnOk':
@@ -1951,9 +1959,9 @@
 					</tr>
 					<tr>
 						<td><span> </span><a class="lbl">發票開立</a></td>
-						<td colspan='2'><input id="textInvomemo" type="text" class="txt c1"/></td>
+						<td colspan='5'><input id="textInvomemo" type="text" class="txt c1"/></td>
 						<td><span> </span><a class="lbl">聯絡人員</a></td>
-						<td colspan="2"><input id="textConn" type="text" class="txt c1" /></td>
+						<td><input id="textConn" type="text" class="txt c1" /></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMemo" class="lbl"> </a></td>

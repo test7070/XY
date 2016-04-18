@@ -285,7 +285,10 @@
 				
 				if (isinvosystem)
 					$('.istax').hide();
-					
+				
+				$('#lblDownvcc').click(function() {
+					$('#xdownload').attr('src','uploadXYvcc_download.aspx?FileName='+$('#txtZipcode').val()+'&TempName='+$('#txtZipcode').val());
+				});
 			}
 
 			function q_funcPost(t_func, result) {
@@ -1376,6 +1379,11 @@
 					q_gt('custm', t_where, 0, 0, 0, '', r_accy);
 				}
 				refreshBbm();
+				
+				if($('#txtZipcode').val().length>0)
+					$('#lblDownvcc').show();
+				else
+					$('#lblDownvcc').hide();
 			}
 			
 			function AutoNoq(){
@@ -1823,7 +1831,10 @@
 						</td>
 						<td style="width: 108px;"><span> </span><a id='lblDatea' class="lbl"> </a></td>
 						<td style="width: 108px;"><input id="txtDatea" type="text"  class="txt c1"/></td>
-						<td style="width: 108px;"> </td>
+						<td style="width: 108px;">
+							<input id="txtZipcode" type="hidden" class="txt c1"/>
+							<a id="lblDownvcc" class='lbl btn'>下載簽收單 </a>
+						</td>
 						<td style="width: 108px;"><span> </span><a id='lblNoa' class="lbl"> </a></td>
 						<td style="width: 108px;"><input id="txtNoa" type="text" class="txt c1" /></td>
 					</tr>
@@ -2018,6 +2029,7 @@
 				</tr>
 			</table>
 		</div>
+		<iframe id="xdownload" style="display:none;"> </iframe>
 		<input id="q_sys" type="hidden" />
 	</body>
 </html>

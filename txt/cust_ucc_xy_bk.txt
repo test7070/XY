@@ -666,6 +666,14 @@ and b.datea>=@datea --有效日
 and isnull(b.gweight,0)=1 --成交
 and (len(@productno)=0 or b.productno=@productno)
 
+--105/04/18 如果產品重複只保留最下層的單價 群組-總店-分店
+delete a 
+from @tmp a 
+outer apply (select top 1 custno,productno from @tmp where a.productno=productno
+order by case when custno=@custno then 0 when custno=@custno2 then 1 else 2 end) b
+where exists (select productno from @tmp group by productno having count(*)>1 and productno=a.productno)
+and a.custno!=b.custno
+
 --只保留最新報價
 delete a from @tmp a 
 outer apply (

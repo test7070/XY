@@ -263,6 +263,7 @@
 				                    	$('#txtSpec').val(as[0].spec+' '+as[0].engpro);
 				                    }
 								}
+								getpredate();
 							}
 						}
 						break;
@@ -282,6 +283,41 @@
 						break;
 				}
 				b_pop = '';
+			}
+			
+			function getpredate() {
+				//105/04/19 抓上次的流程領料資料
+				var t_where="where=^^noa= (select top 1 noa from view_cub where productno='" +$('#txtProductno').val() + "' order by noa desc) ^^"
+				q_gt('view_cub', t_where, 0, 0, 0, "getpredate",r_accy,1);
+				var as = _q_appendData("view_cub", "", true);
+				if (as[0] != undefined) {
+					var t_noa=as[0].noa;
+					var t_per=dec(as[0].mount)==0?0:(q_div(dec($('#txtMount').val()),dec(as[0].mount)));
+					q_gt('view_cubs', "where=^^noa='" +t_noa + "'^^", 0, 0, 0, "getpredates",r_accy,1);
+					var ass = _q_appendData("view_cubs", "", true);
+					if (ass[0] != undefined) {
+						for (var i = 0; i < ass.length; i++) {
+							ass[i].mount=round(q_mul(dec(ass[i].mount),t_per),dec(q_getPara('vcc.mountPrecision')));
+						}
+						q_gridAddRow(bbsHtm, 'tbbs', 'txtProcessno,txtProcess,txtTggno,txtTgg,txtMount,txtUnit,txtPrice,txtMo,chkSale,txtW02,txtW01,txtNeed,txtMemo', ass.length, ass
+						,'processno,process,tggno,tgg,mount,unit,price,mo,sale,w02,w01,need,memo'
+						,'txtProcessno,txtProcess,txtTggno,txtTgg');
+						for (var j = 0; j < q_bbsCount; j++) {
+							$('#txtMount_' + j).change();
+						}
+					}
+					
+					q_gt('view_cubt', "where=^^noa='" +t_noa + "'^^", 0, 0, 0, "getpredatet",r_accy,1);
+					var ast = _q_appendData("view_cubt", "", true);
+					if (ast[0] != undefined) {
+						for (var i = 0; i < ast.length; i++) {
+							ast[i].mount=round(q_mul(dec(ast[i].mount),t_per),dec(q_getPara('vcc.mountPrecision')));
+						}
+						q_gridAddRow(bbtHtm, 'tbbt', 'txtProductno,txtProduct,txtSpec,txtUnit,txtMount,txtStoreno,txtStore,txtMemo', ast.length, ast
+						,'productno,product,spec,unit,mount,storeno,store,memo'
+						,'txtProductno,txtProduct');
+					}
+				}
 			}
 
 			function _btnSeek() {
@@ -593,6 +629,9 @@
 	                			$('#txtCustno').val(as[0].noa);
 	                			$('#txtComp').val(as[0].comp);
 	                		}
+						}
+						if(!emp($('#txtProductno').val())){
+							getpredate();
 						}
 						break;
 			   	}

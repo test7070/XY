@@ -717,12 +717,13 @@
 								var t_grpno='';
 								var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 								q_gt('cust', t_where, 0, 0, 0, "getcustgrpno", r_accy, 1);
+								var as = _q_appendData("cust", "", true);
 								if (as[0] != undefined) {
-									t_grpno=as[i].grpno;
+									t_grpno=as[0].grpno;
 								}
 								
 								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
-								|| $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno.substr(0,5) ){
+								&& $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno.substr(0,5) ){
 									$('#txtProductno_' + b_seq).val('');
 								}
 							}
@@ -1386,8 +1387,18 @@
 						break;
 					case 'txtProductno_':
 						if (!emp($('#txtProductno_'+b_seq).val())) {
+							//取得客戶集團105/04/11
+							var t_grpno='';
+							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
+							q_gt('cust', t_where, 0, 0, 0, "getcustgrpno", r_accy, 1);
+							var as = _q_appendData("cust", "", true);
+							if (as[0] != undefined) {
+								t_grpno=as[0].grpno;
+							}
 							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
-								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)){
+								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
+								&& $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno.substr(0,5)
+								){
 									$('#txtProductno_' + b_seq).val('');
 								}
 							}

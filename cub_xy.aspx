@@ -600,16 +600,17 @@
 				alert("An error occurred:\r\n" + error.Message);
 			}
 			
-	        var orde_no2='',orde_pno='',orde_product='',orde_custno='',orde_comp='',orde_pop=true;
+	        var orde_no2='',orde_pno='',orde_product='',orde_custno='',orde_comp='',orde_spec='',orde_pop=true;
 	        function q_popPost(s1) {
 			   	switch (s1) {
-			        case 'txtOrdeno':
+			        /*case 'txtOrdeno':
 			        	if(orde_pop){
 			        		orde_no2=$('#txtNo2').val();
 			        		orde_custno=$('#txtCustno').val();
 			        		orde_comp=$('#txtComp').val();
 			        		orde_pno=$('#txtProductno').val();
 			        		orde_product=$('#txtProduct').val();
+			        		orde_spec=$('#txtSpec').val();
 			        		orde_pop=false;
 			        	}else{
 			        		orde_pop=true;
@@ -618,8 +619,9 @@
 			        		$('#txtComp').val(orde_comp);
 			        		$('#txtProductno').val(orde_pno);
 			        		$('#txtProduct').val(orde_product);
+			        		$('#txtSpec').val(orde_spec);
 			        	}
-			        	break;
+			        	break;*/
 					case 'txtProductno':
 						if(!emp($('#txtProductno').val()) && $('#txtProductno').val().indexOf('-')>0){
 							var t_custno=$('#txtProductno').val().substr(0,5);

@@ -17,7 +17,7 @@
  
 			q_tables = 's';
 			var q_name = "vcc";
-			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','txtPrice','textStatus','txtDriver','textInvomemo','textConn'];
+			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','textStatus','txtDriver','textInvomemo','textConn'];
 			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtStore','txtStore2','txtSpec'];//txtSpec
 			var bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1],['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
 			var bbsNum = [];
@@ -824,7 +824,7 @@
 					case 'cust_detail2':
 						var as = _q_appendData("custm", "", true);
 						if (as[0] != undefined) {
-							$('#txtPrice').val(as[0].tranprice);
+							//$('#txtPrice').val(as[0].tranprice);
 							var t_taxtyp=as[0].taxtype;
 							var taxtype='0',xy_taxtypetmp=q_getPara('sys.taxtype').split(',');
 							for (var i=0;i<xy_taxtypetmp.length;i++){
@@ -1575,8 +1575,8 @@
 							alert("非正式產品編號，請聯絡專員轉正式產品編號!!");
 							$('#txtProduct_'+b_seq).val('');
 						}*/
-						
-						if(($('#txtProduct_'+b_seq).val().indexOf('運費')>-1 || $('#txtSpec_'+b_seq).val().indexOf('運費')>-1) && dec($('#txtPrice').val())>0){
+						//105/04/25 在訂單決定運費
+						/*if(($('#txtProduct_'+b_seq).val().indexOf('運費')>-1 || $('#txtSpec_'+b_seq).val().indexOf('運費')>-1) && dec($('#txtPrice').val())>0){
 							var t_mount=0;
 							for (var j = 0; j < q_bbsCount; j++) {
 								if(j!=b_seq){
@@ -1585,7 +1585,7 @@
 							}
 							q_tr('txtWidth_'+b_seq,t_mount);
 							q_tr('txtPrice_'+b_seq,dec($('#txtPrice').val()));
-						}
+						}*/
 						AutoNoq();
 						break;
 				}
@@ -1924,8 +1924,8 @@
 						<td><input id="txtSales" type="text" class="txt c1"/></td>
 						<td><span> </span><a class="lbl">訂金</a></td>
 						<td colspan='2'><input id="txtWeight" type="text" class="txt num c1"/></td>
-						<td><span> </span><a class="lbl">運費單價</a></td>
-						<td ><input id="txtPrice" type="text" class="txt num c1"/></td>
+						<!--<td><span> </span><a class="lbl">運費單價</a></td>
+						<td ><input id="txtPrice" type="text" class="txt num c1"/></td>-->
 						<!--<td><select id="cmbTranstyle" style="width: 100%;"> </select></td>-->
 					</tr>
 					<tr>

@@ -1272,13 +1272,28 @@
 				}
 				check_quat_xy=false;
 				
-				for(var k=0;k<q_bbsCount;k++){
-					//if(emp($('#txtDatea_'+k).val()))
-					//	$('#txtDatea_'+k).val(q_cdn($.trim($('#txtOdate').val()),15))
-						
-					//if($('#txtClass_'+k).val()=='')
-					//	$('#txtClass_'+k).val(100);
+				//105/04/25  判斷 客戶主檔 有運費單價  並 判斷訂單是有運費 沒有給提示
+				var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
+				q_gt('custm', t_where, 0, 0, 0, "getcustmtranprice",r_accy,1);
+				var as = _q_appendData("custm", "", true);
+				if (as[0] != undefined) {
+					if(dec(as[0].tranprice)>0){
+						var t_tranprice=-1;
+						for (var j = 0; j < q_bbsCount; j++) {
+							if($('#txtProduct_'+j).val()=='運費' || $('#txtSpec_'+j).val()=='運費'){
+								t_tranprice=dec($('#txtPrice_'+j).val());
+								break;
+							}
+						}
+						if(t_tranprice==-1){
+							alert('客戶需收運費，請確認訂單運費!!');
+						}
+						if(t_tranprice==0){
+							alert('客戶需收運費，訂單運費金額為0!!');
+						}
+					}
 				}
+				
 				
 				//1030419 當專案沒有勾 BBM的取消和結案被打勾BBS也要寫入
 				if(!$('#chkIsproj').prop('checked')){

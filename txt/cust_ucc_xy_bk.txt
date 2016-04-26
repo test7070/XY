@@ -426,13 +426,15 @@ begin
 	
 	--將orde的內容轉至vcc
 	set @cmd="insert vcc"+@accy+"(noa,ordeno,typea,stype,datea,custno,comp,nick,tel,fax,post,addr,post2,addr2,salesno,sales
-	,cno,acomp,paytype,trantype,money,tax,taxtype,total,worker,worker2,unpay,payed,memo,mon
+	,cno,acomp,paytype,trantype,money,tax,taxtype,total,worker,worker2,unpay,payed,memo,mon,cardealno,cardeal
 	,coin,floata,totalus,custno2,comp2)
 	select '"+@n_vccno+"' noa,noa ordeno,'1' typea,stype,'"+@nowdate+"',custno,comp,nick,tel,fax,post,addr,post2,addr2,salesno,sales
 	,cno,acomp,paytype,trantype,money,tax,taxtype,total,worker,worker2,total unpay,0 payed,memo
 	,case when cast(right('"+@nowdate+"',2) as int) >= cast(isnull((select startdate from cust where noa=a.custno),'0')as int)
 	and cast(isnull((select startdate from cust where noa=a.custno),'0')as int) !=0
 	then left(dbo.q_cdn(LEFT('"+@nowdate+"',6)+'/25',10),6) else LEFT('"+@nowdate+"',6) end
+	,case when trantype='送達' then 'YUDA' when trantype='貨運' then 'H002' else '' end
+	,case when trantype='送達' then '有達實業有限公司' when trantype='貨運' then '新竹貨運物流' else '' end
 	,coin,floata,totalus,isnull((select custno2 from cust where noa=a.custno),''),isnull((select cust2 from cust where noa=a.custno),'')
 	from orde"+@accy+" a where noa='"+@noa+"'"
 	EXECUTE sp_executesql @cmd

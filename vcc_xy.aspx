@@ -403,7 +403,7 @@
 							q_gt('cust', t_where, 0, 0, 0, "getcust",r_accy,1);
 							var ass = _q_appendData("cust", "", true);
 							if (ass[0] != undefined) {
-								$('#textInvomemo').val($('#textInvomemo').val()+' '+ass[0].invoicetitle);
+								$('#textInvomemo').val($('#textInvomemo').val()+' '+ass[0].invoicetitle+' '+ass[0].serial);
 							}
 						}
 						break;

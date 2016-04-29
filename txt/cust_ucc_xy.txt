@@ -450,7 +450,7 @@ begin
 	,cno,acomp,paytype,trantype,money,tax,taxtype,total,worker,worker2,unpay,payed,memo,mon,cardealno,cardeal
 	,coin,floata,totalus,custno2,comp2)
 	select '"+@n_vccno+"' noa,noa ordeno,'1' typea,stype,'"+@nowdate+"',custno,comp,nick,tel,fax,post,addr,post2,addr2,salesno,sales
-	,cno,acomp,paytype,trantype,money,tax,taxtype,total,worker,worker2,total unpay,0 payed,memo
+	,cno,acomp,paytype,trantype,money,tax,taxtype,total,isnull((select namea from sss where noa='"+@usera+"'),'"+@usera+"'),'',total unpay,0 payed,memo
 	,case when cast(right('"+@nowdate+"',2) as int) >= cast(isnull((select startdate from cust where noa=a.custno),'0')as int)
 	and cast(isnull((select startdate from cust where noa=a.custno),'0')as int) !=0
 	then left(dbo.q_cdn(LEFT('"+@nowdate+"',6)+'/25',10),6) else LEFT('"+@nowdate+"',6) end
@@ -541,7 +541,7 @@ set @cmd="insert orde"+@accy+" (noa,quatno,odate,stype,cno,acomp,custno,comp,nic
 ,money,tax,taxtype,total,coin,floata,totalus,memo,worker,worker2,isproj)
 select '"+@n_ordeno+"' noa,noa,'"+@nowdate+"',stype,cno,acomp,custno,comp,nick
 ,tel,fax,post,addr,post2,addr2,salesno,sales,paytype,trantype,contract
-,money,tax,taxtype,total,coin,floata,totalus,memo,worker,worker2,1
+,money,tax,taxtype,total,coin,floata,totalus,memo,isnull((select namea from sss where noa='"+@usera+"'),'"+@usera+"'),'',1
 from orde"+@accy+" a where noa='"+@noa+"'"
 EXECUTE sp_executesql @cmd
 

@@ -231,7 +231,7 @@ z_cub_xyp3:--z_cub_xyp3
 	
 	declare @linecount int --每頁行數
 	declare @endcount int --總計行數
-	set @linecount = 15
+	set @linecount = 30
 	set @endcount = 7
 	
 	declare @tggno nvarchar(20)
@@ -368,6 +368,7 @@ z_cub_xyp3:--z_cub_xyp3
 	,dbo.getComma(a.tot,0) tot
 	,case when @t_bmon=@t_emon then @t_bmon else @t_bmon+'~'+@t_emon end mon
 	,b.tel,b.fax
+	,'rc2?noa=$rc2no' ghref
 	,a.*
 	from @result a
 	left join tgg b on a.tggno=b.noa

@@ -258,6 +258,7 @@
 						var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 						q_gt('custaddr', t_where, 0, 0, 0, "");
 					}
+					cashsalecust();
 				}).focusin(function() {
 					q_msg($(this),'請輸入客戶編號');
 				});
@@ -288,6 +289,15 @@
 				
 				$('#lblDownvcc').click(function() {
 					$('#xdownload').attr('src','uploadXYvcc_download.aspx?FileName='+$('#txtZipcode').val()+'&TempName='+$('#txtZipcode').val());
+				});
+				
+				$('#lblIsvcce').click(function() {
+					var t_where = '';
+					var t_noa = $('#txtNoa').val();
+					if (t_noa.length > 0) {
+						t_where = "noa=( select top 1 noa from view_vcces where ordeno='" + t_noa + "' and isnull(dime,0)=1 )";
+						q_box("vcce_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'vcce_xy', "95%", "95%", '派車作業');
+					}
 				});
 			}
 
@@ -1289,6 +1299,7 @@
 				_bbsAssign();
 				HiddenTreat();
 				refreshBbm();
+				cashsalecust();
 				//$('.store2').hide();//104/02/06 不用昌庫104/02/26恢復用倉庫(不判斷客戶)
 				$('.bbsitem').attr('disabled', 'disabled');
 			}
@@ -1387,6 +1398,16 @@
 					q_gt('custm', t_where, 0, 0, 0, '', r_accy);
 				}
 				refreshBbm();
+				//1050429 顯示派車是否已簽收
+				$('#lblIsvcce').text('');
+				if(!emp($('#txtNoa').val())){ 
+					t_where = " where=^^ ordeno='" + $('#txtNoa').val() + "' and isnull(dime,0)=1^^";
+					q_gt('view_vcces', t_where, 0, 0, 0, '', r_accy,1);
+					var as = _q_appendData("view_vcces", "", true);
+					if (as[0] != undefined) {
+						$('#lblIsvcce').text('出貨單已簽收');
+					}
+				}
 				
 				if($('#txtZipcode').val().length>0)
 					$('#lblDownvcc').show();
@@ -1561,6 +1582,13 @@
 							q_gt('cust', t_where, 0, 0, 0, "cust_detail");
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('custm', t_where, 0, 0, 0, "cust_detail2");
+							
+							//105/04/29 現銷客戶 不需要訂單和報價可以直接出貨  交運方式＝自取 單價可改
+							for (var j = 0; j < q_bbsCount; j++) {
+								$('#btnMinus_'+j).click();
+							}
+							
+							cashsalecust();
 						}
 						
 						$('#txtSalesno').attr('disabled', 'disabled');
@@ -1590,6 +1618,19 @@
 						break;
 				}
 			}
+			
+			function cashsalecust() {
+				//105/04/29 現銷客戶 不需要訂單和報價可以直接出貨  交運方式＝自取 單價可改
+				if($('#txtComp').val().indexOf('現銷')>-1 && (q_cur==1 || q_cur==2)){
+					$('#cmbTrantype').val('自取');
+					for (var j = 0; j < q_bbsCount; j++) {
+						$('#txtProductno_'+j).css('color', 'black').css('background', 'white').removeAttr('readonly');
+						$('#txtPrice_'+j).css('color', 'black').css('background', 'white').removeAttr('readonly');
+						$('#txtProductno_'+j).removeAttr('disabled');
+						$('#txtPrice_'+j).removeAttr('disabled');
+					}
+				}
+            }
 
 			function FormatNumber(n) {
 				var xx = "";
@@ -1852,7 +1893,7 @@
 						<td><input id="txtAcomp" type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblMon' class="lbl"> </a></td>
 						<td><input id="txtMon" type="text" class="txt c1"/></td>
-						<td> </td>
+						<td><a id="lblIsvcce" class='lbl btn'> </a></td>
 						<td>
 							<span> </span>
 							<a id='lblInvono' class="lbl btn vcca"> </a>

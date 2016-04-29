@@ -35,6 +35,7 @@
 				q_cmbParse("cmbStatus", "@全部,Y@已收完,N@未收完");
 				q_cmbParse("cmbStype", '@全部,'+q_getPara('vcc.stype'));
 				q_cmbParse("cmbDime", "@全部,Y@已簽收,N@未簽收");
+				q_cmbParse("cmbZipcode", "@全部,Y@已上傳簽收,N@未上傳簽收");
 				q_cmbParse("cmbWidth", "@全部,Y@已驗收,N@未驗收");
 				$('#txtNoa').focus();
 			}
@@ -78,6 +79,7 @@
 				t_stype = $('#cmbStype').val();
 				t_memo = $('#txtMemo').val();
 				t_dime=$('#cmbDime').val();//簽收
+				t_zipcode=$('#cmbZipcode').val();//簽收上傳
 				t_width=$('#cmbWidth').val();//驗收
 				t_cardealno = $('#txtCardealno').val();
 				
@@ -116,6 +118,13 @@
                 	t_where += " and noa in (select ordeno from view_vcces where dime=1) ";
                 if(t_dime=='N')
                 	t_where += " and noa in (select ordeno from view_vcces where dime=0) ";
+                	
+                //簽收上傳
+                if(t_zipcode=='Y')
+                	t_where += " and isnull(zipcode,'')!='' ";
+                if(t_zipcode=='N')
+                	t_where += " and isnull(zipcode,'')='' ";
+                	
                 //驗收	
                 if(t_width=='Y')
                 	t_where += " and noa in (select ordeno from view_vcces where width=1) ";
@@ -222,6 +231,10 @@
 				<tr class='seek_tr'>
 					<td style="width: 30%;"><a>簽收 </a></td>
 					<td style="width: 70%;"><select id="cmbDime"> </select></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td style="width: 30%;"><a>簽收上傳</a></td>
+					<td style="width: 70%;"><select id="cmbZipcode"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td style="width: 30%;"><a>驗收</a></td>

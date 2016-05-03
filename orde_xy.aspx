@@ -2116,26 +2116,25 @@
 					var as = _q_appendData("view_cub", "", true);
 					if(as[0]!=undefined){
 						alert('訂單【'+t_ordeno+'】已轉製令單!!');
-					}
-					
-					$('#btnPlus').attr('disabled', 'disabled');
-					for (var j = 0; j < q_bbsCount; j++) {
-						$('#btnMinus_'+j).attr('disabled', 'disabled');
-						$('#txtProductno_'+j).attr('disabled', 'disabled');
-						$('#btnProduct_'+j).attr('disabled', 'disabled');
-						$('#txtProduct_'+j).attr('disabled', 'disabled');
-						$('#combGroupbno_'+j).attr('disabled', 'disabled');
-						$('#txtSpec_'+j).attr('disabled', 'disabled');
-						$('#btnSpec_'+j).attr('disabled', 'disabled');
-						$('#txtClassa_'+j).attr('disabled', 'disabled');
-						$('#combClassa_'+j).attr('disabled', 'disabled');
-						$('#txtSizea_'+j).attr('disabled', 'disabled');
-						$('#txtDime_'+j).attr('disabled', 'disabled');
-						$('#txtUnit_'+j).attr('disabled', 'disabled');
-						$('#txtPrice_'+j).attr('disabled', 'disabled');
-						$('#cmbSource_'+j).attr('disabled', 'disabled');
-						$('#txtDatea_'+j).attr('disabled', 'disabled');
-						$('#txtMemo_'+j).attr('disabled', 'disabled');
+						$('#btnPlus').attr('disabled', 'disabled');
+						for (var j = 0; j < q_bbsCount; j++) {
+							$('#btnMinus_'+j).attr('disabled', 'disabled');
+							$('#txtProductno_'+j).attr('disabled', 'disabled');
+							$('#btnProduct_'+j).attr('disabled', 'disabled');
+							$('#txtProduct_'+j).attr('disabled', 'disabled');
+							$('#combGroupbno_'+j).attr('disabled', 'disabled');
+							$('#txtSpec_'+j).attr('disabled', 'disabled');
+							$('#btnSpec_'+j).attr('disabled', 'disabled');
+							$('#txtClassa_'+j).attr('disabled', 'disabled');
+							$('#combClassa_'+j).attr('disabled', 'disabled');
+							$('#txtSizea_'+j).attr('disabled', 'disabled');
+							$('#txtDime_'+j).attr('disabled', 'disabled');
+							$('#txtUnit_'+j).attr('disabled', 'disabled');
+							$('#txtPrice_'+j).attr('disabled', 'disabled');
+							$('#cmbSource_'+j).attr('disabled', 'disabled');
+							$('#txtDatea_'+j).attr('disabled', 'disabled');
+							$('#txtMemo_'+j).attr('disabled', 'disabled');
+						}
 					}
 				}
 			}

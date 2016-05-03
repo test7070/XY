@@ -631,6 +631,7 @@
 						}else{
 							_btnDele();
 						}
+						break;
 					case 'orde_Modi':
 						var as = _q_appendData("view_vccs", "", true);
 						if(r_rank<"5"){ //4以下禁止修改

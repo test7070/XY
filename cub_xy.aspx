@@ -91,7 +91,7 @@
 					var t_noa = trim($('#txtNoa').val());
 					var t_where = '';
 					t_where = " isnull(a.enda,0)!=1 and isnull(a.cancel,0)!=1";
-					t_where += " and not exists(select * from view_cub where ordeno=a.noa and no2=a.no2 a.noa!='"+t_noa+"') ";//已匯入 105/05/03
+					t_where += " and not exists(select * from view_cub where ordeno=a.noa and no2=a.no2 and a.noa!='"+t_noa+"') ";//已匯入 105/05/03
 					t_where += " and left(a.productno,2)!='##' and left(a.custno,2)!='##' ";//非正式編號
 					if (t_custno.length > 0) {
 						t_where += " and a.custno='"+t_custno+"'";

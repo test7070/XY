@@ -88,19 +88,21 @@
 				
 				$('#btnOrdes').click(function() {
 					var t_custno = trim($('#txtCustno').val());
+					var t_noa = trim($('#txtNoa').val());
 					var t_where = '';
-					t_where = " isnull(enda,0)!=1 and isnull(cancel,0)!=1";
-					t_where += " and left(productno,2)!='##' and left(custno,2)!='##' ";//非正式編號
+					t_where = " isnull(a.enda,0)!=1 and isnull(a.cancel,0)!=1";
+					t_where += " and not exists(select * from view_cub where ordeno=a.noa and no2=a.no2 a.noa!='"+t_noa+"') ";//已匯入 105/05/03
+					t_where += " and left(a.productno,2)!='##' and left(a.custno,2)!='##' ";//非正式編號
 					if (t_custno.length > 0) {
-						t_where += " and custno='"+t_custno+"'";
+						t_where += " and a.custno='"+t_custno+"'";
 						//只有印刷才會進來 印刷編號=客戶編號-流水號
-						t_where += " and charindex('"+t_custno.substr(0,5)+"-',productno)=1 ";
+						t_where += " and charindex('"+t_custno.substr(0,5)+"-',a.productno)=1 ";
 					} else{
-						t_where += " and charindex('-',productno)>0 ";
+						t_where += " and charindex('-',a.productno)>0 ";
 					}
 					
 					if (!emp($('#txtOrdeno').val()))
-						t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0 ";
+						t_where += " and charindex(a.noa,'" + $('#txtOrdeno').val() + "')>0 ";
 					t_where = t_where;
 					q_box("ordes_b_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes', "95%", "650px", q_getMsg('popOrde'));
 				});
@@ -361,13 +363,26 @@
 					alert(q_getMsg('lblDatea') + '錯誤。');
 					return;
 				}
+				var t_noa = trim($('#txtNoa').val());
+				var t_ordeno = trim($('#txtOrdeno').val());
+				var t_no2 = trim($('#txtNo2').val());
+				
+				//105/05/03 判斷已轉製令單就不讓存檔
+				if(t_ordeno.length>0 && t_no2.length>0){
+					q_gt('view_cub', "where=^^ ordeno='" + t_ordeno + "' and no2='" + t_no2 + "' and  noa!='" + t_noa + "' ^^", 0, 0, 0, "getrepordeno",r_accy,1);
+					var as = _q_appendData("view_cub", "", true);
+		            if(as[0]!=undefined){
+		            	alert('訂單【'+t_ordeno+'-'+t_no2+'】重覆轉製令單!!');
+		            	return;
+		            }
+				}
+				
 				sum();
 				if(q_cur==1)
 					$('#txtWorker').val(r_name);
 				else
 					$('#txtWorker2').val(r_name);
-
-				var t_noa = trim($('#txtNoa').val());
+				
 				var t_date = trim($('#txtDatea').val());
 				if (t_noa.length == 0 || t_noa == "AUTO")
 					q_gtnoa(q_name, replaceAll(q_getPara('sys.key_cub') + (t_date.length == 0 ? q_date() : t_date), '/', ''));

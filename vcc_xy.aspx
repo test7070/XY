@@ -888,6 +888,21 @@
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('custaddr', t_where, 0, 0, 0, "");
 						}
+						
+						//105/05/03 提示已派車 和 已列印
+						q_gt('view_vcc', "where=^^ noa='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "isprint",r_accy,1);
+						var as = _q_appendData("view_vcc", "", true);
+						if(as[0]!=undefined){
+							if(dec(as[0].tranadd)>0){
+								alert('出貨單已列印!!');
+							}
+						}
+						q_gt('view_vcces', "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "isvcce",r_accy,1);
+						var as = _q_appendData("view_vcces", "", true);
+						if(as[0]!=undefined){
+							alert('出貨單已派車!!');
+						}
+						
 						break;
 					case q_name:
 						if (q_cur == 4)

@@ -351,6 +351,56 @@
 				if (emp($('#txtNoa').val()))
 					return;
 				_btnModi();
+				
+				q_gt('view_inas', "where=^^ rc2no='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "istoina",r_accy,1);
+				var as = _q_appendData("view_inas", "", true);
+				if(as[0]!=undefined){
+					alert('製令單已入庫!!');
+					$('#txtDatea').attr('disabled', 'disabled');
+					$('#cmbTypea').attr('disabled', 'disabled');
+					$('#btnOrdes').attr('disabled', 'disabled');
+					$('#txtBdate').attr('disabled', 'disabled');
+					$('#txtProductno').attr('disabled', 'disabled');
+					$('#txtSpec').attr('disabled', 'disabled');
+					$('#txtPrice').attr('disabled', 'disabled');
+					$('#txtUnit').attr('disabled', 'disabled');
+					$('#txtMo').attr('disabled', 'disabled');
+					$('#txtMemo').attr('disabled', 'disabled');
+					aPop = new Array(
+						['txtTggno_', '', 'tgg', 'noa,comp', 'txtTggno_,txtTgg_', ""],
+						['txtProcessno_', 'btnProcessno_', 'process', 'noa,process,tggno,tgg', 'txtProcessno_,txtProcess_,txtTggno_,txtTgg_', 'process_b.aspx'],
+						['txtProductno__', 'btnProductno__', 'ucc', 'noa,product,spec,unit', 'txtProductno__,txtProduct__,txtSpec__,txtUnit__', 'ucc_b.aspx'],
+						['txtStoreno__', 'btnStoreno__', 'store', 'noa,store', 'txtStoreno__,txtStore__', 'store_b.aspx']
+					);
+				}
+				
+				for (var i = 0; i < q_bbsCount; i++) {
+					if(!emp($('#txtOrdeno_'+i).val())){
+						q_gt('pays', "where=^^ rc2no='" + $('#txtOrdeno_'+i).val() + "' ^^", 0, 0, 0, "istopay",r_accy,1);
+						var as = _q_appendData("pays", "", true);
+						if(as[0]!=undefined){
+							$('#checkCut').attr('disabled', 'disabled');
+							$('#btnMinus_'+i).attr('disabled', 'disabled');
+							$('#txtProcessno_'+i).attr('disabled', 'disabled');
+							$('#txtProcess_'+i).attr('disabled', 'disabled');
+							$('#btnProcessno_'+i).attr('disabled', 'disabled');
+							$('#txtTggno_'+i).attr('disabled', 'disabled');
+							$('#txtTgg_'+i).attr('disabled', 'disabled');
+							$('#btnTggno_'+i).attr('disabled', 'disabled');
+							$('#txtMount_'+i).attr('disabled', 'disabled');
+							$('#txtUnit_'+i).attr('disabled', 'disabled');
+							$('#txtPrice_'+i).attr('disabled', 'disabled');
+							$('#txtMo_'+i).attr('disabled', 'disabled');
+							$('#chkSale_'+i).attr('disabled', 'disabled');
+							$('#txtW02_'+i).attr('disabled', 'disabled');
+							$('#txtNeed_'+i).attr('disabled', 'disabled');
+							$('#txtMemo_'+i).attr('disabled', 'disabled');
+							$('#chkCut_'+i).attr('disabled', 'disabled');
+							$('#txtDatea_'+i).attr('disabled', 'disabled');
+						}
+					}
+				}
+				
 				$('#txtDatea').focus();
 			}
 
@@ -420,6 +470,18 @@
 				//取得類別
 				//q_gt('cub_typea', '', 0, 0, 0, "cub_typea");
 				$("[name='checkCut']").prop('checked',false);
+				
+				$('#btnOrdes').removeAttr('disabled');
+				$('#checkCut').removeAttr('disabled');
+				aPop = new Array(
+					['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,spec,mount,custno,comp,memo', 'txtOrdeno,txtNo2,txtProductno,txtProduct,txtSpec,txtMount,txtCustno,txtComp,txtMemo', ''],
+					['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp', 'cust_b.aspx'],
+					['txtProductno', 'lblProduct', 'ucc', 'noa,product,spec,unit', 'txtProductno,txtProduct,txtSpec,txtUnit', 'ucc_b.aspx'],
+					['txtTggno_', '', 'tgg', 'noa,comp', 'txtTggno_,txtTgg_', ""],
+					['txtProcessno_', 'btnProcessno_', 'process', 'noa,process,tggno,tgg', 'txtProcessno_,txtProcess_,txtTggno_,txtTgg_', 'process_b.aspx'],
+					['txtProductno__', 'btnProductno__', 'ucc', 'noa,product,spec,unit', 'txtProductno__,txtProduct__,txtSpec__,txtUnit__', 'ucc_b.aspx'],
+					['txtStoreno__', 'btnStoreno__', 'store', 'noa,store', 'txtStoreno__,txtStore__', 'store_b.aspx']
+				);
 			}
 
 			function readonly(t_para, empty) {
@@ -595,6 +657,28 @@
 				//_btnDele();
                 if (emp($('#txtNoa').val()))
                     return;
+                    
+				q_gt('view_inas', "where=^^ rc2no='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "istoina",r_accy,1);
+				var as = _q_appendData("view_inas", "", true);
+				if(as[0]!=undefined){
+					alert('製令單已入庫!!');
+					return;
+               }
+               
+                var t_pay=false;
+				for (var i = 0; i < q_bbsCount; i++) {
+					if(!emp($('#txtOrdeno_'+i).val())){
+						q_gt('pays', "where=^^ rc2no='" + $('#txtOrdeno_'+i).val() + "' ^^", 0, 0, 0, "istopay",r_accy,1);
+						var as = _q_appendData("pays", "", true);
+						if(as[0]!=undefined){
+							t_pay=true;
+						}
+					}
+				}
+				if(t_pay){
+					alert('製令單已付款禁止刪除!!');
+					return;
+				}
 
                 if (!confirm(mess_dele))
                     return;

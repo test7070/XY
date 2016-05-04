@@ -873,7 +873,7 @@
 								if (t_paysale != 0)
 									z_msg += String.fromCharCode(13) + '收款單號【' + as[i].noa + '】 ' + FormatNumber(t_paysale);
 							}
-							if (z_msg.length > 0) {
+							if (z_msg.length > 0 && r_rank<'3') { //105/05/04 權限2以下提示
 								alert('已沖帳:' + z_msg);
 								//Unlock(1); //1041225暫時開放可以修改
 								//return;
@@ -889,18 +889,20 @@
 							q_gt('custaddr', t_where, 0, 0, 0, "");
 						}
 						
-						//105/05/03 提示已派車 和 已列印
-						q_gt('view_vcc', "where=^^ noa='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "isprint",r_accy,1);
-						var as = _q_appendData("view_vcc", "", true);
-						if(as[0]!=undefined){
-							if(dec(as[0].tranadd)>0){
-								alert('出貨單已列印!!');
+						//105/05/03 提示已派車 和 已列印  105/05/04 權限2以下提示
+						if(r_rank<'3'){
+							q_gt('view_vcc', "where=^^ noa='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "isprint",r_accy,1);
+							var as = _q_appendData("view_vcc", "", true);
+							if(as[0]!=undefined){
+								if(dec(as[0].tranadd)>0){
+									alert('出貨單已列印!!');
+								}
 							}
-						}
-						q_gt('view_vcces', "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "isvcce",r_accy,1);
-						var as = _q_appendData("view_vcces", "", true);
-						if(as[0]!=undefined){
-							alert('出貨單已派車!!');
+							q_gt('view_vcces', "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "isvcce",r_accy,1);
+							var as = _q_appendData("view_vcces", "", true);
+							if(as[0]!=undefined){
+								alert('出貨單已派車!!');
+							}
 						}
 						
 						break;

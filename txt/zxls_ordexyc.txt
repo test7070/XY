@@ -41,6 +41,7 @@ declare @row2 nvarchar(100)=''
 declare @tmp table(
 	custno nvarchar(100),
 	productno nvarchar(100),
+	unit nvarchar(50),
 	price float,
 	mount float,
 	total float,
@@ -60,10 +61,10 @@ begin
 			set @custno=isnull((select top 1 noa from cust where boss=@comp and left(noa,5)=@t_custno),'')
 			if(@custno!='')
 			begin
-				set @cmd="select '"+@custno+"',a,cast(["+@row2+@row+"] as float)
+				set @cmd="select '"+@custno+"',a,cast(["+@row2+@row+"] as float),c
 				from ztmpxls where a!='' and cast(["+@row2+@row+"] as float)!=0 
 				and CAST(noa as int)>9 order by noa"
-				insert @tmp(custno,productno,mount)
+				insert @tmp(custno,productno,mount,unit)
 				EXEC sp_executeSQL @cmd
 			end
 		end
@@ -95,7 +96,7 @@ delete @tmp where productno=''
 update a
 set price=ISNULL(b.price,0),quatno=ISNULL(b.noa,''),no3=ISNULL(b.no3,'')
 from @tmp a
-outer apply (select top 1 price,noa,no3 from view_quats where datea<=@t_odate and productno=a.productno
+outer apply (select top 1 price,noa,no3 from view_quats where datea>=@t_odate and productno=a.productno
 and (custno=@t_custno or custno=a.custno) order by custno desc,datea desc,odate desc,noa desc) b
 
 update @tmp set total=round(price*mount,0)
@@ -132,7 +133,7 @@ begin
 	insert #bbs(custno,comp,odate,datea
 	,productno,product,spec,classa,size,dime,source,unit,price,mount,total,memo,enda,cancel,c1,notv,quatno,no3)
 	select a.custno,left(b.comp,50),@t_odate,''
-	,a.productno,c.product,c.spec,c.style,'',0,'0',c.unit,a.price,a.mount,a.total,'',0,0,0,a.mount
+	,a.productno,c.product,c.spec,c.style,'',0,'0',a.unit,a.price,a.mount,a.total,'',0,0,0,a.mount
 	,isnull(a.quatno,''),isnull(a.no3,'')
 	from @tmp a left join cust b on a.custno=b.noa
 	left join ucc c on a.productno=c.noa
@@ -206,7 +207,6 @@ begin
 	,tax=case when taxtype='1' then round(b.stotal*0.05,0) when taxtype='3' then round(b.stotal/1.05*0.05,0) else 0 end
 	,total=case when taxtype='1' then b.stotal+round(b.stotal*0.05,0) when taxtype in ('2','3','4','5') then b.stotal else 0 end
 	from #bbm a outer apply (select SUM(total)stotal from #bbs where noa=a.noa)b
-
 
 	exec("
 	insert orde"+@accy+"(noa,odate,datea,stype,cno,acomp,custno,comp,nick,paytype,tel,fax,post,addr,post2,addr2

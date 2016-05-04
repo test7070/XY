@@ -96,9 +96,10 @@
 					if (t_custno.length > 0) {
 						t_where += " and a.custno='"+t_custno+"'";
 						//只有印刷才會進來 印刷編號=客戶編號-流水號
-						t_where += " and charindex('"+t_custno.substr(0,5)+"-',a.productno)=1 ";
+						//105/05/04 便品也要進來 空白版
+						//t_where += " and charindex('"+t_custno.substr(0,5)+"-',a.productno)=1 ";
 					} else{
-						t_where += " and charindex('-',a.productno)>0 ";
+						//t_where += " and charindex('-',a.productno)>0 ";
 					}
 					
 					if (!emp($('#txtOrdeno').val()))

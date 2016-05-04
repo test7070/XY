@@ -1901,6 +1901,34 @@
 					q_gt('custaddr', t_where, 0, 0, 0, "");
 				}
 				orde2vcc_modi=false;
+				
+				//105/05/03 已轉製令單,但又修改訂單的問題 只開放數量修改
+				if(r_rank<"8" && q_cur==2){
+					q_gt('view_cub', "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "istocub",r_accy,1);
+					var as = _q_appendData("view_cub", "", true);
+					if(as[0]!=undefined){
+						alert('訂單【'+$('#txtNoa').val()+'】已轉製令單!!');
+						$('#btnPlus').attr('disabled', 'disabled');
+						for (var j = 0; j < q_bbsCount; j++) {
+							$('#btnMinus_'+j).attr('disabled', 'disabled');
+							$('#txtProductno_'+j).attr('disabled', 'disabled');
+							$('#btnProduct_'+j).attr('disabled', 'disabled');
+							$('#txtProduct_'+j).attr('disabled', 'disabled');
+							$('#combGroupbno_'+j).attr('disabled', 'disabled');
+							$('#txtSpec_'+j).attr('disabled', 'disabled');
+							$('#btnSpec_'+j).attr('disabled', 'disabled');
+							$('#txtClassa_'+j).attr('disabled', 'disabled');
+							$('#combClassa_'+j).attr('disabled', 'disabled');
+							$('#txtSizea_'+j).attr('disabled', 'disabled');
+							$('#txtDime_'+j).attr('disabled', 'disabled');
+							$('#txtUnit_'+j).attr('disabled', 'disabled');
+							$('#txtPrice_'+j).attr('disabled', 'disabled');
+							$('#cmbSource_'+j).attr('disabled', 'disabled');
+							$('#txtDatea_'+j).attr('disabled', 'disabled');
+							$('#txtMemo_'+j).attr('disabled', 'disabled');
+						}
+					}
+				}
 			}
 
 			function btnPrint() {
@@ -2110,33 +2138,6 @@
 					$('#lblOrdbno').show();
 				}
 				
-				//105/05/03 已轉製令單,但又修改訂單的問題 只開放數量修改
-				if(r_rank<"8" && q_cur==2){
-					q_gt('view_cub', "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "istocub",r_accy,1);
-					var as = _q_appendData("view_cub", "", true);
-					if(as[0]!=undefined){
-						alert('訂單【'+$('#txtNoa').val()+'】已轉製令單!!');
-						$('#btnPlus').attr('disabled', 'disabled');
-						for (var j = 0; j < q_bbsCount; j++) {
-							$('#btnMinus_'+j).attr('disabled', 'disabled');
-							$('#txtProductno_'+j).attr('disabled', 'disabled');
-							$('#btnProduct_'+j).attr('disabled', 'disabled');
-							$('#txtProduct_'+j).attr('disabled', 'disabled');
-							$('#combGroupbno_'+j).attr('disabled', 'disabled');
-							$('#txtSpec_'+j).attr('disabled', 'disabled');
-							$('#btnSpec_'+j).attr('disabled', 'disabled');
-							$('#txtClassa_'+j).attr('disabled', 'disabled');
-							$('#combClassa_'+j).attr('disabled', 'disabled');
-							$('#txtSizea_'+j).attr('disabled', 'disabled');
-							$('#txtDime_'+j).attr('disabled', 'disabled');
-							$('#txtUnit_'+j).attr('disabled', 'disabled');
-							$('#txtPrice_'+j).attr('disabled', 'disabled');
-							$('#cmbSource_'+j).attr('disabled', 'disabled');
-							$('#txtDatea_'+j).attr('disabled', 'disabled');
-							$('#txtMemo_'+j).attr('disabled', 'disabled');
-						}
-					}
-				}
 			}
 			
 			//20160109 取消該功能

@@ -94,9 +94,9 @@ delete @tmp where productno=''
 
 --更新單價
 update a
-set price=ISNULL(b.price,0),quatno=ISNULL(b.noa,''),no3=ISNULL(b.no3,'')
+set price=ISNULL(b.price,0),quatno=ISNULL(b.noa,''),no3=ISNULL(b.no3,''),unit=ISNULL(b.unit,'')
 from @tmp a
-outer apply (select top 1 price,noa,no3 from view_quats where datea>=@t_odate and productno=a.productno
+outer apply (select top 1 price,unit,noa,no3 from view_quats where datea>=@t_odate and productno=a.productno
 and (custno=@t_custno or custno=a.custno) order by custno desc,datea desc,odate desc,noa desc) b
 
 update @tmp set total=round(price*mount,0)

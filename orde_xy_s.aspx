@@ -46,7 +46,7 @@
                 t_edate = $('#txtEdate').val();
                 t_custno = $('#txtCustno').val();
                 t_salesno = $('#txtSalesno').val();
-                t_comp = $('#txtComp').val();
+                t_comp = replaceAll($('#txtComp').val(),"'",'~#$');
                 t_stype = $('#cmbStype').val();
                 t_quatno = $('#txtQuatno').val();
                 t_contract = $('#txtContract').val();

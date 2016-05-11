@@ -1924,7 +1924,7 @@
 							$('#txtUnit_'+j).attr('disabled', 'disabled');
 							$('#txtPrice_'+j).attr('disabled', 'disabled');
 							$('#cmbSource_'+j).attr('disabled', 'disabled');
-							$('#txtDatea_'+j).attr('disabled', 'disabled');
+							//$('#txtDatea_'+j).attr('disabled', 'disabled');
 							$('#txtMemo_'+j).attr('disabled', 'disabled');
 						}
 					}

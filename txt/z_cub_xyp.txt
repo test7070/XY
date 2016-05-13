@@ -13,6 +13,7 @@ z_cub_xyp1:--z_cub_xyp1
 		noa nvarchar(50),
 		noq nvarchar(50),
 		datea nvarchar(10),
+		bdate nvarchar(10),
 		ordeno nvarchar(50),
 		custno nvarchar(100),
 		comp nvarchar(100),
@@ -20,6 +21,8 @@ z_cub_xyp1:--z_cub_xyp1
 		product nvarchar(150),
 		spec nvarchar(MAX),
 		amemo nvarchar(MAX),
+		amount float,
+		unit nvarchar(100),
 		tggno nvarchar(100),
 		tggs nvarchar(100),
 		processno nvarchar(100),
@@ -32,13 +35,14 @@ z_cub_xyp1:--z_cub_xyp1
 	)
 	
 	insert into @result
-	select '0'gno,a.noa,b.noq,a.datea,a.ordeno+'_'+a.no2,a.custno,a.comp,a.productno,a.product,a.spec,a.memo
+	select '0'gno,a.noa,b.noq,a.datea,a.bdate,a.ordeno+case when len(a.no2)>0 then '_'+a.no2 else '' end,a.custno,a.comp
+	,a.productno,a.product,a.spec,a.memo,a.mount,a.unit
 	,b.tggno,b.tgg,b.processno,b.process,b.mount,b.need,b.memo,'',''
 	from view_cub a left join view_cubs b on a.noa=b.noa
 	where a.noa between @t_bxnoa and @t_exnoa
 	
 	insert into @result
-	select '2' gno,a.noa,b.noq,a.datea,a.ordeno+'_'+a.no2,a.custno,a.comp,a.productno,a.product,a.spec,a.memo
+	select '2' gno,a.noa,b.noq,a.bdate,a.datea,a.ordeno+case when len(a.no2)>0 then '_'+a.no2 else '' end,a.custno,a.comp,a.productno,a.product,a.spec,a.memo,a.mount,a.unit
 	,'','','','',b.mount,'',b.memo,b.productno,b.product
 	from view_cub a left join view_cubt b on a.noa=b.noa
 	where a.noa between @t_bxnoa and @t_exnoa and b.noa!=''
@@ -47,7 +51,8 @@ z_cub_xyp1:--z_cub_xyp1
 	select '1',noa from @result where gno='2' group by noa
 	
 	select 
-	dbo.getComma(mount,[2]) mount,*
+	dbo.getComma(mount,[2]) mount,
+	dbo.getComma(amount,[2]) amount,*
 	from @result order by noa,gno,noq;
 --*******************************************************************************************************
 z_cub_xyp2:--z_cub_xyp2

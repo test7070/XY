@@ -732,7 +732,7 @@ outer apply (
 update a
 set mount=case when xcount>0 then 0 else mount end
 ,total=case when xcount>0 then 0 else total end
-from @tmp a outer apply (select count(*)xcount from view_orde where quatno=a.noa and no3=a.no3)b
+from @tmp a outer apply (select count(*)xcount from view_ordes where quatno=a.noa and no3=a.no3)b
 
 select * from @tmp order by noa,no3
 

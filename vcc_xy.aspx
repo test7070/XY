@@ -801,7 +801,8 @@
 								as[i].width=as[i].mount;
 							}
 							
-							as[i].spec=as[i].spec+' '+as[i].classa;
+							if(as[i].spec.indexOf(as[i].classa)==-1)
+								as[i].spec=as[i].classa+' '+as[i].spec;
 						}
 								
 						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno', as.length, as
@@ -1630,6 +1631,16 @@
 						
 						break;
 					case 'txtProductno_':
+						if(!emp($('#txtProductno_'+b_seq).val())){
+							//重新取得style+spec
+							var t_where = "where=^^ noa='" + $('#txtProductno_'+b_seq).val() + "' ^^";
+							q_gt('ucaucc', t_where, 0, 0, 0, "ucaucc", r_accy, 1);
+							var as = _q_appendData("ucaucc", "", true);
+							if (as[0] != undefined) {
+								$('#txtSpec_'+b_seq).val(as[0].style+' '+as[0].spec);
+							}
+						}
+						
 						/*if (!emp($('#txtProduct_'+b_seq).val()) && $('#txtProduct_'+b_seq).val().substr(0,2)=='##') {
 							alert("非正式產品編號，請聯絡專員轉正式產品編號!!");
 							$('#txtProduct_'+b_seq).val('');

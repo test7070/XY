@@ -441,7 +441,8 @@ begin
 		
 	set @cmd="insert vccs"+@accy+"(noa,noq,datea,typea,productno,product,spec,unit,itemno
 	,mount,width,dime,tranmoney2,tranmoney3,price,total,memo,ordeno,no2,custno,storeno,store,storeno2,store2)
-	select '"+@n_vccno+"' noa,a.no2 noq,'"+@nowdate+"','1' typea,a.productno,a.product,a.spec+' '+a.classa,a.unit,a.source
+	select '"+@n_vccno+"' noa,a.no2 noq,'"+@nowdate+"','1' typea,a.productno,a.product
+	,case when charindex(a.classa,a.spec)>0 then a.spec else a.classa+' '+a.spec end,a.unit,a.source
 	,case when a.source='2' then 0 else a.mount end
 	,case when a.source='1' or a.source='2' then 0 else a.mount end
 	,a.mount

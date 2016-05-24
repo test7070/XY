@@ -800,6 +800,8 @@
 							}else{
 								as[i].width=as[i].mount;
 							}
+							
+							as[i].spec=as[i].spec+' '+as[i].classa;
 						}
 								
 						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno', as.length, as

@@ -253,7 +253,7 @@
 								$('#txtNo2').val(b_ret[0].no2);
 								$('#txtProductno').val(b_ret[0].productno);
 								$('#txtProduct').val(b_ret[0].product);
-								$('#txtSpec').val(b_ret[0].spec);
+								$('#txtSpec').val(b_ret[0].classa+' '+b_ret[0].spec);
 								$('#txtUnit').val(b_ret[0].unit);
 								$('#txtMount').val(b_ret[0].mount);
 								$('#txtMemo').val(b_ret[0].memo);
@@ -263,7 +263,12 @@
 									q_gt('ucc', "where=^^noa='" +$('#txtProductno').val() + "'^^", 0, 0, 0, "getuccspec",r_accy,1);
 									var as = _q_appendData("ucc", "", true);
 				                    if (as[0] != undefined) {
-				                    	$('#txtSpec').val(as[0].spec+' '+as[0].engpro);
+				                    	$('#txtSpec').val(as[0].style+' '+as[0].spec+' '+as[0].engpro);
+				                    	if(as[0].cdate=='採購' || as[0].cdate.length==0){
+											alert(b_ret[i].product+' 採購製令方式 非【製造或委外】');
+										}
+				                    }else{
+				                    	alert(b_ret[0].product+'不在產品主檔內!!');
 				                    }
 								}
 								getpredate();
@@ -733,6 +738,13 @@
 	                		}
 						}
 						if(!emp($('#txtProductno').val())){
+							
+							q_gt('ucc', "where=^^noa='" +$('#txtProductno').val() + "'^^", 0, 0, 0, "getuccspec",r_accy,1);
+							var as = _q_appendData("ucc", "", true);
+							if (as[0] != undefined) {
+								$('#txtSpec').val(as[0].style+' '+as[0].spec+' '+as[0].engpro);
+							}
+							
 							getpredate();
 						}
 						break;

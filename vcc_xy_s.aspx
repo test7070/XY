@@ -37,6 +37,7 @@
 				q_cmbParse("cmbDime", "@全部,Y@已簽收,N@未簽收");
 				q_cmbParse("cmbZipcode", "@全部,Y@已上傳簽收,N@未上傳簽收");
 				q_cmbParse("cmbWidth", "@全部,Y@已驗收,N@未驗收");
+				q_cmbParse("cmbTrantype",  '@全部,'+q_getPara('sys.tran'));
 				$('#txtNoa').focus();
 			}
 			function q_gtPost(t_name) {
@@ -82,6 +83,7 @@
 				t_zipcode=$('#cmbZipcode').val();//簽收上傳
 				t_width=$('#cmbWidth').val();//驗收
 				t_cardealno = $('#txtCardealno').val();
+				t_trantype = $('#cmbTrantype').val();
 				
 				var t_where = " 1=1 "
 				+ q_sqlPara2("typea", t_typea)
@@ -94,6 +96,7 @@
 				+ q_sqlPara2("datea", t_bdate, t_edate)
 				+ q_sqlPara2("accno", t_accno)
 				+ q_sqlPara2("custno", t_custno)
+				+ q_sqlPara2("trantype", t_trantype)
 				+ q_sqlPara2("cardealno", t_cardealno);
 				
 				if(t_invono.length>0)
@@ -219,6 +222,10 @@
 				<tr class='seek_tr'>
 					<td><a id='lblOrdeno'> </a></td>
 					<td><input id="txtOrdeno" type="text"/></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td style="width: 30%;"><a>交運方式 </a></td>
+					<td style="width: 70%;"><select id="cmbTrantype"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td><a id='lblCardealno'>車行</a></td>

@@ -35,7 +35,7 @@
 			brwCount2 = 11;
 			
 			aPop = new Array(
-					['txtProductno_', '', 'ucaucc', 'noa,product,unit,spec', 'txtProductno_,txtProduct_,txtUnit_,txtSpec_', 'ucaucc_b.aspx'],
+					['txtProductno_', '', 'ucaucc', 'noa,product,unit,spec,style', 'txtProductno_,txtProduct_,txtUnit_,txtSpec_,txtClassa_', 'ucaucc_b.aspx'],
 					['txtSalesno', 'lblSales', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx'],
 					['txtCno', 'lblAcomp', 'acomp', 'noa,acomp', 'txtCno,txtAcomp', 'acomp_b.aspx'],
 					['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp,txtNick,txtTel', 'cust_b.aspx'],
@@ -515,6 +515,7 @@
 								$('#txtProduct_'+b_seq).val(b_ret[0].product);
 								$('#txtUnit_'+b_seq).val(b_ret[0].unit);
 								$('#txtSpec_'+b_seq).val(b_ret[0].spec);
+								$('#txtClassa_'+b_seq).val(b_ret[0].style);
 							}
 						}
 						break;
@@ -2275,14 +2276,15 @@
 								}
 							}
 							
-							if($('#txtSpec_'+b_seq).val().indexOf('印')>-1 || $('#txtProductno_'+b_seq).val().indexOf($('#txtCustno').val()+"-")>-1){
+							//1050524直接帶入主檔 不判斷
+							/*if($('#txtSpec_'+b_seq).val().indexOf('印')>-1 || $('#txtProductno_'+b_seq).val().indexOf($('#txtCustno').val()+"-")>-1){
 								$('#combClassa_'+b_seq).val('印');
 								$('#txtClassa_'+b_seq).val('印');
 							}else{
 								$('#combClassa_'+b_seq).val('便');
 								$('#txtClassa_'+b_seq).val('便');
 								$('#txtDime_'+b_seq).val(0);
-							}
+							}*/
 							
 							var t_custno = trim($('#txtCustno').val());
 							var t_odate = trim($('#txtOdate').val());

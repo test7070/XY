@@ -1416,7 +1416,10 @@
 					q_gt('umms', t_where, 0, 0, 0, '', r_accy);
 				}
 				if(!emp($('#txtCustno').val())){ //1050113
-					t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
+					var t_cust=$('#txtCustno').val();
+					if(!emp($('#txtCustno2').val()))
+						t_cust=$('#txtCustno2').val();
+					t_where = " where=^^ noa='" + t_cust + "'^^";
 					q_gt('custm', t_where, 0, 0, 0, '', r_accy);
 				}
 				refreshBbm();
@@ -1602,7 +1605,11 @@
 							q_gt('custaddr', t_where, 0, 0, 0, "");
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('cust', t_where, 0, 0, 0, "cust_detail");
-							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
+							
+							var t_cust=$('#txtCustno').val();
+							if(!emp($('#txtCustno2').val()))
+								t_cust=$('#txtCustno2').val();
+							var t_where = "where=^^ noa='" + t_cust + "' ^^";
 							q_gt('custm', t_where, 0, 0, 0, "cust_detail2");
 							
 							//105/04/29 現銷客戶 不需要訂單和報價可以直接出貨  交運方式＝自取 單價可改

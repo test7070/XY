@@ -2920,10 +2920,10 @@
 					<td align="center" style="width:40px;"><a>項次</a></td>
 					<td align="center" style="width:120px;"><a id='lblProductno'> </a></td>
 					<td align="center" style="width:130px;"><a id='lblProduct_s'> </a></td>
-					<td align="center" style="width:200px;"><a>規格</a></td>
-					<td align="center" style="width:85px;"><a>便/印</a></td>
-					<td align="center" style="width:70px;"><a>包裝方式</a></td>
-					<td align="center" style="width:40px;"><a>色數</a></td>
+					<td align="center" style="width:85px;"><a>版別</a></td>
+					<td align="center" style="width:300px;"><a>規格</a></td>
+					<td align="center" style="width:70px;"><a>最低<BR>訂購量</a></td>
+					<td align="center" style="width:40px;display: none;"><a>色數</a></td>
 					<td align="center" style="width:40px;"><a id='lblUnit'> </a></td>
 					<td align="center" style="width:85px;"><a id='lblMount'> </a></td>
 					<td align="center" style="width:60px;"><a >寄/出庫</a></td>
@@ -2957,15 +2957,15 @@
 						<select id="combGroupbno.*" class="txt c1" style="width: 20px; float: right;"> </select>
 					</td>
 					<td>
-						<input id="txtSpec.*" type="text" class="txt c1" style="width:170px;"/>
-						<input class="btn" id="btnSpec.*" type="button" value='.' style=" font-weight: bold;" />
-					</td>
-					<td>
 						<input id="txtClassa.*" type="text" class="txt c1" style="width: 60px;"/>
 						<select id="combClassa.*" class="txt c1" style="width:20px;float: right;"> </select>
 					</td>
+					<td>
+						<input id="txtSpec.*" type="text" class="txt c1" style="width:270px;"/>
+						<input class="btn" id="btnSpec.*" type="button" value='.' style=" font-weight: bold;" />
+					</td>
 					<td><input id="txtSizea.*" type="text" class="txt c1"/></td>
-					<td><input id="txtDime.*" type="text" class="txt c1 num"/></td>
+					<td style="display: none;"><input id="txtDime.*" type="text" class="txt c1 num"/></td>
 					<td align="center"><input class="txt c7" id="txtUnit.*" type="text"/></td>
 					<td><input class="txt num c7 yellow" id="txtMount.*" type="text"/></td>
 					<td><select id="cmbSource.*" class="txt c1"> </select></td>

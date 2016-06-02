@@ -147,6 +147,7 @@ END
 		noa nvarchar(max),
 		product nvarchar(max),
 		spec nvarchar(max),
+		engpro nvarchar(max),
 		style nvarchar(max),
 		unit nvarchar(max),
 		saleprice float,
@@ -155,7 +156,7 @@ END
 	)
 
 	insert into #tmp
-	select 0,a.noa,a.product,a.spec,a.style,a.unit,a.saleprice,b.noa,b.comp
+	select 0,a.noa,a.product,a.spec,a.engpro,a.style,a.unit,a.saleprice,b.noa,b.comp
 	from ucc a  
 	outer apply (select noa,comp from cust where left(a.noa,5)=noa and charindex('-',a.noa)>0 ) b
 	where (a.noa between @t_bpno and @t_epno) 

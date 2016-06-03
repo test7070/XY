@@ -230,6 +230,11 @@
 						q_box("cust_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";left(noa,5)='" + copycustno.substr(0,5) + "';" + r_accy + ";" + q_cur, 'custx', "95%", "95%", q_getMsg('lblCust'));
 					}
 				});
+				
+				//105/06/03 檢查訂單客戶是否重覆下訂單
+				$('#btnOrderep').click(function() {
+					q_box("z_orde.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";;" + r_accy + ";" + q_cur, 'z_orde', "95%", "95%", $('#btnOrderep').val());
+				});
 
 				$('#btnCredit').click(function() {
 					if (!emp($('#txtCustno').val())) {
@@ -625,6 +630,12 @@
 			var issales=false;
 			function q_gtPost(t_name) {
 				switch (t_name) {
+					case 'cust_orde':
+						var as = _q_appendData("view_orde", "", true);
+						if (as[0] != undefined) {
+							alert('客戶訂單尚有未交貨產品，請確認是否有重複下單!!');
+						}
+						break;
 					case 'btnDel_orde':
 						var as = _q_appendData("view_vccs", "", true);
 						if (as[0] != undefined) {
@@ -2265,6 +2276,10 @@
 							q_gt('cust', t_where, 0, 0, 0, "cust_detail");
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('custm', t_where, 0, 0, 0, "cust_detail2");
+							
+							//06/03提示是否有未出訂單
+							var t_where = "where=^^ custno='" + $('#txtCustno').val() + "' and isnull(enda,0)!=1 and isnull(cancel,0)!=1 ^^";
+							q_gt('view_orde', t_where, 0, 0, 0, "cust_orde");
 						}
 						break;
 					case 'txtProductno_':
@@ -2894,6 +2909,7 @@
 						<td class="td2" colspan="2"><input id="textInvomemo" type="text" class="txt c1" /></td>
 						<td class="td1"><span> </span><a class="lbl">聯絡人員</a></td>
 						<td class="td2" colspan="2"><input id="textConn" type="text" class="txt c1" /></td>
+						<td class="td7"><input id="btnOrderep" type="button" style="float: right;" value="訂單未交量"/></td>
 					</tr>
 					<tr class="tr11">
 						<td class="td1"><span> </span><a id='lblMemo' class='lbl'> </a></td>

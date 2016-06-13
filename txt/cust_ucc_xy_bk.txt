@@ -450,7 +450,7 @@ begin
 	,case when a.source='2' then a.mount else 0 end
 	,a.price,a.total,a.memo,a.noa ordeno,a.no2,b.custno
 	,case when a.source='2' then '' else (case when left(b.custno,5)='DY001' then 'DY' else 'A' end) end
-	,case when a.source='2' then '' else (case when left(b.custno,5)='DY001' then 'DY' else '大葉倉' end) end
+	,case when a.source='2' then '' else (case when left(b.custno,5)='DY001' then '大葉倉' else '總倉庫' end) end
 	,case when a.source='1' or a.source='2' then isnull((select top 1 noa from store where charindex(noa,left(a.productno,6))>0),'') else '' end
 	,case when a.source='1' or a.source='2' then isnull((select top 1 store from store where charindex(noa,left(a.productno,6))>0),'') else '' end
 	from ordes"+@accy+" a left join orde"+@accy+" b on a.noa=b.noa where a.noa='"+@noa+"' "

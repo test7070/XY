@@ -103,6 +103,8 @@
 				//q_cmbParse("cmbCoin", q_getPara('sys.coin'));
 				q_cmbParse("combPay", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
+				q_cmbParse("cmbTranstyle", '@,隨貨@隨貨,月結@月結');
+				
 				var t_where = "where=^^ 1=0  ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				//104/08/17 要跟訂單一樣 單行判斷出貨.寄庫.庫出
@@ -213,6 +215,10 @@
 						t_where = "noa='" + t_invo + "'";
 						q_box("invo.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'invo', "95%", "95%", $('#lblInvo').val());
 					}
+				});
+				
+				$('#btnGenvcca').click(function() {
+					
 				});
 				
 				$('#cmbTypea').change(function() {
@@ -771,6 +777,7 @@
 							$('#cmbCoin').val(as[0].coin);
 							$('#txtFloata').val(as[0].floata);
 							$('#txtWeight').val(as[0].weight);
+							$('#cmbTranstyle').val(as[0].conform);
 							Trantype_cardeal();
 							//取得收款客戶
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
@@ -845,6 +852,8 @@
 									taxtype=xy_taxtypetmp[i].split('@')[0];
 							}
 							$('#cmbTaxtype').val(taxtype);
+							$('#cmbTranstyle').val(as[0].invomemo);
+							
 							$('#textInvomemo').val(as[0].invomemo+(as[0].p23!=''?(" "+as[0].p23+"聯"):''));
 							$('#textConn').val(as[0].conn);
 						}
@@ -1505,8 +1514,10 @@
 				_readonly(t_para, empty);
 				if (t_para) {
 					$('#combAddr').attr('disabled', 'disabled');
+					$('#btnGenvcca').removeAttr('disabled');
 				} else {
 					$('#combAddr').removeAttr('disabled');
+					$('#btnGenvcca').attr('disabled', 'disabled');
 				}
 				//$('.bbsprice').attr('disabled', 'disabled');
 				//1050108 鎖住
@@ -1514,7 +1525,7 @@
 				
 				HiddenTreat();
 				//限制帳款月份的輸入 只有在備註的第一個字為*才能手動輸入
-				if ($('#txtMemo').val().substr(0,1)=='*')
+				if ($('#txtMemo').val().substr(0,1)=='*' && (q_cur==1 || q_cur==2))
 					$('#txtMon').removeAttr('readonly');
 				else
 					$('#txtMon').attr('readonly', 'readonly');
@@ -2030,6 +2041,7 @@
 							<select id="combDriver" class="txt c1" style="width: 20px"> </select>
 						</td>
 						<td><input id="txtDriver"  type="text" class="txt c1"/></td>
+						<td align="right"><input id="btnGenvcca" type="button" value="產生發票"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblSales' class="lbl btn"> </a></td>
@@ -2037,9 +2049,8 @@
 						<td><input id="txtSales" type="text" class="txt c1"/></td>
 						<td><span> </span><a class="lbl">訂金</a></td>
 						<td colspan='2'><input id="txtWeight" type="text" class="txt num c1"/></td>
-						<!--<td><span> </span><a class="lbl">運費單價</a></td>
-						<td ><input id="txtPrice" type="text" class="txt num c1"/></td>-->
-						<!--<td><select id="cmbTranstyle" style="width: 100%;"> </select></td>-->
+						<td><span> </span><a class="lbl">發票開立</a></td>
+						<td><select id="cmbTranstyle" style="width: 100%;"> </select></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMoney" class="lbl"> </a></td>
@@ -2071,7 +2082,7 @@
 						<td><input id="txtAccno" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
-						<td><span> </span><a class="lbl">發票開立</a></td>
+						<td><span> </span><a class="lbl">發票資訊</a></td>
 						<td colspan='5'><input id="textInvomemo" type="text" class="txt c1"/></td>
 						<td><span> </span><a class="lbl">聯絡人員</a></td>
 						<td><input id="textConn" type="text" class="txt c1" /></td>

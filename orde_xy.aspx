@@ -32,7 +32,7 @@
 			brwList = [];
 			brwNowPage = 0;
 			brwKey = 'odate';
-			brwCount2 = 11;
+			brwCount2 = 14;
 			
 			aPop = new Array(
 					['txtProductno_', '', 'ucaucc', 'noa,product,unit,spec,style', 'txtProductno_,txtProduct_,txtUnit_,txtSpec_,txtClassa_', 'ucaucc_b.aspx'],
@@ -144,7 +144,7 @@
 			var x_ordevccumm=false;
 			function mainPost() {
 				q_getFormat();
-				bbmMask = [['txtOdate', r_picd]];
+				bbmMask = [['txtOdate', r_picd], ['txtMon', r_picm]];
 				q_mask(bbmMask);
 				bbsMask = [['txtDatea', r_picd]];
 				bbsNum = [['txtPrice', 12, q_getPara('vcc.pricePrecision'), 1], ['txtMount', 9, q_getPara('vcc.mountPrecision'), 1], ['txtTotal', 10, 0, 1],['txtC1', 10, q_getPara('vcc.mountPrecision'), 1], ['txtNotv', 10, q_getPara('vcc.mountPrecision'), 1],['txtDime', 15, 0, 1]];
@@ -155,9 +155,29 @@
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
 				q_cmbParse("combClassa",' ,便,印','s');
 				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品','s');
+				q_cmbParse("cmbConform", '@,隨貨@隨貨,月結@月結');
 
 				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
+				
+				$('#txtMemo').change(function(){
+					if ($('#txtMemo').val().substr(0,1)=='*')
+						$('#txtMon').removeAttr('readonly');
+					else
+						$('#txtMon').attr('readonly', 'readonly');
+				});
+				
+				$('#txtMon').click(function(){
+					if ($('#txtMon').attr("readonly")=="readonly" && (q_cur==1 || q_cur==2))
+						q_msg($('#txtMon'), "月份要另外設定，請在"+q_getMsg('lblMemo')+"的第一個字打'*'字");
+				}).change(function() {
+					if(!emp($('#txtMon').val())){
+						if($('#txtMon').val()<=q_getPara('sys.edate').substr(0,6)){
+							alert('帳款月份禁止低於關帳日');
+							$('#txtMon').val('');
+						}
+					}
+				});
 				
 				$('#btnPlusCust').click(function(){
 					q_box('cust.aspx','pluscust', "95%", "95%", '新增客戶');
@@ -467,6 +487,11 @@
 						return;
 					}
 					
+					if(emp($('#txtMon').val())){
+						alert("帳款月份空白!!");
+						return;
+					}
+					
 					if(emp($('#txtApv').val())){
 						alert("請先核准!!");
 						return;
@@ -668,8 +693,16 @@
 					case 'custm':
 						var as = _q_appendData("custm", "", true);
 						if (as[0] != undefined) {
-							$('#textInvomemo').val(as[0].invomemo);
+							$('#textInvomemo').val(as[0].invomemo+(as[0].p23!=''?(" "+as[0].p23+"聯"):''));
 							$('#textConn').val(as[0].conn);
+							
+							var t_custno=as[0].noa;
+							var t_where = "where=^^ noa='" + t_custno + "' ^^";
+							q_gt('cust', t_where, 0, 0, 0, "getcust",r_accy,1);
+							var ass = _q_appendData("cust", "", true);
+							if (ass[0] != undefined) {
+								$('#textInvomemo').val($('#textInvomemo').val()+' '+ass[0].invoicetitle+' '+ass[0].serial);
+							}
 						}
 						break;
 					case 'uccgb':
@@ -1021,8 +1054,17 @@
 									taxtype=xy_taxtypetmp[i].split('@')[0];
 							}
 							$('#cmbTaxtype').val(taxtype);
-							$('#textInvomemo').val(as[0].invomemo);
+							$('#cmbConform').val(as[0].invomemo);
+							
+							$('#textInvomemo').val(as[0].invomemo+(as[0].p23!=''?(" "+as[0].p23+"聯"):''));
 							$('#textConn').val(as[0].conn);
+							var t_custno=as[0].noa;
+							var t_where = "where=^^ noa='" + t_custno + "' ^^";
+							q_gt('cust', t_where, 0, 0, 0, "getcust",r_accy,1);
+							var ass = _q_appendData("cust", "", true);
+							if (ass[0] != undefined) {
+								$('#textInvomemo').val($('#textInvomemo').val()+' '+ass[0].invoicetitle+' '+ass[0].serial);
+							}
 						}
 						break;
 					case 'store2_store2':
@@ -1141,6 +1183,24 @@
 							}
 						}
 						break;
+					case 'startdate':
+						var as = _q_appendData('cust', '', true);
+						var t_startdate='';
+						if (as[0] != undefined) {
+							t_startdate=as[0].startdate;
+						}
+						if(t_startdate.length==0 || ('00'+t_startdate).slice(-2)=='00' || $('#txtDatea').val().substr(7, 2)<('00'+t_startdate).slice(-2)){
+							$('#txtMon').val($('#txtDatea').val().substr(0, 6));
+						}else{
+							var t_date=$('#txtDatea').val();
+							var nextdate=new Date(dec(t_date.substr(0,3))+1911,dec(t_date.substr(4,2))-1,1);
+				    		nextdate.setMonth(nextdate.getMonth() +1)
+				    		t_date=''+(nextdate.getFullYear()-1911)+'/'+(nextdate.getMonth()<9?'0':'')+(nextdate.getMonth()+1);
+							$('#txtMon').val(t_date);
+						}
+						check_startdate=true;
+						btnOk();
+						break;
 					case q_name:
 						if (q_cur == 4)
 							q_Seek_gtPost();
@@ -1170,7 +1230,7 @@
 				}
 			}
 			
-			var check_quat_xy=false;
+			var check_quat_xy=false,check_startdate=false;
 			function btnOk() {
 				if(!$('#div_cost').is(':hidden')){
 					var t_class=$.trim($('#combClassa_'+b_seq).val());
@@ -1197,6 +1257,19 @@
 				t_err = q_chkEmpField([['txtNoa', q_getMsg('lblNoa')], ['txtCustno', q_getMsg('lblCustno')], ['txtCno', q_getMsg('btnAcomp')]]);
 				if (t_err.length > 0) {
 					alert(t_err);
+					return;
+				}
+				
+				//105/06/14 增加mon
+				if(!check_startdate && emp($('#txtMon').val())){
+				//if(!check_startdate && $('#txtMemo').val().substr(0,1)!='*'){	
+					var t_where = "where=^^ noa='"+$('#txtCustno').val()+"' ^^";
+					q_gt('cust', t_where, 0, 0, 0, "startdate", r_accy);
+					return;
+				}
+				
+				if($('#txtMon').val()<=q_getPara('sys.edate').substr(0,6)){
+					alert('帳款月份禁止低於關帳日');
 					return;
 				}
 				
@@ -1284,6 +1357,7 @@
 					return;
 				}
 				check_quat_xy=false;
+				check_startdate=false;
 				
 				//105/04/25  判斷 客戶主檔 有運費單價  並 判斷訂單是有運費 沒有給提示
 				var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
@@ -1306,7 +1380,6 @@
 						}
 					}
 				}
-				
 				
 				//1030419 當專案沒有勾 BBM的取消和結案被打勾BBS也要寫入
 				if(!$('#chkIsproj').prop('checked')){
@@ -2070,6 +2143,11 @@
                     $('#btnApv').attr('disabled', 'disabled');
                 else
                     $('#btnApv').removeAttr('disabled');
+                    
+				if ($('#txtMemo').val().substr(0,1)=='*' && (q_cur==1 || q_cur==2))
+					$('#txtMon').removeAttr('readonly');
+				else
+					$('#txtMon').attr('readonly', 'readonly');
 			}
 			
 			function AutoNo2(){
@@ -2797,11 +2875,12 @@
 							<span> </span><a id='lblOdate' class="lbl"> </a>
 						</td>
 						<td class="td2"><input id="txtOdate" type="text" class="txt c1"/></td>
-						<td class="td3"><span> </span><a id='lblStype' class="lbl"> </a></td>
-						<td class="td4"><select id="cmbStype" class="txt c1"> </select></td>
-						<td class="td5"><span> </span><a id='lblNoa' class="lbl"> </a></td>
-						<td class="td6" colspan="2"><input id="txtNoa" type="text" class="txt c1"/></td>
-						<td class="td8" align="center"><input id="btnOrdei" type="button" /></td>
+						<td class="td3"><span> </span><a id='lblMon' class="lbl"> </a></td>
+						<td class="td4"><input id="txtMon" type="text" class="txt c1"/></td>
+						<td class="td5"><span> </span><a id='lblStype' class="lbl"> </a></td>
+						<td class="td6"><select id="cmbStype" class="txt c1"> </select></td>
+						<td class="td7"><span> </span><a id='lblNoa' class="lbl"> </a></td>
+						<td class="td8"><input id="txtNoa" type="text" class="txt c1"/></td>
 					</tr>
 					<tr class="tr2">
 						<td class="td1"><span> </span>
@@ -2812,7 +2891,8 @@
 						<td class="td3" colspan="2"><input id="txtAcomp" type="text" class="txt c1"/></td>
 						<td class="td5" ><span> </span><a id='lblContract' class="lbl"> </a></td>
 						<td class="td6"colspan="2"><input id="txtContract" type="text" class="txt c1"/></td>
-						<td class="td8" align="center"><input id="btnOrdem" type="button"/></td>
+						<td class="td8" align="center"><input id="btnOrdei" type="button" /></td>
+						<!--105/06/14沒使用暫時拿掉<input id="btnOrdem" type="button"/>-->
 					</tr>
 					<tr class="tr3">
 						<td class="td1">
@@ -2905,17 +2985,9 @@
 						</td>
 					</tr>
 					<tr class="tr10">
-						<td class="td1"><span> </span><a class="lbl">發票開立</a></td>
-						<td class="td2" colspan="2"><input id="textInvomemo" type="text" class="txt c1" /></td>
-						<td class="td1"><span> </span><a class="lbl">聯絡人員</a></td>
-						<td class="td2" colspan="2"><input id="textConn" type="text" class="txt c1" /></td>
-						<td class="td7"><input id="btnOrderep" type="button" style="float: right;" value="訂單未交量"/></td>
-					</tr>
-					<tr class="tr11">
-						<td class="td1"><span> </span><a id='lblMemo' class='lbl'> </a></td>
-						<td class="td2" colspan='5'>
-							<textarea id="txtMemo" cols="10" rows="5" style="width: 99%;height: 50px;"> </textarea>
-						</td>
+						<td class="td7"><span> </span><a class="lbl">發票開立</a></td>
+						<td class="td8" colspan="2"><select id="cmbConform" class="txt c1"> </select></td>
+						<td> </td>
 						<td colspan="2">
 							<input id="chkIsproj" type="checkbox"/>
 							<span> </span><a id='lblIsproj'> </a>
@@ -2924,6 +2996,19 @@
 							<input id="chkCancel" type="checkbox"/>
 							<span> </span><a id='lblCancel'> </a>
 							<input id="txtPostname" type="hidden" />
+						</td>
+						<td><input id="btnOrderep" type="button" style="float: right;" value="訂單未交量"/></td>
+					</tr>
+					<tr class="tr10">
+						<td class="td1"><span> </span><a class="lbl">發票資訊</a></td>
+						<td class="td2" colspan="5"><input id="textInvomemo" type="text" class="txt c1" /></td>
+						<td class="td4"><span> </span><a class="lbl">聯絡人員</a></td>
+						<td class="td5"><input id="textConn" type="text" class="txt c1" /></td>
+					</tr>
+					<tr class="tr11">
+						<td class="td1"><span> </span><a id='lblMemo' class='lbl'> </a></td>
+						<td class="td2" colspan='7'>
+							<textarea id="txtMemo" cols="10" rows="5" style="width: 99%;height: 50px;"> </textarea>
 						</td>
 					</tr>
 				</table>

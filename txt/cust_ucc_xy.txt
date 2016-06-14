@@ -1,4 +1,4 @@
-tmp_cust_ucc:--tmp_cust_ucc --建立暫存的客戶資料 與 產品(便品) --已不用
+﻿tmp_cust_ucc:--tmp_cust_ucc --建立暫存的客戶資料 與 產品(便品) --已不用
 SET QUOTED_IDENTIFIER OFF
 declare @noa nvarchar(MAX) = [1]
 declare @worker nvarchar(MAX) = [2]
@@ -236,7 +236,6 @@ declare @classa nvarchar(MAX)
 declare @quatno nvarchar(MAX)
 declare @no3 nvarchar(MAX)
 declare @newpno nvarchar(MAX)
-declare @pnokey nvarchar(MAX)=''
 
 if(@custno!='')
 begin
@@ -249,28 +248,9 @@ begin
 	into @accy,@t_noa,@t_no2,@product,@spec,@unit,@classa,@quatno,@no3
 	while(@@FETCH_STATUS <> -1) 
 	begin 
-	
-		if(charindex('印',@classa)>0 or charindex('客',@classa)>0 )
+		if(@classa='印' or @classa='客')
 		begin
-			set @pnokey='Y'
-		end
-		else if(charindex('空',@classa)>0)
-		begin
-			set @pnokey='K'
-		end
-		else if(charindex('公',@classa)>0)
-		begin
-			set @pnokey='G'
-		end
-		else --便品
-		begin
-			set @pnokey='B'
-		end
-	
-		if(charindex('印',@classa)>0 or charindex('客',@classa)>0)
-		begin
-			--set @newpno=@pnokey+@custno+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,len(@custno))=@custno and len(noa)>5),'000'),3) as int)+1 as nvarchar(10)),3)
-			set @newpno=@pnokey+left(@custno,5)+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,6)=@pnokey+left(@custno,5) and len(noa)>6 ),'000'),3) as int)+1 as nvarchar(10)),3)
+			set @newpno=left(@custno,5)+'-'+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,5)=left(@custno,5) and len(noa)>5 and CHARINDEX('-',noa)>0),'000'),3) as int)+1 as nvarchar(10)),3)
 		end
 		else--便品
 		begin
@@ -290,9 +270,9 @@ begin
 			--set @newpno='B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec
 			--+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-4=len('B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like 'B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),4) as int)+1 as nvarchar(10)),4)
 			
-			set @newpno=@pnokey+UPPER(left(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(dbo.procGetPY(@product),'''',''),' ',''),'.',''),'(',''),'+',''),'-',''),'*',''),'/',''),'~',''),'!',''),'@',''),'#',''),'$',''),'%',''),'^',''),'&','')+'ZZZ',2))
+			set @newpno=UPPER(left(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(dbo.procGetPY(@product),'''',''),' ',''),'.',''),'(',''),'+',''),'-',''),'*',''),'/',''),'~',''),'!',''),'@',''),'#',''),'$',''),'%',''),'^',''),'&','')+'ZZZ',2))
 			set @newpno=@newpno+@t_spec
-			+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where charindex('-',noa)=0 and len(noa)-3=len(@newpno+@t_spec) and noa like @newpno+@t_spec+'%' ),'000'),3) as int)+1 as nvarchar(10)),3)
+			+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-3=len(UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),3) as int)+1 as nvarchar(10)),3)
 			
 		end
 		
@@ -334,7 +314,6 @@ declare @classa nvarchar(MAX)
 declare @ordbno nvarchar(MAX)
 declare @no3 nvarchar(MAX)
 declare @newpno nvarchar(MAX)
-declare @pnokey nvarchar(MAX)='B'
 
 declare @nowdate nvarchar(30) --今天日期
 set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
@@ -365,10 +344,10 @@ begin
 		 	set @t_spec='0000'
 		end
 		
-		set @newpno=@pnokey+UPPER(left(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(dbo.procGetPY(@product),'''',''),' ',''),'.',''),'(',''),'+',''),'-',''),'*',''),'/',''),'~',''),'!',''),'@',''),'#',''),'$',''),'%',''),'^',''),'&','')+'ZZZ',2))
+		set @newpno=UPPER(left(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(dbo.procGetPY(@product),'''',''),' ',''),'.',''),'(',''),'+',''),'-',''),'*',''),'/',''),'~',''),'!',''),'@',''),'#',''),'$',''),'%',''),'^',''),'&','')+'ZZZ',2))
 			
 		set @newpno=@newpno+@t_spec
-		+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where charindex('-',noa)=0 and len(noa)-3=len(@newpno+@t_spec) and noa like @newpno+@t_spec+'%' ),'000'),3) as int)+1 as nvarchar(10)),3)
+		+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-3=len(UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),3) as int)+1 as nvarchar(10)),3)
 			
 		insert ucc(noa,product,spec,unit,typea,date2,worker,style)
 		select @newpno,@product,@spec,@unit,'1',@nowdate,@t_noa+'-'+@t_no2,@classa
@@ -585,7 +564,6 @@ begin
 	declare @quatno nvarchar(MAX)
 	declare @no3 nvarchar(MAX)
 	declare @newpno nvarchar(MAX)
-	declare @pnokey nvarchar(MAX)=''
 	
 	if(@custno!='')
 	begin
@@ -597,27 +575,10 @@ begin
 		into @accy,@t_noa,@t_no2,@product,@spec,@unit,@classa,@quatno,@no3
 		while(@@FETCH_STATUS <> -1) 
 		begin 
-			
-			if(charindex('印',@classa)>0 or charindex('客',@classa)>0 )
+			if(@classa='印' or @classa='客')
 			begin
-				set @pnokey='Y'
-			end
-			else if(charindex('空',@classa)>0)
-			begin
-				set @pnokey='K'
-			end
-			else if(charindex('公',@classa)>0)
-			begin
-				set @pnokey='G'
-			end
-			else --便品
-			begin
-				set @pnokey='B'
-			end
-		
-			if(charindex('印',@classa)>0 or charindex('客',@classa)>0)
-			begin
-				set @newpno=@pnokey+left(@custno,5)+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,6)=@pnokey+left(@custno,5) and len(noa)>6 ),'000'),3) as int)+1 as nvarchar(10)),3)
+				--set @newpno=@custno+'-'+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,len(@custno))=@custno and len(noa)>5),'000'),3) as int)+1 as nvarchar(10)),3)
+				set @newpno=left(@custno,5)+'-'+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,5)=left(@custno,5) and len(noa)>5 and CHARINDEX('-',noa)>0),'000'),3) as int)+1 as nvarchar(10)),3)
 			end
 			else--便品
 			begin
@@ -637,9 +598,10 @@ begin
 				--set @newpno='B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec
 				--+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-4=len('B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like 'B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),4) as int)+1 as nvarchar(10)),4)
 				
-				set @newpno=@pnokey+UPPER(left(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(dbo.procGetPY(@product),'''',''),' ',''),'.',''),'(',''),'+',''),'-',''),'*',''),'/',''),'~',''),'!',''),'@',''),'#',''),'$',''),'%',''),'^',''),'&','')+'ZZZ',2))
+				set @newpno=UPPER(left(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(dbo.procGetPY(@product),'''',''),' ',''),'.',''),'(',''),'+',''),'-',''),'*',''),'/',''),'~',''),'!',''),'@',''),'#',''),'$',''),'%',''),'^',''),'&','')+'ZZZ',2))
 				set @newpno=@newpno+@t_spec
-				+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-3=len(@newpno+@t_spec) and noa like @newpno+@t_spec+'%' ),'000'),3) as int)+1 as nvarchar(10)),3)				
+				+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-3=len(UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),3) as int)+1 as nvarchar(10)),3)
+				
 			end
 			
 			insert ucc(noa,product,spec,unit,typea,date2,worker,style)
@@ -736,7 +698,6 @@ set mount=case when xcount>0 then 0 else mount end
 from @tmp a outer apply (select count(*)xcount from view_ordes where quatno=a.noa and no3=a.no3)b
 
 select * from @tmp order by noa,no3
-
 ;
 ---------------------------------------------------------------------------------------------------------------------------------
 vccprintcount:--vccprintcount

@@ -2041,15 +2041,8 @@
 						<td><span> </span><a id='lblMon' class="lbl"> </a></td>
 						<td><input id="txtMon" type="text" class="txt c1"/></td>
 						<td><a id="lblIsvcce" class='lbl btn'> </a></td>
-						<td>
-							<span> </span>
-							<a id='lblInvono' class="lbl btn vcca"> </a>
-							<a id='lblInvo' class="lbl btn invo"> </a>
-						</td>
-						<td>
-							<input id="txtInvono" type="text" class="txt c1 vcca"/>
-							<input id="txtInvo" type="text" class="txt c1 invo"/>
-						</td>
+						<td><span> </span><a id='lblOrdeno' class="lbl btn"> </a></td>
+						<td><input id="txtOrdeno" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblCust" class="lbl btn"> </a></td>
@@ -2077,8 +2070,15 @@
 						<td><input id="txtPost" type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblAddr" class="lbl"> </a></td>
 						<td colspan='3'><input id="txtAddr" type="text" class="txt c1"/></td>
-						<td><span> </span><a id='lblOrdeno' class="lbl btn"> </a></td>
-						<td><input id="txtOrdeno" type="text" class="txt c1"/></td>
+						<td>
+							<span> </span>
+							<a id='lblInvono' class="lbl btn vcca"> </a>
+							<a id='lblInvo' class="lbl btn invo"> </a>
+						</td>
+						<td>
+							<input id="txtInvono" type="text" class="txt c1 vcca"/>
+							<input id="txtInvo" type="text" class="txt c1 invo"/>
+						</td>
 					</tr>
 					<tr>
 						<td><span> </span><a class="lbl">指送區號</a></td>
@@ -2088,7 +2088,8 @@
 							<input id="txtAddr2"  type="text" class="txt c1" style="width: 302px;"/>
 							<select id="combAddr" style="width: 20px" onchange='combAddr_chg()'> </select>
 						</td>
-						<td align="right"><input id="btnStore2" type="button" value="寄庫顯示"/></td>
+						<td><span> </span><a class="lbl">發票開立</a></td>
+						<td><select id="cmbTranstyle" style="width: 100%;"> </select></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblCardeal" class="lbl btn"> </a></td>
@@ -2113,8 +2114,7 @@
 						<td><input id="txtSales" type="text" class="txt c1"/></td>
 						<td><span> </span><a class="lbl">訂金</a></td>
 						<td colspan='2'><input id="txtWeight" type="text" class="txt num c1"/></td>
-						<td><span> </span><a class="lbl">發票開立</a></td>
-						<td><select id="cmbTranstyle" style="width: 100%;"> </select></td>
+						<td align="right"><input id="btnStore2" type="button" value="寄庫顯示"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMoney" class="lbl"> </a></td>

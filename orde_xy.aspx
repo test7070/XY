@@ -1165,7 +1165,9 @@
 						if (as[0] != undefined) {
 							if(as[0].isgenvcca=="true")
 								alert('出貨單【自動產生發票】禁止更新出貨單!!');
-							else
+							else if (as[0].invono.length>0){
+								alert('出貨單已產生或指定發票禁止更新出貨單!!');
+							}else
 								q_func('vcc_post.post.a1', r_accy + ',' + $('#txtVccno').val() + ',0');
 						}else{
 							alert('出貨單遺失，重新產生出貨單!!');

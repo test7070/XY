@@ -327,7 +327,9 @@
 							stpostvcca=false;
 							break;
 						}
-						q_func('qtxt.query.vcc2vcca1', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';1');
+						if(!($('#cmbTypea').val()!='1' || $('#cmbStype').val()=='3' || $('#cmbTranstyle').val()!='隨貨')){
+							q_func('qtxt.query.vcc2vcca1', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';1');
+						}
 						break
 					case 'qtxt.query.vcc2vcca1':
 						var as = _q_appendData("tmp0", "", true, true);

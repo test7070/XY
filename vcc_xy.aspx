@@ -92,10 +92,10 @@
 				bbmMask = [['txtDatea', r_picd], ['txtMon', r_picm]];
 				q_mask(bbmMask);
 				bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1], ['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
-				bbsNum = [['txtPrice', 12, q_getPara('vcc.pricePrecision'), 1], ['txtMount', 10, q_getPara('vcc.mountPrecision'), 1]
+				bbsNum = [['txtMount', 10, q_getPara('vcc.mountPrecision'), 1]
 				, ['txtWidth', 9, q_getPara('vcc.mountPrecision'), 1], ['txtTotal', 15, 0, 1]
 				, ['txtTranmoney2', 9, q_getPara('vcc.mountPrecision'), 1], ['txtTranmoney3', 9, q_getPara('vcc.mountPrecision'), 1]
-				, ['txtDime', 9, q_getPara('vcc.mountPrecision'), 1]];
+				, ['txtDime', 9, q_getPara('vcc.mountPrecision'), 1]];//['txtPrice', 12, q_getPara('vcc.pricePrecision'), 1]
 				//q_cmbParse("cmbTranstyle", q_getPara('sys.transtyle'));
 				q_cmbParse("cmbTypea", q_getPara('vcc.typea'));
 				q_cmbParse("cmbStype", q_getPara('vcc.stype'));
@@ -218,7 +218,15 @@
 				});
 				
 				$('#btnGenvcca').click(function() {
-					
+					alert('尚未開放!!');
+					return;
+					if($('#cmbTypea').val()!='1' || $('#cmbStype').val()=='3'){
+						alert('非出貨單禁止開立開票!!');
+					}else if($('#cmbTranstyle').val()!='隨貨'){
+						alert('發票開立非【隨貨】!!');
+					}else{
+						q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0');
+					}
 				});
 				
 				$('#cmbTypea').change(function() {
@@ -308,13 +316,40 @@
 			}
 
 			function q_funcPost(t_func, result) {
-				/*if (result.substr(0, 5) == '<Data') {
-					var Asss = _q_appendData('sss', '', true);
-					var Acar = _q_appendData('car', '', true);
-					var Acust = _q_appendData('cust', '', true);
-					alert(Asss[0]['namea'] + '^' + Acar[0]['car'] + '^' + Acust[0]['comp']);
-				} else
-					alert(t_func + '\r' + result);*/
+				switch(t_func) {
+					case 'qtxt.query.vcc2vcca0':
+						var t_invono='';
+						var as = _q_appendData("tmp0", "", true, true);
+						if (as[0] != undefined) {
+							t_invono=as[0].invono;
+						}
+						if(stpostvcca && (t_invono!=$('#txtInvono').val() ||  emp($('#txtInvono').val()))){
+							stpostvcca=false;
+							break;
+						}
+						q_func('qtxt.query.vcc2vcca1', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';1');
+						break
+					case 'qtxt.query.vcc2vcca1':
+						var as = _q_appendData("tmp0", "", true, true);
+						if (as[0] != undefined) {
+							if(as[0].t_err.length>0){
+								alert(as[0].t_err);
+							}else{
+								abbm[q_recno]['invono'] = as[0].invono;
+								$('#txtInvono').val(as[0].invono);
+							}
+						}else{
+							alert('發票產生錯誤!!');
+						}
+						break;
+					case 'qtxt.query.vcc2vcca2':
+						q_cur = 3;
+						_btnOk($('#txtNoa').val(), bbmKey[0],'', '', 3);
+						Unlock(1);
+						break;
+					default:
+						break;
+				}
 			}
 
 			function q_boxClose(s2) {
@@ -873,8 +908,28 @@
 								return;
 							}
 						}
-						_btnDele();
-						Unlock(1);
+						
+						var t_where = " where=^^ vccno='" + $('#txtNoa').val() + "' and [type]='V' ^^";
+						q_gt('vcca', t_where, 0, 0, 0, 'btnDele2', r_accy);
+						break;
+					case 'btnDele2':
+						var as = _q_appendData("vcca", "", true);
+						var t_invono='';
+						if (as[0] != undefined) {
+							t_invono=as[0].noa;
+						}
+						
+						if(t_invono.length>0){
+							if (!confirm('發票已產生，是否要刪除出貨單並將發票作廢?')){
+								Unlock(1);
+								return;
+							}else{
+								q_func('qtxt.query.vcc2vcca2', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';2');
+							}
+						}else{
+							_btnDele();
+							Unlock(1);
+						}
 						break;
 					case 'btnModi':
 						var as = _q_appendData("umms", "", true);
@@ -1103,7 +1158,10 @@
 							sum();
 						});
 						$('#txtPrice_' + i).focusout(function() {
-							sum();
+							if(q_cur==1 || q_cur==2){
+								$(this).val(round(dec($(this).val()),4));
+								sum();
+							}
 						});
 						
 						$('#txtDime_' + i).focusout(function() {
@@ -1406,12 +1464,18 @@
 				}
 				return true;
 			}
-
+			
+			var stpostvcca=false;
 			function q_stPost() {
 				if (q_cur == 1 || q_cur == 2) {
 					var s2 = xmlString.split(';');
 					abbm[q_recno]['accno'] = s2[0];
 				}
+				
+				/*if(q_cur==2){//修改後重新產生 避免發票資料不對應
+					stpostvcca=true;
+					q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0');
+				}*/
 			}
 
 			function refresh(recno) {

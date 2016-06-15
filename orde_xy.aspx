@@ -147,7 +147,8 @@
 				bbmMask = [['txtOdate', r_picd], ['txtMon', r_picm]];
 				q_mask(bbmMask);
 				bbsMask = [['txtDatea', r_picd]];
-				bbsNum = [['txtPrice', 12, q_getPara('vcc.pricePrecision'), 1], ['txtMount', 9, q_getPara('vcc.mountPrecision'), 1], ['txtTotal', 10, 0, 1],['txtC1', 10, q_getPara('vcc.mountPrecision'), 1], ['txtNotv', 10, q_getPara('vcc.mountPrecision'), 1],['txtDime', 15, 0, 1]];
+				bbsNum = [ ['txtMount', 9, q_getPara('vcc.mountPrecision'), 1], ['txtTotal', 10, 0, 1],['txtC1', 10, q_getPara('vcc.mountPrecision'), 1], ['txtNotv', 10, q_getPara('vcc.mountPrecision'), 1],['txtDime', 15, 0, 1]];
+				//['txtPrice', 12, q_getPara('vcc.pricePrecision'), 1],
 				q_cmbParse("cmbStype", q_getPara('vcc.stype'));
 				//q_cmbParse("cmbCoin", q_getPara('sys.coin'));
 				q_cmbParse("combPaytype", q_getPara('vcc.paytype'));
@@ -1189,10 +1190,10 @@
 						if (as[0] != undefined) {
 							t_startdate=as[0].startdate;
 						}
-						if(t_startdate.length==0 || ('00'+t_startdate).slice(-2)=='00' || $('#txtDatea').val().substr(7, 2)<('00'+t_startdate).slice(-2)){
-							$('#txtMon').val($('#txtDatea').val().substr(0, 6));
+						if(t_startdate.length==0 || ('00'+t_startdate).slice(-2)=='00' || $('#txtOdate').val().substr(7, 2)<('00'+t_startdate).slice(-2)){
+							$('#txtMon').val($('#txtOdate').val().substr(0, 6));
 						}else{
-							var t_date=$('#txtDatea').val();
+							var t_date=$('#txtOdate').val();
 							var nextdate=new Date(dec(t_date.substr(0,3))+1911,dec(t_date.substr(4,2))-1,1);
 				    		nextdate.setMonth(nextdate.getMonth() +1)
 				    		t_date=''+(nextdate.getFullYear()-1911)+'/'+(nextdate.getMonth()<9?'0':'')+(nextdate.getMonth()+1);
@@ -1493,7 +1494,7 @@
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
-							if($('#cmbSource_' + b_seq).val()!='0'){
+							if($('#cmbSource_' + b_seq).val()!='0' && $('#cmbSource_' + b_seq).val()!='1'){
 								//105/01/08 寄庫、寄出... 備註 直接為 寄庫、寄出...X件 
 								$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
 																
@@ -1503,12 +1504,13 @@
 								else 
 									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
 								*/
-									
-								if($('#cmbSource_' + b_seq).val()=='2' || $('#cmbSource_' + b_seq).val()=='3' || $('#cmbSource_' + b_seq).val()=='4'){
-									$('#txtPrice_'+b_seq).val('0');
-								}
+								$('#txtPrice_'+b_seq).val('0');
+								
 							}else{
 								$('#txtMemo_'+b_seq).val('');
+								if($('#cmbSource_' + b_seq).val()=='1'){
+									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
+								}
 								
 								if(!emp($('#txtQuatno_'+b_seq).val()) && !emp($('#txtNo3_'+b_seq).val())){
 									var t_where="where=^^noa='"+$('#txtQuatno_'+b_seq).val()+"' and no3='"+$('#txtNo3_'+b_seq).val()+"' ^^"
@@ -1546,21 +1548,24 @@
 						});
 						// $('#txtWeight_' + j).focusout(function () { sum(); });
 						$('#txtPrice_' + j).focusout(function() {
-							sum();
+							if(q_cur==1 || q_cur==2){
+								$(this).val(round(dec($(this).val()),4));
+								sum();
+							}
 						});
 						$('#txtMount_' + j).focusout(function() {
 							if (q_cur == 1 || q_cur == 2) {
 								t_IdSeq = -1;
 								q_bodyId($(this).attr('id'));
 								b_seq = t_IdSeq;
-								if (!emp($('#txtProductno_' + b_seq).val())) {
+								/*if (!emp($('#txtProductno_' + b_seq).val())) {
 									var t_custno=$('#txtCustno').val().substr(0,$('#txtCustno').val().indexOf('-'));
 									if(t_custno=='') 
 										t_custno=$('#txtCustno').val();
 									
 									var t_where = "where=^^ a.storeno2 like '"+t_custno +"%' and isnull(a.productno,'')='"+$('#txtProductno_' + b_seq).val()+"' ^^";
 									q_gt('vcc_xy_store2', t_where, 0, 0, 0, "source_stk", r_accy);
-								}
+								}*/
 								sum();
 							}
 						});

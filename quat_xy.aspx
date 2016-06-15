@@ -129,8 +129,8 @@
 				bbmMask = [['txtDatea', r_picd], ['txtOdate', r_picd]];
 				q_mask(bbmMask);
 				bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 10, 0, 1], ['txtTotal', 15, 0, 1],['txtTotalus', 15, 2, 1], ['txtFloata', 11, 5, 1]];
-				bbsNum = [['txtMount', 10, q_getPara('vcc.mountPrecision'), 1], ['txtPrice', 10, q_getPara('vcc.pricePrecision'), 1], ['txtTotal', 15, 0, 1], ['txtDime', 2, 0, 1]];
-				
+				bbsNum = [['txtMount', 10, q_getPara('vcc.mountPrecision'), 1], ['txtTotal', 15, 0, 1], ['txtDime', 2, 0, 1]];
+				//, ['txtPrice', 10, q_getPara('vcc.pricePrecision'), 1]
 				q_cmbParse("cmbStype", q_getPara('vcc.stype'));
 				q_cmbParse("combPaytype", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
@@ -705,6 +705,7 @@
 						});
 						
 						$('#txtPrice_' + j).change(function() {
+							$(this).val(round(dec($(this).val()),4));
 							sum();
 						});
 						

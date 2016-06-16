@@ -477,7 +477,7 @@ end
 ;
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 vcc2vcca:--vcc2vcca
---彩虹訂單轉發票
+--有達出貨轉發票
 SET QUOTED_IDENTIFIER OFF
 declare @year nvarchar(20)=[1]--年度[1]
 declare @noa nvarchar(20)=[2]--單據編號[2]
@@ -595,33 +595,37 @@ begin
 		if((select count(*) from vcca where noa=@invono)>0)
 		begin
 			update a
-			set custno=b.custno,comp=b.comp,nick=b.nick
-			,serial=isnull((select top 1 serial from cust where noa=b.custno),'')
+			set custno=b.custno,comp=case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end
+			,nick=b.nick
+			,serial=case when isnull(b.custno2,'')!='' then d.serial else c.serial end
 			,mon=b.mon
 			,cno=case when isnull(b.cno,'')!='' then b.cno else (select top 1 noa from acomp order by noa) end
 			,acomp=case when isnull(b.cno,'')!='' then b.acomp else (select top 1 acomp from acomp order by noa) end
-			,zip=isnull((select top 1 zip_invo from cust where noa=b.custno),'')
-			,address=isnull((select top 1 addr_invo from cust where noa=b.custno),'')
-			,buyerno=b.custno2
-			,buyer=isnull((select top 1 invoicetitle from cust where noa=b.custno2),'')
+			,zip=case when isnull(d.zip_invo,'')!='' then isnull(d.zip_invo,'') else isnull(c.zip_invo,'') end
+			,address=case when isnull(d.addr_invo,'')!='' then isnull(d.addr_invo,'') else isnull(c.addr_invo,'') end
+			,buyerno=case when isnull(b.custno2,'')!='' then b.custno2 else b.custno end
+			,buyer=case when isnull(b.custno2,'')!='' and len(d.invoicetitle)>0 then d.invoicetitle else case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end end
 			,taxtype='1',money=b.money,tax=b.tax,total=b.total
 			,worker=case when b.worker2!='' then b.worker2 else b.worker end
 			,vccno=@noa
 			from vcca a outer apply (select top 1 * from view_vcc b where noa=@noa) b
+			outer apply (select top 1 * from cust where noa=b.custno) c
+			outer apply (select top 1 * from cust where noa=isnull(b.custno2,'')) d
 			where a.noa=@invono
 		end
 		else
 		begin
 			insert vcca(noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp
 			,zip,address,taxtype,money,tax,total,worker,vccno,[type],memo,chkno)
-			select @invono,b.custno,b.comp,b.nick
-			,isnull((select top 1 serial from cust where noa=b.custno),'')
-			,b.custno2,isnull((select top 1 invoicetitle from cust where noa=b.custno2),'')
+			select @invono,b.custno,case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end,b.nick
+			,case when isnull(b.custno2,'')!='' then d.serial else c.serial end
+			,case when isnull(b.custno2,'')!='' then b.custno2 else b.custno end
+			,case when isnull(b.custno2,'')!='' and len(d.invoicetitle)>0 then d.invoicetitle else case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end end			
 			,@nowdate,case when isnull(b.mon,'')!='' then b.mon else left(@nowdate,6) end
 			,case when isnull(b.cno,'')!='' then b.cno else (select top 1 noa from acomp order by noa) end
 			,case when isnull(b.cno,'')!='' then b.acomp else (select top 1 acomp from acomp order by noa) end
-			,isnull((select top 1 zip_invo from cust where noa=b.custno),'')
-			,isnull((select top 1 addr_invo from cust where noa=b.custno),'')
+			,case when isnull(d.zip_invo,'')!='' then isnull(d.zip_invo,'') else isnull(c.zip_invo,'') end
+			,case when isnull(d.addr_invo,'')!='' then isnull(d.addr_invo,'') else isnull(c.addr_invo,'') end
 			,'1',b.money,b.tax,b.total
 			,case when b.worker2!='' then b.worker2 else b.worker end,b.noa,'V','出貨單號：'+b.noa 
 			,right('000000'+cast(cast(cast(
@@ -630,7 +634,10 @@ begin
 				cast(SUBSTRING(@invono,3,3) as int))*100 as int)
 			*144 as int)
 			+(SIN(cast(SUBSTRING(@invono,6,2) as int))*cast(SUBSTRING(@invono,8,3) as int)*100) as int)as nvarchar(10)),6)
-			from view_vcc b where noa=@noa
+			from view_vcc b 
+			outer apply (select top 1 * from cust where noa=b.custno) c
+			outer apply (select top 1 * from cust where noa=isnull(b.custno2,'')) d
+			where b.noa=@noa
 		end
 		
 		if((select taxtype from view_vcc where noa=@noa)='3')
@@ -675,6 +682,111 @@ begin
 end
 
 select @invono invono,@t_err t_err
+;
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+vccamon:--vccamon
+--有達月結開發票
+SET QUOTED_IDENTIFIER OFF
+declare @bdate nvarchar(20)=case when '#non'=[1] then '' else [1] end
+declare @edate nvarchar(20)=case when '#non'=[2] then char(255) else [2] end
+declare @mon nvarchar(20)=case when '#non'=[3] then '' else [3] end
+declare @startdate nvarchar(20)=case when '#non'=[4] then '' else [4] end
+declare @custno nvarchar(20)=case when '#non'=[5] then '' else [5] end
+declare @salesno nvarchar(20)=case when '#non'=[6] then '' else [6] end
+declare @custorde nvarchar(MAX)=case when '#non'=[7] then '' else [7] end
+declare @t_err nvarchar(200)=''
+-----------------------------------------------------------------------
+declare @nowdate nvarchar(30) --今天日期
+set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
+set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
+
+--可開立發票
+declare @cvcca table(
+	noa nvarchar(20),
+	vccano nvarchar(20)
+)
+declare @vccarno nvarchar(20)
+declare @bvccano nvarchar(20)
+declare @evccano nvarchar(20)
+declare @xvccano nvarchar(20)
+
+--抓取可開立的發票
+declare cursor_table cursor for
+select a.noa,b.binvono,b.einvono from vccar a left join vccars b on a.noa=b.noa 
+where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 and a.cno=@t_cno 
+order by a.noa,a.binvono
+open cursor_table
+fetch next from cursor_table
+into @vccarno,@bvccano,@evccano
+while(@@FETCH_STATUS <> -1)
+begin
+	set @xvccano=@bvccano
+	while (@xvccano<=@evccano and (@xvccano between @bvccano and @evccano))
+	begin
+		if((select count(*) from vcca where noa=@xvccano)=0)
+		begin
+			insert @cvcca
+			select @vccarno,@xvccano
+		end
+		set @xvccano=LEFT(@xvccano,2)
+		+RIGHT('00000000'+cast(cast(RIGHT(@xvccano,8) as int)+1 as nvarchar(10)),8)
+	end
+			fetch next from cursor_table
+	into @vccarno,@bvccano,@evccano
+end
+close cursor_table
+deallocate cursor_table
+
+declare @invono nvarchar(50)
+if((select count(*) from @cvcca)=0) 
+begin
+	set @t_err='當期無可用發票，請手動開立'
+end
+else
+begin
+	set @invono=(select top 1 vccano from @cvcca order by noa,vccano )
+end
+
+declare @tvcca table(
+	noa nvarchar(20),
+	custno nvarchar(30),
+	comp nvarchar(100),
+	nick nvarchar(20),
+	serial nvarchar(20),
+	buyerno nvarchar(20),
+	buyer nvarchar(100),
+	datea nvarchar(10),
+	mon nvarchar(7),
+	cno nvarchar(20),
+	acomp nvarchar(100),
+	zip nvarchar(10),
+	address nvarchar(100),
+	taxtype nvarchar(6),
+	money float,
+	tax float,
+	total float,
+	worker nvarchar(20),
+	vccno nvarchar(50),
+	[type] nvarchar(2),
+	memo nvarchar(MAX),
+	chkno nvarchar(6),
+	trdno nvarchar(50)
+)
+
+--開立PO
+if(len(@custorde)>0)
+begin
+	 
+	
+	
+	
+end
+else
+begin
+	
+	
+end
+
 ;
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 quat2orde:--quat2orde

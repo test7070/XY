@@ -80,7 +80,7 @@
 					t_where += " and isnull(cancel,0)=0 ";	
 					
                 if (t_comp.length > 0)
-                    t_where = "(" + t_where + ") or charindex('" + t_comp + "',comp)>0"
+                    t_where =  t_where + " and charindex('" + t_comp + "',comp)>0"
 
                 t_where = ' where=^^' + t_where + '^^ ';
                 return t_where;

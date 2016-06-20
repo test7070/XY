@@ -1569,10 +1569,10 @@
 									q_gt('vcc_xy_store2', t_where, 0, 0, 0, "source_stk", r_accy);
 								}*/
 								sum();
-								if(dec($('#txtTotal_'+b_seq).val())<100 && ($('#cmbSource_'+b_seq).val()=='0' || $('#cmbSource_'+b_seq).val()=='1')){
-									alert('產品小計金額低於100，請確認輸入單價或單位是否正確!!')
-								}else if( dec($('#txtTotal_'+b_seq).val())>50000 && ($('#cmbSource_'+b_seq).val()=='0' || $('#cmbSource_'+b_seq).val()=='1')){
-									alert('產品小計金額低於100，請確認輸入單價或單位是否正確!!')
+								if(dec($('#txtMount_'+b_seq).val())>0 && dec($('#txtTotal_'+b_seq).val())<100 && ($('#cmbSource_'+b_seq).val()=='0' || $('#cmbSource_'+b_seq).val()=='1')){
+									alert('產品小計金額低於100或等於0，請確認輸入單價或單位是否正確!!')
+								}else if(dec($('#txtMount_'+b_seq).val())>0 && dec($('#txtTotal_'+b_seq).val())>50000 && ($('#cmbSource_'+b_seq).val()=='0' || $('#cmbSource_'+b_seq).val()=='1')){
+									alert('產品小計金額大於50000，請確認輸入單價或單位是否正確!!')
 								}
 							}
 						});

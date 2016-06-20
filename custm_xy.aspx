@@ -72,7 +72,7 @@
 				q_cmbParse("cmbTaxtype", xy_taxtype);	
 				q_cmbParse("cmbVccmemo", '@,須@須,不須@不須');
 				q_cmbParse("cmbCheckmemo", '@,須@須,不須@不須');
-				q_cmbParse("cmbInvomemo", '@,隨貨@隨貨,月結@月結');
+				q_cmbParse("cmbInvomemo", '@,隨貨@隨貨,月結匯開@月結匯開,月結分開@月結分開,週結匯開@週結匯開,週結分開@週結分開');
 				q_cmbParse("cmbPostmemo", '@,不寄單@不寄單,不寄單扣貨款@不寄單扣貨款,送單收現@送單收現,送單@送單,郵寄附回郵@郵寄附回郵,郵寄@郵寄,郵寄附回郵不寄單@郵寄附回郵不寄單');
 				
 			}

@@ -156,7 +156,7 @@
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
 				q_cmbParse("combClassa",' ,便,印','s');
 				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品','s');
-				q_cmbParse("cmbConform", '@,隨貨@隨貨,月結@月結');
+				q_cmbParse("cmbConform", '@,隨貨@隨貨,月結匯開@月結匯開,月結分開@月結分開,週結匯開@週結匯開,週結分開@週結分開');
 
 				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");

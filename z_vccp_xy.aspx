@@ -52,6 +52,9 @@
 						type : '0', //[10]
 						name : 'userno',
 						value : r_userno
+					},{
+						type : '6', //[10]
+						name : 'xvccano'
 					}]
 				});
                 q_popAssign();
@@ -100,6 +103,10 @@
 	                $('#txtXnoa1').val(t_noa);
 	                $('#txtXnoa2').val(t_noa);
 				}
+				
+				var t_invo = q_getHref();
+				if(t_invo[3] != undefined){
+				$('#txtXvccano').val(t_invo[3]);}
             }
 
             function q_boxClose(s2) {

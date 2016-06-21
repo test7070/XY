@@ -97,16 +97,16 @@
 					}
 				});
 				
-	            var t_noa=typeof(q_getId()[3])=='undefined'?'':q_getId()[3];
-                t_noa  =  t_noa.replace('noa=','');
+	            var t_noa=typeof(q_getHref()[1])=='undefined'?'':q_getHref()[1];
                 if(t_noa.length>0){
 	                $('#txtXnoa1').val(t_noa);
 	                $('#txtXnoa2').val(t_noa);
 				}
 				
-				var t_invo = q_getHref();
-				if(t_invo[3] != undefined){
-				$('#txtXvccano').val(t_invo[3]);}
+				var t_invo = typeof(q_getHref()[3])=='undefined'?'':q_getHref()[3];
+				if(t_invo.length>0){
+					$('#txtXvccano').val(t_invo);
+				}
             }
 
             function q_boxClose(s2) {

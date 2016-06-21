@@ -11,7 +11,7 @@
 		<script type="text/javascript">
             var q_name = "orde_s";
             var aPop = new Array(
-            	['txtCustno', '', 'cust', 'noa,nick,invoicetitle', 'txtCustno,txtComp', ''], 
+            	['txtCustno', '', 'cust', 'noa,nick,invoicetitle', 'txtCustno', ''], 
             	['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno,txtSales', ''],
             	['txtWorker', '', 'sss', 'namea,noa', 'txtWorker', '']
             	);

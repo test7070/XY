@@ -161,7 +161,7 @@
 				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				
-				$('#txtMemo').change(function(){
+				/*$('#txtMemo').change(function(){
 					if ($('#txtMemo').val().substr(0,1)=='*')
 						$('#txtMon').removeAttr('readonly');
 					else
@@ -178,7 +178,7 @@
 							$('#txtMon').val('');
 						}
 					}
-				});
+				});*/
 				
 				$('#btnPlusCust').click(function(){
 					q_box('cust.aspx','pluscust', "95%", "95%", '新增客戶');
@@ -488,10 +488,10 @@
 						return;
 					}
 					
-					if(emp($('#txtMon').val())){
+					/*if(emp($('#txtMon').val())){
 						alert("帳款月份空白!!");
 						return;
-					}
+					}*/
 					
 					if(emp($('#txtApv').val())){
 						alert("請先核准!!");
@@ -1264,7 +1264,7 @@
 				}
 				
 				//105/06/14 增加mon
-				if(!check_startdate && emp($('#txtMon').val())){
+				/*if(!check_startdate && emp($('#txtMon').val())){
 				//if(!check_startdate && $('#txtMemo').val().substr(0,1)!='*'){	
 					var t_where = "where=^^ noa='"+$('#txtCustno').val()+"' ^^";
 					q_gt('cust', t_where, 0, 0, 0, "startdate", r_accy);
@@ -1274,7 +1274,7 @@
 				if($('#txtMon').val()<=q_getPara('sys.edate').substr(0,6)){
 					alert('帳款月份禁止低於關帳日');
 					return;
-				}
+				}*/
 				
 				//105/02/25 //檢查客單編號同一個客戶是否重覆 給提示 考慮類似西雅圖跟瓦城
 				if(!emp($('#txtCustorde').val())){

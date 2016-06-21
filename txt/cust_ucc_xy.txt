@@ -603,7 +603,8 @@ begin
 			,address=case when isnull(d.addr_invo,'')!='' then isnull(d.addr_invo,'') else isnull(c.addr_invo,'') end
 			,buyerno=case when isnull(b.custno2,'')!='' then b.custno2 else b.custno end
 			,buyer=case when isnull(b.custno2,'')!='' and len(d.invoicetitle)>0 then d.invoicetitle else case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end end
-			,taxtype='1',money=b.money,tax=b.tax,total=b.total
+			,taxtype=case when b.typea='1' or b.typea='3' then '1' else b.typea end
+			,money=b.money,tax=b.tax,total=b.total
 			,worker=case when b.worker2!='' then b.worker2 else b.worker end
 			,vccno=@noa
 			from vcca a outer apply (select top 1 * from view_vcc b where noa=@noa) b
@@ -624,7 +625,8 @@ begin
 			,case when isnull(b.cno,'')!='' then b.acomp else (select top 1 acomp from acomp order by noa) end
 			,case when isnull(d.zip_invo,'')!='' then isnull(d.zip_invo,'') else isnull(c.zip_invo,'') end
 			,case when isnull(d.addr_invo,'')!='' then isnull(d.addr_invo,'') else isnull(c.addr_invo,'') end
-			,'1',b.money,b.tax,b.total
+			,case when b.typea='1' or b.typea='3' then '1' else b.typea end
+			,b.money,b.tax,b.total
 			,case when b.worker2!='' then b.worker2 else b.worker end,b.noa,'V','出貨單號：'+b.noa 
 			,right('000000'+cast(cast(cast(
 				cast(LOG((ascii(SUBSTRING(@invono,1,1))*100)+
@@ -664,6 +666,12 @@ begin
 			--,tax=total-isnull((select SUM(money) from vccas where noa=a.noa),0)
 			--from vcca a where noa=@invono
 		end
+		else if((select taxtype from view_vcc where noa=@noa)='6')
+		begin
+			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,ordeno,no2)
+			select @invono,a.no2,a.custno,a.productno,a.product,a.unit,0,a.price,0,a.noa,a.no2
+			from view_vccs a where a.noa=@noa
+		end
 		else
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,ordeno,no2)
@@ -691,8 +699,12 @@ declare @startdate nvarchar(20)=case when '#non'=[3] then '' else [3] end
 declare @bdate nvarchar(20)=case when '#non'=[4] then '' else [4] end
 declare @edate nvarchar(20)=case when '#non'=[5] then char(255) else [5] end
 declare @custorde nvarchar(20)=case when '#non'=[6] then '0' else [6] end
-declare @mon nvarchar(20)=case when '#non'=[7] then '' else [7] end
+declare @ask nvarchar(20)=case when '#non'=[7] then '0' else [7] end
+declare @userno nvarchar(20)=case when '#non'=[8] then '' else [8] end
+declare @rname nvarchar(20)=case when '#non'=[9] then '' else [9] end
+--declare @mon nvarchar(20)=case when '#non'=[10] then '' else [10] end
 declare @t_err nvarchar(200)=''
+declare @t_ask nvarchar(200)=''
 -----------------------------------------------------------------------
 declare @nowdate nvarchar(30) --今天日期
 set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
@@ -711,7 +723,7 @@ declare @xvccano nvarchar(20)
 --抓取可開立的發票
 declare cursor_table cursor for
 select a.noa,b.binvono,b.einvono from vccar a left join vccars b on a.noa=b.noa 
-where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 and a.cno=@t_cno 
+where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 --and a.cno=@t_cno 
 order by a.noa,a.binvono
 open cursor_table
 fetch next from cursor_table
@@ -729,20 +741,20 @@ begin
 		set @xvccano=LEFT(@xvccano,2)
 		+RIGHT('00000000'+cast(cast(RIGHT(@xvccano,8) as int)+1 as nvarchar(10)),8)
 	end
-			fetch next from cursor_table
+	fetch next from cursor_table
 	into @vccarno,@bvccano,@evccano
 end
 close cursor_table
 deallocate cursor_table
 
-declare @invono nvarchar(50)
+--測試用
+insert @cvcca
+select '','XY'+right('00000000'+cast(ROW_NUMBER() over (order by noa) as nvarchar(10)),8)
+from cust
+
 if((select count(*) from @cvcca)=0) 
 begin
-	set @t_err='當期無可用發票，請手動開立'
-end
-else
-begin
-	set @invono=(select top 1 vccano from @cvcca order by noa,vccano )
+	set @t_err='當期無可用發票'
 end
 
 declare @tvcca table(
@@ -764,46 +776,244 @@ declare @tvcca table(
 	tax float,
 	total float,
 	worker nvarchar(20),
-	vccno nvarchar(50),
+	vccno nvarchar(MAX),
 	[type] nvarchar(2),
 	memo nvarchar(MAX),
 	chkno nvarchar(6),
 	trdno nvarchar(50)
 )
 
-declare @tvcc table(
-	typea nvarchar(10),
-	custno nvarchar(50),
-	vccno nvarchar(50)
+declare @tvccas table(
+	noa nvarchar(20),
+	noq nvarchar(20),
+	cno nvarchar(20),
+	custno nvarchar(30),
+	datea nvarchar(10),
+	productno nvarchar(30),
+	product nvarchar(MAX),
+	unit nvarchar(10),
+	mount float,
+	price float,
+	money float,
+	memo nvarchar(MAX),
+	trdno nvarchar(50),
+	taxtype nvarchar(6)
 )
+
+declare @tvcc table(
+	accy nvarchar(10),
+	typea nvarchar(10),
+	cno nvarchar(50),
+	custno nvarchar(50),
+	vccno nvarchar(50),
+	taxtype nvarchar(50),
+	custorde nvarchar(50),
+	ordeno nvarchar(20),
+	invono nvarchar(50)
+)
+
+if(@custorde='0')
+begin
+	insert @tvcc(accy,typea,cno,custno,vccno,taxtype)
+	select a.accy,a.transtyle,a.cno,case when a.transtyle like '%分開%' then a.custno else 
+	case when isnull(a.custno2,'')!='' then a.custno2 else left(a.custno,5) end end,a.noa,a.taxtype
+	from view_vcc a left join view_vccs b on a.noa=b.noa
+	where a.datea between @bdate and @edate
+	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
+	and len(a.invono)=0 and isnull(a.transtyle,'')!='隨貨' and isnull(a.transtyle,'')!=''
+	and a.typea='1' and a.taxtype!='6' and isnull(b.mount,0)>0
+	group by a.accy,a.transtyle,a.cno,case when a.transtyle like '%分開%' then a.custno else 
+	case when isnull(a.custno2,'')!='' then a.custno2 else left(a.custno,5) end end,a.noa,a.taxtype
+	
+	delete a from @tvcc a where not exists (select * from cust where noa=a.custno)
+	
+	if(len(@custno)>0)
+	begin
+		delete @tvcc where custno!=@custno
+	end
+	
+	if(len(@startdate)>0)
+	begin
+		delete a
+		from @tvcc a left join cust b on a.custno=b.noa 
+		where isnull(b.startdate,'')!=@startdate
+	end
+	
+	insert @tvcca (noa,custno,buyerno,datea,mon,cno,acomp,taxtype)
+	select '',custno,custno,@nowdate,LEFT(@nowdate,6),cno,isnull((select acomp from acomp where noa=a.cno),'')
+	,case when taxtype='3' then '1' else taxtype end
+	from @tvcc a
+	group by custno,cno,case when taxtype='3' then '1' else taxtype end
+	
+	update a
+	set comp=b.comp,nick=left(b.nick,20),serial=b.serial
+	,buyer=case when b.invoicetitle='' then b.comp else b.invoicetitle end
+	,zip=isnull(b.zip_invo,''),address=isnull(b.addr_invo,'')
+	,money=0,tax=0,total=0
+	,worker=@rname
+	,vccno=stuff((select ','+vccno from @tvcc where custno=a.custno and cno=a.cno and case when taxtype='3' then '1' else taxtype end=a.taxtype for xml path('')),1,1,'')
+	,type='M',memo='月結轉出',chkno='',trdno=''
+	from @tvcca a left join cust b on a.custno=b.noa
+	
+	insert @tvccas (noa,noq,cno,custno,datea,productno,mount,price,money,memo,trdno,taxtype)
+	select '','',a.cno,a.custno,@nowdate,b.productno,SUM(b.mount)
+	,case when a.taxtype='3' then round(b.price/1.05,2) else b.price end
+	,SUM(case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
+	,'','',case when a.taxtype='3' then '1' else a.taxtype end
+	from @tvcc a left join view_vccs b on a.vccno=b.noa
+	where isnull(b.mount,0)>0
+	group by a.custno,a.cno,b.productno
+	,case when a.taxtype='3' then '1' else a.taxtype end
+	,case when a.taxtype='3' then round(b.price/1.05,2) else b.price end
+	
+	update a
+	set product=case when isnull(b.product,'')!='' then isnull(b.product,'') else isnull(c.product,'') end
+	,unit=case when isnull(b.unit,'')!='' then isnull(b.unit,'') else isnull(c.unit,'') end
+	from @tvccas a 
+	outer apply (select * from ucca where noa=a.productno) b
+	outer apply (select * from view_ucaucc where noa=a.productno) c
+end
+else --PO
+begin
+	insert @tvcc(accy,cno,custno,vccno,ordeno,custorde,taxtype)
+	select a.accy,a.cno,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end,a.noa,b.ordeno,c.custorde,a.taxtype
+	from view_vcc a left join view_vccs b on a.noa=b.noa left join view_orde c on b.ordeno=c.noa
+	where a.datea between @bdate and @edate
+	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
+	and len(a.invono)=0 and isnull(a.transtyle,'')!='隨貨' and isnull(a.transtyle,'')!=''
+	and a.typea='1' and a.taxtype!='6' and isnull(c.custorde,'')!='' and isnull(b.mount,0)!=0
+	group by a.accy,a.cno,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end,a.noa,b.ordeno,c.custorde,a.taxtype
+	
+	delete a from @tvcc a where not exists (select * from cust where noa=a.custno)
+	
+	if(len(@custno)>0)
+	begin
+		delete @tvcc where custno!=@custno
+	end
+	
+	if(len(@startdate)>0)
+	begin
+		delete a
+		from @tvcc a left join cust b on a.custno=b.noa 
+		where isnull(b.startdate,'')!=@startdate
+	end
+	
+	insert @tvcca (noa,custno,buyerno,datea,mon,cno,acomp,trdno,taxtype)
+	select '',custno,custno,@nowdate,LEFT(@nowdate,6)
+	,cno,isnull((select acomp from acomp where noa=a.cno),''),custorde
+	,case when taxtype='3' then '1' else taxtype end
+	from @tvcc a
+	group by custno,cno,custorde,case when taxtype='3' then '1' else taxtype end
+	
+	update a
+	set comp=b.comp,nick=left(b.nick,20),serial=b.serial
+	,buyer=case when b.invoicetitle='' then b.comp else b.invoicetitle end
+	,zip=isnull(b.zip_invo,''),address=isnull(b.addr_invo,'')
+	,money=0,tax=0,total=0
+	,worker=@rname
+	,vccno=stuff((select ','+vccno from @tvcc where custno=a.custno and cno=a.cno and custorde=a.trdno 
+	and case when taxtype='3' then '1' else taxtype end=a.taxtype for xml path('')),1,1,'')
+	,type='P',memo='PO轉出',chkno=''
+	from @tvcca a left join cust b on a.custno=b.noa
+	
+	insert @tvccas (noa,noq,cno,custno,datea,productno,mount,price,money,memo,trdno,taxtype)
+	select '','',a.cno,a.custno,@nowdate,b.productno,SUM(b.mount)
+	,case when a.taxtype='3' then round(b.price/1.05,2) else b.price end
+	,SUM(case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
+	,'',a.custorde,case when taxtype='3' then '1' else taxtype end
+	from @tvcc a left join view_vccs b on a.vccno=b.noa
+	where a.ordeno=b.ordeno and isnull(b.mount,0)>0
+	group by a.custno,a.cno,b.productno,a.custorde
+	,case when taxtype='3' then '1' else taxtype end
+	,case when a.taxtype='3' then round(b.price/1.05,2) else b.price end
+	
+	update a
+	set product=case when isnull(b.product,'')!='' then isnull(b.product,'') else isnull(c.product,'') end
+	,unit=case when isnull(b.unit,'')!='' then isnull(b.unit,'') else isnull(c.unit,'') end
+	from @tvccas a 
+	outer apply (select * from ucca where noa=a.productno) b
+	outer apply (select * from view_ucaucc where noa=a.productno) c
+end
 
 if(len(@t_err)=0)
 begin
-	if(@custorde='0')
+	if((select count(*) from @tvcca)=0)
 	begin
-		select a.transtyle,case when a.transtyle like '%分開%' then a.custno else a.custno2 end,a.noa
-		from view_vcc a left join cust b on a.custno=b.noa 
-		where a.datea between @bdate and @edate
-		and (len(@custno)=0 or a.custno=@custno)
-		and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
-		and (len(@startdate)=0 or isnull(b.startdate,'')=@startdate)
-		and len(a.invono)=0 and isnull(a.transtyle,'')!='隨貨' and isnull(a.transtyle,'')!=''
-		and a.typea='1'
-		
-		if(len(@custno)>0)
-		begin
-			delete @tvcc where custno!=@custno
-		end
-		
-		
-		
+		set @t_err='無發票需產生!!'
 	end
-
-
-
+	else if((select count(*) from @cvcca)<(select count(*) from @tvcca))
+	begin
+		set @t_err='系統開立發票需'+CAST((select count(*) from @tvcca) as nvarchar(50))+'張'
+		set @t_err=@t_err+'，可用發票(剩餘'+cast((select count(*) from @cvcca) as nvarchar(50))+'張)不足開立張數!!'
+	end
 end
 
-select @t_err t_err
+declare @invono nvarchar(50) --發票號碼
+declare @vccno nvarchar(50) --出貨單號
+declare @accy nvarchar(50)
+
+if(len(@t_err)=0)
+begin
+	if(@ask='0')
+	begin
+		update a
+		set a.noa=b.vccano
+		from (select ROW_NUMBER()over(order by cno,custno)rr,custno,noa from @tvcca)a
+		left join (select ROW_NUMBER()over(order by noa,vccano)rr,vccano from @cvcca)b on a.rr=b.rr
+		
+		update a
+		set a.noa=b.noa
+		from @tvccas a left join @tvcca b on a.cno=b.cno and a.custno=b.custno and a.taxtype=b.taxtype and a.trdno=b.trdno
+		
+		update a
+		set noq=right('000'+cast(rr as nvarchar(10)),3)
+		from (select ROW_NUMBER()over(partition by noa order by productno)rr,noq from @tvccas)a
+		
+		update a
+		set money=b.money,tax=case when a.taxtype='1' then round(b.money*0.05,0) else 0 end
+		,total=b.money+case when a.taxtype='1' then round(b.money*0.05,0) else 0 end
+		,chkno=right('000000'+cast(cast(cast(
+		cast(LOG((ascii(SUBSTRING(a.noa,1,1))*100)+(ascii(SUBSTRING(a.noa,2,1))*25)+cast(SUBSTRING(a.noa,3,3) as int))*100 as int)*144 as int)
+		+(SIN(cast(SUBSTRING(a.noa,6,2) as int))*cast(SUBSTRING(a.noa,8,3) as int)*100) as int)as nvarchar(10)),6)
+		from @tvcca a outer apply (select SUM(money)money from @tvccas where noa=a.noa) b
+		
+		update a
+		set invono=stuff(isnull((select ','+noa from @tvcca where vccno like '%'+a.vccno+'%' for xml path('')),''),1,1,'')
+		from @tvcc a
+		
+		--新增vcca
+		insert vcca(noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp,zip,address,taxtype,money,tax,total,worker,vccno,type,memo,chkno,trdno)
+		select noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp,zip,address,taxtype,money,tax,total,worker,vccno,type,memo,chkno,trdno
+		from @tvcca
+		
+		insert vccas(noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo)
+		select noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo from @tvccas
+		
+		--回寫到vcc
+		declare cursor_table cursor for
+		select accy,vccno,invono from @tvcc
+		open cursor_table
+		fetch next from cursor_table
+		into @accy,@vccno,@invono
+		while(@@FETCH_STATUS <> -1)
+		begin
+			
+			EXEC("update vcc"+@accy+" set invono='"+@invono+"' where noa='"+@vccno+"' ")
+			
+			fetch next from cursor_table
+			into @accy,@vccno,@invono
+		end
+		close cursor_table
+		deallocate cursor_table
+		
+	end
+	else
+	begin
+		set @t_ask='即將採生'+CAST((select count(*) from @tvcca) as nvarchar(50))+'張發票，確認產生?'		
+	end
+end
+
+select @t_err t_err,@t_ask t_ask
 ;
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 quat2orde:--quat2orde

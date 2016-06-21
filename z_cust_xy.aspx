@@ -37,7 +37,7 @@
                         type : '2',
                         name : 'xcust',
                         dbf : 'cust',
-                        index : 'noa,comp',
+                        index : 'noa,comp,nick,invoicetitle,serial',
                         src : 'cust_b.aspx'
                     }, {/*3 [5],[6]*/
                         type : '2',

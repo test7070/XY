@@ -10,7 +10,7 @@
         <link href="../qbox.css" rel="stylesheet" type="text/css" />
 		<script type="text/javascript">
 			var q_name = "vcc_s";
-            aPop = new Array( ['txtCustno', '', 'cust', 'noa,nick,invoicetitle', 'txtCustno', '']
+            aPop = new Array( ['txtCustno', '', 'cust', 'noa,comp,nick,invoicetitle,serial', 'txtCustno', '']
             , ['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno', '']
             , ['txtCardealno', '', 'cardeal', 'noa,comp', 'txtCardealno', '']
             );

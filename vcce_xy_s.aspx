@@ -17,7 +17,7 @@
             var aPop = new Array(
 				['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno,txtSales', ''],
 				['txtDriverno', '', 'sss', 'noa,namea', 'txtDriverno,txtDriver', ''],
-				['txtCustno', '', 'cust', 'noa,comp', 'txtCustno,txtComp', '']
+				['txtCustno', '', 'cust', 'noa,comp,nick,invoicetitle,serial', 'txtCustno,txtComp', '']
 			);
 
             $(document).ready(function() {

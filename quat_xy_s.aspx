@@ -14,7 +14,7 @@
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"> </script>
 		<script type="text/javascript">
             var q_name = "quat_s";
-            var aPop = new Array(['txtCustno', '', 'cust', 'noa,comp,invoicetitle', 'txtCustno', '']
+            var aPop = new Array(['txtCustno', '', 'cust', 'noa,comp,nick,invoicetitle,serial', 'txtCustno', '']
             , ['txtSalesno', '', 'sss', 'noa,namea', 'txtSalesno', '']
             , ['txtWorker', '', 'sss', 'namea,noa', 'txtWorker', '']
             , ['txtWorker2', '', 'sss', 'namea,noa', 'txtWorker2', '']

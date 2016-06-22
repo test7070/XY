@@ -421,7 +421,7 @@ insert into @tmp
 		case when a.taxtype='1' or a.taxtype='3' then '&#10004' else null end,
 		case when a.taxtype='2' then '&#10004' else null end,
 		case when a.taxtype='4' then '&#10004' else null end,
-		c.money,c.tax,c.money+c.tax,'','','','','','','',''
+		a.money,a.tax,a.total,'','','','','','','',''
 	from vcca a
 	left join vccas b on a.noa=b.noa
 	left join view_vcc c on a.vccno = c.noa

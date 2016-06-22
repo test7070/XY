@@ -1,4 +1,4 @@
-z_vccp_xy1:--z_vccp_xy1
+﻿z_vccp_xy1:--z_vccp_xy1
 declare @t_bxnoa nvarchar(20)
 declare @t_exnoa nvarchar(20)
 declare @t_userno nvarchar(20)='[10]'
@@ -414,19 +414,18 @@ insert into @tmp
 		'0',0,0,a.datea,a.noa,b.noq,
 		case when isnull(a.buyer,'') != '' then a.buyer else a.comp end,
 		case when isnull(a.serial,'') != '' then a.serial else d.serial end,
-		case when isnull(a.buyerno,'') != '' then (case when isnull(a.address,'') != '' then a.address else d.addr_invo end) else null end,
+		a.address,
 		a.chkno,case when a.vccno!='' then a.vccno else c.noa end,c.salesno,c.zipcode
 		,case when c.ordeno!='' then c.ordeno else REPLACE(a.memo,vccno,'') end
-		,e.productno,e.product,e.unit,e.mount,e.price,e.total,
+		,b.productno,b.product,b.unit,b.mount,b.price,b.money,
 		case when a.taxtype='1' or a.taxtype='3' then '&#10004' else null end,
 		case when a.taxtype='2' then '&#10004' else null end,
 		case when a.taxtype='4' then '&#10004' else null end,
 		c.money,c.tax,c.money+c.tax,'','','','','','','',''
 	from vcca a
 	left join vccas b on a.noa=b.noa
-	left join view_vcc c on a.noa = c.invono
+	left join view_vcc c on a.vccno = c.noa
 	left join cust d on a.buyerno=d.noa
-	left join view_vccs e on c.noa=e.noa
 	where 
 	a.noa=@t_vccano
 ------------單筆處理<<Start>>-----------

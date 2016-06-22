@@ -15,6 +15,7 @@
 		<script src="css/jquery/ui/jquery.ui.widget.js"> </script>
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"> </script>
 		<script type="text/javascript">
+			var t_first=true;
             if (location.href.indexOf('?') < 0) {
                 location.href = location.href + "?;;;;"+((new Date()).getUTCFullYear()-1911);
             }
@@ -22,6 +23,23 @@
             	q_getId();
                 q_gf('', 'z_vccp_xy');
                 
+                $('#q_report').click(function(e) {
+					if(window.parent.q_name=="vcca"){
+						for(var i=0;i<$('#q_report').data().info.reportData.length;i++){
+							if($('#q_report').data().info.reportData[i].report!='z_vccp_xy4')
+								$('#q_report div div').eq(i).hide();
+						}
+						$('#q_report div div .radio').parent().each(function(index) {
+							if(!$(this).is(':hidden') && t_first){
+								$(this).children().removeClass('nonselect').addClass('select');
+								t_first=false;
+							}
+							if($(this).is(':hidden') && t_first){
+								$(this).children().removeClass('select').addClass('nonselect');
+							}
+						});
+					}
+				});
             });
             function q_gfPost() {
 				$('#q_report').q_report({
@@ -61,8 +79,8 @@
                 q_getFormat();
                 q_langShow();
                 
-                $('#txtXdate1').mask('999/99/99');
-                $('#txtXdate2').mask('999/99/99');
+                $('#txtXdate1').mask(r_picd);
+                $('#txtXdate2').mask(r_picd);
                 
                 $('#txtXdate1').val(q_cdn(q_date(),1));
                 $('#txtXdate2').val(q_cdn(q_date(),1));
@@ -106,6 +124,10 @@
 				var t_invo = typeof(q_getHref()[3])=='undefined'?'':q_getHref()[3];
 				if(t_invo.length>0){
 					$('#txtXvccano').val(t_invo);
+				}
+				if(window.parent.q_name=="vcca"){
+					$('#txtXvccano').val(window.parent.$('#txtNoa').val())
+					$('#q_report div div .radio.select').click();
 				}
             }
 

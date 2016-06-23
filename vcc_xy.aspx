@@ -103,7 +103,7 @@
 				//q_cmbParse("cmbCoin", q_getPara('sys.coin'));
 				q_cmbParse("combPay", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
-				q_cmbParse("cmbTranstyle", '@,隨貨@隨貨,月結匯開@月結匯開,月結分開@月結分開,週結匯開@週結匯開,週結分開@週結分開');
+				q_cmbParse("cmbTranstyle", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
 				
 				var t_where = "where=^^ 1=0  ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
@@ -298,8 +298,8 @@
 					$('#div_store2').toggle();
 				});
 				
-				if (isinvosystem)
-					$('.istax').hide();
+				//if (isinvosystem)
+				//	$('.istax').hide();
 				
 				$('#lblDownvcc').click(function() {
 					$('#xdownload').attr('src','uploadXYvcc_download.aspx?FileName='+$('#txtZipcode').val()+'&TempName='+$('#txtZipcode').val());

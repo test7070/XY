@@ -15,6 +15,10 @@
 			var isBott = false;
 			var afield, t_htm;
 			var i, s1;
+			aPop = new Array(
+				['txtInvocustno', '', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtInvocustno', 'cust_b.aspx'],
+				['txtVcccustno', '', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtVcccustno', 'cust_b.aspx']
+			);
 			
 			var decbbs = [];
 			var decbbm = [];
@@ -72,7 +76,7 @@
 				q_cmbParse("cmbTaxtype", xy_taxtype);	
 				q_cmbParse("cmbVccmemo", '@,須@須,不須@不須');
 				q_cmbParse("cmbCheckmemo", '@,須@須,不須@不須');
-				q_cmbParse("cmbInvomemo", '@,隨貨@隨貨,月結匯開@月結匯開,月結分開@月結分開,週結匯開@週結匯開,週結分開@週結分開');
+				q_cmbParse("cmbInvomemo", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
 				q_cmbParse("cmbPostmemo", '@,不寄單@不寄單,不寄單扣貨款@不寄單扣貨款,送單收現@送單收現,送單@送單,郵寄附回郵@郵寄附回郵,郵寄@郵寄,郵寄附回郵不寄單@郵寄附回郵不寄單');
 				
 			}
@@ -146,7 +150,7 @@
 						<td style="width: 80px;"><a id="lblConn"> </a></td>
 						<td colspan="3"><input id="txtConn" type="text" style='width:100%;'/></td>
 						<td> </td>
-						<td> </td>
+						<td><input id="txtNoa" type="hidden" /></td>
 					</tr>
 					<tr>
 						<td><a id="lblTrantime"> </a></td>
@@ -167,18 +171,18 @@
 					<tr>
 						<td><a>發票開立</a></td>
 						<td><select id="cmbInvomemo"  style='width:98%;'> </select></td>
-						<td><a>寄單方式</a></td>
-						<td><select id="cmbPostmemo"  style='width:98%;'> </select></td>
-						<td> </td>
-						<td> </td>
-					</tr>
-					<tr>
-						<td><a id="lblCommission"> </a></td>
-						<td><input id="txtCommission" type="text" style='width:50%;text-align: right;'/>%</td>
 						<td style="width: 70px;">發票<a id="lblP23"> </a></td>
 						<td><input id="txtP23" maxlength="10" type="text" style="width:50%;" /></td>
-						<td> </td>
-						<td><input id="txtNoa" type="hidden" /> </td>
+						<td><a>發票客編</a></td>
+						<td><input id="txtInvocustno" type="text" style='width:98%;'/></td>
+					</tr>
+					<tr>
+						<td><a>寄單方式</a></td>
+						<td><select id="cmbPostmemo"  style='width:98%;'> </select></td>
+						<td><a id="lblCommission"> </a></td>
+						<td><input id="txtCommission" type="text" style='width:50%;text-align: right;'/>%</td>
+						<td><a>對帳客編</a></td>
+						<td><input id="txtVcccustno" type="text" style='width:98%;'/></td>
 					</tr>
 					<tr>
 						<td colspan="2">
@@ -189,7 +193,6 @@
 							<input id="chkNotprice" type="checkbox" />
 							<span> </span><a id="lblNotprice"> </a>
 						</td>
-						<td> </td>
 					</tr>
 				</table>
 			</div>

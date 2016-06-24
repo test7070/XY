@@ -223,7 +223,10 @@
 					}else if($('#cmbTranstyle').val()!='隨貨'){
 						alert('發票開立非【隨貨】!!');
 					}else{
-						q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0');
+						if(r_rank>='5')
+							q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0');
+						else
+							alert('權限不足!!');
 					}
 				});
 				

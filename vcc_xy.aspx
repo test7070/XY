@@ -218,8 +218,6 @@
 				});
 				
 				$('#btnGenvcca').click(function() {
-					alert('尚未開放!!');
-					return;
 					if($('#cmbTypea').val()!='1' || $('#cmbStype').val()=='3'){
 						alert('非出貨單禁止開立開票!!');
 					}else if($('#cmbTranstyle').val()!='隨貨'){
@@ -815,6 +813,12 @@
 							$('#txtFloata').val(as[0].floata);
 							$('#txtWeight').val(as[0].weight);
 							$('#cmbTranstyle').val(as[0].conform);
+							
+							if(as[0].mon.length>0){
+								$('#txtMon').val(as[0].mon);
+								if($('#txtMemo').val().substr(0,1)!='*')
+									$('#txtMemo').val('*'+$('#txtMemo').val());
+							}
 							Trantype_cardeal();
 							//取得收款客戶
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";

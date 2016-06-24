@@ -2156,10 +2156,10 @@
                 else
                     $('#btnApv').removeAttr('disabled');
                     
-				if ($('#txtMemo').val().substr(0,1)=='*' && (q_cur==1 || q_cur==2))
+				/*if ($('#txtMemo').val().substr(0,1)=='*' && (q_cur==1 || q_cur==2))
 					$('#txtMon').removeAttr('readonly');
 				else
-					$('#txtMon').attr('readonly', 'readonly');
+					$('#txtMon').attr('readonly', 'readonly');*/
 			}
 			
 			function AutoNo2(){

@@ -241,7 +241,7 @@
 			&nbsp;
 		</p>
 		<div>
-			<form id="Form1" name='form1' method='post' action='uploadXYvcc.aspx' runat="server" enctype='multipart/form-data' style='width:725px'>
+			<form id="Form1" name='form1' method='post' action=' ' runat="server" enctype='multipart/form-data' style='width:725px'>
 				<input type='file' name='btnFile1' style='font-size:16px;' onclick='getAddr()' multiple/>
 				<input type='hidden' name='txtAddr' style='font-size:16px;'/>
 				<asp:TextBox ID="TextBox1"  name="TextBox1" runat="server" Visible="false"></asp:TextBox>

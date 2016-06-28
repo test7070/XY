@@ -223,9 +223,11 @@
 					}else if($('#cmbTranstyle').val()!='隨貨'){
 						alert('發票開立非【隨貨】!!');
 					}else{
-						if(r_rank>='5')
+						if(r_rank>='5' && $('#txtDatea').val()>='105/07/01')
 							q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0');
-						else
+						else if($('#txtDatea').val()<'105/07/01'){
+							alert("出貨單日期小於 105/07/01 不產生發票!!");
+						}else
 							alert('權限不足!!');
 					}
 				});
@@ -324,12 +326,19 @@
 						if (as[0] != undefined) {
 							t_invono=as[0].invono;
 						}
-						if(stpostvcca && (t_invono!=$('#txtInvono').val() ||  emp($('#txtInvono').val()))){
+						if(stpostvcca && (t_invono.length==0 || t_invono!=$('#txtInvono').val() ||  emp($('#txtInvono').val()) || $('#txtDatea').val()<'105/07/01' )){
 							stpostvcca=false;
 							break;
 						}
-						if(!($('#cmbTypea').val()!='1' || $('#cmbStype').val()=='3' || $('#cmbTranstyle').val()!='隨貨')){
+						if(!($('#cmbTypea').val()!='1' || $('#cmbStype').val()=='3' || $('#cmbTranstyle').val()!='隨貨') && r_rank>='5' && $('#txtDatea').val()>='105/07/01'){
 							q_func('qtxt.query.vcc2vcca1', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';1');
+						}else{
+							if(stpostvcca && t_invono.length>0){
+								alert('變更的出貨單不符合開立發票條件!!');
+							}else{
+								alert('出貨單不符合開立發票條件!!');
+							}
+							stpostvcca=false;
 						}
 						break
 					case 'qtxt.query.vcc2vcca1':
@@ -340,10 +349,16 @@
 							}else{
 								abbm[q_recno]['invono'] = as[0].invono;
 								$('#txtInvono').val(as[0].invono);
+								if(stpostvcca){
+									alert('發票已更新!!');
+								}else{
+									alert('發票已產生完畢!!');
+								}
 							}
 						}else{
 							alert('發票產生錯誤!!');
 						}
+						stpostvcca=false;
 						break;
 					case 'qtxt.query.vcc2vcca2':
 						q_cur = 3;
@@ -1481,10 +1496,10 @@
 					abbm[q_recno]['accno'] = s2[0];
 				}
 				
-				/*if(q_cur==2){//修改後重新產生 避免發票資料不對應
+				if(q_cur==2){//修改後重新產生 避免發票資料不對應
 					stpostvcca=true;
 					q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0');
-				}*/
+				}
 			}
 
 			function refresh(recno) {

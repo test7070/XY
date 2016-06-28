@@ -364,8 +364,10 @@ select * from @tmp order by datea,custno,ordeno,no2;
 
 ------------------------------------------------------------------------------------------------------------------------
 z_vccp_xy4:--z_vccp_xy4
-declare @t_vccano nvarchar(20)
-set @t_vccano = case when '#non' =[11]  then '' else [11]  end
+declare @t_bvccano nvarchar(20)
+declare @t_evccano nvarchar(20)
+set @t_bvccano = case when '#non' =[11]  then '' else [11]  end
+set @t_evccano = case when '#non' =[12]  then '' else [12]  end
 
 ------------報表設定<<Start>>------------
 declare @maxcount int = 40 --產品名稱長度
@@ -384,7 +386,7 @@ declare @tmp table(
 	serial nvarchar(50),
 	invoaddr nvarchar(max),
 	chkno nvarchar(15),
-	vccno nvarchar(50),
+	vccno nvarchar(MAX),
 	salesno nvarchar(50),
 	ordbno nvarchar(50),
 	ordeno nvarchar(MAX),
@@ -409,25 +411,17 @@ declare @tmp table(
 	money7 nvarchar(10),
 	money8 nvarchar(10)
 )
-insert into @tmp
-	select
-		'0',0,0,a.datea,a.noa,b.noq,
-		case when isnull(a.buyer,'') != '' then a.buyer else a.comp end,
-		case when isnull(a.serial,'') != '' then a.serial else d.serial end,
-		a.address,
-		a.chkno,case when a.vccno!='' then a.vccno else c.noa end,c.salesno,c.zipcode
-		,case when c.ordeno!='' then c.ordeno else REPLACE(a.memo,vccno,'') end
-		,b.productno,b.product,b.unit,b.mount,b.price,b.money,
-		case when a.taxtype='1' or a.taxtype='3' then '&#10004' else null end,
-		case when a.taxtype='2' then '&#10004' else null end,
-		case when a.taxtype='4' then '&#10004' else null end,
-		a.money,a.tax,a.total,'','','','','','','',''
-	from vcca a
-	left join vccas b on a.noa=b.noa
-	left join view_vcc c on a.vccno = c.noa
-	left join cust d on a.buyerno=d.noa
-	where 
-	a.noa=@t_vccano
+	insert into @tmp
+	select '0',0,0,a.datea,a.noa,b.noq,a.buyer,a.serial	,a.zip+a.address,a.chkno,a.vccno
+	,isnull((select top 1 salesno from view_vcc where a.vccno like '%'+noa+'%' ),''),''
+	,stuff(isnull((select ','+ordeno from view_vccs where a.vccno like '%'+noa+'%' group by ordeno FOR XML PATH('') ),''),1,1,'')
+	,b.productno,b.product,b.unit,b.mount,b.price,b.money,
+	case when a.taxtype='1' or a.taxtype='3' then '&#10004' else null end,
+	case when a.taxtype='2' then '&#10004' else null end,
+	case when a.taxtype='4' then '&#10004' else null end,
+	a.money,a.tax,a.total,'','','','','','','',''
+	from vcca a left join vccas b on a.noa=b.noa
+	where a.noa between @t_bvccano and @t_evccano
 ------------單筆處理<<Start>>-----------
 insert into @tmp(
 		gno,pageno,pageorder,datea,noa,noq,buyer,serial,invoaddr,chkno,
@@ -623,7 +617,9 @@ insert into @tmp(gno,noa,datea,pageno,pageorder)
 ------------插入跳頁<<End>>-------------
 ------------插入頁首<<Start>>------------
 insert into @tmp(gno,noa,datea,pageno,pageorder,buyer,serial,invoaddr,chkno,vccno,ordbno,ordeno,salesno)
-	select '9',noa,datea,pageno,0,buyer,serial,invoaddr,chkno,vccno,ordbno,ordeno,salesno from @tmp where gno='0' and ordeno!='' group by noa,datea,pageno,buyer,serial,invoaddr,chkno,vccno,ordbno,ordeno,salesno
+	select '9',noa,datea,pageno,0,buyer,serial,invoaddr,chkno,vccno,ordbno,ordeno,salesno 
+	from @tmp where gno='0'
+	group by noa,datea,pageno,buyer,serial,invoaddr,chkno,vccno,ordbno,ordeno,salesno
 -----第二頁開始須增加高度
 --insert into @tmp(gno,noa,datea,pageno,pageorder)
 	--select '8',noa,datea,pageno,0 from @tmp where pageno >= 2 group by noa,datea,pageno
@@ -635,9 +631,7 @@ select
 	substring(a.datea,5,2) da2,
 	right(a.datea,2) da3,
 	a.noa,a.buyer,a.serial,a.invoaddr,a.chkno,a.vccno,a.salesno,a.ordbno,a.productno,a.products,unit,
-	--case when pageorder=9001 then '&nbsp&nbsp&nbsp&nbsp<img src="http://59.125.143.170/x.png " style=" position: absolute'+char(59)+' width: 115px'+char(59)+'">'  else a.ordeno end ordeno,
-	a.ordeno,
-	a.mount,a.price,a.total,a.taxtype1,a.taxtype2,a.taxtype3,a.totmoney,a.taxmoney,a.totmoney,
+	a.ordeno,a.mount,a.price,a.total,a.taxtype1,a.taxtype2,a.taxtype3,a.totmoney,a.taxmoney,a.totmoney,
 	a.money1 m1,
 	a.money2 m2,
 	a.money3 m3,

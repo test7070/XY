@@ -71,7 +71,7 @@
 						name : 'userno',
 						value : r_userno
 					},{
-						type : '6', //[10]
+						type : '1', //[11][12]
 						name : 'xvccano'
 					}]
 				});
@@ -123,10 +123,12 @@
 				
 				var t_invo = typeof(q_getHref()[3])=='undefined'?'':q_getHref()[3];
 				if(t_invo.length>0){
-					$('#txtXvccano').val(t_invo);
+					$('#txtXvccano1').val(t_invo);
+					$('#txtXvccano2').val(t_invo);
 				}
 				if(window.parent.q_name=="vcca"){
-					$('#txtXvccano').val(window.parent.$('#txtNoa').val())
+					$('#txtXvccano1').val(window.parent.$('#txtNoa').val())
+					$('#txtXvccano2').val(window.parent.$('#txtNoa').val())
 					$('#q_report div div .radio.select').click();
 				}
             }

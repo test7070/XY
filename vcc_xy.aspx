@@ -301,8 +301,8 @@
 					$('#div_store2').toggle();
 				});
 				
-				//if (isinvosystem)
-				//	$('.istax').hide();
+				if (isinvosystem)
+					$('.istax').hide();
 				
 				$('#lblDownvcc').click(function() {
 					$('#xdownload').attr('src','uploadXYvcc_download.aspx?FileName='+$('#txtZipcode').val()+'&TempName='+$('#txtZipcode').val());
@@ -2144,8 +2144,8 @@
 						<td><span> </span><a id="lblMoney" class="lbl"> </a></td>
 						<td colspan='2'><input id="txtMoney" type="text" class="txt num c1"/></td>
 						<td><span> </span><a id='lblTax' class="lbl"> </a></td>
-						<td><input id="txtTax" type="text" class="txt num c1 istax" /></td>
 						<td><select id="cmbTaxtype" class="txt c1" onchange="calTax();"> </select></td>
+						<td><input id="txtTax" type="text" class="txt num c1 istax" /></td>
 						<td><span> </span><a id='lblTotal' class="lbl istax"> </a></td>
 						<td><input id="txtTotal" type="text" class="txt num c1 istax"/></td>
 					</tr>

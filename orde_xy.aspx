@@ -1455,7 +1455,8 @@
 						$('#txtProductno_' + j).focusin(function() {
 							pno_keyin_apop=false;
 						});
-						$('#txtProductno_' + j).change(function() {
+						
+						/*$('#txtProductno_' + j).change(function() {
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
@@ -1491,7 +1492,8 @@
 								}
 							}
 							AutoNo2();
-						});
+						});*/
+						
 						$('#cmbSource_' + j).change(function() {
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));

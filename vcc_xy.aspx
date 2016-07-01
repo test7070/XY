@@ -410,6 +410,9 @@
 							if(t_datea.length>0 && t_datea>=$('#txtDatea').val()){
 								$('#txtDatea').val(t_datea);
 								$('#txtMemo').val('優先'+$('#txtMemo').val());
+							}else if(t_datea.length>0 && t_datea<=$('#txtDatea').val()){ //1050701
+								$('#txtDatea').val(q_date());
+								$('#txtMemo').val('優先'+$('#txtMemo').val());
 							}
 							
 							if (t_oredeno.length > 0) {

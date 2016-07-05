@@ -974,7 +974,8 @@
 							}
 						}
 						_btnModi();
-						$('.bbsitem').attr('disabled', 'disabled');
+						if((q_cur==1 || q_cur==2) && r_rank < '9')
+							$('.bbsitem').attr('disabled', 'disabled');
 						Unlock(1);
 						$('#txtDatea').focus();
 
@@ -1420,7 +1421,8 @@
 				refreshBbm();
 				cashsalecust();
 				//$('.store2').hide();//104/02/06 不用昌庫104/02/26恢復用倉庫(不判斷客戶)
-				$('.bbsitem').attr('disabled', 'disabled');
+				if((q_cur==1 || q_cur==2) && r_rank < '9')
+					$('.bbsitem').attr('disabled', 'disabled');
 			}
 
 			function btnIns() {
@@ -1611,8 +1613,9 @@
 					$('#btnGenvcca').attr('disabled', 'disabled');
 				}
 				//$('.bbsprice').attr('disabled', 'disabled');
-				//1050108 鎖住
-				$('.bbsitem').attr('disabled', 'disabled');
+				//1050108 鎖住 //105/07/01 只開放給等級9以上改
+				if((q_cur==1 || q_cur==2) && r_rank < '9')
+					$('.bbsitem').attr('disabled', 'disabled');
 				
 				HiddenTreat();
 				//限制帳款月份的輸入 只有在備註的第一個字為*才能手動輸入

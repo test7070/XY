@@ -80,9 +80,12 @@ insert @tmp (gno,storeno)
 select '1',storeno from @tmp group by storeno
 	
 select 
-dbo.getComma(stkmount,[2]) stkmount,
-*
-from @tmp order by storeno,gno,productno
+dbo.getComma(a.stkmount,[2]) stkmount,
+b.unit,
+a.*
+from @tmp a
+left join view_ucaucc b on a.productno=b.noa
+order by a.storeno,a.gno,a.productno
 ;
 -----------------------------------------------------------------------------------------------------------------
 z_vcc_xy2:--z_vcc_xy2
@@ -274,7 +277,7 @@ declare @tmpa table(
 insert @tmpa
 select * from (
 	select a.accy,a.datea,'1' typea,isnull(b.storeno2,'') storeno,c.store,a.custno custno,a.comp comp,b.productno,d.product,a.noa
-	,(case when a.typea='2' then -1 else 1 end)*tranmoney2 
+	,(case when a.typea='2' then -1 else 1 end)*tranmoney2 tranmoney2
 	from view_vcc a left join view_vccs b on a.noa=b.noa 
 	left join store c on b.storeno2=c.noa
 	left join ucc d on b.productno=d.noa  
@@ -283,7 +286,7 @@ select * from (
 	and b.productno between @t_bucc and @t_eucc
 	union all
 	select a.accy,a.datea,'2' typea,isnull(b.storeno2,'') storeno,c.store,a.custno custno,a.comp comp,b.productno,d.product,a.noa
-	,(case when a.typea='2' then -1 else 1 end)*tranmoney3 
+	,(case when a.typea='2' then -1 else 1 end)*tranmoney3 tranmoney3
 	from view_vcc a left join view_vccs b on a.noa=b.noa 
 	left join store c on b.storeno2=c.noa
 	left join ucc d on b.productno=d.noa  
@@ -359,12 +362,14 @@ begin
 end
 
 select 
-dbo.getComma(mount,[2]) mount,
-dbo.getComma(stkmount,[2]) stkmount,
-'vcc_xy?noa=$vccno?'+accy qhref,
+dbo.getComma(a.mount,[2]) mount,
+dbo.getComma(a.stkmount,[2]) stkmount,
+'vcc_xy?noa=$vccno?'+a.accy qhref,
 case when @t_last=0 then '日期區間：'+@t_bdate+'~'+@t_edate else '' end dmemo ,
-*
-from @tmp order by storeno,productno,gno,datea,idno,custno
-
+b.unit,
+a.*
+from @tmp a 
+left join view_ucaucc b on a.productno=b.noa
+order by a.storeno,a.productno,a.gno,a.datea,a.idno,a.custno
 ;
 ------------------------------------------------------------------------------------------------------

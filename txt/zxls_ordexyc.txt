@@ -133,10 +133,16 @@ begin
 	insert #bbs(custno,comp,odate,datea
 	,productno,product,spec,classa,size,dime,source,unit,price,mount,total,memo,enda,cancel,c1,notv,quatno,no3)
 	select a.custno,left(b.comp,50),@t_odate,''
-	,a.productno,c.product,c.spec,c.style,'',0,'0',a.unit,a.price,a.mount,a.total,'',0,0,0,a.mount
+	,a.productno,c.product,c.spec,c.style,'',0,'0'
+	,case when isnull(d.inmount,0)>0 then c.unit else a.unit end
+	,round(a.price/case when isnull(d.inmount,0)>0 then d.inmount else 1 end,4) 
+	,a.mount*case when isnull(d.inmount,0)>0 then d.inmount else 1 end 
+	,a.total,'',0,0,0
+	,a.mount*case when isnull(d.inmount,0)>0 then d.inmount else 1 end 
 	,isnull(a.quatno,''),isnull(a.no3,'')
 	from @tmp a left join cust b on a.custno=b.noa
 	left join ucc c on a.productno=c.noa
+	left join pack2s d on a.productno=d.noa and a.unit=d.pack
 
 	create table #bbm(
 		noa nvarchar(50),

@@ -98,7 +98,12 @@ begin
 	deallocate cursor_table
 
 	update @tmp set total=round(price*mount,0)
-
+	
+	update a
+	set price=round(a.price/case when isnull(b.inmount,0)>0 then b.inmount else 1 end,4) 
+	,mount=a.mount*case when isnull(b.inmount,0)>0 then b.inmount else 1 end 
+	from @tmp a left join pack2s b on a.productno=b.noa and a.unit=b.pack
+	
 	create table #bbs(
 		noa nvarchar(100),
 		no2 nvarchar(10),

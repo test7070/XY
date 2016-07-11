@@ -334,8 +334,8 @@
 						return;
 					}
 					
-					//105/07/11 判斷是否有超過3個月的帳款 等級權限9不處理
-					if(r_rank<'9'){
+					//105/07/11 判斷是否有超過3個月的帳款 等級權限9不處理 //等級7以下判斷
+					if(r_rank<'7'){
 						var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 						q_gt('cust', t_where, 0, 0, 0, "getummcust", r_accy, 1);
 						var as = _q_appendData("cust", "", true);

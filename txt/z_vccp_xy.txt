@@ -414,7 +414,8 @@ declare @tmp table(
 	insert into @tmp
 	select '0',0,0,a.datea,a.noa,b.noq,a.buyer,a.serial	,a.zip+a.address,a.chkno,a.vccno
 	,isnull((select top 1 salesno from view_vcc where a.vccno like '%'+noa+'%' ),''),''
-	,stuff(isnull((select ','+ordeno from view_vccs where a.vccno like '%'+noa+'%' group by ordeno FOR XML PATH('') ),''),1,1,'')
+	--,stuff(isnull((select ','+ordeno from view_vccs where a.vccno like '%'+noa+'%' group by ordeno FOR XML PATH('') ),''),1,1,'')
+	,case when [type]='P' then trdno else '' end
 	,b.productno,b.product,b.unit,b.mount,b.price,b.money,
 	case when a.taxtype='1' or a.taxtype='3' then '&#10004' else null end,
 	case when a.taxtype='2' then '&#10004' else null end,
@@ -423,13 +424,13 @@ declare @tmp table(
 	from vcca a left join vccas b on a.noa=b.noa
 	where a.noa between @t_bvccano and @t_evccano
 ------------單筆處理<<Start>>-----------
-insert into @tmp(
-		gno,pageno,pageorder,datea,noa,noq,buyer,serial,invoaddr,chkno,
-		vccno,ordbno,ordeno,taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney
-)
+	insert into @tmp(
+			gno,pageno,pageorder,datea,noa,noq,buyer,serial,invoaddr,chkno,
+			vccno,ordbno,ordeno,taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney,salesno
+	)
 	select
 		gno,pageno,2,datea,noa,'002',buyer,serial,invoaddr,chkno,
-		vccno,ordbno,ordeno,taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney
+		vccno,ordbno,ordeno,taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney,salesno
 	from @tmp a
 	outer apply(select count(*) mount from @tmp where noa=a.noa) b
 	where b.mount = 1
@@ -533,8 +534,8 @@ begin
 			end
 		end
 	end
-	if(@recCount!=2)
-		update @tmp set ordeno=null where idno=@idno
+	--if(@recCount!=2)
+	--	update @tmp set ordeno=null where idno=@idno
 	update @tmp set pageno=@pageno_int,pageorder=@recCount where idno=@idno
 	set @lastnoa = @noa
 	set @recCount = @recCount+1

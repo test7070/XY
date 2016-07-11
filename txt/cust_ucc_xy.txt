@@ -801,7 +801,7 @@ create table #tvcca(
 	salesno nvarchar(50)
 	
 )
---CREATE INDEX tvcca_index ON #tvcca (vccno);
+--CREATE INDEX tvcca_index ON #tvcca (vccno)
 
 create table #tvccas(
 	noa nvarchar(20),
@@ -955,7 +955,7 @@ begin
 	,worker=@rname
 	,vccno=stuff((select ','+vccno from #tvcc where custno=a.custno and cno=a.cno and custorde=a.trdno 
 	and case when taxtype='3' then '1' else taxtype end=a.taxtype for xml path('')),1,1,'')
-	,type='P',memo='PO轉出',chkno=''
+	,type='P',memo='PO轉出'+trdno,chkno=''
 	from #tvcca a left join cust b on a.custno=b.noa
 	
 	insert #tvccas (noa,noq,cno,custno,datea,productno,mount,price,money,memo,trdno,taxtype)
@@ -1079,10 +1079,8 @@ declare @einvono nvarchar(20)=isnull((select MAX(noa) from #tvcca),'')
 select @t_err t_err,@radio radio,@binvono binvono,@einvono einvono
 
 --紀錄寫入資料
-insert adpro(noa,datea,memo)
-
 update adpro
-select memo=@salesno+'@@'+@custno+'@@'+@mon+'@@'+@bdate+'@@'+@edate+'@@'+@startdate+'@@'+@radio+'@@'+@userno+'@@'+@rname+'^^'+@binvono+'^^'+@einvono+'^^'+@t_err
+set memo=@salesno+'@@'+@custno+'@@'+@mon+'@@'+@bdate+'@@'+@edate+'@@'+@startdate+'@@'+@radio+'@@'+@userno+'@@'+@rname+'^^'+@binvono+'^^'+@einvono+'^^'+@t_err
 where noa=@xxxnoa
 
 IF OBJECT_ID('tempdb..#tvcc')is not null

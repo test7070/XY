@@ -334,7 +334,32 @@
 						return;
 					}
 					
-					//105/07/07 判斷是否有超過3個月的帳款 等級權限9不處理
+					//105/07/11 判斷是否有超過3個月的帳款 等級權限9不處理
+					if(r_rank<'9'){
+						var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
+						q_gt('cust', t_where, 0, 0, 0, "getummcust", r_accy, 1);
+						var as = _q_appendData("cust", "", true);
+						if (as[0] != undefined) {
+							var t_custno=as[0].custno2;
+							var t_comp=as[0].cust2;
+							if(t_custno.length==0){
+								t_custno=as[0].noa;
+								t_comp=as[0].comp;
+							}
+							var t_mon=q_cdn(q_date().substr(0,r_lenm)+'/01',-105).substr(0,r_lenm)
+							
+							//取出出貨單
+							q_gt('umm_import',"where=^^['','"+t_custno+"','','"+t_mon+"','"+q_getPara('sys.d4taxtype')+"')^^", 0, 0, 0, "umm_import", r_accy, 1);
+							var as2 = _q_appendData('umm_import', "", true);
+							if(as2.length>0){
+								alert('客戶有超過3個月的帳款未沖帳，禁止核准訂單!!');
+								return;
+							}
+						}else{
+							alert('客戶編號錯誤!!');
+							return;
+						}
+					}
 					
 					if(r_rank>"2"){//1050111 5以上 //1050113改成3以上
 	                    Lock(1, {

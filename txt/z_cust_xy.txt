@@ -65,6 +65,11 @@ END
 		grpname nvarchar(max),
 		custno2 nvarchar(max),
 		cust2 nvarchar(max),
+		
+		invocustno nvarchar(max),
+		invocusts nvarchar(max),
+		vcccustno nvarchar(max),
+		vcccusts nvarchar(max),
 	)
 
 	insert into #tmp
@@ -77,6 +82,8 @@ END
 	,case when isnull(b.notprice,0)=0 then 'Y' else 'N' end,b.p23
 	,isnull((select top 1 item from dbo.fnSplit(@s_status) where n=a.status),'')
 	,a.grpno,a.grpname,a.custno2,a.cust2
+	,b.invocustno,isnull((select nick from cust where noa=b.invocustno),'')
+	,b.vcccustno,isnull((select nick from cust where noa=b.vcccustno),'')
 	from cust a left join custm b on a.noa=b.noa 
 	where (a.noa between @t_bcustno and @t_ecustno) 
 	and (isnull(a.salesno,'') between @t_bsales and @t_esales) 

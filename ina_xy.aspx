@@ -162,7 +162,7 @@
 			
 			function q_stPost() {					
 				for (var j = 0; j < q_bbsCount; j++) {
-					if(!emp($('#txtRc2no_'+j).val()) && z_rc2no.indexOf($('#txtRc2no_'+j).val())==-1 ){
+					if(!emp($('#txtRc2no_'+j).val()) ){//&& z_rc2no.indexOf($('#txtRc2no_'+j).val())==-1
 						z_rc2no=z_rc2no+(z_rc2no.length>0?',':'')+$('#txtRc2no_'+j).val();
 					}
 				}
@@ -224,7 +224,7 @@
 							sum();
 						});
 						
-						$('#txtRc2no_' + i).click(function() {
+						$('#txtRc2no_' + j).click(function() {
                             t_IdSeq = -1;
                             q_bodyId($(this).attr('id'));
                             b_seq = t_IdSeq;

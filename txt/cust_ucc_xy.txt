@@ -1046,7 +1046,7 @@ begin
 	declare cursor_table cursor for
 	select isnull(a.money,0),isnull(b.money,0),b.mnoq,a.noa from #tvcca a 
 	outer apply (select sum(money)money,MAX(noq)mnoq from #tvccas where noa=a.noa)b
-	where isnull(a.money,0)!=isnull(b.money,0) and len(b.noq)>0
+	where isnull(a.money,0)!=isnull(b.money,0) and len(b.mnoq)>0
 	open cursor_table
 	fetch next from cursor_table
 	into @bmoney,@smoney,@mnoq,@cvccano

@@ -681,8 +681,16 @@
 			var focus_addr = '';
 			var z_cno = r_cno, z_acomp = r_comp, z_nick = r_comp.substr(0, 2);
 			var issales=false;
+			var t_grpno=''; //目前客戶的集團
 			function q_gtPost(t_name) {
 				switch (t_name) {
+					case 'getgrpno':
+						var as = _q_appendData("cust", "", true);
+						t_grpno='';
+						if (as[0] != undefined) {
+							t_grpno=as[0].grpno;
+						}
+						break;
 					case 'cust_orde':
 						var as = _q_appendData("view_orde", "", true);
 						if (as[0] != undefined) {
@@ -1010,7 +1018,9 @@
 					case 'cust_detail':
 						var as = _q_appendData("cust", "", true);
 						var x_err='';
+						t_grpno='';
 						if (as[0] != undefined) {
+							t_grpno=as[0].grpno;
 							$('#txtFax').val(as[0].fax);
 							$('#txtPost').val(as[0].zip_comp);
 							$('#txtAddr').val(as[0].addr_comp);
@@ -2130,6 +2140,8 @@
 				}
 				if(!emp($('#txtCustno').val())){//1050113
 					t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
+					q_gt('cust', t_where, 0, 0, 0, 'getgrpno', r_accy);
+					t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
 					q_gt('custm', t_where, 0, 0, 0, '', r_accy);
 				}
 			}
@@ -2404,7 +2416,8 @@
 					case 'txtProductno_':
 						if(!emp($('#txtProductno_'+b_seq).val())){
 							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
-								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)){
+								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
+								&&  $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno){
 									$('#btnMinus_'+b_seq).click();
 									break;
 								}

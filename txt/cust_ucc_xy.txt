@@ -427,7 +427,7 @@ begin
 	--將orde的內容轉至vcc
 	set @cmd="insert vcc"+@accy+"(noa,ordeno,typea,stype,datea,custno,comp,nick,tel,fax,post,addr,post2,addr2,salesno,sales
 	,cno,acomp,paytype,trantype,money,tax,taxtype,total,worker,worker2,unpay,payed,memo,cardealno,cardeal
-	,coin,floata,totalus,custno2,comp2,transtyle,mon)
+	,coin,floata,totalus,custno2,comp2,transtyle,mon,invono)
 	select '"+@n_vccno+"' noa,noa ordeno,'1' typea,stype,'"+@nowdate+"',custno,comp,nick,tel,fax,post,addr,post2,addr2,salesno,sales
 	,cno,acomp,paytype,trantype,money,tax,taxtype,total,isnull((select namea from sss where noa='"+@usera+"'),'"+@usera+"'),'',total unpay,0 payed,memo
 	,case when trantype='送達' then 'YUDA' when trantype='貨運' then 'H002' else '' end
@@ -436,7 +436,7 @@ begin
 	,conform
 	,case when len(a.mon)>0 then a.mon when cast(right('"+@nowdate+"',2) as int) >= cast(isnull((select startdate from cust where noa=a.custno),'0')as int)
 	and cast(isnull((select startdate from cust where noa=a.custno),'0')as int) !=0
-	then left(dbo.q_cdn(LEFT('"+@nowdate+"',6)+'/25',10),6) else LEFT('"+@nowdate+"',6) end
+	then left(dbo.q_cdn(LEFT('"+@nowdate+"',6)+'/25',10),6) else LEFT('"+@nowdate+"',6) end,''
 	from orde"+@accy+" a where noa='"+@noa+"'"
 	EXECUTE sp_executesql @cmd
 		
@@ -847,7 +847,7 @@ begin
 	where a.datea between @bdate and @edate
 	and (len(@mon)=0 or a.mon=@mon)
 	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
-	and len(a.invono)=0 and isnull(a.transtyle,'')='週結'
+	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='週結'
 	and a.typea='1' and a.taxtype!='6' and isnull(b.total,0)>0
 	group by a.accy,a.transtyle,a.cno
 	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end
@@ -864,7 +864,7 @@ begin
 	where a.mon=@mon
 	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
 	and (len(@startdate)=0 or isnull(d.startdate,'')=@startdate)
-	and len(a.invono)=0 and isnull(a.transtyle,'')='月結'
+	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='月結'
 	and a.typea='1' and a.taxtype!='6' and isnull(b.total,0)>0
 	group by a.accy,a.transtyle,a.cno
 	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end
@@ -880,7 +880,7 @@ begin
 	left join view_orde d on b.ordeno=d.noa
 	where (len(@mon)=0 or a.mon=@mon) and isnull(d.custorde,'')!=''
 	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
-	and len(a.invono)=0 and isnull(a.transtyle,'')='PO' 
+	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='PO' 
 	and a.typea='1' and a.taxtype!='6' and isnull(b.total,0)>0
 	group by a.accy,a.transtyle,a.cno
 	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end

@@ -714,7 +714,8 @@
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
 							
-							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
+							//避免衝突
+							/*if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
 								//取得客戶集團105/04/11
 								var t_grpno='';
 								var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
@@ -729,7 +730,7 @@
 									$('#txtProductno_' + b_seq).val('');
 								}
 							}
-							AutoNo3();
+							AutoNo3();*/
 						});
 						
 						$('#btnProduct_' + j).click(function() {
@@ -784,9 +785,21 @@
 								if (as[0] != undefined) {
 									t_grpno=as[0].grpno;
 								}
+								//105/07/21 集團出貨可以出底下子公司
+								//集團本身底下子公司
+								var t_where = "where=^^ grpno='"+$('#txtCustno').val()+"' ^^";
+								q_gt('cust', t_where, 0, 0, 0, "getcustgrpno2", r_accy, 1);
+								var as2 = _q_appendData("cust", "", true);
+								var isexists=false;
+								for ( i = 0; i < as2.length; i++) {
+									if($('#txtProductno_' + b_seq).val().substr(0,5)==as2[i].noa.substr(0,5)){
+										isexists=true;
+									}
+								}
 								//非該客戶的印品
 								if ($('#txtProductno_'+b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
-									&& $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno.substr(0,5)){
+									&& $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno.substr(0,5)
+									&& !isexists	){
 									$('#txtProductno_'+b_seq).val('');
 								}
 							}
@@ -1233,7 +1246,7 @@
 				$('#btnFaxpost').removeAttr('disabled');
 				change_check();
 				
-				if (!q_cur) {
+				if (q_cur!=1 && q_cur!=2) {
 					$('#combAddr').attr('disabled', 'disabled');
 				} else {
 					$('#combAddr').removeAttr('disabled');
@@ -1241,7 +1254,7 @@
 				
 				var emp_productno=false;
 				for (var j = 0; j < q_bbsCount; j++) {
-					if (!q_cur) {
+					if (q_cur!=1 && q_cur!=2) {
 						$('#combGroupbno_'+j).attr('disabled', 'disabled');
 						$('#combClassa_'+j).attr('disabled', 'disabled');
 					}else{
@@ -1399,20 +1412,33 @@
 						break;
 					case 'txtProductno_':
 						if (!emp($('#txtProductno_'+b_seq).val())) {
-							//取得客戶集團105/04/11
-							var t_grpno='';
+							//取得客戶集團105/04/11 //105/07/21 集團出貨可以出底下子公司
+							var t_grpno=''; //客戶集團編號
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('cust', t_where, 0, 0, 0, "getcustgrpno", r_accy, 1);
 							var as = _q_appendData("cust", "", true);
 							if (as[0] != undefined) {
 								t_grpno=as[0].grpno;
 							}
+							//集團本身底下子公司
+							var t_where = "where=^^ grpno='"+$('#txtCustno').val()+"' ^^";
+							q_gt('cust', t_where, 0, 0, 0, "getcustgrpno2", r_accy, 1);
+							var as2 = _q_appendData("cust", "", true);
+							var isexists=false;
+							for ( i = 0; i < as2.length; i++) {
+								if($('#txtProductno_' + b_seq).val().substr(0,5)==as2[i].noa.substr(0,5)){
+									isexists=true;
+								}
+							}
+							
 							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
+								
 								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
 								&& $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno.substr(0,5)
-								){
+								&& !isexists	){
 									$('#txtProductno_' + b_seq).val('');
 								}
+								
 							}
 							
 							//1050524直接帶入主檔 不判斷

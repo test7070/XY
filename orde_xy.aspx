@@ -681,16 +681,8 @@
 			var focus_addr = '';
 			var z_cno = r_cno, z_acomp = r_comp, z_nick = r_comp.substr(0, 2);
 			var issales=false;
-			var t_grpno=''; //目前客戶的集團
 			function q_gtPost(t_name) {
 				switch (t_name) {
-					case 'getgrpno':
-						var as = _q_appendData("cust", "", true);
-						t_grpno='';
-						if (as[0] != undefined) {
-							t_grpno=as[0].grpno;
-						}
-						break;
 					case 'cust_orde':
 						var as = _q_appendData("view_orde", "", true);
 						if (as[0] != undefined) {
@@ -1018,9 +1010,7 @@
 					case 'cust_detail':
 						var as = _q_appendData("cust", "", true);
 						var x_err='';
-						t_grpno='';
 						if (as[0] != undefined) {
-							t_grpno=as[0].grpno;
 							$('#txtFax').val(as[0].fax);
 							$('#txtPost').val(as[0].zip_comp);
 							$('#txtAddr').val(as[0].addr_comp);
@@ -2140,8 +2130,6 @@
 				}
 				if(!emp($('#txtCustno').val())){//1050113
 					t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
-					q_gt('cust', t_where, 0, 0, 0, 'getgrpno', r_accy);
-					t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
 					q_gt('custm', t_where, 0, 0, 0, '', r_accy);
 				}
 			}
@@ -2415,9 +2403,28 @@
 						break;
 					case 'txtProductno_':
 						if(!emp($('#txtProductno_'+b_seq).val())){
+							var t_grpno=''; //客戶集團編號
+							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
+							q_gt('cust', t_where, 0, 0, 0, "getcustgrpno", r_accy, 1);
+							var as = _q_appendData("cust", "", true);
+							if (as[0] != undefined) {
+								t_grpno=as[0].grpno;
+							}
+							//105/07/21集團本身底下子公司
+							var t_where = "where=^^ grpno='"+$('#txtCustno').val()+"' ^^";
+							q_gt('cust', t_where, 0, 0, 0, "getcustgrpno2", r_accy, 1);
+							var as2 = _q_appendData("cust", "", true);
+							var isexists=false;
+							for ( i = 0; i < as2.length; i++) {
+								if($('#txtProductno_' + b_seq).val().substr(0,5)==as2[i].noa.substr(0,5)){
+									isexists=true;
+								}
+							}
+							
 							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
 								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
-								&&  $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno){
+								&&  $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno
+								&& !isexists	){
 									$('#btnMinus_'+b_seq).click();
 									break;
 								}

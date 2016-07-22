@@ -842,49 +842,64 @@ begin
 	insert #tvcc(accy,typea,cno,custno,vccno,taxtype,money,tax,total)
 	select a.accy,a.transtyle,a.cno
 	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end,a.noa,a.taxtype
-	,a.money,a.tax,a.total
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
 	from view_vcc a left join view_vccs b on a.noa=b.noa left join custm c on a.custno=c.noa
 	where a.datea between @bdate and @edate
 	and (len(@mon)=0 or a.mon=@mon)
 	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
 	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='週結'
-	and a.typea='1' and a.taxtype!='6' and isnull(b.total,0)>0
+	and a.taxtype!='6' and isnull(b.total,0)>0
 	group by a.accy,a.transtyle,a.cno
 	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end
-	,a.noa,a.taxtype,a.money,a.tax,a.total
+	,a.noa,a.taxtype
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
 end
 if(@radio='2')--月結
 begin
 	insert #tvcc(accy,typea,cno,custno,vccno,taxtype,money,tax,total)
 	select a.accy,a.transtyle,a.cno
 	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end,a.noa,a.taxtype
-	,a.money,a.tax,a.total
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
 	from view_vcc a left join view_vccs b on a.noa=b.noa left join custm c on a.custno=c.noa
 	left join cust d on a.custno=d.noa
 	where a.mon=@mon
 	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
 	and (len(@startdate)=0 or isnull(d.startdate,'')=@startdate)
 	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='月結'
-	and a.typea='1' and a.taxtype!='6' and isnull(b.total,0)>0
+	and a.taxtype!='6' and isnull(b.total,0)>0
 	group by a.accy,a.transtyle,a.cno
 	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end
-	,a.noa,a.taxtype,a.money,a.tax,a.total
+	,a.noa,a.taxtype
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
 end
 if(@radio='3')--PO
 begin
 	insert #tvcc(accy,typea,cno,custno,vccno,taxtype,custorde,ordeno,money,tax,total)
 	select a.accy,a.transtyle,a.cno
 	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end,a.noa,a.taxtype,d.custorde,b.ordeno
-	,a.money,a.tax,a.total
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
 	from view_vcc a left join view_vccs b on a.noa=b.noa left join custm c on a.custno=c.noa
 	left join view_orde d on b.ordeno=d.noa
 	where (len(@mon)=0 or a.mon=@mon) and isnull(d.custorde,'')!=''
 	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
 	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='PO' 
-	and a.typea='1' and a.taxtype!='6' and isnull(b.total,0)>0
+	and a.taxtype!='6' and isnull(b.total,0)>0
 	group by a.accy,a.transtyle,a.cno
 	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end
-	,a.noa,a.taxtype,d.custorde,b.ordeno,a.money,a.tax,a.total
+	,a.noa,a.taxtype,d.custorde,b.ordeno
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
 end
 
 delete a from #tvcc a where not exists (select * from cust where noa=a.custno)
@@ -992,6 +1007,10 @@ begin
 	begin
 		set @t_err='系統開立發票需'+CAST((select count(*) from #tvcca) as nvarchar(50))+'張'
 		set @t_err=@t_err+'，可用發票(剩餘'+cast((select count(*) from @cvcca) as nvarchar(50))+'張)不足開立張數!!'
+	end
+	if((select count(*) from #tvcca where total<=0 )>0)
+	begin
+		set @t_err='產生發票金額小於等於0!!'
 	end
 	if((select count(*) from #tvcca)=0)
 	begin

@@ -77,6 +77,7 @@ set @t_enda = case when '#non'=[17] then '' else [17] end
 declare @result table(
 	gno nvarchar(10),
 	bdate nvarchar(30),
+	datea nvarchar(30),
 	pno nvarchar(30),
 	pdt nvarchar(max),
 	spec nvarchar(max),
@@ -94,7 +95,7 @@ declare @result table(
 	enda bit
 )
 insert @result
-select '0',a.datea,a.productno,a.product,a.spec,a.unit,a.mount,a.c1,a.notv
+select '0',a.bdate,a.datea,a.productno,a.product,a.spec,a.unit,a.mount,a.c1,a.notv
 	   ,b.tggno,b.tgg,a.custno,a.comp,a.noa,a.ordeno,a.no2,isnull(a.enda,0)
 from view_cub a  outer apply (select top 1 * from view_cubs where noa=a.noa order by noq desc)b
 where a.bdate between @t_bdate and @t_edate 
@@ -119,7 +120,7 @@ dbo.getComma(c1,[2]) c1,
 dbo.getComma(notv,[2]) notv,
 'cub_xy?noa=$noa' qhrefa,
 'orde_xy?noa=$ordeno' qhrefb,
-* from @result order by gno,bdate,noa;
+* from @result order by gno,bdate,noa,datea;
 ---------------------------------------------------------------------------------------------------------------------------------------------
 z_cub_xyp3:--z_cub_xyp3 
 	SET QUOTED_IDENTIFIER OFF 

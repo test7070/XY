@@ -1027,6 +1027,7 @@ begin
 	--更新業務 對帳客戶
 	update a
 	set vcccustno=case when isnull(c.vcccustno,'')!='' then c.vcccustno else a.custno end,salesno=b.salesno
+	,serial=case when isnull(c.p23,'')='2' then '' else a.serial end 
 	from #tvcca a left join cust b on a.custno=b.noa left join custm c on a.custno=c.noa
 	
 	update a

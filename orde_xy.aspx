@@ -731,6 +731,8 @@
 							if (ass[0] != undefined) {
 								$('#textInvomemo').val($('#textInvomemo').val()+' '+ass[0].invoicetitle+' '+ass[0].serial);
 							}
+							
+							$('#textInvomemo').val($('#textInvomemo').val()+' 交貨時間:'+as[0].trantime);
 						}
 						break;
 					case 'uccgb':

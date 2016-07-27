@@ -41,8 +41,8 @@
 
 			function bbsAssign() {
 				_bbsAssign();
-				/*for (var j = 0; j < q_bbsCount; j++) {
-					$('#xradSel_'+j).click(function() {
+				for (var j = 0; j < q_bbsCount; j++) {
+					/*$('#xradSel_'+j).click(function() {
 						t_IdSeq = -1;
 						q_bodyId($(this).attr('id'));
 						b_seq = t_IdSeq;
@@ -56,8 +56,18 @@
 						
 						location.href = location.origin+replaceAll(location.pathname,'ordes_b2_xy','ordes_b')+"?" + r_userno + ";" + r_name + ";" + q_id + ";"+t_where+";"+r_accy;
 						//q_box("ordes_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes', "95%", "650px", q_getMsg('popOrde'));
+					});*/
+					
+					$('#txtNoa_'+j).click(function() {
+						var t_where = '';
+						var t_noa = $(this).val();
+						if (t_noa.length > 0) {
+							t_where = "noa='" + t_noa + "'";
+							q_box("orde_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'orde', "95%", "95%", '');
+						}
 					});
-				}*/
+					
+				}
 			}
 
 			function q_gtPost() {

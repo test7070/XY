@@ -720,18 +720,32 @@
 						break;
 					case 'custm':
 						var as = _q_appendData("custm", "", true);
+						var t_cust=$('#txtCustno').val();
+						var t_invocust=t_cust;
 						if (as[0] != undefined) {
-							$('#textInvomemo').val(as[0].invomemo+(as[0].p23!=''?(" "+as[0].p23+"聯"):''));
+							t_invocust=as[0].invocustno;
 							$('#textConn').val(as[0].conn);
-							
-							var t_custno=as[0].noa;
-							var t_where = "where=^^ noa='" + t_custno + "' ^^";
-							q_gt('cust', t_where, 0, 0, 0, "getcust",r_accy,1);
-							var ass = _q_appendData("cust", "", true);
-							if (ass[0] != undefined) {
-								$('#textInvomemo').val($('#textInvomemo').val()+' '+ass[0].invoicetitle+' '+ass[0].serial);
+							if(t_invocust.length==0 || t_invocust==t_cust){
+								t_invocust=t_cust;
+								$('#textInvomemo').val(as[0].invomemo+' '+as[0].p23!=''?(" "+as[0].p23+"聯"):'');
+							}else{
+								var t_where = " where=^^ noa='" + t_invocust + "'^^";
+								q_gt('custm', t_where, 0, 0, 0, 'getinvomemo2', r_accy,1);
+								var as2 = _q_appendData("custm", "", true);
+								if (as2[0] != undefined) {
+									$('#textInvomemo').val(as[0].invomemo+' '+as2[0].p23!=''?(" "+as2[0].p23+"聯"):'');
+								}
 							}
-							
+						}
+						
+						var t_where = "where=^^ noa='" + t_invocust + "' ^^";
+						q_gt('cust', t_where, 0, 0, 0, "getcust",r_accy,1);
+						var ass = _q_appendData("cust", "", true);
+						if (ass[0] != undefined) {
+							$('#textInvomemo').val($('#textInvomemo').val()+' '+ass[0].invoicetitle+' '+ass[0].serial);
+						}
+						
+						if (as[0] != undefined) {
 							$('#textInvomemo').val($('#textInvomemo').val()+' 交貨時間:'+as[0].trantime);
 						}
 						break;
@@ -1076,7 +1090,11 @@
 						break;
 					case 'cust_detail2':
 						var as = _q_appendData("custm", "", true);
+						//105/08/01 改抓發票客戶的資料
+						var t_cust=$('#txtCustno').val();
+						var t_invocust=t_cust;
 						if (as[0] != undefined) {
+							t_invocust=as[0].invocustno;
 							var t_taxtype=as[0].taxtype;
 							var taxtype='0',xy_taxtypetmp=q_getPara('sys.taxtype').split(',');
 							for (var i=0;i<xy_taxtypetmp.length;i++){
@@ -1084,17 +1102,30 @@
 									taxtype=xy_taxtypetmp[i].split('@')[0];
 							}
 							$('#cmbTaxtype').val(taxtype);
+							$('#textConn').val(as[0].conn);
 							$('#cmbConform').val(as[0].invomemo);
 							
-							$('#textInvomemo').val(as[0].invomemo+(as[0].p23!=''?(" "+as[0].p23+"聯"):''));
-							$('#textConn').val(as[0].conn);
-							var t_custno=as[0].noa;
-							var t_where = "where=^^ noa='" + t_custno + "' ^^";
-							q_gt('cust', t_where, 0, 0, 0, "getcust",r_accy,1);
-							var ass = _q_appendData("cust", "", true);
-							if (ass[0] != undefined) {
-								$('#textInvomemo').val($('#textInvomemo').val()+' '+ass[0].invoicetitle+' '+ass[0].serial);
+							if(t_invocust.length==0 || t_invocust==t_cust){
+								t_invocust=t_cust;
+								$('#textInvomemo').val(as[0].invomemo+' '+as[0].p23!=''?(" "+as[0].p23+"聯"):'');
+							}else{
+								var t_where = " where=^^ noa='" + t_invocust + "'^^";
+								q_gt('custm', t_where, 0, 0, 0, 'getinvomemo2', r_accy,1);
+								var as2 = _q_appendData("custm", "", true);
+								if (as2[0] != undefined) {
+									$('#textInvomemo').val(as[0].invomemo+' '+as2[0].p23!=''?(" "+as2[0].p23+"聯"):'');
+								}
 							}
+						}
+						
+						var t_where = "where=^^ noa='" + t_invocust + "' ^^";
+						q_gt('cust', t_where, 0, 0, 0, "getcust",r_accy,1);
+						var ass = _q_appendData("cust", "", true);
+						if (ass[0] != undefined) {
+							$('#textInvomemo').val($('#textInvomemo').val()+' '+ass[0].invoicetitle+' '+ass[0].serial);
+						}
+						if (as[0] != undefined) {
+							$('#textInvomemo').val($('#textInvomemo').val()+' 交貨時間:'+as[0].trantime);
 						}
 						break;
 					case 'store2_store2':
@@ -2131,6 +2162,7 @@
 						emp_productno=true;
 				}
 				if(!emp($('#txtCustno').val())){//1050113
+					//105/08/01
 					t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
 					q_gt('custm', t_where, 0, 0, 0, '', r_accy);
 				}

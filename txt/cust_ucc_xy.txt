@@ -481,6 +481,8 @@ declare @year nvarchar(20)=[1]--年度[1]
 declare @noa nvarchar(20)=[2]--單據編號[2]
 declare @condition nvarchar(20)=[3]--動作 0 刪除, 1 新增,2作廢[3]
 declare @t_err nvarchar(200)=''
+declare @userno nvarchar(20)=[4]
+declare @partno nvarchar(20)=isnull((select partno from sss where noa=@userno),'')
 -----------------------------------------------------------------------
 declare @nowdate nvarchar(30) --今天日期
 set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
@@ -555,6 +557,7 @@ begin
 		declare cursor_table cursor for
 		select a.noa,b.binvono,b.einvono from vccar a left join vccars b on a.noa=b.noa 
 		where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 and a.cno=@t_cno 
+		and ((len(case when (select count(*) from vccars where noa=a.noa and partno=@partno)>0 then @partno else '' end )=0 and partno='') or partno=@partno)
 		order by a.noa,a.binvono
 		open cursor_table
 		fetch next from cursor_table
@@ -705,6 +708,7 @@ declare @radio nvarchar(20)=case when '#non'=[7] then '1' else [7] end
 declare @userno nvarchar(20)=case when '#non'=[8] then '' else [8] end
 declare @rname nvarchar(20)=case when '#non'=[9] then '' else [9] end
 declare @t_err nvarchar(200)=''
+declare @partno nvarchar(20)=isnull((select partno from sss where noa=@userno),'')
 -----------------------------------------------------------------------
 declare @nowdate nvarchar(30) --今天日期
 set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
@@ -745,6 +749,7 @@ declare @xvccano nvarchar(20)
 declare cursor_table cursor for
 select a.noa,b.binvono,b.einvono from vccar a left join vccars b on a.noa=b.noa 
 where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 --and a.cno=@t_cno 
+and ((len(case when (select count(*) from vccars where noa=a.noa and partno=@partno)>0 then @partno else '' end )=0 and partno='') or partno=@partno)
 order by a.noa,a.binvono
 open cursor_table
 fetch next from cursor_table

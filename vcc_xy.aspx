@@ -224,7 +224,7 @@
 						alert('發票開立非【隨貨】!!');
 					}else{
 						if(r_rank>='3' && $('#txtDatea').val()>='105/07/01') //105/08/02 調整3以上可以開發票
-							q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0');
+							q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0'+ ';' + encodeURI(r_userno));
 						else if($('#txtDatea').val()<'105/07/01'){
 							alert("出貨單日期小於 105/07/01 不產生發票!!");
 						}else
@@ -331,7 +331,7 @@
 							break;
 						}
 						if(!($('#cmbTypea').val()!='1' || $('#cmbStype').val()=='3' || $('#cmbTranstyle').val()!='隨貨') && r_rank>='3' && $('#txtDatea').val()>='105/07/01'){
-							q_func('qtxt.query.vcc2vcca1', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';1');
+							q_func('qtxt.query.vcc2vcca1', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';1'+ ';' + encodeURI(r_userno));
 						}else{
 							if(stpostvcca && t_invono.length>0){
 								alert('變更的出貨單不符合開立發票條件!!');
@@ -990,7 +990,7 @@
 								Unlock(1);
 								return;
 							}else{
-								q_func('qtxt.query.vcc2vcca2', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';2');
+								q_func('qtxt.query.vcc2vcca2', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';2'+ ';' + encodeURI(r_userno));
 							}
 						}else{
 							_btnDele();
@@ -1542,7 +1542,7 @@
 				
 				if(q_cur==2){//修改後重新產生 避免發票資料不對應
 					stpostvcca=true;
-					q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0');
+					q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0'+ ';' + encodeURI(r_userno));
 				}
 			}
 

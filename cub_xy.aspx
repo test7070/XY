@@ -17,7 +17,7 @@
 			this.errorHandler = null;
 			q_tables = 't';
 			var q_name = "cub";
-			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2'];
+			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano'];
 			var q_readonlys = ['txtDate2', 'txtOrdeno', 'txtNo2','txtMo','txtW01'];
 			var q_readonlyt = [];
 			var bbmNum = [['txtMount',10,0,1],['txtNotv',10,0,1]];
@@ -122,6 +122,12 @@
 					$('#txtMo').val(round(q_mul(dec($('#txtMount').val()),dec($('#txtPrice').val())),0));
 				});
 				
+				$('#textInano').click(function() {
+					if(!emp($('#textInano').val())){
+						var t_where="1=1 and charindex(noa,'"+$('#textInano').val()+"')>0 "
+						q_box("ina_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ina_xy', "95%", "650px", '入庫單');
+					}
+				});
 			}
 
 			function q_gtPost(t_name) {
@@ -488,6 +494,15 @@
 					['txtProductno__', 'btnProductno__', 'ucc', 'noa,product,spec,unit', 'txtProductno__,txtProduct__,txtSpec__,txtUnit__', 'ucc_b.aspx'],
 					['txtStoreno__', 'btnStoreno__', 'store', 'noa,store', 'txtStoreno__,txtStore__', 'store_b.aspx']
 				);
+				
+				//0808 顯示入庫單號
+				var t_inano='';
+				q_gt('view_inas', "where=^^ rc2no='" + $('#txtNoa').val() + "' and isnull(rc2no,'')!='' ^^", 0, 0, 0, "istoina",r_accy,1);
+				var as = _q_appendData("view_inas", "", true);
+				for (var i = 0; i < as.length; i++) {
+					t_inano=t_inano+(t_inano.length>0?',':'')+as[i].noa;
+				}
+				$('#textInano').val(t_inano);
 			}
 
 			function readonly(t_para, empty) {
@@ -987,6 +1002,8 @@
 						<td><input id="txtC1" type="text" class="txt num c1"/></td>
 						<td><span> </span><a id="lblNotv" class="lbl" >未交量</a></td>
 						<td><input id="txtNotv" type="text" class="txt num c1"/></td>
+						<td><span> </span><a id="lblInano" class="lbl" >入庫單</a></td>
+						<td><input id="textInano" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMemo" class="lbl" > </a></td>

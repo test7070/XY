@@ -12,7 +12,7 @@
 		<script type="text/javascript">
 			var q_name = 'view_ordes', t_bbsTag = 'tbbs', t_content = "", afilter = [], bbsKey = ['noa'], as;
 			//, t_where = '';
-			var t_sqlname = 'ordes_xy2_load';
+			var t_sqlname = 'ordes_xy_load';
 			t_postname = q_name;
 			brwCount = -1;
 			brwCount2 = 0;
@@ -42,15 +42,30 @@
 			function bbsAssign() {
 				_bbsAssign();
 				for (var j = 0; j < q_bbsCount; j++) {
-										
-					/*$('#txtNoa_'+j).click(function() {
+					/*$('#xradSel_'+j).click(function() {
+						t_IdSeq = -1;
+						q_bodyId($(this).attr('id'));
+						b_seq = t_IdSeq;
+						var t_ordeno=$('#txtNoa_'+b_seq).val(),t_datea=$('#txtDatea_'+b_seq).val();
+						
+						t_where = " isnull(enda,0)!=1 ";
+						t_where += " and productno!='' ";
+						t_where += " and (noa='"+t_ordeno+"') and (datea='"+t_datea+"')";
+						t_where += " and (source!='2' or mount!=isnull((select SUM(tranmoney3) from view_vccs where ordeno=view_ordes"+r_accy+".noa and no2=view_ordes"+r_accy+".no2),0))";
+						t_where = t_where;
+						
+						location.href = location.origin+replaceAll(location.pathname,'ordes_b2_xy','ordes_b')+"?" + r_userno + ";" + r_name + ";" + q_id + ";"+t_where+";"+r_accy;
+						//q_box("ordes_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes', "95%", "650px", q_getMsg('popOrde'));
+					});*/
+					
+					$('#txtNoa_'+j).click(function() {
 						var t_where = '';
 						var t_noa = $(this).val();
 						if (t_noa.length > 0) {
 							t_where = "noa='" + t_noa + "'";
 							q_box("orde_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'orde', "95%", "95%", '');
 						}
-					});*/
+					});
 					
 				}
 			}
@@ -80,38 +95,22 @@
 		<div  id="dbbs"  >
 			<table id="tbbs" class='tbbs'  border="2"  cellpadding='2' cellspacing='1' style='width:100%'  >
 				<tr style='color:White; background:#003366;' >
-					<td align="center" style="width:1%;"> </td>
-					<td align="center" style="width:8%;"><a id='lblDatea'>預交日</a></td>
-					<td align="center" style="width:10%;"><a id='lblComp'>客戶</a></td>
-					<td align="center" style="width:10%;"><a id='lblProductno'>產品編號</a></td>
-					<td align="center" style="width:10%;"><a id='lblProduct'>品名</a></td>
-					<td align="center" style="width:4%;"><a id='lblClassa'>版別</a></td>
-					<td align="center" style="width:20%;"><a id='lblSpec'>規格</a></td>
-					<td align="center" style="width:4%;"><a id='lblUnit'>單位</a></td>
-					<td align="center" style="width:8%;"><a id='lblMount'>數量</a></td>
-					<td align="center" style="width:12%;"><a id='lblNoa'>訂單編號</a></td>
+					<td align="center"> </td>
+					<td align="center"><a id='lblNoa'> </a></td>
+					<td align="center"><a id='lblDatea'> </a></td>
+					<td align="center"><a id='lblComp'> </a></td>
 				</tr>
 				<tr  style='background:#cad3ff;'>
-					<td align="center"><input id="chkSel.*" type="checkbox"/></td>
-					<td><input class="txt" id="txtDatea.*" type="text" style="width:98%; text-align:left;"/></td>
-					<td><input class="txt" id="txtComp.*" type="text" style="width:98%; text-align:left;"/></td>
-					<td><input class="txt" id="txtProductno.*" type="text" style="width:98%; text-align:left;"/></td>
-					<td><input class="txt" id="txtProduct.*" type="text" style="width:98%; text-align:left;"/></td>
-					<td><input class="txt" id="txtClassa.*" type="text" style="width:98%; text-align:left;"/></td>
-					<td><input class="txt" id="txtSpec.*" type="text" style="width:98%; text-align:left;"/></td>
-					<td><input class="txt" id="txtUnit.*" type="text" style="width:98%; text-align:left;"/></td>
-					<td>
-						<input class="txt" id="txtMount.*" type="text" style="width:98%; text-align:left;"/>
-						<input class="txt" id="txtVccdime.*" type="hidden" style="width:98%; text-align:left;"/>
-					</td>
-					<td>
-						<input class="txt" id="txtNoa.*" type="text" style="width:75%;"/>
-						<input class="txt" id="txtNo2.*" type="text" style="width:20%;"/>
+					<td style="width:1%;" align="center"><input name="sel"  id="xradSel.*" type="radio" /></td>
+					<td style="width:30%;">
+						<input class="txt" id="txtNoa.*" type="text" style="width:98%;"/>
 						<input id="recno.*" type="hidden" />
 					</td>
+					<td style="width:20%;"><input class="txt" id="txtDatea.*" type="text" style="width:98%; text-align:left;"/></td>
+					<td style="width:40%;"><input class="txt" id="txtComp.*" type="text" style="width:98%; text-align:left;"/></td>
 				</tr>
 			</table>
-			<!--#include file="../inc/pop_ctrl.inc"-->
+			<!--#include file="../inc/brow_ctrl.inc"-->
 		</div>
 	</body>
 </html>

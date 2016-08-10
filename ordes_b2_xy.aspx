@@ -38,11 +38,31 @@
 				$('#btnNext').hide();
 				$('#btnBott').hide();
 			}
-
+			
+			var t_custno='';
 			function bbsAssign() {
 				_bbsAssign();
 				for (var j = 0; j < q_bbsCount; j++) {
-										
+					//105/08/10 不同客戶不能選取
+					$('#chkSel_'+j).click(function() {
+						t_IdSeq = -1;
+						q_bodyId($(this).attr('id'));
+						b_seq = t_IdSeq;
+						if(t_custno.length>0){
+							if(t_custno!=$('#txtCustno_'+b_seq).val()){
+								$('#chkSel_'+b_seq).prop('checked',false);
+								alert('不同客戶禁止選取!!')
+							}
+						}else{
+							t_custno=$('#txtCustno_'+b_seq).val();
+						}
+						
+						//如果清空
+						if($('[type=checkbox]:checked').length==0){
+							t_custno='';
+						}
+					});
+								
 					/*$('#txtNoa_'+j).click(function() {
 						var t_where = '';
 						var t_noa = $(this).val();
@@ -81,28 +101,35 @@
 			<table id="tbbs" class='tbbs'  border="2"  cellpadding='2' cellspacing='1' style='width:100%'  >
 				<tr style='color:White; background:#003366;' >
 					<td align="center" style="width:1%;"> </td>
-					<td align="center" style="width:8%;"><a id='lblDatea'>預交日</a></td>
+					<td align="center" style="width:7%;"><a id='lblDatea'>預交日</a></td>
 					<td align="center" style="width:10%;"><a id='lblComp'>客戶</a></td>
 					<td align="center" style="width:10%;"><a id='lblProductno'>產品編號</a></td>
-					<td align="center" style="width:10%;"><a id='lblProduct'>品名</a></td>
+					<td align="center" style="width:8%;"><a id='lblProduct'>品名</a></td>
 					<td align="center" style="width:4%;"><a id='lblClassa'>版別</a></td>
 					<td align="center" style="width:20%;"><a id='lblSpec'>規格</a></td>
 					<td align="center" style="width:4%;"><a id='lblUnit'>單位</a></td>
-					<td align="center" style="width:8%;"><a id='lblMount'>數量</a></td>
+					<td align="center" style="width:8%;"><a id='lblMount'>訂單量</a></td>
+					<td align="center" style="width:8%;"><a id='lblNotv'>未交量</a></td>
 					<td align="center" style="width:12%;"><a id='lblNoa'>訂單編號</a></td>
 				</tr>
 				<tr  style='background:#cad3ff;'>
 					<td align="center"><input id="chkSel.*" type="checkbox"/></td>
 					<td><input class="txt" id="txtDatea.*" type="text" style="width:98%; text-align:left;"/></td>
-					<td><input class="txt" id="txtComp.*" type="text" style="width:98%; text-align:left;"/></td>
+					<td>
+						<input class="txt" id="txtComp.*" type="text" style="width:98%; text-align:left;"/>
+						<input class="txt" id="txtCustno.*" type="hidden" style="width:98%; text-align:left;"/>
+					</td>
 					<td><input class="txt" id="txtProductno.*" type="text" style="width:98%; text-align:left;"/></td>
 					<td><input class="txt" id="txtProduct.*" type="text" style="width:98%; text-align:left;"/></td>
 					<td><input class="txt" id="txtClassa.*" type="text" style="width:98%; text-align:left;"/></td>
 					<td><input class="txt" id="txtSpec.*" type="text" style="width:98%; text-align:left;"/></td>
 					<td><input class="txt" id="txtUnit.*" type="text" style="width:98%; text-align:left;"/></td>
 					<td>
-						<input class="txt" id="txtMount.*" type="text" style="width:98%; text-align:left;"/>
-						<input class="txt" id="txtVccdime.*" type="hidden" style="width:98%; text-align:left;"/>
+						<input class="txt" id="txtMount.*" type="text" style="width:98%; text-align:right;"/>
+						<input class="txt" id="txtVccdime.*" type="hidden" style="width:98%; text-align:right;"/>
+					</td>
+					<td>
+						<input class="txt" id="txtNotv.*" type="text" style="width:98%; text-align:right;"/>
 					</td>
 					<td>
 						<input class="txt" id="txtNoa.*" type="text" style="width:75%;"/>

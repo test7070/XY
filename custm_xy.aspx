@@ -79,6 +79,7 @@
 				q_cmbParse("cmbInvomemo", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
 				q_cmbParse("cmbPostmemo", '@,不寄單@不寄單,不寄單扣貨款@不寄單扣貨款,送單收現@送單收現,送單@送單,郵寄附回郵@郵寄附回郵,郵寄@郵寄,郵寄附回郵不寄單@郵寄附回郵不寄單');
 				
+				$('#lblIsfranchisestore').text('附採購單');
 			}
 			
 			function bbsAssign() {
@@ -187,7 +188,7 @@
 					<tr>
 						<td colspan="2">
 							<input id="chkIsfranchisestore" type="checkbox" />
-							<span> </span><a id="lblIsfranchisestore"> </a>
+							<span> </span><a id="lblIsfranchisestore"> </a><!--0810改成當作是否需附採購單-->
 						</td>
 						<td colspan="2">
 							<input id="chkNotprice" type="checkbox" />

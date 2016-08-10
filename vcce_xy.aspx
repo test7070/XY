@@ -317,7 +317,7 @@
 									if(as[i].typea=='2'){
 										as[0].total=-1*dec(as[0].total);
 									}
-									if(!(as[0].paytype.indexOf('收現')>-1|| as[0].paytype.indexOf('貨到現金')>-1))
+									if(!(as[0].paytype.indexOf('貨到收現')>-1))
 										$('#txtAdjweight_'+b_seq).val(0);
 									else
 										$('#txtAdjweight_'+b_seq).val(as[0].total);

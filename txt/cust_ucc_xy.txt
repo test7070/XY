@@ -648,10 +648,10 @@ begin
 		if((select taxtype from view_vcc where noa=@noa)='3')
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,datea,ordeno,no2)
-			select @invono,a.no2,a.custno,a.productno,a.product,a.unit,a.mount
+			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,a.mount
 			,case when a.mount=0 then 0 else round(round(a.total/1.05,0)/a.mount,3) end
 			,round(a.total/1.05,0),@nowdate,a.noa,a.no2
-			from view_ordes a where a.noa=@noa
+			from view_vccs a where a.noa=@noa
 			
 			set @money=isnull((select money from vcca where noa=@invono),0)
 			set @moneys=isnull((select SUM(money) from vccas where noa=@invono),0)
@@ -674,13 +674,13 @@ begin
 		else if((select taxtype from view_vcc where noa=@noa)='6')
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,ordeno,no2)
-			select @invono,a.no2,a.custno,a.productno,a.product,a.unit,0,a.price,0,a.noa,a.no2
+			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,0,a.price,0,a.noa,a.no2
 			from view_vccs a where a.noa=@noa
 		end
 		else
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,ordeno,no2)
-			select @invono,a.no2,a.custno,a.productno,a.product,a.unit,a.mount,a.price,a.total,a.noa,a.no2
+			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,a.mount,a.price,a.total,a.noa,a.no2
 			from view_vccs a where a.noa=@noa
 		end
 		

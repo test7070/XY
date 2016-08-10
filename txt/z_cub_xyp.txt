@@ -1,4 +1,4 @@
-z_cub_xyp1:--z_cub_xyp1
+﻿z_cub_xyp_bk1:--z_cub_xyp_bk1
 	declare @t_accy nvarchar(max)
 	declare @t_bxnoa nvarchar(50)
 	declare @t_exnoa nvarchar(50)
@@ -55,24 +55,132 @@ z_cub_xyp1:--z_cub_xyp1
 	dbo.getComma(amount,[2]) amount,*
 	from @result order by noa,gno,noq;
 --*******************************************************************************************************
+z_cub_z_cub_xyp1:--z_cub_xyp1
+	declare @t_accy nvarchar(max)
+	declare @t_bxnoa nvarchar(50)
+	declare @t_exnoa nvarchar(50)
+	declare @t_pageline int = 8   --------一頁幾行
+
+	set @t_accy = '[1]'
+	set @t_bxnoa = case when '#non'=[6] then '' else [6] end
+	set @t_exnoa = case when '#non'=[7] then CHAR(255) else [7] end
+
+	---------------------------------------------------------------------------------------
+	declare @result table(
+		gno nvarchar(1),
+		recno int,
+		pageno int,
+		topage int,
+		noa nvarchar(50),
+		noq nvarchar(50),
+		datea nvarchar(10),
+		bdate nvarchar(10),
+		ordeno nvarchar(50),
+		custno nvarchar(100),
+		comp nvarchar(100),
+		pno nvarchar(50),
+		product nvarchar(150),
+		spec nvarchar(MAX),
+		amemo nvarchar(MAX),
+		amount float,
+		aunit nvarchar(100),
+		tggno nvarchar(100),
+		tggs nvarchar(100),
+		processno nvarchar(100),
+		processs nvarchar(100),
+		mount float,
+		unit  nvarchar(100),
+		need nvarchar(MAX),
+		bmemo nvarchar(MAX),
+		uno nvarchar(50),
+		ucc nvarchar(150)
+	)
+	
+	insert into @result
+	select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0,a.noa,b.noq,a.datea,a.bdate,a.ordeno+case when len(a.no2)>0 then '_'+a.no2 else '' end,a.custno,a.comp
+	,a.productno,a.product,a.spec,a.memo,a.mount,a.unit
+	,b.tggno,b.tgg,b.processno,b.process,b.unit,b.mount,b.need,b.memo,'',''
+	from view_cub a left join view_cubs b on a.noa=b.noa
+	where a.noa between @t_bxnoa and @t_exnoa
+	
+	declare @t_noa nvarchar(50)
+	declare @count int
+	declare @t_count int
+	
+	declare cursor_table cursor for
+	select noa,count(*) from @result group by noa
+	open cursor_table
+	fetch next from cursor_table
+	into @t_noa,@count
+	while(@@FETCH_STATUS <> -1)
+	begin
+			--新增空白欄
+			select @t_count=@t_pageline-(@count%@t_pageline)
+			while(@t_count>0)
+			begin
+				insert @result(gno,recno,noa)
+				select '0',@t_count+(@count % @t_pageline)+(FLOOR(cast(@count as float)/cast(@t_pageline as float))*@t_pageline),@t_noa
+				set @t_count=@t_count-1
+			end
+			
+			--新增 表頭與表尾
+			set @t_count=ceiling(cast(@count as float)/cast(@t_pageline as float))
+			while(@t_count>0)
+			begin
+				insert @result(gno,recno,pageno,noa,comp,ordeno,product,amount,aunit,bdate,spec,amemo)
+				select top 1 '1',((@t_count-1)*@t_pageline),@t_count,@t_noa,comp,ordeno,product,amount,aunit,bdate,spec,amemo
+				from @result where noa=@t_noa and datea!=''
+				
+				insert @result(gno,noa,recno,pageno)
+				select top 1 '2',@t_noa,((@t_count)*@t_pageline),@t_count
+				from @result where noa=@t_noa and datea!=''
+				group by noa
+						
+				set @t_count=@t_count-1
+			end
+			
+			fetch next from cursor_table
+			into @t_noa,@count
+			
+	end
+	close cursor_table
+	deallocate cursor_table
+	
+	update @result
+	set pageno=ceiling(cast(recno as float)/cast(@t_pageline as float))
+	where gno='0'
+		
+	select 
+	dbo.getComma(mount,[2]) mount,
+	dbo.getComma(amount,[2]) amount,
+	'<img width="50px" src="http://59.125.143.171/images/logo1_xy.png">' logo1
+	,*
+	from @result order by noa,pageno,recno,gno;
+--*******************************************************************************************************
 z_cub_xyp2:--z_cub_xyp2
 declare @t_bdate nvarchar(30)
 declare @t_edate nvarchar(30)
+declare @t_bfdate nvarchar(30)
+declare @t_efdate nvarchar(30)
 declare @t_bpno nvarchar(30)
 declare @t_epno nvarchar(30)
 declare @t_btgg nvarchar(30)
 declare @t_etgg nvarchar(30)
 declare @t_typea nvarchar(30)
 declare @t_enda nvarchar(30)
+declare @t_sorting nvarchar(30)
 
 set @t_bdate =case when '#non'=[8] then '' else [8] end
 set @t_edate =case when '#non'=[9] then char(255) else [9] end
-set @t_bpno = case when '#non'=[10] then '' else [10] end
-set @t_epno = case when '#non'=[11] then char(255) else [11] end
-set @t_btgg = case when '#non'=[12] then '' else [12] end
-set @t_etgg = case when '#non'=[13] then char(255) else [13] end
-set @t_typea = case when '#non'=[16] then '' else [16] end
-set @t_enda = case when '#non'=[17] then '' else [17] end
+set @t_bfdate =case when '#non'=[10] then '' else [10] end
+set @t_efdate =case when '#non'=[11] then char(255) else [11] end
+set @t_bpno = case when '#non'=[12] then '' else [12] end
+set @t_epno = case when '#non'=[13] then char(255) else [13] end
+set @t_btgg = case when '#non'=[14] then '' else [14] end
+set @t_etgg = case when '#non'=[15] then char(255) else [15] end
+set @t_typea = case when '#non'=[18] then '' else [18] end
+set @t_enda = case when '#non'=[19] then '' else [19] end
+set @t_sorting = case when '#non'=[20] then '' else [20] end
 ---------------------------------------------------------------------------------------
 declare @result table(
 	gno nvarchar(10),
@@ -120,7 +228,9 @@ dbo.getComma(c1,[2]) c1,
 dbo.getComma(notv,[2]) notv,
 'cub_xy?noa=$noa' qhrefa,
 'orde_xy?noa=$ordeno' qhrefb,
-* from @result order by gno,bdate,noa,datea;
+* from @result order by gno,case when @t_sorting='N' then datea else bdate end
+,noa
+;
 ---------------------------------------------------------------------------------------------------------------------------------------------
 z_cub_xyp3:--z_cub_xyp3 
 	SET QUOTED_IDENTIFIER OFF 
@@ -131,10 +241,10 @@ z_cub_xyp3:--z_cub_xyp3
 	declare @t_bmon nvarchar(10) 
 	declare @t_emon nvarchar(10) 
 	
-	set @t_btggno = case when '#non' = [12] then '' else [12] end
-	set @t_etggno = case when '#non' = [13] then CHAR(255) else [13] end
-	set @t_bmon = case when '#non' = [14] then '' else [14] end
-	set @t_emon = case when '#non' = [15] then CHAR(255) else [15] end
+	set @t_btggno = case when '#non' = [14] then '' else [14] end
+	set @t_etggno = case when '#non' = [15] then CHAR(255) else [15] end
+	set @t_bmon = case when '#non' = [16] then '' else [16] end
+	set @t_emon = case when '#non' = [17] then CHAR(255) else [17] end
 	---------------------------------------------------------------------------------
 	declare @tmp1 table(
 		tggno nvarchar(20),
@@ -390,10 +500,10 @@ z_cub_xyp4:--z_cub_xyp4
 	declare @t_bmon nvarchar(10) 
 	declare @t_emon nvarchar(10) 
 	
-	set @t_btggno = case when '#non' = [12] then '' else [12] end
-	set @t_etggno = case when '#non' = [13] then CHAR(255) else [13] end
-	set @t_bmon = case when '#non' = [14] then '' else [14] end
-	set @t_emon = case when '#non' = [15] then CHAR(255) else [15] end
+	set @t_btggno = case when '#non' = [14] then '' else [14] end
+	set @t_etggno = case when '#non' = [15] then CHAR(255) else [15] end
+	set @t_bmon = case when '#non' = [16] then '' else [16] end
+	set @t_emon = case when '#non' = [17] then CHAR(255) else [17] end
 	---------------------------------------------------------------------------------
 	IF OBJECT_ID('tempdb..#tmp1')is not null
 	BEGIN

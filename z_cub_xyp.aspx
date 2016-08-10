@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" >
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -51,29 +51,36 @@
                     }, {//[8][9]
                     	type : '1',
                     	name :'xdate'
-                    },{//[10][11]
+                    }, {//[10][11]
+                    	type : '1',
+                    	name :'xfdate'
+                    },{//[12][13]
                         type : '2', 
                         name : 'xpoduct',
                         dbf : 'ucc',
                         index : 'noa,product',
                         src : 'ucc_b.aspx'
-                    },{//[12][13]
+                    },{//[14][15]
                         type : '2', 
                         name : 'xtgg',
                         dbf : 'tgg',
                         index : 'noa,comp',
                         src : 'tgg_b.aspx'
-                    }, {//[14][15]
+                    }, {//[16][17]
                     	type : '1',
                     	name :'xmon'
-                    }, {//[16]
+                    }, {//[18]
                         type : '5',
                         name : 'xtypea',
                         value : ['#non@全部','製造部','加工部','委外部']
-                    }, {//[17]
+                    }, {//[19]
 						type : '5',
 						name : 'xenda',
                         value : '#non@全部,Y@結案,N@未結案'.split(',')
+                    }, {//[20]
+						type : '5',
+						name : 'xsorting',
+                        value : 'Y@預交日,N@製令日'.split(',')
                     }]
                 });
                 

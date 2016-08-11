@@ -39,27 +39,27 @@
 				$('#btnBott').hide();
 			}
 			
-			var t_custno='';
+			var t_custno='',t_ordeno='';
 			function bbsAssign() {
 				_bbsAssign();
 				for (var j = 0; j < q_bbsCount; j++) {
-					//105/08/10 不同客戶不能選取
+					//105/08/10 不同客戶不能選取 //105/08/11 不同訂單不能選取
 					$('#chkSel_'+j).click(function() {
 						t_IdSeq = -1;
 						q_bodyId($(this).attr('id'));
 						b_seq = t_IdSeq;
-						if(t_custno.length>0){
-							if(t_custno!=$('#txtCustno_'+b_seq).val()){
+						if(t_ordeno.length>0){
+							if(t_ordeno!=$('#txtNoa_'+b_seq).val()){
 								$('#chkSel_'+b_seq).prop('checked',false);
-								alert('不同客戶禁止選取!!')
+								alert('不同訂單禁止選取!!')
 							}
 						}else{
-							t_custno=$('#txtCustno_'+b_seq).val();
+							t_ordeno=$('#txtNoa_'+b_seq).val();
 						}
 						
 						//如果清空
 						if($('[type=checkbox]:checked').length==0){
-							t_custno='';
+							t_ordeno='';
 						}
 					});
 								

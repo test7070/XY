@@ -645,7 +645,7 @@ begin
 			where b.noa=@noa
 		end
 		
-		if((select taxtype from view_vcc where noa=@noa)='3')
+		if((select taxtype from view_vcc where noa=@noa)='3') 
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,datea,ordeno,no2)
 			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,a.mount

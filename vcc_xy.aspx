@@ -227,6 +227,20 @@
 				});
 				
 				$('#btnGenvcca').click(function() {
+					//105/08/12 強制鎖 只能開3聯發票
+					var t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
+					q_gt('custm', t_where, 0, 0, 0, 'getinvomemoGenvcca', r_accy,1);
+					var as = _q_appendData("custm", "", true);
+					var t_p23='',t_taxtype='';
+					if (as[0] != undefined) {
+						t_p23=as[0].p23;
+						t_taxtype=as[0].taxtype;
+					}
+					if(t_p23!='3' || t_taxtype!='應稅'){
+						alert('客戶發票聯式非3聯或非應稅禁止自動產生發票!!');
+						return;
+					}
+					
 					if($('#cmbTypea').val()!='1' || $('#cmbStype').val()=='3'){
 						alert('非出貨單禁止開立開票!!');
 					}else if($('#cmbTranstyle').val()!='隨貨'){
@@ -894,6 +908,7 @@
 							q_gt('cust', t_where, 0, 0, 0, "cust_orde");
 						}
 						sum();
+						refreshBbm();
 						break;
 					case 'cust_orde':
 						var as = _q_appendData("cust", "", true);
@@ -1701,6 +1716,20 @@
                     $('#txtNoa').css('color', 'black').css('background', 'white').removeAttr('readonly');
                 } else {
                     $('#txtNoa').css('color', 'green').css('background', 'RGB(237,237,237)').attr('readonly', 'readonly');
+                }
+                
+                if(r_rank<=5){
+                	var t_ordeno='';
+                	for (var j = 0; j < q_bbsCount; j++) {
+                		if(!emp($('#txtOrdeno_'+j).val()))
+                			t_ordeno=$('#txtOrdeno_'+j).val();
+                	}
+                	if(t_ordeno.length>0){
+                		$('#cmbTranstyle').attr('disabled', 'disabled');
+                	}
+                	if($('#cmbTranstyle').val()!=''){
+                		$('#txtInvono').attr('disabled', 'disabled');
+                	}
                 }
             }
 

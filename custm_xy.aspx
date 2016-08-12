@@ -73,7 +73,8 @@
 				var xy_taxtype='',xy_taxtmp=q_getPara('sys.taxtype').split(',');
 				for(var i=0;i<xy_taxtmp.length;i++)
 					xy_taxtype=xy_taxtype+(xy_taxtype.length>0?',':'')+xy_taxtmp[i].split('@')[1]+'@'+xy_taxtmp[i].split('@')[1];
-				q_cmbParse("cmbTaxtype", xy_taxtype);	
+				q_cmbParse("cmbTaxtype", xy_taxtype);
+				q_cmbParse("cmbP23", '@,2@2,3@3');	
 				q_cmbParse("cmbVccmemo", '@,須@須,不須@不須');
 				q_cmbParse("cmbCheckmemo", '@,須@須,不須@不須');
 				q_cmbParse("cmbInvomemo", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
@@ -173,7 +174,10 @@
 						<td><a>發票開立</a></td>
 						<td><select id="cmbInvomemo"  style='width:98%;'> </select></td>
 						<td style="width: 70px;">發票<a id="lblP23"> </a></td>
-						<td><input id="txtP23" maxlength="10" type="text" style="width:50%;" /></td>
+						<td>
+							<!--<input id="txtP23" maxlength="10" type="text" style="width:50%;" />-->
+							<select id="cmbP23"  style='width:98%;'> </select>
+						</td>
 						<td><a>發票客編</a></td>
 						<td><input id="txtInvocustno" type="text" style='width:98%;'/></td>
 					</tr>

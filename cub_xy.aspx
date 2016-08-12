@@ -76,7 +76,7 @@
 				bbmNum = [['txtMount',10,q_getPara('vcc.mountPrecision'),1],['txtPrice', 15, q_getPara('vcc.pricePrecision'), 1]
 				,['txtMo', 15, 0, 1],['txtNotv',10,q_getPara('vcc.mountPrecision'),1]];
 				bbsNum = [['txtMount', 15, q_getPara('vcc.mountPrecision'), 1],['txtPrice', 15, q_getPara('vcc.pricePrecision'), 1]
-				,['txtMo', 15, 0, 1],['txtW02', 15, 0, 1],['txtW01', 15, 0, 1]];
+				,['txtMo', 15, 0, 1],['txtW02', 15, 0, 1],['txtW01', 15, 0, 1],['txtW03', 4, 0, 1]];
 				bbtNum = [['txtMount', 15, q_getPara('vcc.mountPrecision'), 1]];
 				q_mask(bbmMask);
 				
@@ -610,7 +610,45 @@
                             b_seq = t_IdSeq;
 							
 							$('#txtW01_' + b_seq).val(q_add(dec($('#txtW02_' + b_seq).val()), dec($('#txtMo_' + b_seq).val())));
-                        })
+                        });
+                        
+                        $('#txtW03_' + i).change(function() {
+                            t_IdSeq = -1;
+                            q_bodyId($(this).attr('id'));
+                            b_seq = t_IdSeq;
+							
+							if(!emp($('#txtDatea').val())){
+								var t_w03=0;
+								for (var j = 0; j < q_bbsCount; j++) {
+									t_w03=q_add(t_w03,$('#txtW03_'+j).val());
+								}
+								
+								var t_year=dec($('#txtDatea').val().substr(0,r_len));
+								var t_mon=dec($('#txtDatea').val().substr(r_len+1,2))-1;
+								var t_day=dec($('#txtDatea').val().substr(r_lenm+1,2));
+								if(r_len==3)
+									t_year=t_year+1911;
+								var t_datea=new Date(t_year,t_mon,t_day);
+								
+								while(t_w03>0){
+									t_datea.setDate(t_datea.getDate()+1);
+									if(t_datea.getDay()!=0 && t_datea.getDay()!=6){
+										t_w03--;
+									}
+								}
+								t_year=t_datea.getFullYear();
+								t_mon=t_datea.getMonth();
+								t_day=t_datea.getDate();
+								
+								if(r_len==3)
+									t_year=t_year-1911;
+								t_year=('0000'+(t_year).toString()).slice(-1*r_len);
+								t_mon=('00'+(t_mon+1).toString()).slice(-2);
+								t_day=('00'+(t_day).toString()).slice(-2);
+									
+								$('#txtEdate').val(t_year+'/'+t_mon+'/'+t_day);
+							}
+                        });
 					}
 				}
 				_bbsAssign();
@@ -975,13 +1013,15 @@
 						<td><input id="txtOrdeno" type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblNo2" class="lbl" >訂序</a></td>
 						<td><input id="txtNo2" type="text" class="txt c1"/></td>
-						<td><span> </span><a id="lblBdate" class="lbl" >預交日</a></td>
+						<td><span> </span><a id="lblBdate" class="lbl" >訂單預交日</a></td>
 						<td><input id="txtBdate" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblProduct" class="lbl btn" >製成品</a></td>
 						<td><input id="txtProductno" type="text" class="txt c1"/></td>
 						<td colspan="2"><input id="txtProduct" type="text" class="txt c1"/></td>
+						<td><span> </span><a id="lblEdate" class="lbl" >預估完工日</a></td>
+						<td><input id="txtEdate" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblSpec" class="lbl" >規格</a></td>
@@ -1031,7 +1071,7 @@
 					<tr style='color:white; background:#003366;' >
 						<td style="width:20px;"><input id="btnPlus" type="button" style="font-size: medium; font-weight: bold;" value="＋"/></td>
 						<td style="width:20px;"> </td>
-						<td style="width:140px;"><a id='lblProcess_s'>製程名稱</a></td>
+						<td style="width:120px;"><a id='lblProcess_s'>製程名稱</a></td>
 						<td style="width:140px;"><a id='lblTgg_s'>廠商名稱</a></td>
 						<td style="width:80px;"><a id='lblMount_s'>數量</a></td>
 						<td style="width:40px;"><a id='lblUnit_s'>單位</a></td>
@@ -1040,13 +1080,14 @@
 						<td style="width:40px;"><a id='lblSale_s'>外加稅</a></td>
 						<td style="width:100px;"><a id='lblTxa_s'>稅金</a></td>
 						<td style="width:100px;"><a id='lblW01_s'>總金額</a></td>
-						<td style="width:150px;"><a id='lblNeed_s'>製造要求</a><BR><a id='lblMemo_s'>備註</a></td>
+						<td style="width:50px;"><a id='lblW03_s'>工作天數</a></td>
+						<td style="width:130px;"><a id='lblNeed_s'>製造要求</a><BR><a id='lblMemo_s'>備註</a></td>
 						<td style="width:40px;">
 							<a id='lblPay_s'>請款</a>
 							<input name="checkCut" type="checkbox" class="txt c1"/>
 						</td>
 						<td style="width:80px;"><a id='lblDatea_s'>帳款日期</a></td>
-						<td style="width:150px;"><a id='lblOrdeno_s'>進貨單號</a></td>
+						<td style="width:140px;"><a id='lblOrdeno_s'>進貨單號</a></td>
 					</tr>
 					<tr style='background:#cad3ff;'>
 						<td align="center">
@@ -1071,6 +1112,7 @@
 						<td><input id="chkSale.*" type="checkbox" class="txt c1" /></td>
 						<td><input id="txtW02.*" type="text" class="txt c1" style="text-align:right;"/></td>
 						<td><input id="txtW01.*" type="text" class="txt c1" style="text-align:right; "/></td>
+						<td><input id="txtW03.*" type="text" class="txt c1" style="text-align:right; "/></td>
 						<td>
 							<input id="txtNeed.*" type="text" class="txt c1"/>
 							<input id="txtMemo.*" type="text" class="txt c1"/>

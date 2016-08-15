@@ -895,7 +895,8 @@ begin
 	,case when a.typea='1' then 1 else -1 end*a.total
 	from view_vcc a left join view_vccs b on a.noa=b.noa left join custm c on a.custno=c.noa
 	left join view_orde d on b.ordeno=d.noa
-	where (len(@mon)=0 or a.mon=@mon) and isnull(d.custorde,'')!=''
+	where (len(@mon)=0 or a.mon=@mon) and (a.datea between @bdate and @edate) 
+	and isnull(d.custorde,'')!=''
 	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
 	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='PO' 
 	and a.taxtype!='6' and isnull(b.total,0)>0

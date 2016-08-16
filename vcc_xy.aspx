@@ -228,6 +228,13 @@
 				
 				$('#btnGenvcca').click(function() {
 					//105/08/12 強制鎖 只能開3聯發票
+					var t_serial='';
+					var t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
+					q_gt('cust', t_where, 0, 0, 0, 'getcustGenvcca', r_accy,1);
+					var as = _q_appendData("cust", "", true);
+					if (as[0] != undefined) {
+						t_serial=as[0].serial;
+					}
 					var t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
 					q_gt('custm', t_where, 0, 0, 0, 'getinvomemoGenvcca', r_accy,1);
 					var as = _q_appendData("custm", "", true);
@@ -236,8 +243,12 @@
 						t_p23=as[0].p23;
 						t_taxtype=as[0].taxtype;
 					}
-					if(t_p23!='3' || t_taxtype!='應稅'){
-						alert('客戶發票聯式非3聯或非應稅禁止自動產生發票!!');
+					if(t_serial.indexOf('二聯')>-1 || t_p23=='2'){
+						alert('請手開二聯式發票!!');
+						return;
+					}
+					if(t_taxtype!='應稅'){
+						alert('客戶發票非應稅禁止自動產生發票!!');
 						return;
 					}
 					

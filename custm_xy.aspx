@@ -95,6 +95,23 @@
 			function btnOk() {
 				t_key = q_getHref();
 				
+				//105/08/16
+				var t_serial='';
+				var t_where = " where=^^ noa='" + t_key[1] + "'^^";
+				q_gt('cust', t_where, 0, 0, 0, 'getcust', r_accy,1);
+				var as = _q_appendData("cust", "", true);
+				if (as[0] != undefined) {
+					t_serial=as[0].serial;
+				}
+				
+				if(t_serial.indexOf('二聯')>-1 || $('#cmbP23').val()=='2'){
+					$('#cmbTaxtype').val('內含');
+				}
+				
+				if($('#cmbTaxtype').val()==''){
+					$('#cmbTaxtype').val('應稅');
+				}
+				
 				_btnOk(t_key[1], bbsKey[0], bbsKey[1], '', 2); 
 			}
 			

@@ -228,21 +228,32 @@
 				
 				$('#btnGenvcca').click(function() {
 					//105/08/12 強制鎖 只能開3聯發票
-					var t_serial='';
-					var t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
+					var t_custno=$('#txtCustno').val(),t_serial='';
+					var t_p23='',t_taxtype='';
+					var t_where = " where=^^ noa='" + t_custno + "'^^";
+					q_gt('custm', t_where, 0, 0, 0, 'getinvocustnoGenvcca', r_accy,1);
+					var as = _q_appendData("custm", "", true);
+					if (as[0] != undefined) {
+						if(as[0].invocustno.length>0 && t_custno!=as[0].invocustno){
+							t_custno=as[0].invocustno;
+						}
+					}
+					
+					var t_where = " where=^^ noa='" + t_custno + "'^^";
 					q_gt('cust', t_where, 0, 0, 0, 'getcustGenvcca', r_accy,1);
 					var as = _q_appendData("cust", "", true);
 					if (as[0] != undefined) {
 						t_serial=as[0].serial;
 					}
-					var t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
+					
+					var t_where = " where=^^ noa='" + t_custno + "'^^";
 					q_gt('custm', t_where, 0, 0, 0, 'getinvomemoGenvcca', r_accy,1);
 					var as = _q_appendData("custm", "", true);
-					var t_p23='',t_taxtype='';
 					if (as[0] != undefined) {
 						t_p23=as[0].p23;
 						t_taxtype=as[0].taxtype;
 					}
+					
 					if(t_serial.indexOf('二聯')>-1 || t_p23=='2'){
 						alert('請手開二聯式發票!!');
 						return;

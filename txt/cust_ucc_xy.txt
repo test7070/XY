@@ -485,7 +485,8 @@ declare @userno nvarchar(20)=[4]
 declare @partno nvarchar(20)=isnull((select partno from sss where noa=@userno),'')
 
 declare @custno nvarchar(20)=isnull((select custno from view_vcc where noa=@noa),'')
-set @custno=isnull((select invocustno from custm where noa=@custno),@custno)
+set @custno=case when isnull((select invocustno from custm where noa=@custno),'')!='' then 
+isnull((select invocustno from custm where noa=@custno),'') else @custno end
 declare @p23 nvarchar(20)=isnull((select p23 from custm where noa=@custno),'')
 -----------------------------------------------------------------------
 declare @nowdate nvarchar(30) --今天日期

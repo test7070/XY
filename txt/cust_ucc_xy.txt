@@ -483,6 +483,10 @@ declare @condition nvarchar(20)=[3]--動作 0 刪除, 1 新增,2作廢[3]
 declare @t_err nvarchar(200)=''
 declare @userno nvarchar(20)=[4]
 declare @partno nvarchar(20)=isnull((select partno from sss where noa=@userno),'')
+
+declare @custno nvarchar(20)=isnull((select custno from view_vcc where noa=@noa),'')
+set @custno=isnull((select invocustno from custm where noa=@custno),@custno)
+declare @p23 nvarchar(20)=isnull((select p23 from custm where noa=@custno),'')
 -----------------------------------------------------------------------
 declare @nowdate nvarchar(30) --今天日期
 set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
@@ -550,13 +554,18 @@ begin
 			set @t_err=@invono+'非系統產生發票，故不處理!!'
 		end
 	end
+	
+	if(@p23!='2' and @p23!='3')
+	begin
+		set @t_err='客戶發票聯式未選擇!!'
+	end
 
 	if(len(@invono)=0)--無發票號碼
 	begin
 		--抓取可開立的發票
 		declare cursor_table cursor for
 		select a.noa,b.binvono,b.einvono from vccar a left join vccars b on a.noa=b.noa 
-		where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 and a.cno=@t_cno 
+		where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 and a.rev=@p23 --and a.cno=@t_cno 
 		and ((len(case when (select count(*) from vccars where noa=a.noa and partno=@partno)>0 then @partno else '' end )=0 and partno='') or partno=@partno)
 		order by a.noa,a.binvono
 		open cursor_table
@@ -598,16 +607,18 @@ begin
 			update a
 			set custno=b.custno,comp=case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end
 			,nick=b.nick
-			,serial=case when isnull(e.vcccustno,'')!='' then d.serial else c.serial end
+			,serial=case when @p23='2' then '' when isnull(e.invocustno,'')!='' then d.serial else c.serial end
 			,mon=b.mon
 			,cno=case when isnull(b.cno,'')!='' then b.cno else (select top 1 noa from acomp order by noa) end
 			,acomp=case when isnull(b.cno,'')!='' then b.acomp else (select top 1 acomp from acomp order by noa) end
 			--,zip=case when isnull(d.zip_invo,'')!='' then isnull(d.zip_invo,'') else isnull(c.zip_invo,'') end
 			--,address=case when isnull(d.addr_invo,'')!='' then isnull(d.addr_invo,'') else isnull(c.addr_invo,'') end
-			,buyerno=case when isnull(e.vcccustno,'')!='' then d.noa else b.custno end
-			,buyer=case when isnull(e.vcccustno,'')!='' and len(d.invoicetitle)>0 then d.invoicetitle else case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end end
-			,taxtype=case when b.typea='1' or b.typea='3' then '1' else b.typea end
-			,money=b.money,tax=b.tax,total=b.total
+			,buyerno=case when isnull(e.invocustno,'')!='' then d.noa else b.custno end
+			,buyer=case when isnull(e.invocustno,'')!='' and len(d.invoicetitle)>0 then d.invoicetitle else case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end end
+			,taxtype=case when b.taxtype='1' or b.taxtype='3' then '1' else b.taxtype end
+			,money=case when @p23='2' then b.total else b.money end
+			,tax=case when @p23='2' then 0 else b.tax end
+			,total=b.total
 			,worker=case when b.worker2!='' then b.worker2 else b.worker end
 			,vccno=@noa
 			from vcca a outer apply (select top 1 * from view_vcc b where noa=@noa) b
@@ -621,17 +632,18 @@ begin
 			insert vcca(noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp
 			,zip,address,taxtype,money,tax,total,worker,vccno,[type],memo,chkno)
 			select @invono,b.custno,case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end,b.nick
-			,case when isnull(e.vcccustno,'')!='' then d.serial else c.serial end
-			,case when isnull(e.vcccustno,'')!='' then d.noa else b.custno end
-			,case when isnull(e.vcccustno,'')!='' and len(d.invoicetitle)>0 then d.invoicetitle else case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end end			
+			,case when @p23='2' then '' when isnull(e.invocustno,'')!='' then d.serial else c.serial end
+			,case when isnull(e.invocustno,'')!='' then d.noa else b.custno end
+			,case when isnull(e.invocustno,'')!='' and len(d.invoicetitle)>0 then d.invoicetitle else case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end end			
 			,@nowdate,case when isnull(b.mon,'')!='' then b.mon else left(@nowdate,6) end
 			,case when isnull(b.cno,'')!='' then b.cno else (select top 1 noa from acomp order by noa) end
 			,case when isnull(b.cno,'')!='' then b.acomp else (select top 1 acomp from acomp order by noa) end
 			,'',''
 			--,case when isnull(d.zip_invo,'')!='' then isnull(d.zip_invo,'') else isnull(c.zip_invo,'') end
 			--,case when isnull(d.addr_invo,'')!='' then isnull(d.addr_invo,'') else isnull(c.addr_invo,'') end
-			,case when b.typea='1' or b.typea='3' then '1' else b.typea end
-			,b.money,b.tax,b.total
+			,case when b.taxtype='1' or b.taxtype='3' then '1' else b.taxtype end
+			,case when @p23='2' then b.total else b.money end
+			,case when @p23='2' then 0 else b.tax end,b.total
 			,case when b.worker2!='' then b.worker2 else b.worker end,b.noa,'V','出貨單號：'+b.noa 
 			,right('000000'+cast(cast(cast(
 				cast(LOG((ascii(SUBSTRING(@invono,1,1))*100)+
@@ -645,7 +657,7 @@ begin
 			where b.noa=@noa
 		end
 		
-		if((select taxtype from view_vcc where noa=@noa)='3') 
+		if((select taxtype from view_vcc where noa=@noa)='3' and @p23!='2') 
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,datea,ordeno,no2)
 			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,a.mount
@@ -745,10 +757,11 @@ declare @bvccano nvarchar(20)
 declare @evccano nvarchar(20)
 declare @xvccano nvarchar(20)
 
+--105/08/16 月結只開立三聯式發票
 --抓取可開立的發票
 declare cursor_table cursor for
 select a.noa,b.binvono,b.einvono from vccar a left join vccars b on a.noa=b.noa 
-where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 --and a.cno=@t_cno 
+where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 and a.rev!='2' --and a.cno=@t_cno 
 and ((len(case when (select count(*) from vccars where noa=a.noa and partno=@partno)>0 then @partno else '' end )=0 and partno='') or partno=@partno)
 order by a.noa,a.binvono
 open cursor_table

@@ -1149,6 +1149,10 @@
 					alert('日期格式錯誤!!');
 					return;
 				}
+				if(dec($('#cmbTaxtype').val())>0){
+					alert('請選擇稅別!!');
+					return;
+				}
 				
 				//判斷只要有商品 數量(出貨 寄庫/出) 為0 彈出警告視窗
 				t_err='';

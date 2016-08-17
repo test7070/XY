@@ -658,13 +658,14 @@ begin
 			where b.noa=@noa
 		end
 		
+		--105/08/17 金額=0不顯示
 		if((select taxtype from view_vcc where noa=@noa)='3' and @p23!='2') 
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,datea,ordeno,no2)
 			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,a.mount
 			,case when a.mount=0 then 0 else round(round(a.total/1.05,0)/a.mount,3) end
 			,round(a.total/1.05,0),@nowdate,a.noa,a.no2
-			from view_vccs a where a.noa=@noa
+			from view_vccs a where a.noa=@noa and a.total>0
 			
 			set @money=isnull((select money from vcca where noa=@invono),0)
 			set @moneys=isnull((select SUM(money) from vccas where noa=@invono),0)
@@ -688,13 +689,13 @@ begin
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,ordeno,no2)
 			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,0,a.price,0,a.noa,a.no2
-			from view_vccs a where a.noa=@noa
+			from view_vccs a where a.noa=@noa and a.total>0
 		end
 		else
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,ordeno,no2)
 			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,a.mount,a.price,a.total,a.noa,a.no2
-			from view_vccs a where a.noa=@noa
+			from view_vccs a where a.noa=@noa and a.total>0
 		end
 		
 		--更新表身日期
@@ -1075,6 +1076,7 @@ begin
 	--105/07/14 要用總金額回推 稅額與未稅金額
 	update #tvcca
 	set tax=round((total/1.05*0.05),0),money=total-round((total/1.05*0.05),0)
+	where taxtype='1'
 	
 	--105/07/14 出貨單金額/稅額!=發票金額/稅額 更新最後一筆單價金額
 	----------------------------------------------------------------------

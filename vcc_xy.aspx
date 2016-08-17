@@ -1149,7 +1149,7 @@
 					alert('日期格式錯誤!!');
 					return;
 				}
-				if(dec($('#cmbTaxtype').val())>0){
+				if(dec($('#cmbTaxtype').val())<=0){
 					alert('請選擇稅別!!');
 					return;
 				}
@@ -1735,6 +1735,41 @@
 					$('#txtMon').removeAttr('readonly');
 				else
 					$('#txtMon').attr('readonly', 'readonly');
+				
+				if(q_cur==2){
+					if($('#txtInvono').val().length>0 && $('#cmbTranstyle').val()!='' && r_rank<9){
+						for (var i=0;i<fbbm.length;i++){
+							$('#'+fbbm[i]).attr('disabled', 'disabled');
+						}
+						$('#combPay').attr('disabled', 'disabled');
+						$('#combDriver').attr('disabled', 'disabled');
+						$('#combAddr').attr('disabled', 'disabled');
+						$('#btnOrdes').attr('disabled', 'disabled');
+						aPop = new Array(
+							['txtStoreno_', 'btnStoreno_', 'store', 'noa,store', 'txtStoreno_,txtStore_', 'store_b.aspx'],
+							['txtStoreno2_', 'btnStoreno2_', 'store', 'noa,store', 'txtStoreno2_,txtStore2_', 'store_b.aspx'],
+							['txtRackno_', 'btnRackno_', 'rack', 'noa,rack,storeno,store', 'txtRackno_', 'rack_b.aspx'],
+							['txtProductno_', 'btnProductno_', 'ucaucc', 'noa,product,spec,unit', 'txtProductno_,txtProduct_,txtSpec_,txtUnit_', 'ucaucc_b.aspx']
+						);
+					}else{
+						$('#combPay').removeAttr('disabled');
+						$('#combDriver').removeAttr('disabled');
+						$('#combAddr').removeAttr('disabled');
+						$('#btnOrdes').removeAttr('disabled');
+						aPop = new Array(
+							['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp,txtNick,txtTel', 'cust_b.aspx'],
+							['txtStoreno_', 'btnStoreno_', 'store', 'noa,store', 'txtStoreno_,txtStore_', 'store_b.aspx'],
+							['txtStoreno2_', 'btnStoreno2_', 'store', 'noa,store', 'txtStoreno2_,txtStore2_', 'store_b.aspx'],
+							['txtRackno_', 'btnRackno_', 'rack', 'noa,rack,storeno,store', 'txtRackno_', 'rack_b.aspx'],
+							['txtCardealno', 'lblCardeal', 'cardeal', 'noa,comp', 'txtCardealno,txtCardeal', 'cardeal_b.aspx'],
+							['txtCno', 'lblAcomp', 'acomp', 'noa,acomp', 'txtCno,txtAcomp', 'acomp_b.aspx'],
+							['txtSalesno', 'lblSales', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx'],
+							['txtCustno2', 'lblCust2', 'cust', 'noa,comp', 'txtCustno2,txtComp2', 'cust_b.aspx'],
+							['txtDriverno', 'lblDriver', 'sss', 'noa,namea', 'txtDriverno,txtDriver', 'sss_b.aspx'],
+							['txtProductno_', 'btnProductno_', 'ucaucc', 'noa,product,spec,unit', 'txtProductno_,txtProduct_,txtSpec_,txtUnit_', 'ucaucc_b.aspx']
+						);
+					}
+				}
 			}
 			
 			function refreshBbm() {
@@ -1752,9 +1787,6 @@
                 	}
                 	if(t_ordeno.length>0){
                 		$('#cmbTranstyle').attr('disabled', 'disabled');
-                	}
-                	if($('#cmbTranstyle').val()!=''){
-                		$('#txtInvono').attr('disabled', 'disabled');
                 	}
                 }
             }

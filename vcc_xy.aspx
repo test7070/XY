@@ -183,7 +183,7 @@
 							t_where += " and (a.custno='"+t_custno+"')";
 						if (!emp($('#txtOrdeno').val()))
 							t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0";
-						t_where+=" order by case when isnull(a.datea,'')<='"+q_date()+"' and isnull(a.datea,'') !='' then 'A' else 'B' end+isnull(a.datea,'') -- "
+						t_where+=" order by case when isnull(a.datea,'')<='"+q_date()+"' and isnull(a.datea,'') !='' then 'A' else 'B' end+isnull(a.datea,''),a.noa,a.no2 -- "
 					
 					q_box("ordes_b2_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes_xy', "95%", "650px", q_getMsg('popOrde'));
 					//q_box("ordes_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes', "95%", "650px", q_getMsg('popOrde'));

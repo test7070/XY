@@ -1149,10 +1149,10 @@
 					alert('日期格式錯誤!!');
 					return;
 				}
-				if(dec($('#cmbTaxtype').val())<=0){
+				/*if(dec($('#cmbTaxtype').val())<=0){
 					alert('請選擇稅別!!');
 					return;
-				}
+				}*/
 				
 				//判斷只要有商品 數量(出貨 寄庫/出) 為0 彈出警告視窗
 				t_err='';
@@ -1739,7 +1739,9 @@
 				if(q_cur==2){
 					if($('#txtInvono').val().length>0 && $('#cmbTranstyle').val()!='' && r_rank<9){
 						for (var i=0;i<fbbm.length;i++){
-							$('#'+fbbm[i]).attr('disabled', 'disabled');
+							//105/08/19 排除帳款月份(備註) 交運方式 PS 稅別絕對不能開放修改
+							if(fbbm[i]!='txtMemo' && fbbm[i]!='cmbTrantype')
+								$('#'+fbbm[i]).attr('disabled', 'disabled');
 						}
 						$('#combPay').attr('disabled', 'disabled');
 						$('#combDriver').attr('disabled', 'disabled');
@@ -1779,7 +1781,7 @@
                     $('#txtNoa').css('color', 'green').css('background', 'RGB(237,237,237)').attr('readonly', 'readonly');
                 }
                 
-                if(r_rank<=5){
+                if(r_rank<5){ //105/08/19 開放給財務可以調整
                 	var t_ordeno='';
                 	for (var j = 0; j < q_bbsCount; j++) {
                 		if(!emp($('#txtOrdeno_'+j).val()))

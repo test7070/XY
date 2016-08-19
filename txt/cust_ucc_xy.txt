@@ -964,23 +964,23 @@ begin
 		from #tvcca a left join cust b on a.custno=b.noa
 	end
 	
-	insert #tvccas (noa,noq,cno,custno,datea,productno,mount,price,money,memo,trdno,taxtype)
-	select '','',a.cno,a.custno,@nowdate,b.productno,SUM(b.mount)
+	insert #tvccas (noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo,trdno,taxtype)
+	select '','',a.cno,a.custno,@nowdate,b.productno,b.product,b.unit,SUM(b.mount)
 	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
 	,SUM(case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
 	,'','',case when a.taxtype='3' then '1' else a.taxtype end
 	from #tvcc a left join view_vccs b on a.vccno=b.noa
 	where isnull(b.total,0)>0
-	group by a.custno,a.cno,b.productno
+	group by a.custno,a.cno,b.productno,b.product,b.unit
 	,case when a.taxtype='3' then '1' else a.taxtype end
 	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
 	
-	update a
-	set product=case when isnull(b.product,'')!='' then isnull(b.product,'') else isnull(c.product,'') end
-	,unit=case when isnull(b.unit,'')!='' then isnull(b.unit,'') else isnull(c.unit,'') end
-	from #tvccas a 
-	outer apply (select * from ucca where noa=a.productno) b
-	outer apply (select * from view_ucaucc where noa=a.productno) c
+	--update a
+	--set product=case when isnull(b.product,'')!='' then isnull(b.product,'') else isnull(c.product,'') end
+	--,unit=case when isnull(b.unit,'')!='' then isnull(b.unit,'') else isnull(c.unit,'') end
+	--from #tvccas a 
+	--outer apply (select * from ucca where noa=a.productno) b
+	--outer apply (select * from view_ucaucc where noa=a.productno) c
 end
 else
 begin
@@ -1003,23 +1003,23 @@ begin
 	,type='P',memo='PO轉出'+trdno,chkno=''
 	from #tvcca a left join cust b on a.custno=b.noa
 	
-	insert #tvccas (noa,noq,cno,custno,datea,productno,mount,price,money,memo,trdno,taxtype)
-	select '','',a.cno,a.custno,@nowdate,b.productno,SUM(b.mount)
+	insert #tvccas (noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo,trdno,taxtype)
+	select '','',a.cno,a.custno,@nowdate,b.productno,b.product,b.unit,SUM(b.mount)
 	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
 	,SUM(case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
 	,'',a.custorde,case when taxtype='3' then '1' else taxtype end
 	from #tvcc a left join view_vccs b on a.vccno=b.noa
 	where a.ordeno=b.ordeno and isnull(b.total,0)>0
-	group by a.custno,a.cno,b.productno,a.custorde
+	group by a.custno,a.cno,b.productno,b.product,b.unit,a.custorde
 	,case when taxtype='3' then '1' else taxtype end
 	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
 	
-	update a
-	set product=case when isnull(b.product,'')!='' then isnull(b.product,'') else isnull(c.product,'') end
-	,unit=case when isnull(b.unit,'')!='' then isnull(b.unit,'') else isnull(c.unit,'') end
-	from #tvccas a 
-	outer apply (select * from ucca where noa=a.productno) b
-	outer apply (select * from view_ucaucc where noa=a.productno) c
+	--update a
+	--set product=case when isnull(b.product,'')!='' then isnull(b.product,'') else isnull(c.product,'') end
+	--,unit=case when isnull(b.unit,'')!='' then isnull(b.unit,'') else isnull(c.unit,'') end
+	--from #tvccas a 
+	--outer apply (select * from ucca where noa=a.productno) b
+	--outer apply (select * from view_ucaucc where noa=a.productno) c
 end
 
 if(len(@t_err)=0)

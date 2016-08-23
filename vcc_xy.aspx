@@ -1055,7 +1055,7 @@
 							t_invono=as[0].noa;
 						}
 						
-						if(t_invono.length>0){
+						if(t_invono.length>0 && r_dele){
 							if (!confirm('發票已產生，是否要刪除出貨單並將發票作廢?')){
 								Unlock(1);
 								return;

@@ -463,6 +463,8 @@
 								$('#txtDatea').val(q_date());
 								$('#txtMemo').val('優先'+$('#txtMemo').val());
 							}
+							//105/08/24 月份清空 避免換客戶導致帳款月份錯誤
+							$('#txtMon').val('');
 							
 							//帶入表身資料
 							for (var i = 0; i < b_ret.length; i++) {

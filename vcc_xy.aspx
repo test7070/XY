@@ -227,6 +227,10 @@
 				});
 				
 				$('#btnGenvcca').click(function() {
+					if(dec($('#txtTotal').val())==0 || dec($('#txtMoney').val())==0){
+						alert('金額為零禁止開立發票');
+						return;
+					}
 					//105/08/12 強制鎖 只能開3聯發票
 					var t_custno=$('#txtCustno').val(),t_serial='';
 					var t_p23='',t_taxtype='';

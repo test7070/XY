@@ -1743,10 +1743,10 @@
 					$('#txtMon').attr('readonly', 'readonly');
 				
 				if(q_cur==2){
-					if($('#txtInvono').val().length>0 && $('#cmbTranstyle').val()!='' && r_rank<9){
+					if($('#txtInvono').val().length>0 && $('#cmbTranstyle').val()!='' && r_rank<5){
 						for (var i=0;i<fbbm.length;i++){
 							//105/08/19 排除帳款月份(備註) 交運方式 PS 稅別絕對不能開放修改
-							if(fbbm[i]!='txtMemo' && fbbm[i]!='cmbTrantype')
+							if(fbbm[i]!='txtMemo' && fbbm[i]!='txtMon' && fbbm[i]!='cmbTrantype')
 								$('#'+fbbm[i]).attr('disabled', 'disabled');
 						}
 						$('#combPay').attr('disabled', 'disabled');

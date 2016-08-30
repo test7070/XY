@@ -384,6 +384,7 @@
                 });
 				
 				$('#btnStore2').click(function() {
+					$('#div_store2').hide();
 					if(!emp($('#txtCustno').val())){
 						var t_custno=$('#txtCustno').val().substr(0,$('#txtCustno').val().indexOf('-'));
 						if(t_custno=='') 
@@ -394,10 +395,9 @@
 					}else{
 						alert("請輸入客戶編號!!");
 					}
-					$('#div_store2').hide();
 				});
 				$('#btnClose_div_store2').click(function() {
-					$('#div_store2').toggle();
+					$('#div_store2').hide();
 				});
 				////-----------------以下為addr2控制事件---------------
 				$('#btnAddr2').mousedown(function(e) {
@@ -1173,7 +1173,7 @@
 						}
 						$('#div_store2').css('top', $('#btnStore2').offset().top+25);
 						$('#div_store2').css('left', $('#btnStore2').offset().left-parseInt($('#div_store2').css('width'))-5);
-						$('#div_store2').toggle();
+						$('#div_store2').show();
 						break;
 					case 'flors':
 						var as = _q_appendData("flors", "", true);

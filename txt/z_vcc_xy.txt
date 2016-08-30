@@ -57,7 +57,7 @@ declare @tmp table(
 	productno nvarchar(MAX),
 	products nvarchar(MAX),
 	spec nvarchar(MAX),
-	stkmount stkmount decimal(25, 4) 
+	stkmount decimal(25, 4) 
 )
 
 insert @tmp 

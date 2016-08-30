@@ -57,14 +57,14 @@ declare @tmp table(
 	productno nvarchar(MAX),
 	products nvarchar(MAX),
 	spec nvarchar(MAX),
-	stkmount float
+	stkmount stkmount decimal(25, 4) 
 )
 
 insert @tmp 
 select '0',a.storeno2,MAX(b.store),a.productno
 ,MAX(case when isnull(c.product,'')!='' then c.product else a.productno end ) product
 ,MAX(case when isnull(c.spec,'')!='' then c.spec else a.spec end) spec 
-,sum(isnull(tranmoney2,0))-sum(isnull(tranmoney3,0)) stkmount 
+,sum(case when a.typea='2' then -1 else 1 end* isnull(tranmoney2,0))-sum(case when a.typea='2' then -1 else 1 end*isnull(tranmoney3,0)) stkmount 
 from view_vccs a left join store b on a.storeno2=b.noa 
 left join ucc c on a.productno=c.noa 
 where isnull(a.storeno2,'') between @t_bstore and @t_estore 

@@ -1365,20 +1365,32 @@
 								$('#txtTranmoney2_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney3_'+b_seq).val(0);
 								$('#txtWidth_'+b_seq).val(0);
+								$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
+								if(emp($('#txtStoreno_'+b_seq).val()))
+									$('#txtStoreno_'+b_seq).val('A').change();
 							}else if($('#cmbItemno_'+b_seq).val()=='2'){//庫出
 								$('#txtTranmoney3_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney2_'+b_seq).val(0);
 								$('#txtWidth_'+b_seq).val(0);
 								$('#txtPrice_'+b_seq).val(0);
+								$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
 							}else if($('#cmbItemno_'+b_seq).val()=='3' || $('#cmbItemno_'+b_seq).val()=='4'){//公關品樣品
 								$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney3_'+b_seq).val(0);
 								$('#txtTranmoney2_'+b_seq).val(0);
 								$('#txtPrice_'+b_seq).val(0);
+								$('#txtStoreno2_'+b_seq).val('');
+								$('#txtStore2_'+b_seq).val('');
+								if(emp($('#txtStoreno_'+b_seq).val()))
+									$('#txtStoreno_'+b_seq).val('A').change();
 							}else{//出貨
 								$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney3_'+b_seq).val(0);
 								$('#txtTranmoney2_'+b_seq).val(0);
+								$('#txtStoreno2_'+b_seq).val('');
+								$('#txtStore2_'+b_seq).val('');
+								if(emp($('#txtStoreno_'+b_seq).val()))
+									$('#txtStoreno_'+b_seq).val('A').change();
 							}
 							sum();
 							

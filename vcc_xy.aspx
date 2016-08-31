@@ -263,7 +263,7 @@
 						return;
 					}
 					
-					if(t_serial.indexOf('二聯')>-1 || t_p23=='2'){
+					if((t_serial.indexOf('二聯')>-1 || t_p23=='2') && q_date()<'105/09/01'){
 						alert('請手開二聯式發票!!');
 						return;
 					}

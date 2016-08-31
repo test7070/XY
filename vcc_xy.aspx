@@ -258,10 +258,16 @@
 						t_taxtype=as[0].taxtype;
 					}
 					
+					if(t_p23==''){
+						alert('發票聯式未指定!!');
+						return;
+					}
+					
 					if(t_serial.indexOf('二聯')>-1 || t_p23=='2'){
 						alert('請手開二聯式發票!!');
 						return;
 					}
+					
 					if(t_taxtype!='應稅'){
 						alert('客戶發票非應稅禁止自動產生發票!!');
 						return;
@@ -472,11 +478,21 @@
 								b_ret[i].tranmoney2=0;
 								b_ret[i].width=0;
 								b_ret[i].dime=q_sub(dec(b_ret[i].mount),dec(b_ret[i].vccdime));
+								b_ret[i].storeno='A';
+								b_ret[i].store='總倉庫';
+								b_ret[i].storeno2='';
+								b_ret[i].store2='';
 								if(b_ret[i].source=='2'){//庫出
 									b_ret[i].tranmoney3=b_ret[i].mount;
 									b_ret[i].mount=0;
+									b_ret[i].storeno='';
+									b_ret[i].store='';
+									b_ret[i].storeno2=b_ret[i].custno.substr(0,5);
+									b_ret[i].store2='';
 								}else if(b_ret[i].source=='1'){//寄庫
 									b_ret[i].tranmoney2=b_ret[i].mount;
+									b_ret[i].storeno2=b_ret[i].custno.substr(0,5);
+									b_ret[i].store2='';
 								}else{
 									b_ret[i].width=b_ret[i].mount;
 								}
@@ -485,9 +501,15 @@
 									b_ret[i].spec=b_ret[i].classa+' '+b_ret[i].spec;
 							}
 									
-							q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno', b_ret.length, b_ret
-							,'productno,product,spec,unit,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,no2,source', 'txtProductno,txtProduct,txtSpec');
-								
+							q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtStoreno,txtStore,txtStoreno2,txtStore2,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno', b_ret.length, b_ret
+							,'productno,product,spec,unit,storeno,store,storeno2,store2,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,no2,source', 'txtProductno,txtProduct,txtSpec');
+							
+							for (var i = 0; i < q_bbsCount; i++) {
+								if(!emp($('#txtStoreno2_'+i).val()) && emp($('#txtStore2_'+i).val())){
+									$('#txtStoreno2_'+i).change();
+								}
+							}
+							
 							sum();
 							
 							if (t_oredeno.length > 0) {

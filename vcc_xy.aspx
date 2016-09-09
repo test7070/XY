@@ -947,7 +947,7 @@
 							$('#txtWeight').val(as[0].weight);
 							$('#cmbTranstyle').val(as[0].conform);
 							
-							if(as[0].mon.length>0){
+							if(as[0].mon.length>0 && as[0].mon>=$('#txtDatea').val().substr(0,r_lenm)){
 								$('#txtMon').val(as[0].mon);
 								if($('#txtMemo').val().substr(0,1)!='*')
 									$('#txtMemo').val('*'+$('#txtMemo').val());
@@ -1240,7 +1240,12 @@
 					return;
 				}
 				
-				if($('#txtMon').val()<=q_getPara('sys.edate').substr(0,6)){
+				if($('#txtMon').val()<=q_cdn($('#txtDatea').val().substr(0,r_lenm)+'/01',-45).substr(0,r_lenm)){
+					alert('帳款月份禁止低於出貨日期前2個月');
+					return;
+				}
+				
+				if($('#txtMon').val()<=q_getPara('sys.edate').substr(0,r_lenm)){
 					alert('帳款月份禁止低於關帳日');
 					return;
 				}

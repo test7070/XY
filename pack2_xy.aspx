@@ -11,7 +11,7 @@
 		<link href="../qbox.css" rel="stylesheet" type="text/css" />
 		<script type="text/javascript">
 		
-			var q_name = 'pack2s', t_bbsTag = 'tbbs', t_content = " ", afilter = [], bbsKey = [], t_count = 0, as, brwCount2 = 10;
+			var q_name = 'pack2s', t_bbsTag = 'tbbs', t_content = " ", afilter = [], bbsKey = [], t_count = 0, as, brwCount2 = 3;
 			var t_sqlname = 'pack2s_load'; t_postname = q_name;
 			var isBott = false;  /// 是否已按過 最後一頁
 			var afield, t_htm;
@@ -58,12 +58,32 @@
 			function bbsAssign() {  /// 表身運算式
 				for(var j = 0; j < q_bbsCount; j++) {
 					if (!$('#btnMinus_' + j).hasClass('isAssign')) {
-						
+						$('#checkPackway_'+j).click(function() {
+							t_IdSeq = -1;
+                            q_bodyId($(this).attr('id'));
+                            b_seq = t_IdSeq;
+                            
+                            var t_true=$('#checkPackway_'+b_seq).prop('checked');
+                            
+                            $('.checkway').prop('checked',false);
+                            $('.txtway').val('');
+                            
+                           	if(t_true){
+	                            $('#checkPackway_'+b_seq).prop('checked',true);
+	                            $('#txtPackway_'+b_seq).val('1');
+							}
+						});
 					}
 				}
 				_bbsAssign();
 				$('#lblPack_s').text('包裝單位');
 				$('#lblInmount_s').text('內包裝含商品數');
+				for(var j = 0; j < q_bbsCount; j++) {
+					if($('#txtPackway_'+j).val()=='1'){
+						$('#checkPackway_'+j).prop('checked',true);
+						break;
+					}
+				}
 			}
 			
 			function btnOk() {
@@ -93,7 +113,7 @@
 					return;
 				
 				_btnModi();
-				
+				$('.checkway').removeAttr('disabled');
 			}
 			
 			function refresh() {
@@ -168,7 +188,8 @@
 				<tr style='color:White; background:#003366;' >
 					<td align="center" style="width:1%;"><input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  /></td>
 					<td align="center" style="width: 35%;"><a id='lblPack_s'> </a></td>
-					<td align="center" style="width: 64%;"><a id='lblInmount_s'> </a></td>
+					<td align="center" style="width: 50%;"><a id='lblInmount_s'> </a></td>
+					<td align="center" style="width: 14%;"><a id='lblPackway_xy'>常用單位</a></td>
 				</tr>
 				<tr style='background:#cad3ff;'>
 					<td  align="center"><input class="btn"  id="btnMinus.*" type="button" value='-' style="font-weight: bold; "  /></td>
@@ -178,6 +199,10 @@
 						<input id="txtNoq.*" type="hidden" />
 					</td>
 					<td><input class="txt num c1" id="txtInmount.*" type="text"  /></td>
+					<td>
+						<input class="txt c1 checkway" id="checkPackway.*" type="checkbox" disabled="disabled" />
+						<input class="txt c1 txtway" id="txtPackway.*" type="hidden" />
+					</td>
 				</tr>
 			</table>
 			<!--#include file="../inc/pop_modi.inc"-->

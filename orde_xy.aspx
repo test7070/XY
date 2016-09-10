@@ -147,7 +147,7 @@
 				q_getFormat();
 				bbmMask = [['txtOdate', r_picd], ['txtMon', r_picm],['txtXydatea',r_picd]];
 				q_mask(bbmMask);
-				bbsMask = [['txtDatea', r_picd]];
+				bbsMask = [['txtDatea', r_picd],['txtIndate',r_picd]];
 				bbsNum = [ ['txtMount', 9, q_getPara('vcc.mountPrecision'), 1], ['txtTotal', 10, 0, 1],['txtC1', 10, q_getPara('vcc.mountPrecision'), 1], ['txtNotv', 10, q_getPara('vcc.mountPrecision'), 1],['txtDime', 15, 0, 1]];
 				//['txtPrice', 12, q_getPara('vcc.pricePrecision'), 1],
 				q_cmbParse("cmbStype", q_getPara('vcc.stype'));
@@ -180,7 +180,6 @@
 						}
 					}
 				});*/
-				
 				
 				$('#txtXydatea').focusout(function() {
 					if((q_cur==1 || q_cur==2) && xy_datea!=$('#txtXydatea').val()){
@@ -3128,7 +3127,7 @@
 				</table>
 			</div>
 		</div>
-		<div class='dbbs' style="width: 2200px;">
+		<div class='dbbs' style="width: 2285px;">
 			<table id="tbbs" class='tbbs' border="1" cellpadding='2' cellspacing='1'>
 				<tr style='color:White; background:#003366;' >
 					<td align="center" style="width:40px;"><input class="btn" id="btnPlus" type="button" value='＋' style="font-weight: bold;" /></td>
@@ -3145,6 +3144,7 @@
 					<td align="center" style="width:80px;"><a id='lblPrices'> </a></td>
 					<td align="center" style="width:100px;"><a id='lblTotal_s'> </a></td>
 					<td align="center" style="width:85px;"><a id='lblDateas'> </a></td>
+					<td align="center" style="width:85px;"><a id='lblIndate_s'>當天交貨日</a></td>
 					<!--<td align="center" style="width:85px;" class="bonus"><a>獎金比例</a></td>-->
 					<td align="center" style="width:85px;"><a id='lblGemounts'> </a></td>
 					<td align="center" style="width:85px;"><a>未交量</a></td>
@@ -3187,6 +3187,7 @@
 					<td><input class="txt num c7" id="txtPrice.*" type="text" /></td>
 					<td><input class="txt num c7" id="txtTotal.*" type="text" /></td>
 					<td><input class="txt c7 yellow" id="txtDatea.*" type="text" /></td>
+					<td><input class="txt c7 yellow" id="txtIndate.*" type="text" /></td>
 					<!--<td class="bonus"><input class="txt num c7 bonus" id="txtClass.*" type="text" /></td>-->
 					<td><input class="txt num c1" id="txtC1.*" type="text" /></td>
 					<td><input class="txt num c1" id="txtNotv.*" type="text" /></td>

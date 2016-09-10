@@ -718,9 +718,10 @@ declare @mon nvarchar(20)=case when '#non'=[3] then '' else [3] end
 declare @bdate nvarchar(20)=case when '#non'=[4] then '' else [4] end
 declare @edate nvarchar(20)=case when '#non'=[5] then char(255) else [5] end
 declare @startdate nvarchar(20)=case when '#non'=[6] then '' else [6] end
-declare @radio nvarchar(20)=case when '#non'=[7] then '1' else [7] end
-declare @userno nvarchar(20)=case when '#non'=[8] then '' else [8] end
-declare @rname nvarchar(20)=case when '#non'=[9] then '' else [9] end
+declare @po nvarchar(50)=case when '#non'=[7] then '' else [7] end
+declare @radio nvarchar(20)=case when '#non'=[8] then '1' else [8] end
+declare @userno nvarchar(20)=case when '#non'=[9] then '' else [9] end
+declare @rname nvarchar(20)=case when '#non'=[10] then '' else [10] end
 declare @t_err nvarchar(200)=''
 declare @partno nvarchar(20)=isnull((select partno from sss where noa=@userno),'')
 -----------------------------------------------------------------------
@@ -732,7 +733,7 @@ set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
 declare @xxxnoa nvarchar(30)=replace(replace(convert(varchar, getdate(), 20),'-',''),':','')+' '+cast(Round(RAND() * 100, 0) as nvarchar(10))
 insert adpro(noa,datea,memo)
 select @xxxnoa,replace(convert(varchar, getdate(), 20),'-','/')
-,@salesno+'@@'+@custno+'@@'+@mon+'@@'+@bdate+'@@'+@edate+'@@'+@startdate+'@@'+@radio+'@@'+@userno+'@@'+@rname
+,@salesno+'@@'+@custno+'@@'+@mon+'@@'+@bdate+'@@'+@edate+'@@'+@startdate+'@@'+@po+'@@'+@radio+'@@'+@userno+'@@'+@rname
 
 IF OBJECT_ID('tempdb..#tvcc')is not null
 BEGIN
@@ -911,7 +912,7 @@ begin
 	from view_vcc a left join view_vccs b on a.noa=b.noa left join custm c on a.custno=c.noa
 	left join view_orde d on b.ordeno=d.noa
 	where (len(@mon)=0 or a.mon=@mon) and (a.datea between @bdate and @edate) 
-	and isnull(d.custorde,'')!=''
+	and isnull(d.custorde,'')!='' and (len(@po)=0 or isnull(d.custorde,'')=@po)
 	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
 	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='PO' 
 	and a.taxtype!='6' and isnull(b.total,0)>0
@@ -1165,7 +1166,7 @@ select @t_err t_err,@radio radio,@binvono binvono,@einvono einvono
 
 --紀錄寫入資料
 update adpro
-set memo=@salesno+'@@'+@custno+'@@'+@mon+'@@'+@bdate+'@@'+@edate+'@@'+@startdate+'@@'+@radio+'@@'+@userno+'@@'+@rname+'^^'+@binvono+'^^'+@einvono+'^^'+@t_err
+set memo=@salesno+'@@'+@custno+'@@'+@mon+'@@'+@bdate+'@@'+@edate+'@@'+@startdate+'@@'+@po+'@@'+@radio+'@@'+@userno+'@@'+@rname+'^^'+@binvono+'^^'+@einvono+'^^'+@t_err
 where noa=@xxxnoa
 
 IF OBJECT_ID('tempdb..#tvcc')is not null

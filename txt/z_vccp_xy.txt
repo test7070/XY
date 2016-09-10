@@ -855,3 +855,78 @@ select
 	a.money8 m8
 from @tmp a
 order by a.noa,a.pageno,a.pageorder,a.productno,a.noq,a.gno;
+--------------------------------------------------------------------------------------------------------------------------------
+z_vccp_xy5:--z_vccp_xy5
+declare @t_bdate nvarchar(20)
+declare @t_edate nvarchar(20)
+declare @t_bpno nvarchar(50)
+declare @t_epno nvarchar(50)
+declare @t_bcustno nvarchar(50)
+declare @t_ecustno nvarchar(50)
+declare @t_group nvarchar(50)
+declare @t_bmoney nvarchar(50)
+declare @t_emoney nvarchar(50)
+declare @t_bxmoney float
+declare @t_exmoney float
+
+set @t_bdate = case when '#non' = [4] then '' else [4] end
+set @t_edate = case when '#non' = [5] then CHAR(255) else [5] end
+set @t_bpno = case when '#non' = [6] then '' else [6] end
+set @t_epno = case when '#non' = [7] then CHAR(255) else [7] end
+set @t_bcustno = case when '#non' = [8] then '' else [8] end
+set @t_ecustno = case when '#non' = [9] then CHAR(255) else [9] end
+set @t_group = case when '#non' = [13] then '' else [13] end
+set @t_bmoney = case when '#non' = [14] then '0' else [14] end
+set @t_emoney = case when '#non' = [15] then '9999999999' else [15] end
+set @t_bxmoney=cast(@t_bmoney as float)
+set @t_exmoney=cast(@t_emoney as float)
+--*******************************************************************************************************
+declare @tmp table(
+	gno nvarchar(10),
+	noa nvarchar(50),
+	cpno nvarchar(50),
+	ncomp nvarchar(200),
+	noq nvarchar(50),
+	custpno nvarchar(50),
+	productno nvarchar(50),
+	product nvarchar(250),
+	unit nvarchar(50),
+	price float,
+	mount float,
+	money float,
+	amoney float,
+	atax float,
+	atotal float
+)
+
+insert @tmp
+select '0',a.noa
+,case when c.grpno='WC002' then left(SUBSTRING(a.comp,charindex('-',a.comp)+1,len(a.comp)),3) else '' end cpno
+,case when c.grpno='WC002' then SUBSTRING(c.comp,1,charindex('-',c.comp))+SUBSTRING(c.comp,charindex('-',c.comp)+4,len(c.comp)) else '' end ncomp
+,b.noq,isnull(d.productno,'') custpno,b.productno,b.product+' '+b.spec,b.unit,b.price,b.dime,b.total 
+,a.money,a.tax,a.total
+from view_vcc a 
+left join view_vccs b on a.noa=b.noa
+left join cust c on a.custno=c.noa
+outer apply (select top 1 productno from ucccust where (custno=c.grpno or custno=a.custno) and noa=b.productno)d
+where a.custno between @t_bcustno and @t_ecustno
+and b.productno between @t_bpno and @t_epno
+and (len(@t_group)=0 or c.grpno=@t_group) 
+and a.datea between @t_bdate and @t_edate
+and a.money between @t_bxmoney and @t_exmoney
+
+insert @tmp(gno,noa,amoney,atax,atotal)
+select '1',noa,amoney,atax,atotal from @tmp
+group by noa,amoney,atax,atotal
+
+select 
+dbo.getComma(price,-1)price,
+dbo.getComma(mount,-1)mount,
+dbo.getComma(money,-1)money,
+dbo.getComma(amoney,-1)amoney,
+dbo.getComma(atax,-1)atax,
+dbo.getComma(atotal,-1)atotal,
+'<img width="50px" src="http://59.125.143.171/images/logo1_xy.png">' logo1,
+'vcc_xy?noa=$noa' qherf,
+* from @tmp order by noa,noq,gno
+;

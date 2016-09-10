@@ -15,6 +15,10 @@
 		<script src="css/jquery/ui/jquery.ui.widget.js"> </script>
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"> </script>
 		<script type="text/javascript">
+			aPop = new Array(
+				['txtXgrpno', 'lblXgrpno', 'cust', 'noa,comp', 'txtXgrpno', 'cust_b.aspx']
+			);
+		
 			var t_first=true;
             if (location.href.indexOf('?') < 0) {
                 location.href = location.href + "?;;;;"+((new Date()).getUTCFullYear()-1911);
@@ -38,6 +42,11 @@
 								$(this).children().removeClass('select').addClass('nonselect');
 							}
 						});
+					}
+					if($('#q_report').data().info.reportData[$('#q_report').data().info.radioIndex].report=='z_vccp_xy5'){
+						$('#lblXdate').text('出貨日期');	
+					}else{
+						$('#lblXdate').text(q_getMsg('lblXdate'));
 					}
 				});
             });
@@ -73,6 +82,12 @@
 					},{
 						type : '1', //[11][12]
 						name : 'xvccano'
+					},{
+						type : '6', //[13]
+						name : 'xgrpno'
+					},{
+						type : '1', //[14][15]
+						name : 'xmoney'
 					}]
 				});
                 q_popAssign();
@@ -131,6 +146,20 @@
 					$('#txtXvccano2').val(window.parent.$('#txtNoa').val())
 					$('#q_report div div .radio.select').click();
 				}
+				
+				$('#txtXmoney1').css('text-align','right').val(0);
+				$('#txtXmoney2').css('text-align','right').val(700);
+				
+				$('#txtXmoney1').change(function() {
+					$(this).val(dec($(this).val()));
+                    if ($(this).val() == 'NaN')
+                    	$(this).val(0);
+				});
+				$('#txtXmoney2').change(function() {
+					$(this).val(dec($(this).val()));
+                    if ($(this).val() == 'NaN')
+                    	$(this).val(0);
+				});
             }
 
             function q_boxClose(s2) {

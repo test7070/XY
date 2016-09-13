@@ -62,16 +62,6 @@
 							t_ordeno='';
 						}
 					});
-								
-					/*$('#txtNoa_'+j).click(function() {
-						var t_where = '';
-						var t_noa = $(this).val();
-						if (t_noa.length > 0) {
-							t_where = "noa='" + t_noa + "'";
-							q_box("orde_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'orde', "95%", "95%", '');
-						}
-					});*/
-					
 				}
 			}
 
@@ -101,20 +91,25 @@
 			<table id="tbbs" class='tbbs'  border="2"  cellpadding='2' cellspacing='1' style='width:100%'  >
 				<tr style='color:White; background:#003366;' >
 					<td align="center" style="width:1%;"> </td>
-					<td align="center" style="width:7%;"><a id='lblDatea'>預交日</a></td>
+					<td align="center" style="width:10%;"><a id='lblDatea'>預交日</a></td>
 					<td align="center" style="width:10%;"><a id='lblComp'>客戶</a></td>
 					<td align="center" style="width:10%;"><a id='lblProductno'>產品編號</a></td>
 					<td align="center" style="width:8%;"><a id='lblProduct'>品名</a></td>
 					<td align="center" style="width:4%;"><a id='lblClassa'>版別</a></td>
-					<td align="center" style="width:20%;"><a id='lblSpec'>規格</a></td>
+					<td align="center" style="width:16%;"><a id='lblSpec'>規格</a></td>
 					<td align="center" style="width:4%;"><a id='lblUnit'>單位</a></td>
-					<td align="center" style="width:8%;"><a id='lblMount'>訂單量</a></td>
+					<!--<td align="center" style="width:8%;"><a id='lblMount'>訂單量</a></td>-->
+					<td align="center" style="width:6%;"><a id='lblLengthb'>件數</a></td>
+					<td align="center" style="width:6%;"><a id='lblLengthc'>尾數</a></td>
 					<td align="center" style="width:8%;"><a id='lblNotv'>未交量</a></td>
 					<td align="center" style="width:12%;"><a id='lblNoa'>訂單編號</a></td>
 				</tr>
 				<tr  style='background:#cad3ff;'>
 					<td align="center"><input id="chkSel.*" type="checkbox"/></td>
-					<td><input class="txt" id="txtDatea.*" type="text" style="width:98%; text-align:left;"/></td>
+					<td>
+						<input class="txt" id="txtDatea.*" type="text" style="width:65%; text-align:left;"/>
+						<input class="txt" id="txtIndate.*" type="text" style="width:30%; text-align:left;"/>
+					</td>
 					<td>
 						<input class="txt" id="txtComp.*" type="text" style="width:98%; text-align:left;"/>
 						<input class="txt" id="txtCustno.*" type="hidden" style="width:98%; text-align:left;"/>
@@ -124,13 +119,19 @@
 					<td><input class="txt" id="txtClassa.*" type="text" style="width:98%; text-align:left;"/></td>
 					<td><input class="txt" id="txtSpec.*" type="text" style="width:98%; text-align:left;"/></td>
 					<td><input class="txt" id="txtUnit.*" type="text" style="width:98%; text-align:left;"/></td>
-					<td>
+					<td style="display: none;">
 						<input class="txt" id="txtMount.*" type="text" style="width:98%; text-align:right;"/>
 						<input class="txt" id="txtVccdime.*" type="hidden" style="width:98%; text-align:right;"/>
 					</td>
 					<td>
-						<input class="txt" id="txtNotv.*" type="text" style="width:98%; text-align:right;"/>
+						<input class="txt" id="txtLengthb.*" type="text" style="width:98%; text-align:right;"/>
+						<input class="txt" id="txtVcclengthb.*" type="hidden" style="width:98%; text-align:right;"/>
 					</td>
+					<td>
+						<input class="txt" id="txtLengthc.*" type="text" style="width:98%; text-align:right;"/>
+						<input class="txt" id="txtVcclengthc.*" type="hidden" style="width:98%; text-align:right;"/>
+					</td>
+					<td><input class="txt" id="txtNotv.*" type="text" style="width:98%; text-align:right;"/></td>
 					<td>
 						<input class="txt" id="txtNoa.*" type="text" style="width:75%;"/>
 						<input class="txt" id="txtNo2.*" type="text" style="width:20%;"/>

@@ -11,7 +11,7 @@
 		<script src="../script/qbox.js" type="text/javascript"></script>
 		<link href="../qbox.css" rel="stylesheet" type="text/css" />
 		<script type="text/javascript">
-            var q_name = 'view_vccs', t_bbsTag = 'tbbs', t_content = " field=noa,noq,productno,product,spec,unit,dime,itemno,mount,width,tranmoney2,tranmoney3,price,total,storeno,store,storeno2,store2,memo,ordeno,no2", afilter = [], bbsKey = ['noa', 'noq'], as;
+            var q_name = 'view_vccs', t_bbsTag = 'tbbs', t_content = " field=noa,noq,productno,product,spec,unit,dime,itemno,mount,width,tranmoney2,tranmoney3,price,total,storeno,store,storeno2,store2,memo,ordeno,no2,lengthb,lengthc", afilter = [], bbsKey = ['noa', 'noq'], as;
             //, t_where = '';
             var t_sqlname = 'view_vccs';
             t_postname = q_name;
@@ -99,7 +99,8 @@
 					<td align="center" style="width:10%;"><a id='lblProduct'> </a></td>
 					<td align="center" style="width:15%;"><a id='lblSpec'> </a></td>
 					<td align="center" style="width:4%;"><a id='lblUnit'> </a></td>
-					<td align="center" style="width:8%;">出貨數量</td>
+					<td align="center" style="width:8%;">件數</td>
+					<td align="center" style="width:8%;">尾數</td>
 					<td align="center" style="width:8%;">寄/出庫</td>
 					<td align="center" style="width:8%;"><a id='lblPrice'> </a></td>
 					<td align="center" style="width:10%;"><a id='lblTotal'> </a></td>
@@ -121,13 +122,15 @@
 						<input id="txtOrdeno.*" type="hidden" />
 						<input id="txtNo2.*" type="hidden" />
 						<input id="txtItemno.*" type="hidden" />
+						<input id="txtDime.*" type="hidden" />
 					</td>
 					<td><input class="txt"  id="txtNoa.*" type="text" style="width:98%;" /></td>
 					<td><input class="txt"  id="txtProductno.*" type="text" style="width:98%;" /></td>
 					<td><input class="txt" id="txtProduct.*" type="text" style="width:98%;" /></td>
 					<td><input class="txt" id="txtSpec.*" type="text" style="width:98%;" /></td>
 					<td><input class="txt" id="txtUnit.*" type="text" style="width:94%;"/></td>
-					<td><input class="txt" id="txtDime.*" type="text" style="width:94%; text-align:right;"/></td>
+					<td><input class="txt" id="txtLengthb.*" type="text" style="width:94%; text-align:right;"/></td>
+					<td><input class="txt" id="txtLengthc.*" type="text" style="width:94%; text-align:right;"/></td>
 					<td><select id="combItemno.*" class="txt" style="width:98%;"> </select></td>
 					<td><input class="txt" id="txtPrice.*" type="text" style="width:96%; text-align:right;"/></td>
 					<td><input class="txt" id="txtTotal.*" type="text" style="width:96%; text-align:right;"/></td>

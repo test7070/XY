@@ -37,7 +37,7 @@
 			aPop = new Array(
 				['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,spec,mount,custno,comp,memo', 'txtOrdeno,txtNo2,txtProductno,txtProduct,txtSpec,txtMount,txtCustno,txtComp,txtMemo', ''],
 				['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp', 'cust_b.aspx'],
-				['txtProductno', 'lblProduct', 'ucaucc', 'noa,product,style,spec,unit', 'txtProductno,txtProduct,,txtSpec,txtUnit', 'ucaucc_b.aspx'],
+				['txtProductno', 'lblProduct', 'ucc_xy', 'noa,product,style,spec,uunit', 'txtProductno,txtProduct,,txtSpec,txtUnit', 'ucaucc_b.aspx'],
 				['txtTggno_', '', 'tgg', 'noa,comp', 'txtTggno_,txtTgg_', ""],
 				['txtProcessno_', 'btnProcessno_', 'process', 'noa,process,tggno,tgg', 'txtProcessno_,txtProcess_,txtTggno_,txtTgg_', 'process_b.aspx'],
 				['txtProductno__', 'btnProductno__', 'ucaucc', 'noa,product,spec,unit', 'txtProductno__,txtProduct__,txtSpec__,txtUnit__', 'ucaucc_b.aspx'],
@@ -266,9 +266,10 @@
 								$('#txtBdate').val(b_ret[0].datea);
 								//105/04/15 抓產品主檔 規格+製造規格(英文名稱)
 								if(!emp($('#txtProductno').val())){
-									q_gt('ucc', "where=^^noa='" +$('#txtProductno').val() + "'^^", 0, 0, 0, "getuccspec",r_accy,1);
+									q_gt('ucc_xy', "where=^^noa='" +$('#txtProductno').val() + "'^^", 0, 0, 0, "getuccspec",r_accy,1);
 									var as = _q_appendData("ucc", "", true);
 				                    if (as[0] != undefined) {
+				                    	$('#txtUnit').val(as[0].uunit);
 				                    	$('#txtSpec').val(as[0].style+' '+as[0].spec+' '+as[0].engpro);
 				                    	if(as[0].cdate=='採購' || as[0].cdate.length==0){
 											alert(b_ret[i].product+' 採購製令方式 非【製造或委外】');
@@ -381,7 +382,7 @@
 					aPop = new Array(
 						['txtTggno_', '', 'tgg', 'noa,comp', 'txtTggno_,txtTgg_', ""],
 						['txtProcessno_', 'btnProcessno_', 'process', 'noa,process,tggno,tgg', 'txtProcessno_,txtProcess_,txtTggno_,txtTgg_', 'process_b.aspx'],
-						['txtProductno__', 'btnProductno__', 'ucaucc', 'noa,product,spec,unit', 'txtProductno__,txtProduct__,txtSpec__,txtUnit__', 'ucaucc_b.aspx'],
+						['txtProductno__', 'btnProductno__', 'ucc_xy', 'noa,product,spec,uunit', 'txtProductno__,txtProduct__,txtSpec__,txtUnit__', 'ucaucc_b.aspx'],
 						['txtStoreno__', 'btnStoreno__', 'store', 'noa,store', 'txtStoreno__,txtStore__', 'store_b.aspx']
 					);
 				}
@@ -488,7 +489,7 @@
 				aPop = new Array(
 					['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,spec,mount,custno,comp,memo', 'txtOrdeno,txtNo2,txtProductno,txtProduct,txtSpec,txtMount,txtCustno,txtComp,txtMemo', ''],
 					['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp', 'cust_b.aspx'],
-					['txtProductno', 'lblProduct', 'ucaucc', 'noa,product,spec,unit,style', 'txtProductno,txtProduct,txtSpec,txtUnit', 'ucaucc_b.aspx'],
+					['txtProductno', 'lblProduct', 'ucc_xy', 'noa,product,spec,uunit,style', 'txtProductno,txtProduct,txtSpec,txtUnit', 'ucaucc_b.aspx'],
 					['txtTggno_', '', 'tgg', 'noa,comp', 'txtTggno_,txtTgg_', ""],
 					['txtProcessno_', 'btnProcessno_', 'process', 'noa,process,tggno,tgg', 'txtProcessno_,txtProcess_,txtTggno_,txtTgg_', 'process_b.aspx'],
 					['txtProductno__', 'btnProductno__', 'ucaucc', 'noa,product,spec,unit', 'txtProductno__,txtProduct__,txtSpec__,txtUnit__', 'ucaucc_b.aspx'],
@@ -792,9 +793,10 @@
 						}
 						if(!emp($('#txtProductno').val())){
 							
-							q_gt('ucc', "where=^^noa='" +$('#txtProductno').val() + "'^^", 0, 0, 0, "getuccspec",r_accy,1);
+							q_gt('ucc_xy', "where=^^noa='" +$('#txtProductno').val() + "'^^", 0, 0, 0, "getuccspec",r_accy,1);
 							var as = _q_appendData("ucc", "", true);
 							if (as[0] != undefined) {
+								$('#txtUnit').val(as[0].uunit);
 								$('#txtSpec').val(as[0].style+' '+as[0].spec+' '+as[0].engpro);
 							}
 							

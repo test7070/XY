@@ -441,7 +441,8 @@ begin
 	EXECUTE sp_executesql @cmd
 		
 	set @cmd="insert vccs"+@accy+"(noa,noq,datea,typea,productno,product,spec,unit,itemno
-	,mount,width,dime,tranmoney2,tranmoney3,price,total,memo,ordeno,no2,custno,storeno,store,storeno2,store2)
+	,mount,width,dime,tranmoney2,tranmoney3,price,total,memo,ordeno,no2,custno,storeno,store,storeno2,store2
+	,lengthb,lengthc,radius)
 	select '"+@n_vccno+"' noa,a.no2 noq,'"+@nowdate+"','1' typea,a.productno,a.product
 	,case when charindex(a.classa,a.spec)>0 then a.spec else a.classa+' '+a.spec end,a.unit,a.source
 	,case when a.source='2' then 0 else a.mount end
@@ -454,6 +455,7 @@ begin
 	,case when a.source='2' then '' else (case when left(b.custno,5)='DY001' then '大葉倉' else '總倉庫' end) end
 	,case when a.source='1' or a.source='2' then isnull((select top 1 noa from store where charindex(noa,left(a.productno,6))>0),'') else '' end
 	,case when a.source='1' or a.source='2' then isnull((select top 1 store from store where charindex(noa,left(a.productno,6))>0),'') else '' end
+	,a.lengthb,a.lengthc,a.radius
 	from ordes"+@accy+" a left join orde"+@accy+" b on a.noa=b.noa where a.noa='"+@noa+"' "
 	EXECUTE sp_executesql @cmd
 			
@@ -1238,11 +1240,23 @@ from orde"+@accy+" a where noa='"+@noa+"'"
 EXECUTE sp_executesql @cmd
 
 set @cmd="insert ordes"+@accy+" (noa,no2,odate,productno,product,spec,classa,sizea,dime,unit
-,mount,source,price,total,datea,c1,notv,memo,quatno,no3)
+,mount,source,price,total,datea,c1,notv,memo,quatno,no3
+,lengthb,lengthc,radius)
+
 select '"+@n_ordeno+"' noa,right('000'+cast(ROW_NUMBER() over (order by a.no3)as nvarchar(10)),3),'"+@nowdate+"'
 ,a.productno,a.product,a.spec,a.classa,a.sizea,a.dime,a.unit
-,c.mount,a.source,a.price,round(c.mount*a.price,0),'',0,c.mount,a.memo,a.noa,a.no3
-from view_quats a left join view_quat b on a.noa=b.noa left join #tmp c on a.no3=c.no3 where a.noa='"+@noa+"' and isnull(c.no3,'')!='' "
+,case when isnull(d.noa,'')!='' and a.unit!=d.unit then c.mount else c.mount*isnull(e.inmount,1) end
+,a.source,a.price,round(c.mount*a.price,0),'',0
+,case when isnull(d.noa,'')!='' and a.unit!=d.unit then c.mount else c.mount*isnull(e.inmount,1) end
+,a.memo,a.noa,a.no3
+
+,case when d.noa is null or a.unit=d.unit then c.mount else 0 end 
+,case when isnull(d.noa,'')!='' and a.unit!=d.unit then c.mount else 0 end
+,case when isnull(d.noa,'')!='' and a.unit!=d.unit then 0 else e.inmount end
+from view_quats a left join view_quat b on a.noa=b.noa left join #tmp c on a.no3=c.no3 
+left join ucc d on a.productno=d.noa
+outer apply (select top 1 noq,inmount,pack,packway from pack2s where noa=d.noa and isnull(pack,'')!='' order by inmount desc)e
+where a.noa='"+@noa+"' and isnull(c.no3,'')!='' "
 EXECUTE sp_executesql @cmd
 
 EXEC(" update a 

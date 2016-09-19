@@ -927,7 +927,7 @@
 							stkmount = q_add(stkmount, dec(as[i].mount));
 						}
 						t_msg = "庫存量：" + stkmount;
-						q_msg($('#txtMount_' + b_seq), t_msg);
+						q_msg($('#txtMount_' + b_seq), t_msg,10,5000);
 						break;
 					case 'source_stk':
 						var as = _q_appendData("view_vccs", "", true);
@@ -1147,6 +1147,7 @@
 							alert("無寄庫量");
 							break;
 						}
+						
 						var rowslength=document.getElementById("table_store2").rows.length-1;
 							for (var j = 1; j < rowslength; j++) {
 								document.getElementById("table_store2").deleteRow(1);
@@ -1162,6 +1163,17 @@
 							tr.innerHTML+= "<td><input id='store2_txtSpec_"+store2_row+"' type='text' class='txt c1' value='"+as[i].spec+"' disabled='disabled'/></td>";
 							tr.innerHTML+="<td><input id='store2_txtStore_"+store2_row+"' type='text' class='txt c1' value='"+as[i].store2+"' disabled='disabled' /></td>";
 							tr.innerHTML+="<td><input id='store2_txtMount_"+store2_row+"' type='text' class='txt c1 num' value='"+dec(as[i].stkmount)+"' disabled='disabled'/></td>";
+							
+							//總倉庫存
+							var t_where = "where=^^ ['" + q_date() + "','A','"+as[i].productno+"')  ^^";//總倉
+							q_gt('calstk', t_where, 0, 0, 0, "get_stk", r_accy,1);
+							var stk = _q_appendData("stkucc", "", true);
+							if (stk[0] != undefined) {
+								tr.innerHTML+="<td><input id='store2_txtStk_"+store2_row+"' type='text' class='txt c1 num' value='"+dec(stk[0].mount)+"' disabled='disabled'/></td>";
+							}else{
+								tr.innerHTML+="<td><input id='store2_txtStk_"+store2_row+"' type='text' class='txt c1 num' value='0' disabled='disabled'/></td>";
+							}
+							
 							var tmp = document.getElementById("store2_close");
 							tmp.parentNode.insertBefore(tr,tmp);
 							store2_row++;
@@ -2181,21 +2193,23 @@
 				unitdisabled();
 				$('.yellow').css('background-color','yellow');
 				
-				if (q_cur == 1 || q_cur == '2')
+				if (q_cur == 1 || q_cur == 2)
                     $('#btnApv').attr('disabled', 'disabled');
                 else
                     $('#btnApv').removeAttr('disabled');
 			}
 			
 			function AutoNo2(){
-				var maxno2='001';
-				for (var j = 0; j < q_bbsCount; j++) {
-					if((!emp($('#txtProductno_'+j).val())) || (!emp($('#txtProduct_'+j).val()))){
-						$('#txtNo2_'+j).val(maxno2);
-						maxno2=('000'+(dec(maxno2)+1)).substr(-3);
-					}
-					if(emp($('#txtProductno_'+j).val()) && emp($('#txtProduct_'+j).val())){
-						$('#txtNo2_'+j).val('');
+				if(q_cur==1 || q_cur==2){
+					var maxno2='001';
+					for (var j = 0; j < q_bbsCount; j++) {
+						if((!emp($('#txtProductno_'+j).val())) || (!emp($('#txtProduct_'+j).val()))){
+							$('#txtNo2_'+j).val(maxno2);
+							maxno2=('000'+(dec(maxno2)+1)).substr(-3);
+						}
+						if(emp($('#txtProductno_'+j).val()) && emp($('#txtProduct_'+j).val())){
+							$('#txtNo2_'+j).val('');
+						}
 					}
 				}
 			}
@@ -2714,14 +2728,12 @@
 							var t_exists=false;
 							for (var j = 0; j < as.length; j++) {
 								if($('#txtProductno_'+i).val()==as[j].noa){ //單位!=ucc.unit(大單位)
-									if($('#txtProductno_'+i).val()!=as[j].unit){
-										//$('#txtUnit_'+i).val(as[j].pack);
+									if($('#txtUnit_'+i).val()!=as[j].unit){
 										$('#txtRadius_'+i).val(0); //最小單位換算數量
 										//最小單位只開放尾數
 										$('#txtLengthb_'+i).val(0).attr('disabled', 'disabled');
 										$('#txtLengthc_'+i).removeAttr('disabled');
 									}else{ //最大單位可輸入尾數
-										//$('#txtUnit_'+i).val(as[j].unit);
 										$('#txtRadius_'+i).val(dec(as[j].umount)); //最小單位換算數量
 										$('#txtLengthb_'+i).removeAttr('disabled');
 										$('#txtLengthc_'+i).removeAttr('disabled');
@@ -2931,7 +2943,7 @@
 			</table>
 		</div>
 		
-		<div id="div_store2" style="position:absolute; top:300px; left:400px; display:none; width:680px; background-color: #CDFFCE; border: 5px solid gray;">
+		<div id="div_store2" style="position:absolute; top:300px; left:400px; display:none; width:780px; background-color: #CDFFCE; border: 5px solid gray;">
 			<table id="table_store2" style="width:100%;" border="1" cellpadding='2'  cellspacing='0'>
 				<tr id='store2_top'>
 					<td style="background-color: #f8d463;width: 130px;" align="center">產品編號</td>
@@ -2939,6 +2951,7 @@
 					<td style="background-color: #f8d463;width: 200px;" align="center">規格</td>
 					<td style="background-color: #f8d463;width: 100px;" align="center">寄庫倉庫</td>
 					<td style="background-color: #f8d463;width: 100px;" align="center">寄庫數量</td>
+					<td style="background-color: #f8d463;width: 100px;" align="center">總倉數量</td>
 				</tr>
 				<tr id='store2_close'>
 					<td align="center" colspan='5'>

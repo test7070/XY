@@ -103,6 +103,7 @@
 					
 				q_getFormat();
 				bbmMask = [['txtDatea', r_picd], ['txtMon', r_picm]];
+				bbsMask = [['txtChecker', r_picd]];
 				q_mask(bbmMask);
 				bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1], ['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
 				bbsNum = [['txtMount', 10, q_getPara('vcc.mountPrecision'), 1]
@@ -715,6 +716,17 @@
 							tr.innerHTML+= "<td><input id='store2_txtSpec_"+store2_row+"' type='text' class='txt c1' value='"+as[i].spec+"' disabled='disabled'/></td>";
 							tr.innerHTML+="<td><input id='store2_txtStore_"+store2_row+"' type='text' class='txt c1' value='"+as[i].store2+"' disabled='disabled' /></td>";
 							tr.innerHTML+="<td><input id='store2_txtMount_"+store2_row+"' type='text' class='txt c1 num' value='"+dec(as[i].stkmount)+"' disabled='disabled'/></td>";
+							
+							//總倉庫存
+							var t_where = "where=^^ ['" + q_date() + "','A','"+as[i].productno+"')  ^^";//總倉
+							q_gt('calstk', t_where, 0, 0, 0, "get_stk", r_accy,1);
+							var stk = _q_appendData("stkucc", "", true);
+							if (stk[0] != undefined) {
+								tr.innerHTML+="<td><input id='store2_txtStk_"+store2_row+"' type='text' class='txt c1 num' value='"+dec(stk[0].mount)+"' disabled='disabled'/></td>";
+							}else{
+								tr.innerHTML+="<td><input id='store2_txtStk_"+store2_row+"' type='text' class='txt c1 num' value='0' disabled='disabled'/></td>";
+							}
+							
 							var tmp = document.getElementById("store2_close");
 							tmp.parentNode.insertBefore(tr,tmp);
 							store2_row++;
@@ -774,7 +786,7 @@
 								var t_where = "where=^^ a.productno='" + $('#txtProductno_' + b_seq).val() + "' and a.storeno2='"+$('#txtStoreno2_' + b_seq).val() +"' and a.noa !='"+$('#txtNoa').val()+"' ^^";
 								q_gt('vcc_xy_store2', t_where, 0, 0, 0, "store2", r_accy);
 						}else{
-							q_msg($('#txtMount_' + b_seq), t_msg);
+							q_msg($('#txtMount_' + b_seq), t_msg,10,5000);
 						}
 						break;
 					case 'store2':
@@ -785,7 +797,7 @@
 						}
 						if(stkmount!=0)
 							t_msg = t_msg + "<BR>寄庫量：" + stkmount;
-						q_msg($('#txtMount_' + b_seq), t_msg);
+						q_msg($('#txtMount_' + b_seq), t_msg,10,5000);
 						break;
 					case 'check_store2':
 						var as = _q_appendData("view_vccs", "", true);
@@ -815,7 +827,7 @@
 						}
 						
 						if(t_msg.length>0)
-							q_msg($('#txtStoreno2_' + b_seq), t_msg);
+							q_msg($('#txtStoreno2_' + b_seq), t_msg,10,5000);
 						break;
 					case 'msg_ucc':
 						var as = _q_appendData("ucc", "", true);
@@ -1938,7 +1950,7 @@
 							var t_exists=false;
 							for (var j = 0; j < as.length; j++) {
 								if($('#txtProductno_'+i).val()==as[j].noa){ //單位!=ucc.unit(大單位)
-									if(as[j].way=='1'){//最小單位 禁止輸入尾數
+									if($('#txtUnit_'+i).val()!=as[j].unit){
 										$('#txtRadius_'+i).val(0); //最小單位換算數量
 										//最小單位只開放尾數
 										$('#txtLengthb_'+i).val(0).attr('disabled', 'disabled');
@@ -2140,7 +2152,7 @@
 				</tr>
 			</table>
 		</div>
-		<div id="div_store2" style="position:absolute; top:300px; left:400px; display:none; width:680px; background-color: #CDFFCE; border: 5px solid gray;">
+		<div id="div_store2" style="position:absolute; top:300px; left:400px; display:none; width:780px; background-color: #CDFFCE; border: 5px solid gray;">
 			<table id="table_store2" style="width:100%;" border="1" cellpadding='2'  cellspacing='0'>
 				<tr id='store2_top'>
 					<td style="background-color: #f8d463;width: 130px;" align="center">產品編號</td>
@@ -2148,6 +2160,7 @@
 					<td style="background-color: #f8d463;width: 200px;" align="center">規格</td>
 					<td style="background-color: #f8d463;width: 100px;" align="center">寄庫倉庫</td>
 					<td style="background-color: #f8d463;width: 100px;" align="center">寄庫數量</td>
+					<td style="background-color: #f8d463;width: 100px;" align="center">總倉數量</td>
 				</tr>
 				<tr id='store2_close'>
 					<td align="center" colspan='5'>
@@ -2323,7 +2336,7 @@
 				</table>
 			</div>
 		</div>
-		<div class='dbbs' style="width: 2160px;">
+		<div class='dbbs' style="width: 2240px;">
 			<table id="tbbs" class='tbbs'>
 				<tr style='color:White; background:#003366;' >
 					<td align="center" style="width:40px;"><input class="btn"  id="btnPlus" type="button" value='＋' style="font-weight: bold;width:" /></td>
@@ -2341,6 +2354,7 @@
 					<td align="center" style="width:80px;"><a id='lblTotal_s'> </a></td>
 					<td align="center" style="width:120px;">出貨倉庫</td>
 					<td class="store2" align="center" style="width:120px;"><a id='lblStore2_s'> </a></td>
+					<td class="store2" align="center" style="width:80px;"><a id='lblChecker_s_xy'>寄庫到期日</a></td>
 					<td align="center" style="width:80px;display: none;"><a id='lblTranmoney2_s'> </a></td>
 					<td align="center" style="width:80px;display: none;"><a id='lblTranmoney3_s'> </a></td>
 					<td align="center" style="width:150px;"><a id='lblMemo_s'> </a></td>
@@ -2381,6 +2395,7 @@
 						<input class="btn"  id="btnStoreno2.*" type="button" value='.' style=" font-weight: bold;" />
 						<input id="txtStore2.*" type="text" class="txt c1 store2" style="width: 50%"/>
 					</td>
+					<td class="store2"><input id="txtChecker.*" type="text" class="txt c1"/></td>
 					<td style="display: none;"><input id="txtTranmoney2.*" type="text" class="txt num c1"/></td>
 					<td style="display: none;"><input id="txtTranmoney3.*" type="text" class="txt num c1"/></td>
 					<td><input id="txtMemo.*" type="text" class="txt c1"/></td>

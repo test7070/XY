@@ -250,6 +250,97 @@
 					}
 				});
 				
+				$('#btnCont').click(function() {
+					var t_datea=q_date();
+					var t_custno = trim($('#txtCustno').val());
+					var t_productno='#non';
+					var t_kind='PO';
+					if(q_cur==1 || q_cur==2){
+						if(t_custno.length>0){
+							q_func('qtxt.query.contimport', 'cust_ucc_xy.txt,contimport,' + encodeURI(t_datea)+';'+t_custno+';'+t_productno+';'+t_kind,r_accy,1);
+							var as = _q_appendData("tmp0", "", true, true);
+							if (as[0] != undefined) {
+								q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtClassa,txtSpec,txtUnit,txtPrice,txtQuatno,txtNo3'
+								, as.length, as, 'productno,product,class,spec,unit,price,noa,noq', 'txtProductno,txtProduct,txtSpec');
+								
+								if(emp($('#txtCustorde').val())){
+									$('#txtCustorde').val(as[0].contract);
+								}
+								unitdisabled();
+							}else{
+								alert('無客戶PO!!');
+							}
+						}else{
+							alert(q_getMsg('msgCustEmp'));
+						}
+					}
+				});
+				
+				$('#btnUpload').change(function() {
+					if(emp($('#txtNoa').val()) || q_cur==1 || q_cur==2){
+						return;
+					}
+					var file = $(this)[0].files[0];
+					if(file){
+						Lock(1);
+						var ext = '';
+						var extindex = file.name.lastIndexOf('.');
+						if(extindex>=0){
+							ext = file.name.substring(extindex,file.name.length);
+						}
+						$('#txtGdate').val(file.name);
+						$('#txtGtime').val(guid()+Date.now()+ext);
+						
+						fr = new FileReader();
+						fr.fileName = $('#txtGtime').val();
+					    fr.readAsDataURL(file);
+					    fr.onprogress = function(e){
+							if ( e.lengthComputable ) { 
+								var per = Math.round( (e.loaded * 100) / e.total) ; 
+								$('#FileList').children().last().find('progress').eq(0).attr('value',per);
+							}; 
+						}
+						fr.onloadstart = function(e){
+							$('#FileList').append('<div styly="width:100%;"><progress id="progress" max="100" value="0" ></progress><progress id="progress" max="100" value="0" ></progress><a>'+fr.fileName+'</a></div>');
+						}
+						fr.onloadend = function(e){
+							$('#FileList').children().last().find('progress').eq(0).attr('value',100);
+							console.log(fr.fileName+':'+fr.result.length);
+							var oReq = new XMLHttpRequest();
+							oReq.upload.addEventListener("progress",function(e) {
+								if (e.lengthComputable) {
+									percentComplete = Math.round((e.loaded / e.total) * 100,0);
+									$('#FileList').children().last().find('progress').eq(1).attr('value',percentComplete);
+								}
+							}, false);
+							oReq.upload.addEventListener("load",function(e) {
+								Unlock(1);
+							}, false);
+							oReq.upload.addEventListener("error",function(e) {
+								alert("資料上傳發生錯誤!");
+							}, false);
+								
+							oReq.timeout = 360000;
+							oReq.ontimeout = function () { alert("Timed out!!!"); }
+							oReq.open("POST", 'orde_xy_upload.aspx', true);
+							oReq.setRequestHeader("Content-type", "text/plain");
+							oReq.setRequestHeader("FileName", escape(fr.fileName));
+							oReq.send(fr.result);//oReq.send(e.target.result);
+						};
+					}
+					ShowDownlbl();
+				});
+				
+				$('#lblDownload').click(function(){
+					if($('#txtGdate').val().length>0 && $('#txtGtime').val().length>0){
+						$('#xdownload').attr('src','orde_xy_download.aspx?FileName='+$('#txtGdate').val()+'&TempName='+$('#txtGtime').val());
+                    }else if($('#txtGtime').val().length>0){
+						$('#xdownload').attr('src','orde_xy_download.aspx?FileName='+$('#txtNoa').val()+'&TempName='+$('#txtGtime').val());
+                    }else{    
+						alert('無資料...!!');
+					}
+				});
+				
 				$('#lblCustx').click(function() {
 					if(copycustno!=''){
 						q_box("cust_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";left(noa,5)='" + copycustno.substr(0,5) + "';" + r_accy + ";" + q_cur, 'custx', "95%", "95%", q_getMsg('lblCust'));
@@ -673,7 +764,11 @@
 								q_box("ordc.aspx?;;;noa='" + noa + "';" + r_accy, 'ordc', "95%", "95%", q_getMsg("popOrdc"));
 								break;
 							case 'quatno':
-								q_box("quat_xy.aspx?;;;noa='" + noa + "';" + r_accy, 'quat', "95%", "95%", q_getMsg("popQuat"));
+								if(noa.substr(0,1)='C'){
+									q_box("cont_xy.aspx?;;;noa='" + noa + "';" + r_accy, 'cont', "95%", "95%", q_getMsg("popCont"));
+								}else{
+									q_box("quat_xy.aspx?;;;noa='" + noa + "';" + r_accy, 'quat', "95%", "95%", q_getMsg("popQuat"));
+								}
 								break;
 						}
 					}
@@ -1686,11 +1781,13 @@
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
-							if($('#txtClassa_'+b_seq).val()=='印' || $('#txtClassa_'+b_seq).val()=='便'){
-								$('#combClassa_' + b_seq).val($('#txtClassa_'+b_seq).val());
-								$('#combClassa_' + b_seq).focusout();
-							}else{
-								$('#combClassa_' + b_seq).val('');
+							if(q_cur==1 || q_cur==2){
+								if($('#txtClassa_'+b_seq).val()=='印' || $('#txtClassa_'+b_seq).val()=='便'){
+									$('#combClassa_' + b_seq).val($('#txtClassa_'+b_seq).val());
+									$('#combClassa_' + b_seq).focusout();
+								}else{
+									$('#combClassa_' + b_seq).val('');
+								}
 							}
 						});
 						
@@ -1698,8 +1795,9 @@
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
-							
-							$('#txtClassa_'+b_seq).val($('#combClassa_'+b_seq).val());
+							if(q_cur==1 || q_cur==2){
+								$('#txtClassa_'+b_seq).val($('#combClassa_'+b_seq).val());
+							}
 							
 							var t_class=$.trim($('#combClassa_'+b_seq).val());
 							if(t_class.length>0 &&(q_cur==1 || q_cur==2)){
@@ -1784,8 +1882,8 @@
 												q_tr('txtPrice_'+iscost1,dec($('#cost_txtCost0').val()));
 											}else{
 												q_bbs_addrow('bbs', b_seq, 1);
-												$('#txtProductno_'+(dec(b_seq)+1)).val('ZE001');
-												$('#txtProduct_'+(dec(b_seq)+1)).val('其他費用');
+												$('#txtProductno_'+(dec(b_seq)+1)).val('BF0000001');
+												$('#txtProduct_'+(dec(b_seq)+1)).val('費用');
 												$('#txtSpec_'+(dec(b_seq)+1)).val('版費');
 												$('#txtMount_'+(dec(b_seq)+1)).val(1);
 												$('#txtLengthc_'+(dec(b_seq)+1)).val(1);
@@ -1807,8 +1905,8 @@
 													}
 												}
 												q_bbs_addrow('bbs', (dec(b_seq)+t_iscost1), 1);
-												$('#txtProductno_'+((dec(b_seq)+t_iscost1)+1)).val('ZE004');
-												$('#txtProduct_'+((dec(b_seq)+t_iscost1)+1)).val('其他費用');
+												$('#txtProductno_'+((dec(b_seq)+t_iscost1)+1)).val('DM0000001');
+												$('#txtProduct_'+((dec(b_seq)+t_iscost1)+1)).val('費用');
 												$('#txtSpec_'+((dec(b_seq)+t_iscost1)+1)).val('刀模費');
 												$('#txtMount_'+((dec(b_seq)+t_iscost1)+1)).val(1);
 												$('#txtLengthc_'+((dec(b_seq)+t_iscost1)+1)).val(1);
@@ -1971,6 +2069,7 @@
 				_bbsAssign();
 				HiddenTreat();
 				unitdisabled();
+				ShowDownlbl();
 				$('.yellow').css('background-color','yellow');
 				if (q_cur<1 && q_cur>2) {
 					for (var j = 0; j < q_bbsCount; j++) {
@@ -2000,6 +2099,7 @@
 					}
 					curData.paste();
 				}
+				ShowDownlbl();
 				
 				//copy_field();
 				
@@ -2029,6 +2129,7 @@
 				}
 					
 				_btnModi();
+				ShowDownlbl();
 				//copy_field();
 				$('#txtCustno').focus();
 				$('.yellow').css('background-color','yellow');
@@ -2124,7 +2225,7 @@
 				});
 				$('#div_addr2').hide();
 				HiddenTreat();
-				
+				ShowDownlbl();
 				var emp_productno=false;
 				for (var j = 0; j < q_bbsCount; j++) {
 					if (!q_cur) {
@@ -2170,6 +2271,7 @@
 					}
 					$('#checkCopy').removeAttr('disabled');
 					$('#btnQuat').removeAttr('disabled');
+					$('#btnUpload').attr('disabled', 'disabled');
 				} else {
 					$('#checkCopy').attr('disabled', 'disabled');
 					$('#btnOrdei').attr('disabled', 'disabled');
@@ -2180,6 +2282,7 @@
 						$('#combGroupbno_'+j).removeAttr('disabled');
 						$('#combClassa_'+j).removeAttr('disabled');
 					}
+					$('#btnUpload').removeAttr('disabled', 'disabled');
 				}
 				var emp_productno=false;
 				for (var j = 0; j < q_bbsCount; j++) {
@@ -2622,7 +2725,7 @@
 						var error_productno='';
 						var product_in_quat=false;
 						for (var i = 0; i < q_bbsCount; i++) {
-							if(!emp($('#txtProductno_'+i).val()) && $('#cmbSource_'+i).val()!='2' && $('#cmbSource_'+i).val()!='3' && $('#cmbSource_'+i).val()!='4' ){
+							if(!emp($('#txtProductno_'+i).val()) && $('#cmbSource_'+i).val()!='2' && $('#cmbSource_'+i).val()!='3' && $('#cmbSource_'+i).val()!='4' && $('#txtQuatno_'+i).val().substr(0,1)!='C' ){
 								product_in_quat=false;
 								for (var j = 0; j < as.length; j++) {
 									if(!emp($('#txtQuatno_'+i).val()) && !emp($('#txtNo3_'+i).val())){
@@ -2709,6 +2812,12 @@
 					default:
 						break;
 				}
+			}
+			
+			function ShowDownlbl() {				
+				$('#lblDownload').text('').hide();
+				if(!emp($('#txtConn_cust').val()))
+					$(this).text('下載').show();
 			}
 			
 			function unitdisabled(){
@@ -2954,7 +3063,7 @@
 					<td style="background-color: #f8d463;width: 100px;" align="center">總倉數量</td>
 				</tr>
 				<tr id='store2_close'>
-					<td align="center" colspan='5'>
+					<td align="center" colspan='6'>
 						<input id="btnClose_div_store2" type="button" value="關閉視窗">
 					</td>
 				</tr>
@@ -3066,6 +3175,7 @@
 							<span> </span><a id='lblOrdcno' class="lbl"> </a>
 							<input id="txtOrdcno" type="text" class="txt c1"/>
 						</td>-->
+						<td align="center"><input id="btnCont" type="button" value="PO匯入"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblTrantype' class="lbl"> </a></td>
@@ -3129,7 +3239,15 @@
 						<td><span> </span><a class="lbl">聯絡人員</a></td>
 						<td><input id="textConn" type="text" class="txt c1" /></td>
 					</tr>
-					<tr class="tr11">
+						<td><span> </span><a  id="lblUpload_xy" class="lbl">PO上傳</a></td>
+						<td colspan="3">
+							<input type="file" id="btnUpload" value="選擇檔案" style="width: 98%;"/>
+							<input id="txtGdate" type="hidden" class="txt c1"/><!--原檔名-->
+							<input id="txtGtime" type="hidden" class="txt c1"/><!--上傳檔名-->
+						</td>
+						<td><a id="lblDownload"> </a></td>
+						<td style="display: none;"><div style="width:100%;" id="FileList"> </div></td>
+					<tr>
 						<td><span> </span><a id='lblMemo' class='lbl'> </a></td>
 						<td colspan='7'>
 							<textarea id="txtMemo" cols="10" rows="5" style="width: 99%;height: 50px;"> </textarea>

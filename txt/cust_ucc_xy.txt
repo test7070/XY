@@ -1466,3 +1466,92 @@ BEGIN CATCH
 	END CATCH
 END CATCH
 ;
+-------------------------------------------------------------------------------------------------------------
+contimport:--contimport
+--取得PO明細
+declare @datea nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @custno nvarchar(50)=case when '#non'=[2] then '' else [2] end
+declare @productno nvarchar(50)=case when '#non'=[3] then '' else [3] end
+declare @custno2 nvarchar(50)=left(@custno,5)
+declare @kind nvarchar(50)=case when '#non'=[4] then '' else [4] end
+
+--取得報價單價
+declare @tmp table(
+	noa nvarchar(30),
+	no3 nvarchar(10),
+	custno  nvarchar(50),
+	datea nvarchar(10),
+	odate nvarchar(10),
+	productno nvarchar(30),
+	product nvarchar(max),
+	spec nvarchar(max),
+	sizea nvarchar(max),
+	dime float,
+	class nvarchar(50),
+	classa nvarchar(50),
+	unit nvarchar(10),
+	price float,
+	mount float,
+	total float,
+	memo nvarchar(max)
+)
+
+insert @tmp
+select a.noa,b.no3,a.custno,a.datea,a.odate 
+,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit,b.price,b.mount,b.total,b.memo
+from view_quat a left join view_quats b on a.noa=b.noa
+where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 and isnull(a.custno,'')!=''
+and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),'')
+or exists (select * from cust where noa=a.custno and isnull(grpno,'')=@custno) --105/07/21 集團底下子公司
+)--含總店 集團
+and b.datea>=@datea --有效日
+and isnull(b.gweight,0)=1 --成交
+and (len(@productno)=0 or b.productno=@productno)
+
+--105/04/18 如果產品重複只保留最下層的單價 群組-總店-分店
+delete a 
+from @tmp a 
+outer apply (select top 1 custno,productno from @tmp where a.productno=productno
+order by case when custno=@custno then 0 when custno=@custno2 then 1 else 2 end) b
+where exists (select productno from @tmp group by productno having count(*)>1 and productno=a.productno)
+and a.custno!=b.custno
+
+--只保留最新報價
+delete a from @tmp a 
+outer apply (
+	select MAX(odate)odate,custno,productno from @tmp group by custno,productno
+	having custno=a.custno and productno=a.productno
+)b where a.odate!=b.odate
+
+--只保留最後的訂單號
+delete a from @tmp a 
+outer apply (
+	select MAX(noa)noa,custno,productno from @tmp group by custno,productno
+	having custno=a.custno and productno=a.productno
+)b where a.noa!=b.noa
+
+if(@kind='PO')
+begin
+	select a.noa,a.datea,a.contract,b.noq,b.productno,b.product,b.spec,b.class,b.unit,b.mount,b.price,b.total,c.omount,d.price qprice
+	from cont a left join conts b on a.noa=b.noa
+	outer apply (select SUM(mount)omount from view_ordes where quatno=a.noa and no3=b.noq)c
+	outer apply (select top 1 price from @tmp where productno=b.productno order by noa,no3) d
+	where a.datea>=@datea and b.ucolor<=@datea
+	and isnull(a.contract,'')!='' and a.kind='PO' and b.mount-isnull(c.omount,0)>0
+	and a.custno=@custno and (len(@productno)=0 or b.productno=@productno)
+	and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))
+	order by a.datea,b.productno
+end
+else
+begin
+	select a.noa,a.datea,a.contract,b.noq,b.productno,b.product,b.spec,b.class,b.unit,b.mount,b.price,b.total,d.price qprice
+	from cont a left join conts b on a.noa=b.noa
+	outer apply (select top 1 price from @tmp where productno=b.productno order by noa,no3) d
+	where a.datea>=@datea and b.ucolor<=@datea
+	and isnull(a.contract,'')!='' and a.kind!='PO'
+	and a.custno=@custno and (len(@productno)=0 or b.productno=@productno)
+	and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))
+	order by a.datea,b.productno
+end
+
+;

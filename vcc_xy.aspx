@@ -2163,7 +2163,7 @@
 					<td style="background-color: #f8d463;width: 100px;" align="center">總倉數量</td>
 				</tr>
 				<tr id='store2_close'>
-					<td align="center" colspan='5'>
+					<td align="center" colspan='6'>
 						<input id="btnClose_div_store2" type="button" value="關閉視窗">
 					</td>
 				</tr>

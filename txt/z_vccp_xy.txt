@@ -935,9 +935,9 @@ and a.money between @t_bxmoney and @t_exmoney
 
 if((select count(*) from @tmp)>0)
 begin
-	insert @tmp(gno,noa,noq,amoney,atax,atotal) 
+	insert @tmp(gno,cpno,noa,noq,amoney,atax,atotal) 
 	select '1',noa,CHAR(255),amoney,atax,atotal from @tmp 
-	group by noa,amoney,atax,atotal
+	group by cpno,noa,amoney,atax,atotal
 end 
 
 select 
@@ -949,5 +949,5 @@ dbo.getComma(atax,-1)atax,
 dbo.getComma(atotal,-1)atotal,
 '<img width="50px" src="http://59.125.143.171/images/logo1_xy.png">' logo1,
 'vcc_xy?noa=$noa' qherf,
-* from @tmp order by noa,noq,gno
+* from @tmp order by cpno,noa,noq,gno
 ;

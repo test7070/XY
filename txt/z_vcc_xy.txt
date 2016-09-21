@@ -297,6 +297,11 @@ select * from (
 order by storeno,productno,datea,custno,typea
 
 insert @tmp (gno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,mount,stkmount)
+select '0',MAX(idno),'','','期初',storeno,MAX(stores),'','',productno,MAX(products),'',0,0
+from @tmpa where datea<@t_bdate
+group by storeno,productno
+
+insert @tmp (gno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,mount,stkmount)
 select '0',idno,accy,datea,case when typea='1' then '寄庫' else '庫出' end,storeno,stores,custno,comp,productno,products,vccno,mount,0
 from @tmpa where datea between @t_bdate and @t_edate
 
@@ -354,6 +359,10 @@ end
 close cursor_table
 deallocate cursor_table
 
+--刪除無期初庫存且區間內沒有寄出庫的內容
+delete a from @tmp a
+where exists (select storeno,productno from @tmp 
+group by storeno,productno having SUM(mount)=0 and SUM(stkmount)=0 and count(*)=1 and storeno=a.storeno and productno=a.productno )
 
 if((select COUNT(*) from @tmp)>0)
 begin

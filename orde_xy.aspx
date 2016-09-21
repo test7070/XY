@@ -1974,6 +1974,9 @@
 						
 						$('#btnSpec_'+j).click(function() {
 							//顯示規格
+							t_IdSeq = -1;
+							q_bodyId($(this).attr('id'));
+							b_seq = t_IdSeq;
 							var t_spec="";
 							for (var i = 0; i < uccgb.length; i++) {
 								if($('#txtProduct_'+b_seq).val()==uccgb[i].namea){
@@ -2150,6 +2153,7 @@
 							$('#btnMinus_'+j).attr('disabled', 'disabled');
 							$('#txtProductno_'+j).attr('disabled', 'disabled');
 							$('#btnProduct_'+j).attr('disabled', 'disabled');
+							$('#btnSpec_'+j).attr('disabled', 'disabled');
 							$('#txtProduct_'+j).attr('disabled', 'disabled');
 							$('#combGroupbno_'+j).attr('disabled', 'disabled');
 							$('#txtSpec_'+j).attr('disabled', 'disabled');
@@ -2326,6 +2330,7 @@
 					if(!emp($('#txtQuatno_'+j).val()) || !q_authRun(7)){
 						//$('#txtProductno_'+j).attr('disabled', 'disabled'); //1050127 開放修改 輸入相同產品 
 						//$('#btnProduct_'+j).attr('disabled', 'disabled');
+						$('#btnSpec_'+j).attr('disabled', 'disabled');
 						$('#txtProduct_'+j).attr('disabled', 'disabled');
 						$('#txtSpec_'+j).attr('disabled', 'disabled');
 						$('#txtClassa_'+j).attr('disabled', 'disabled');
@@ -2338,6 +2343,7 @@
 					}else{
 						//$('#txtProductno_'+j).removeAttr('disabled');
 						//$('#btnProduct_'+j).removeAttr('disabled');
+						$('#btnSpec_'+j).removeAttr('disabled');
 						$('#txtProduct_'+j).removeAttr('disabled');
 						$('#txtSpec_'+j).removeAttr('disabled');
 						$('#txtClassa_'+j).removeAttr('disabled');
@@ -2355,6 +2361,7 @@
 							$('#btnMinus_'+j).attr('disabled', 'disabled');
 							$('#txtProductno_'+j).attr('disabled', 'disabled');
 							$('#btnProduct_'+j).attr('disabled', 'disabled');
+							$('#btnSpec_'+j).attr('disabled', 'disabled');
 							$('#txtProduct_'+j).attr('disabled', 'disabled');
 							$('#combGroupbno_'+j).attr('disabled', 'disabled');
 							$('#txtSpec_'+j).attr('disabled', 'disabled');
@@ -2410,12 +2417,13 @@
 					
 					for(var j=0 ;j<q_bbsCount;j++){
 						for(var i=0 ;i<fbbs.length;i++){
-							if(!(fbbs[i]=='txtMount' || fbbs[i]=='txtMemo' || fbbs[i]=='txtDatea'))
+							if(!(fbbs[i]=='txtLengthb' || fbbs[i]=='txtLengthc' || fbbs[i]=='txtMemo' || fbbs[i]=='txtDatea'))
 								$('#'+fbbs[i]+'_'+j).attr('disabled', 'disabled');
 						}
 						$('#btnProduct_'+j).attr('disabled', 'disabled');
 						$('#combGroupbno_'+j).attr('disabled', 'disabled');
 						$('#combClassa_'+j).attr('disabled', 'disabled');
+						$('#btnSpec_'+j).attr('disabled', 'disabled');
 					}
 				}
 			}

@@ -18,7 +18,7 @@
 			q_tables = 's';
 			var q_name = "ina";
 			var q_readonly = ['txtNoa','txtStation','txtComp','txtStore','txtCardeal','txtAddr','txtTranstart','txtWorker','txtWorker2','txtTotal'];
-			var q_readonlys = ['txtTotal','txtRc2no','txtNamea','txtUnit'];
+			var q_readonlys = ['txtTotal','txtRc2no','txtNamea'];
 			var bbmNum = [['txtTotal', 15, 0, 1]];//, ['txtTranmoney', 15, 0, 1], ['txtPrice', 10, 2, 1]
 			var bbsNum = [['txtMount', 10, 0, 1], ['txtPrice', 10, 2, 1], ['txtTotal', 15, 0, 1]];
 			var bbmMask = [];
@@ -34,7 +34,7 @@
 				['txtStoreno', 'lblStore', 'store', 'noa,store', 'txtStoreno,txtStore', 'store_b.aspx'],
 				['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtComp', 'tgg_b.aspx'],
 				['txtCardealno', 'lblCardeal', 'cardeal', 'noa,comp', 'txtCardealno,txtCardeal', 'cardeal_b.aspx'],
-				['txtProductno_', 'btnProductno_', 'ucc_xy', 'noa,product,spec,uunit', 'txtProductno_,txtProduct_,txtSpec_,txtUnit_', 'ucaucc_b.aspx']
+				['txtProductno_', 'btnProductno_', 'ucc_xy', 'noa,product,spec,unit', 'txtProductno_,txtProduct_,txtSpec_,txtUnit_', 'ucaucc_b.aspx']
 			);
 			$(document).ready(function() {
 				bbmKey = ['noa'];

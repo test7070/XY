@@ -34,6 +34,8 @@ declare @tmp table(
 	pack nvarchar(90),
 	col nvarchar(90),
 	unit nvarchar(90),
+	lengthb float,
+	lengthc float,
 	mount float,
 	price float,
 	money float,
@@ -58,7 +60,7 @@ select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.no2)
 ,a.noa,a.odate,a.custno,a.comp,c.serial,c.invoicetitle
 ,a.tel,a.fax,a.addr,c.email,e.conn,a.salesno,a.sales,d.mobile1,b.productno,b.product,b.spec,b.sizea
 ,case when b.dime=1 then '單' when b.dime=2 then '雙' when b.dime=3 then '參' when b.dime=4 then '肆' when b.dime=5 then '全彩' else '' end
-,b.unit,b.mount,b.price,b.total,a.tax,a.taxtype,a.total,b.memo
+,b.unit,b.lengthb,b.lengthc,b.mount,b.price,b.total,a.tax,a.taxtype,a.total,b.memo
 ,b.datea,case when isnull(c.startdate,'')='' or c.startdate='0' then 30 else cast(c.startdate as int)-1 end
 ,e.invomemo,c.[getdate],a.paytype,a.trantype,a.addr2,a.addr2,e.taxtype,e.checkmemo
 from view_orde a left join view_ordes b on a.noa=b.noa left join cust c on a.custno=c.noa
@@ -68,17 +70,21 @@ where a.noa between @t_bnoa and @t_enoa and a.odate between @t_bdate and @t_edat
 declare @noa nvarchar(50)
 declare @noq nvarchar(50)
 declare @x_noa nvarchar(50)='xxxxxxx'
+declare @lengthb float =0
+declare @lengthc float =0
 declare @mount float =0
+declare @t_lengthb float =0
+declare @t_lengthc float =0
 declare @t_mount float =0
 declare @price float =0
 declare @t_total float =0
 declare @count int=0
 
 declare cursor_table cursor for
-select noa,mount,price from @tmp where gno='0' order by noa,recno
+select noa,lengthb,lengthc,mount,price from @tmp where gno='0' order by noa,recno
 open cursor_table
 fetch next from cursor_table
-into @noa,@mount,@price
+into @noa,@lengthb,@lengthc,@mount,@price
 while(@@FETCH_STATUS <> -1)
 begin
 
@@ -94,9 +100,9 @@ begin
 					
 			end
 			
-			insert @tmp(gno,recno,noa,mount,money,total,tax,taxtype,salesno,sales,stel
+			insert @tmp(gno,recno,noa,lengthb,lengthc,mount,money,total,tax,taxtype,salesno,sales,stel
 			,startdate,datea,isinvo,xgetdate,namea,paytype,trantype,xadd1,xadd2,istax,checkvcc)
-			select '2',@count,@x_noa,@t_mount,@t_total,@t_total,0
+			select '2',@count,@x_noa,@t_lengthb,@t_lengthc,@t_mount,@t_total,@t_total,0
 				,MAX(taxtype),MAX(salesno),MAX(sales),MAX(stel)
 				,MAX(startdate),MAX(datea),MAX(isinvo),MAX(xgetdate)
 				,MAX(namea),MAX(paytype),MAX(trantype),MAX(xadd1),MAX(xadd2),MAX(istax),MAX(checkvcc)
@@ -106,11 +112,15 @@ begin
 			select '3',@count,@x_noa
 		end
 		
+		set @t_lengthb=0
+		set @t_lengthc=0
 		set @t_mount=0
 		set @t_total=0
 		set @count=0
 	end
 	
+	set @t_lengthb=@t_lengthb+@lengthb
+	set @t_lengthc=@t_lengthc+@lengthc
 	set @t_mount=@t_mount+@mount
 	set @t_total=@t_total+(@mount*@price)
 	
@@ -118,9 +128,9 @@ begin
 	
 	if(@count%@t_pageline=0)
 	begin
-		insert @tmp(gno,recno,noa,mount,money,total,tax,taxtype,salesno,sales,stel
+		insert @tmp(gno,recno,noa,lengthb,lengthc,mount,money,total,tax,taxtype,salesno,sales,stel
 		,startdate,datea,isinvo,xgetdate,namea,paytype,trantype,xadd1,xadd2,istax,checkvcc)
-		select '2',@count,@noa,@t_mount,@t_total,@t_total,0
+		select '2',@count,@noa,@t_lengthb,@t_lengthc,@t_mount,@t_total,@t_total,0
 			,MAX(taxtype),MAX(salesno),MAX(sales),MAX(stel)
 			,MAX(startdate),MAX(datea),MAX(isinvo),MAX(xgetdate)
 			,MAX(namea),MAX(paytype),MAX(trantype),MAX(xadd1),MAX(xadd2),MAX(istax),MAX(checkvcc)
@@ -135,7 +145,7 @@ begin
 	
 	set @x_noa=@noa
 	fetch next from cursor_table
-	into @noa,@mount,@price
+	into @noa,@lengthb,@lengthc,@mount,@price
 end
 close cursor_table
 deallocate cursor_table
@@ -149,9 +159,9 @@ begin
 		insert @tmp(gno,recno,noa)
 		select '1',@count,@x_noa
 	end
-	insert @tmp(gno,recno,noa,mount,money,total,tax,taxtype,salesno,sales,stel
+	insert @tmp(gno,recno,noa,lengthb,lengthc,mount,money,total,tax,taxtype,salesno,sales,stel
 	,startdate,datea,isinvo,xgetdate,namea,paytype,trantype,xadd1,xadd2,istax,checkvcc)
-	select '2',@count,@x_noa,@t_mount,@t_total,@t_total,0
+	select '2',@count,@x_noa,@t_lengthb,@t_lengthc,@t_mount,@t_total,@t_total,0
 		,MAX(taxtype),MAX(salesno),MAX(sales),MAX(stel)
 		,MAX(startdate),MAX(datea),MAX(isinvo),MAX(xgetdate)
 		,MAX(namea),MAX(paytype),MAX(trantype),MAX(xadd1),MAX(xadd2),MAX(istax),MAX(checkvcc)
@@ -180,15 +190,19 @@ where gno='2'
 select recno no,
 dbo.getComma(money,0) money,
 dbo.getComma(tax,0) tax,
-dbo.getComma(mount,0) mount,
-dbo.getComma(price,2) price,
+
+--dbo.getComma(mount,0) mount,
+case when a.unit=c.unit then dbo.getComma(a.lengthb,1) else dbo.getComma(a.lengthc,-1) end mount, 
+case when a.unit=c.unit and lengthc!=0 then '尾數:'+dbo.getComma(lengthc,-1)+' ' else '' end+a.memo memo, 
+
+dbo.getComma(a.price,2) price,
 dbo.getComma(total,0) total,
 replace(comp,'~#$',char(39)) comp,
 *
 ,'<img width="60px" src="http://59.125.143.171/images/logo1_xy.png">' logo1
 ,case when @t_logo2=0 then '' else '<img width="120px" src="http://59.125.143.171/images/logo2_xy.png" style="position: absolute">' end logo2
-from @tmp
-order by noa,recno,gno;
+from @tmp a left join ucc c on a.productno=c.noa
+order by a.noa,recno,gno;
 --*******************************************************************************************************
 z_ordepxy2:--z_ordepxy2
 declare @t_bdate nvarchar(10)

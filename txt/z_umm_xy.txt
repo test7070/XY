@@ -145,6 +145,8 @@ declare @result table(
 	product nvarchar(100),
 	spec nvarchar(100),
 	unit nvarchar(8),
+	lengthb float,
+	lengthc float,
 	mount float,
 	price float,
 	money float,
@@ -168,7 +170,7 @@ select '2' gno,ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq) idno,0 
 		, isnull(c.zip_home,'') post, isnull(c.addr_invo,'') addr,isnull(c.tel,'') tel,isnull(c.serial,'')serial 
 		,(case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) salesno
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales ,a.invono
-		,b.productno, b.product,b.spec, b.unit,b.dime,b.price,b.total money,a.money
+		,b.productno, b.product,b.spec, b.unit,b.lengthb,b.lengthc,b.dime,b.price,b.total money,a.money
 		--,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
 		,a.tax
 		,a.taxtype,a.total,0 paysale,0 discounts,case when a.typea='2' then -1 else 1 end*a.payed payed,0 punpay,a.unpay,0,b.memo
@@ -287,7 +289,8 @@ case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa
 case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 and (gno in ('2','6')) then null else dbo.getComma(case when typea='2' then -1 else 1 end*tax,0) end tax,
 case when typea='1' then '銷' when typea='2' then '退' else '' end typea,
 case when gno='2' then right(datea,2) else '' end day,
-dbo.getComma(case when typea='2' then -1 else 1 end*mount,-1) mount,
+--dbo.getComma(case when typea='2' then -1 else 1 end*mount,-1) mount,
+case when abs(isnull(lengthb,0))!=0 then dbo.getComma(case when typea='2' then -1 else 1 end*lengthb,-1) else dbo.getComma(case when typea='2' then -1 else 1 end*lengthc,-1) end mount,
 dbo.getComma(price,-1) price,
 dbo.getComma(case when typea='2' then -1 else 1 end*round(money,0),0) money,
 dbo.getComma(case when typea='2' then -1 else 1 end*round(amoney,0),0) amoney,
@@ -367,6 +370,8 @@ create table #result(
 	product nvarchar(100),
 	spec nvarchar(100),
 	unit nvarchar(8),
+	lengthb float,
+	lengthc float,
 	mount float,
 	price float,
 	money float,
@@ -390,7 +395,7 @@ select '2' gno,0 idno,0 page,0 mpage, a.typea, a.noa, b.noq, a.datea , (case whe
 		, isnull(c.zip_home,'') post, isnull(c.addr_invo,'') addr,isnull(c.tel,'') tel,isnull(c.serial,'')serial 
 		,(case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) salesno
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales ,a.invono
-		,b.productno, b.product,b.spec, b.unit,b.dime,b.price,b.total money,a.money
+		,b.productno, b.product,b.spec, b.unit,b.lengthb,b.lengthc,b.dime,b.price,b.total money,a.money
 		--,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
 		,a.tax
 		,a.taxtype,a.total,0 paysale,a.payed payed,0 punpay,a.unpay,0,b.memo
@@ -494,7 +499,8 @@ case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa
 case when ROW_NUMBER()over(partition by custno,page,noa order by custno,page,noa,noq) >1 and gno in ('2','6') then null else dbo.getComma(case when typea='2' then -1 else 1 end*tax,0) end tax,
 case when typea='1' then '銷' when typea='2' then '退' else '' end typea,
 case when gno='2' then right(datea,2) else '' end day,
-dbo.getComma(case when typea='2' then -1 else 1 end*mount,-1) mount,
+--dbo.getComma(case when typea='2' then -1 else 1 end*mount,-1) mount,
+case when abs(isnull(lengthb,0))!=0 then dbo.getComma(case when typea='2' then -1 else 1 end*lengthb,-1) else dbo.getComma(case when typea='2' then -1 else 1 end*lengthc,-1) end mount,
 dbo.getComma(price,-1) price,
 dbo.getComma(case when typea='2' then -1 else 1 end*money,0) money,
 dbo.getComma(case when typea='2' then -1 else 1 end*amoney,0) amoney,
@@ -544,6 +550,8 @@ declare @tmp table(
 	vnoa nvarchar(50),
 	vnoq nvarchar(50),
 	product nvarchar(200),
+	lengthb float,
+	lengthc float,
 	mount float,
 	price float,
 	vtotal float,
@@ -554,7 +562,7 @@ declare @tmp table(
 insert into @tmp 
 select '0',a.datea,a.noa,b.noq,a.custno,(select case when isnull(nick,'')!='' then nick else left(comp,8) end from cust where noa=a.custno) 
 ,a.total,b.paysale,isnull(f.salesno,''),f.sales,c.datea,c.custno,(select case when isnull(nick,'')!='' then nick else left(comp,8) end from cust where noa=c.custno) 
-,c.noa,c.noq,c.product,c.mount,c.price,c.total,e.class,null 
+,c.noa,c.noq,c.product,c.lengthb,c.lengthc,c.mount,c.price,c.total,e.class,null 
 from umm a left join umms b on a.noa=b.noa left join view_vccs c on b.vccno=c.noa 
 left join view_ordes d on (c.ordeno=d.noa and c.no2=d.no2) 
 left join view_quats e on (d.quatno=e.noa and d.no3=e.no3) 
@@ -566,22 +574,26 @@ and isnull(f.taxtype,'1')!='6' --1050112 作廢不顯示
 update @tmp
 set bonus=(case when rate='' then 100 else cast(rate as float) end)/100*vtotal
 
-insert @tmp (gno,salesno,saless,utotal,vtotal,bonus)
-select '1',salesno,MAX(saless),sum(utotal),sum(vtotal),sum(bonus) from @tmp group by salesno
-
-update a
-set utotal=(select SUM(utotal) from ((select utotal from @tmp where gno='0' and salesno=a.salesno group by unoa,utotal))tmp)
-from @tmp a
-where gno='1'
-
-insert @tmp (gno,salesno)
-select '2',salesno from @tmp where salesno != (select MAX(salesno) from @tmp where gno='1') group by salesno
-
-insert @tmp (gno,salesno,saless,utotal,vtotal,bonus)
-select '3',MAX(salesno),MAX(saless),sum(utotal),sum(vtotal),sum(bonus) from @tmp where gno = '1'
+if((select count(*) from @tmp)>0)
+begin
+	insert @tmp (gno,salesno,saless,utotal,vtotal,bonus)
+	select '1',salesno,MAX(saless),sum(utotal),sum(vtotal),sum(bonus) from @tmp group by salesno
+	
+	update a
+	set utotal=(select SUM(utotal) from ((select utotal from @tmp where gno='0' and salesno=a.salesno group by unoa,utotal))tmp)
+	from @tmp a
+	where gno='1'
+	
+	insert @tmp (gno,salesno)
+	select '2',salesno from @tmp where salesno != (select MAX(salesno) from @tmp where gno='1') group by salesno
+	
+	insert @tmp (gno,salesno,saless,utotal,vtotal,bonus)
+	select '3',MAX(salesno),MAX(saless),sum(utotal),sum(vtotal),sum(bonus) from @tmp where gno = '1'
+end
 
 select 
-dbo.getComma(mount,-1) mount,
+--dbo.getComma(mount,-1) mount,
+case when abs(isnull(lengthb,0))!=0 then dbo.getComma(lengthb,-1) else dbo.getComma(lengthc,-1) end mount,
 dbo.getComma(price,4) price,
 dbo.getComma(utotal,0) utotal,
 dbo.getComma(paysale,0) paysale,
@@ -645,6 +657,8 @@ create table #result(
 	product nvarchar(100),
 	spec nvarchar(100),
 	unit nvarchar(8),
+	lengthb float,
+	lengthc float,
 	mount float,
 	price float,
 	money float,
@@ -664,7 +678,7 @@ begin
 		, isnull(c.zip_home,'') post, isnull(c.addr_invo,'') addr,isnull(c.tel,'') tel,isnull(c.serial,'')serial 
 		,(case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) salesno
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales 
-		,b.productno, b.product,b.spec, b.unit,b.mount,b.price,b.total money,a.money,a.tax,a.taxtype,a.total,0
+		,b.productno, b.product,b.spec, b.unit,b.lengthb,b.lengthc,b.mount,b.price,b.total money,a.money,a.tax,a.taxtype,a.total,0
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
 	left join cust c on a.custno = c.noa
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) = @t_mon)) 
@@ -687,7 +701,7 @@ begin
 		, isnull(c.zip_home,'') post, isnull(c.addr_invo,'') addr,isnull(c.tel,'') tel,isnull(c.serial,'')serial 
 		,(case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) salesno
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales 
-		,b.productno, b.product,b.spec, b.unit,b.mount,b.price,b.total money,a.money,a.tax,a.taxtype,a.total,0
+		,b.productno, b.product,b.spec, b.unit,b.lengthb,b.lengthc,b.mount,b.price,b.total money,a.money,a.tax,a.taxtype,a.total,0
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
 	left join cust c on  (case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end) = c.noa
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) = @t_mon)) 
@@ -711,8 +725,9 @@ outer apply (
 ) b
 group by a.custno
 
-insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial,mount,money,amoney,tax,total)
-select '2','','000',@t_mon+'/00',@t_mon,a.custno,MAX(comp),xcustno,MAX(xcomp),MAX(post),MAX(addr),MAX(tel),MAX(serial),SUM(mount),SUM(money),MAX(b.amoney),MAX(b.tax),MAX(b.total)
+insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial,lengthb,lengthc,mount,money,amoney,tax,total)
+select '2','','000',@t_mon+'/00',@t_mon,a.custno,MAX(comp),xcustno,MAX(xcomp),MAX(post),MAX(addr),MAX(tel),MAX(serial)
+,SUM(lengthb),SUM(lengthc),SUM(mount),SUM(money),MAX(b.amoney),MAX(b.tax),MAX(b.total)
 from #result a 
 outer apply (
 	select custno,SUM(amoney)amoney,SUM(tax)tax,SUM(total)total from(
@@ -730,22 +745,22 @@ if(@t_showbranch='Y')
 begin
 	if(@t_paging='Y')
 	begin
-		insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial,mount,money,amoney,tax,total) 
+		insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial,lengthb,lengthc,mount,money,amoney,tax,total) 
 		select '2','','000',@t_mon+'/00',@t_mon,b.noa custno,b.comp comp 
 		,a.noa xcustno,isnull(a.comp,'') xcomp,isnull(b.zip_invo,'') post, isnull(b.addr_invo,'') addr, isnull(b.tel,'') tel,isnull(b.serial,'')serial 
-		,0,0,0,0,0 from cust a 
+		,0,0,0,0,0,0,0 from cust a 
 		outer apply(select top 1 * from cust where serial=a.serial order by noa)b
 		where exists (select * from #result where serial=a.serial ) 
 		and not exists (select * from #result where xcustno=a.noa)
 	end
 	else
 	begin
-		insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial,mount,money,amoney,tax,total) 
+		insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,post,addr,tel,serial,lengthb,lengthc,mount,money,amoney,tax,total) 
 		select '2','','000',@t_mon+'/00',@t_mon
 		,(case when isnull(a.custno2,'')!='' then a.custno2 else a.noa end) custno
 		,(case when isnull(a.custno2,'')!='' then a.cust2 else a.comp end) comp 
 		,a.noa xcustno,isnull(a.comp,'') xcomp, isnull(b.zip_home,'') post, isnull(b.addr_invo,'') addr, isnull(b.tel,'') tel,isnull(b.serial,'')serial 
-		,0,0,0,0,0 from cust a 
+		,0,0,0,0,0,0,0 from cust a 
 		outer apply(select * from cust where noa=(case when isnull(a.custno2,'')!='' then a.custno2 else a.noa end))b
 		where exists (select * from #result where custno=a.custno2 ) 
 		and not exists (select * from #result where xcustno=a.noa)
@@ -810,7 +825,8 @@ CEILING(cast(ROW_NUMBER()over(partition by custno order by custno,isnull(xserial
 (cast((counts)as int)/@t_pageline)+1 mpage,
 case when typea='1' then '銷' when typea='2' then '退' else '' end typea,
 case when gno='0' then right(datea,2) else '' end day,
-dbo.getComma(mount,-1) mount,
+--dbo.getComma(mount,-1) mount,
+case when abs(isnull(lengthb,0))!=0 then dbo.getComma(lengthb,-1) else dbo.getComma(lengthc,-1) end mount,
 dbo.getComma(price,2) price,
 dbo.getComma(money,0) money,
 dbo.getComma(amoney,0) amoney,

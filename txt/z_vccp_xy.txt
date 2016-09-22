@@ -940,7 +940,7 @@ and a.money between @t_bxmoney and @t_exmoney
 if((select count(*) from @tmp)>0)
 begin
 	insert @tmp(gno,cpno,noa,noq,amoney,atax,atotal) 
-	select '1',noa,cpno,CHAR(255),amoney,atax,atotal from @tmp 
+	select '1',cpno,noa,CHAR(255),amoney,atax,atotal from @tmp 
 	group by cpno,noa,amoney,atax,atotal
 end 
 

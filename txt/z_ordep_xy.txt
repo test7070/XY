@@ -328,9 +328,11 @@ set @t_edate = case when '#non'=[3] then char(255) else [3] end
 	end
 	
 	select gno,noa,no2,datea,odate,custorder,oldno,custno,replace(comp,'~#$',char(39)) comp,pno,pname,spec,unit
-	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,pmount),1)),4,30)) pmount
-	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,pweight),1)),0,30)) pweight
-	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,price),1)),0,30)) price
-	,reverse(substring(reverse(convert(nvarchar(30),CONVERT(money,ptotal),1)),4,30)) ptotal
+	,dbo.getComma(lengthb,-1) lengthb
+	,dbo.getComma(lengthc,-1) lengthc
+	,dbo.getComma(pmount,0) pmount
+	,dbo.getComma(pweight,0) pweight
+	,dbo.getComma(price,-1) price
+	,dbo.getComma(ptotal,0) ptotal
 	,case e when '1' then 'Y' else 'N' end e,c,pcount,memo,apv,worker,w2,vprint
 	from @result;

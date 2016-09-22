@@ -1038,7 +1038,7 @@
 							$('.bbsitem').attr('disabled', 'disabled');
 						Unlock(1);
 						$('#txtDatea').focus();
-
+						unitdisabled();
 						if (!emp($('#txtCustno').val())) {
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('custaddr', t_where, 0, 0, 0, "");

@@ -2133,6 +2133,7 @@
 					
 				_btnModi();
 				ShowDownlbl();
+				unitdisabled();
 				//copy_field();
 				$('#txtCustno').focus();
 				$('.yellow').css('background-color','yellow');
@@ -2230,6 +2231,7 @@
 				$('#div_addr2').hide();
 				HiddenTreat();
 				ShowDownlbl();
+				$('.yellow').css('background-color','yellow');
 				var emp_productno=false;
 				for (var j = 0; j < q_bbsCount; j++) {
 					if (!q_cur) {

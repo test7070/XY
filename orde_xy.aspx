@@ -2659,28 +2659,11 @@
 							t_n=q_bbsCount;
 						}
 						
-						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtSizea,txtDime,txtUnit,txtPrice,txtMount,txtQuatno,txtNo3,txtClassa,txtClass'
-						, as.length, as, 'productno,product,spec,sizea,dime,unit,price,mount,noa,no3,classa,class', 'txtProductno,txtProduct,txtSpec');
+						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtSizea,txtDime,txtUnit,txtPrice,txtLengthb,txtLengthc,txtRadius,txtMount,txtQuatno,txtNo3,txtClassa,txtClass'
+						, as.length, as, 'productno,product,spec,sizea,dime,unit,price,lengthb,lengthc,radius,mount,noa,no3,classa,class', 'txtProductno,txtProduct,txtSpec');
 						
 						unitdisabled();
 						
-						if(as.length>0){
-							for (var i = 0; i < q_bbsCount; i++) {
-								if(dec($('#txtMount_'+i).val())==0){
-									$('#txtMount_'+i).val('');
-									$('#txtLengthb_'+i).val('');
-									$('#txtLengthc_'+i).val('');
-								}else{
-									if(dec($('#txtRadius_'+i).val())==0){
-										$('#txtLengthb_'+i).val(0);
-										$('#txtLengthc_'+i).val($('#txtMount_'+i).val());
-									}else{
-										$('#txtLengthb_'+i).val($('#txtMount_'+i).val());
-										$('#txtLengthc_'+i).val(0);
-									}
-								}
-							}
-						}
 						$('#txtMount_'+t_n).focus();
 						AutoNo2();
 						bbsAssign();
@@ -2694,25 +2677,10 @@
 						pno_keyin_apop=true;
 						
 						$('#btnMinus_'+b_seq).click();
-						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtSizea,txtDime,txtUnit,txtPrice,txtMount,txtQuatno,txtNo3,txtClassa,txtClass'
-						, as.length, as, 'productno,product,spec,sizea,dime,unit,price,mount,noa,no3,classa,class', 'txtProductno,txtProduct,txtSpec');
+						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtSizea,txtDime,txtUnit,txtPrice,txtLengthb,txtLengthc,txtRadius,txtMount,txtQuatno,txtNo3,txtClassa,txtClass'
+						, as.length, as, 'productno,product,spec,sizea,dime,unit,price,lengthb,lengthc,radius,mount,noa,no3,classa,class', 'txtProductno,txtProduct,txtSpec');
 						
 						unitdisabled();
-						
-						if(dec($('#txtMount_'+b_seq).val())==0){
-							$('#txtMount_'+b_seq).val('');
-							$('#txtLengthb_'+b_seq).val('');
-							$('#txtLengthc_'+b_seq).val('');
-						}else{
-							if(dec($('#txtRadius_'+i).val())==0){
-								$('#txtLengthb_'+b_seq).val(0);
-								$('#txtLengthc_'+b_seq).val($('#txtMount_'+b_seq).val());
-							}else{
-								$('#txtLengthb_'+b_seq).val($('#txtMount_'+b_seq).val());
-								$('#txtLengthc_'+b_seq).val(0);
-							}
-						}
-						
 						HiddenTreat();
 						AutoNo2();
 						break;

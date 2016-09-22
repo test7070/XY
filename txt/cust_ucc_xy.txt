@@ -1385,6 +1385,9 @@ declare @tmp table(
 	classa nvarchar(50),
 	unit nvarchar(10),
 	price float,
+	lengthb float,
+	lengthc float,
+	radius float,
 	mount float,
 	total float,
 	memo nvarchar(max)
@@ -1392,7 +1395,7 @@ declare @tmp table(
 
 insert @tmp
 select a.noa,b.no3,a.custno,a.datea,a.odate 
-,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit,b.price,b.mount,b.total,b.memo
+,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit,b.price,0,0,0,b.mount,b.total,b.memo
 from view_quat a left join view_quats b on a.noa=b.noa
 where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 and isnull(a.custno,'')!=''
 and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),'')
@@ -1429,6 +1432,21 @@ update a
 set mount=case when xcount>0 then 0 else mount end
 ,total=case when xcount>0 then 0 else total end
 from @tmp a outer apply (select count(*)xcount from view_ordes where quatno=a.noa and no3=a.no3)b
+
+--轉換件數尾數
+update a
+set lengthb=case when a.unit=b.unit then a.mount else 0 end
+,lengthc=case when a.unit!=b.unit then a.mount else 0 end
+,radius=isnull(c.inmount,0)
+from @tmp a left join ucc b on a.productno=b.noa
+outer apply (select top 1 noq,case when ISNULL(inmount,0)=0 then 1 else inmount end inmount,pack,packway from pack2s where noa=a.productno and isnull(pack,'')!='' order by inmount desc)c
+where b.noa is not null
+
+update a
+set mount=(case when a.unit=b.unit then a.mount else 0 end*isnull(c.inmount,1))+case when a.unit!=b.unit then a.mount else 0 end
+from @tmp a left join ucc b on a.productno=b.noa
+outer apply (select top 1 noq,case when ISNULL(inmount,0)=0 then 1 else inmount end inmount,pack,packway from pack2s where noa=a.productno and isnull(pack,'')!='' order by inmount desc)c
+where b.noa is not null
 
 select * from @tmp order by noa,no3
 ;

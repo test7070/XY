@@ -185,10 +185,9 @@ select a.xrecno no,
 dbo.getComma(a.money,0) money,
 dbo.getComma(a.tax,0) tax,
 --dbo.getComma(a.mount,1) mount,
-case when d.packway='1' or a.unit=d.pack then dbo.getComma(a.mount,1)
-else dbo.getComma(a.lengthb,-1) end mount,
-case when d.packway='1' then d.pack else a.unit end unit,
-case when a.unit!=d.packway and lengthc!=0 then '尾數:'+dbo.getComma(lengthc,-1)+' ' else '' end+bmemo  bmemo,
+case when a.unit=c.unit then dbo.getComma(a.lengthb,1) else dbo.getComma(a.lengthc,-1) end mount,
+a.unit unit,
+case when a.unit=c.unit and lengthc!=0 then '尾數:'+dbo.getComma(lengthc,-1)+' ' else '' end+bmemo  bmemo,
 dbo.getComma(a.stock,1) stock,
 dbo.getComma(a.price,2) price,
 dbo.getComma(a.total,0) total,
@@ -202,7 +201,6 @@ a.*
 from @tmp a
 left join view_vcc b on a.noa=b.noa
 left join ucc c on a.productno=c.noa
-outer apply (select top 1 noq,inmount,pack,packway from pack2s where noa=a.productno and isnull(pack,'')!='' order by inmount desc)d
 order by a.noa,a.pageno,a.recno,a.gno;
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 z_vccp_xy2:--z_vccp_xy2--出貨單新格式105/08/08
@@ -395,10 +393,9 @@ select a.xrecno no,
 dbo.getComma(a.money,0) money,
 dbo.getComma(a.tax,0) tax,
 --dbo.getComma(a.mount,1) mount,
-case when d.packway='1' or a.unit=d.pack then dbo.getComma(a.mount,1)
-else dbo.getComma(a.lengthb,-1) end mount,
-case when d.packway='1' then d.pack else a.unit end unit,
-case when a.unit!=d.packway and lengthc!=0 then '尾數:'+dbo.getComma(lengthc,-1)+' ' else '' end+bmemo  bmemo,
+case when a.unit=c.unit then dbo.getComma(a.lengthb,1) else dbo.getComma(a.lengthc,-1) end mount,
+a.unit unit,
+case when a.unit=c.unit and lengthc!=0 then '尾數:'+dbo.getComma(lengthc,-1)+' ' else '' end+bmemo  bmemo,
 dbo.getComma(a.stock,1) stock,
 dbo.getComma(a.price,2) price,
 dbo.getComma(a.total,0) total,
@@ -416,7 +413,6 @@ a.*
 from @tmp a
 left join view_vcc b on a.noa=b.noa
 left join ucc c on a.productno=c.noa
-outer apply (select top 1 noq,inmount,pack,packway from pack2s where noa=a.productno and isnull(pack,'')!='' order by inmount desc)d
 order by a.noa,a.pageno,a.recno,a.gno;
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 --暫時拿掉 當新的出貨單格式
@@ -566,7 +562,11 @@ declare @tmp table(
 	productno nvarchar(90),
 	products nvarchar(90),
 	spec nvarchar(90),
+	lengthb float,
+	lengthc float,
 	mount float,
+	vlengthb float,
+	vlengthc float,
 	vmount float,
 	umount float,
 	bmemo nvarchar(MAX)
@@ -574,10 +574,12 @@ declare @tmp table(
 
 insert @tmp
 select '0',b.datea,a.custno,replace(a.comp,'~#$',char(39)),a.noa,a.memo
-,b.no2,b.productno,b.product,b.spec,b.mount
-,isnull(c.mount,0),b.mount-isnull(c.mount,0),b.memo
+,b.no2,b.productno,b.product,b.spec
+,b.lengthb,b.lengthc,b.mount
+,isnull(c.lengthb,0),isnull(c.lengthc,0),isnull(c.mount,0)
+,b.mount-isnull(c.mount,0),b.memo
 from view_orde a left join view_ordes b on a.noa=b.noa
-outer apply (select sum(mount)mount from view_vccs where ordeno=a.noa and no2=b.no2 ) c
+outer apply (select sum(lengthb)lengthb,sum(lengthc)lengthc,sum(mount)mount from view_vccs where ordeno=a.noa and no2=b.no2 ) c
 where b.mount!=0
 and ((b.datea <= @t_edate) or isnull(b.datea,'')='' ) 
 and ((b.datea between @t_bdate and @t_edate) or (b.mount-c.mount>0)) 
@@ -938,7 +940,7 @@ and a.money between @t_bxmoney and @t_exmoney
 if((select count(*) from @tmp)>0)
 begin
 	insert @tmp(gno,cpno,noa,noq,amoney,atax,atotal) 
-	select '1',noa,CHAR(255),amoney,atax,atotal from @tmp 
+	select '1',noa,cpno,CHAR(255),amoney,atax,atotal from @tmp 
 	group by cpno,noa,amoney,atax,atotal
 end 
 

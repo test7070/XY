@@ -664,7 +664,8 @@ begin
 		if((select taxtype from view_vcc where noa=@noa)='3' and @p23!='2') 
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,datea,ordeno,no2)
-			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,a.mount
+			select @invono,a.noq,a.custno,a.productno,a.product,a.unit
+			,case when isnull(a.lengthb,0)!=0 then a.lengthb else a.lengthc end --a.mount
 			,case when a.mount=0 then 0 else round(round(a.total/1.05,0)/a.mount,3) end
 			,round(a.total/1.05,0),@nowdate,a.noa,a.no2
 			from view_vccs a where a.noa=@noa and a.total>0
@@ -696,7 +697,9 @@ begin
 		else
 		begin
 			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,ordeno,no2)
-			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,a.mount,a.price,a.total,a.noa,a.no2
+			select @invono,a.noq,a.custno,a.productno,a.product,a.unit
+			,case when isnull(a.lengthb,0)!=0 then a.lengthb else a.lengthc end --a.mount
+			,a.price,a.total,a.noa,a.no2
 			from view_vccs a where a.noa=@noa and a.total>0
 		end
 		
@@ -968,7 +971,8 @@ begin
 	end
 	
 	insert #tvccas (noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo,trdno,taxtype)
-	select '','',a.cno,a.custno,@nowdate,b.productno,b.product,b.unit,SUM(b.mount)
+	select '','',a.cno,a.custno,@nowdate,b.productno,b.product,b.unit
+	,case when SUM(isnull(b.lengthb,0))!=0 then SUM(b.lengthb) else sum(b.lengthc) end--,SUM(b.mount)
 	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
 	,SUM(case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
 	,'','',case when a.taxtype='3' then '1' else a.taxtype end
@@ -1007,7 +1011,8 @@ begin
 	from #tvcca a left join cust b on a.custno=b.noa
 	
 	insert #tvccas (noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo,trdno,taxtype)
-	select '','',a.cno,a.custno,@nowdate,b.productno,b.product,b.unit,SUM(b.mount)
+	select '','',a.cno,a.custno,@nowdate,b.productno,b.product,b.unit
+	,case when SUM(isnull(b.lengthb,0))!=0 then SUM(b.lengthb) else sum(b.lengthc) end--,SUM(b.mount)
 	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
 	,SUM(case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
 	,'',a.custorde,case when taxtype='3' then '1' else taxtype end

@@ -18,7 +18,7 @@
 			q_tables = 's';
 			var q_name = "ina";
 			var q_readonly = ['txtNoa','txtStation','txtComp','txtStore','txtCardeal','txtAddr','txtTranstart','txtWorker','txtWorker2','txtTotal'];
-			var q_readonlys = ['txtTotal','txtRc2no','txtNamea'];
+			var q_readonlys = ['txtTotal','txtRc2no','txtNamea','txtUnit'];
 			var bbmNum = [['txtTotal', 15, 0, 1]];//, ['txtTranmoney', 15, 0, 1], ['txtPrice', 10, 2, 1]
 			var bbsNum = [['txtMount', 10, 0, 1], ['txtPrice', 10, 2, 1], ['txtTotal', 15, 0, 1]];
 			var bbmMask = [];

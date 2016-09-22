@@ -94,8 +94,8 @@
 			function mainPost() {
 				if(r_rank<'5'){ //1050128 可直接在出貨單上 增加產品
 					//q_readonlys.push('txtMount');
-					q_readonlys.push('txtLengthb');
-					q_readonlys.push('txtLengthc');
+					//q_readonlys.push('txtLengthb');
+					//q_readonlys.push('txtLengthc');
 					q_readonlys.push('txtMount');
 					q_readonlys.push('txtProductno');
 					q_readonlys.push('txtPrice');

@@ -26,7 +26,7 @@ declare @tmp table(
 )
 
 insert @tmp 
-select '0',a.storeno2,MAX(b.store),a.productno
+select '0',a.storeno2,MAX(replace(b.store,'~#$',char(39))),a.productno
 ,MAX(case when isnull(c.product,'')!='' then c.product else a.productno end ) product
 ,MAX(case when isnull(c.spec,'')!='' then c.spec else a.spec end) spec 
 ,sum(case when a.typea='2' then -1 else 1 end* isnull(tranmoney2,0))-sum(case when a.typea='2' then -1 else 1 end*isnull(tranmoney3,0)) stkmount 
@@ -109,7 +109,7 @@ declare @tmpa table(
 
 insert @tmpa
 select * from (
-	select a.accy,a.datea,'1' typea,isnull(b.storeno2,'') storeno,c.store,a.custno custno,a.comp comp,b.productno,d.product,a.noa
+	select a.accy,a.datea,'1' typea,isnull(b.storeno2,'') storeno,replace(c.store,'~#$',char(39)) store,a.custno custno,a.comp comp,b.productno,d.product,a.noa
 	,(case when a.typea='2' then -1 else 1 end)*tranmoney2 tranmoney2
 	from view_vcc a left join view_vccs b on a.noa=b.noa 
 	left join store c on b.storeno2=c.noa
@@ -251,7 +251,7 @@ create table #tmp(
 )
 
 insert #tmp
-select '9',a.datea,a.noa,isnull(b.storeno2,''),isnull(b.store2,'')
+select '9',a.datea,a.noa,isnull(b.storeno2,''),replace(isnull(b.store2,''),'~#$',char(39))
 ,isnull(b.productno,''),b.product,isnull(c.style,''),b.spec,b.unit
 ,case when a.typea='1' then 1 else -1 end*case when b.itemno='1' then 1 else -1 end*isnull(b.lengthb,0)
 ,case when a.typea='1' then 1 else -1 end*case when b.itemno='1' then 1 else -1 end*isnull(b.lengthc,0)

@@ -639,7 +639,8 @@ declare @tmp table(
 )
 	insert into @tmp
 	select '0',0,0,a.datea,a.noa,b.noq,a.buyer,a.serial	,a.zip+a.address,a.chkno,a.vccno
-	,isnull((select top 1 salesno from view_vcc where a.vccno like '%'+noa+'%' ),''),''
+	--,isnull((select top 1 salesno from view_vcc where a.vccno like '%'+noa+'%' ),''),''
+	,isnull((select top 1 salesno from view_vcc where noa=dbo.split(a.vccno,',',0)),''),''
 	--,stuff(isnull((select ','+ordeno from view_vccs where a.vccno like '%'+noa+'%' group by ordeno FOR XML PATH('') ),''),1,1,'')
 	,case when [type]='P' then trdno else '' end
 	,b.productno,b.product,b.unit,b.mount,b.price,b.money,

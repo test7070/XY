@@ -23,9 +23,9 @@
             q_desc = 1;
             q_tables = 's';
             var q_name = "cug";
-            var q_readonly = ['txtNoa','txtWorker','txtWorker2','txtStation','txtProcess','txtGenorg','txtHours','txtSmount','txtKdate'];
-            var q_readonlys = ['txtProductno','txtProduct','txtSpec','txtStyle','txtMount','txtOrgcuadate','txtOrguindate','txtOrdeno','txtWorkgno','txtThours','txtPretime'];//,'txtWorkno'
-            var bbmNum = [['txtSmount', 10, 0, 1]];
+            var q_readonly = ['txtNoa','txtWorker','txtWorker2','txtStation','txtProcess','txtKdate'];
+            var q_readonlys = ['txtProductno','txtProduct','txtSpec','txtStyle','txtMount'];
+            var bbmNum = [];
             var bbsNum = [];
             var bbmMask = [];
             var bbsMask = [];
@@ -35,8 +35,11 @@
             brwNowPage = 0;
             brwKey = 'noa';
             aPop = new Array(
-            	
+            	['txtStationno', 'lblStation_xy', 'mech', 'noa,mech', 'txtStationno,txtStation', 'mech_b.aspx'],
+            	['txtProcessno', 'lblProcess_xy', 'sss', 'noa,namea', 'txtProcessno,txtProcess', 'sss_b.aspx'],
+            	['txtWorkno_', '', 'view_cub', 'noa,productno,product,spec,unit,mount', '0txtWorkno_,txtProductno_,txtProduct_,txtSpec_,txtStyle_,txtMount_', '']
             );
+            
             $(document).ready(function() {
                 bbmKey = ['noa'];
                 bbsKey = ['noa', 'noq'];
@@ -64,11 +67,17 @@
                 	$.datepicker.r_len=4;
 					//$.datepicker.setDefaults($.datepicker.regional["ENG"]);
                 }
-                bbmMask = [];
-                bbsMask = [];
+                bbmMask = [['txtKdate', r_picd],['txtBdate', r_picd],['txtEdate', '99:99']];
+                bbsMask = [['txtNos', '9999'],['txtCuadate', r_picd],['txtOrgcuadate', '99:99'],['txtUindate', r_picd],['txtOrguindate', '99:99']];
+                bbsNum=[['txtMount',15,0,1]]
                 q_getFormat();
                 q_mask(bbmMask);
                 
+                $('#btnCub').click(function() {
+                	
+				});
+                
+                //上方插入空白行
 				$('#lblTop_row').mousedown(function(e) {
 					if (e.button == 0) {
 						mouse_div = false;
@@ -146,7 +155,7 @@
                 $('#txtNoa').val('AUTO');
                 $('#txtKdate').val(q_date());
                 $('#txtBdate').val(q_date());
-                $('#txtEdate').val(q_cdn(q_date(),6));
+                $('#txtEdate').val(padL(new Date().getHours(), '0', 2)+':'+padL(new Date().getMinutes(),'0',2));
             }
 
             function btnModi() {
@@ -203,7 +212,7 @@
             }
 
             function bbsSave(as) {
-                if (!as['process']&&!as['workno'] ) {//不存檔條件
+                if (!as['workno'] ) {//不存檔條件
                     as[bbsKey[1]] = '';
                     return;
                 }
@@ -235,8 +244,10 @@
 				for (var i = 0; i < q_bbsCount; i++) {
 					if(q_cur==1 || q_cur==2){
 						$('#btnPlus_'+i).removeAttr('disabled');
+						$('#btnEnda_'+i).attr('disabled', 'disabled');
 					}else{
 						$('#btnPlus_'+i).attr('disabled', 'disabled');
+						$('#btnEnda_'+i).removeAttr('disabled');
 					}
 				}
             }
@@ -316,7 +327,7 @@
 		<style type="text/css">
             #dmain {
                 overflow: hidden;
-                width: 1280px;
+                width: 1260px;
             }
             .dview {
                 float: left;
@@ -441,7 +452,7 @@
                 font-size: medium;
             }
             .dbbs {
-                width: 1700px;
+                width: 1260px;
                 background:#cad3ff;
             }
             .tbbs a {
@@ -496,7 +507,7 @@
 						<td style="width: 105px;"><span> </span><a id='lblNoa' class="lbl"> </a></td>
 						<td style="width: 206px;"><input id="txtNoa"  type="text" class="txt c1"/></td>
 						<td style="width: 105px;"><span> </span><a id='lblKdate_xy' class="lbl">製單日期</a></td>
-						<td style="width: 176px;"><input id="txtKdate_xy"  type="text" class="txt c1"/></td>
+						<td style="width: 176px;"><input id="txtKdate"  type="text" class="txt c1"/></td>
 						<td style="width: 105px;"> </td>
 						<td style="width: 176px;"> </td>
 					</tr>
@@ -513,23 +524,11 @@
 						</td>
 					</tr>
 					<tr>
-						<td><span> </span><a id='lblProduct_xy' class="lbl">品名</a></td>
-						<td><input id="txtProduct"  type="text" class="txt c1"/></td>
-						<td><span> </span><a id='lblHours' class="lbl"> </a></td>
-						<td><input id="txtHours"  type="text" class="txt num c1"/></td>
-					</tr>
-					<tr>
-						<td class="td1"> </td>
-						<td class="td2" colspan="5">
-							<input id="btnWork" type="button" />
-							<input id="btnCug" type="button" />
-							<input id="btnSplit" type="button"/>
-							<input id="btnCugt" type="button" />
-							<input id="btnCugt2" type="button"/>
-							<input id="btnCuy" type="button" />
-							<input id="btnCux" type="button"/>
-							<input id="btnUnfinish" type="button"/>
-						</td>
+						<td><span> </span><a id='lblBdate_xy' class="lbl">開始日期</a></td>
+						<td><input id="txtBdate"  type="text" class="txt c1"/></td>
+						<td><span> </span><a id='lblEdate_xy' class="lbl">開始時間</a></td>
+						<td><input id="txtEdate"  type="text" class="txt c1"/></td>
+						<td><input id="btnCub" type="button" value="製令匯入"></td>
 					</tr>
 					<tr>
 						<td class="td1"><span> </span><a id='lblMemo' class="lbl"> </a></td>
@@ -540,10 +539,6 @@
 						<td class="td2"><input id="txtWorker"  type="text" class="txt c1"/></td>
 						<td class="td3"><span> </span><a id='lblWorker2' class="lbl"> </a></td>
 						<td class="td4"><input id="txtWorker2"  type="text" class="txt c1"/></td>
-						<td class="td5"><input id="btnWorkReal" type="button" style="float: right;"/></td>
-						<td class="td6"><input id="btnWorkRealAll" type="button" style="float: center;"/></td>
-						<!--<td class="td3"><span> </span><a id="lblIsset"> </a></td>
-						<td class="td4"><input id="chkIsset" type="checkbox" /></td>-->
 					</tr>
 				</table>
 			</div>
@@ -551,73 +546,46 @@
 		<div class='dbbs'>
 			<table id="tbbs" class='tbbs'>
 				<tr style='color:white; background:#003366;' >
-					<td align="center" style="width:85px;"><input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  /></td>
+					<td align="center" style="width:45px;"><input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  /></td>
 					<td style="width:20px;"> </td>
-					<td align="center" style="width:75px;"><a id='lblNos_s'> </a></td>
-					<td align="center" style="width:100px;"><a id='lblDatea_s'> </a></td>
-					<td align="center" style="width:155px;"><a id='lblProductno_s'> </a>/<a id='lblProcess_s'> </a></td>
-					<td align="center" style="width:270px;"><a id='lblProduct_s'> </a>/<a id='lblSpec_s'> </a></td>
-					<td align="center" class="isstyle" style="width:100px;"><a id='lblStyle_s'> </a></td>
-					<td align="center" style="width:90px;"><a id='lblMount_s'> </a></td>
-					<td align="center" style="width:90px;"><a id='lblHours_s'> </a></td>
-					<td style='display: none;' align="center" style="width:90px;"><a id='lblPretime_s'> </a></td>
-					<td align="center" style="width:105px;"><a id='lblOrgcuadate_s'> </a></td>
-					<td align="center" style="width:105px;"><a id='lblOrguindate_s'> </a></td>
-					<td align="center" style="width:105px;"><a id='lblCuadate_s'> </a></td>
-					<td style='display: none;' align="center" style="width:105px;"><a id='lblUindate_s'> </a></td>
-					<td align="center" style="width:90px;"><a id='lblThours_s'> </a></td>
+					<td align="center" style="width:60px;display: none;"><a id='lblNos_xy_s'>排程<br>序號</a></td>
 					<td align="center" style="width:160px;"><a id='lblWorkno_s'> </a></td>
-					<td align="center" style="width:150px;"><a id='lblOrdeno_s'> </a></td>
-					<td align="center" style="width:150px;"><a id='lblWorkgno_s'> </a></td>
-					<!--<td align="center"><a id='lblMemo_s'> </a></td>-->
+					<td align="center" style="width:130px;"><a id='lblProductno_s'> </a></td>
+					<td align="center" style="width:130px;"><a id='lblProduct_s'> </a></td>
+					<td align="center" style="width:250px;"><a id='lblSpec_s'> </a></td>
+					<td align="center" style="width:40px;"><a id='lblStyle_xy_s'>單位 </a></td>
+					<td align="center" style="width:90px;"><a id='lblMount_s'> </a></td>
+					<td align="center" style="width:100px;"><a id='lblCuadate_xy_s'>排產日期</a></td>
+					<td align="center" style="width:90px;"><a id='lblOrgcuadate_xy_s'>排產時間</a></td>
+					<td align="center" style="width:100px;"><a id='lblUindate_xy_s'>預估完成<br>日期</a></td>
+					<td align="center" style="width:90px;"><a id='lblOrguindate_xy_s'>預估完成<br>時間</a></td>
+					<td align="center" style="width:45px;"><a id='lblIssel_xy_s'>完工</a></td>
 				</tr>
 				<tr id="trSel.*">
 					<td align="center">
-						<!--0520該作業不需要-->
-						<input class="btn"  id="btnMinus.*" type="button" value='-' style=" font-weight: bold; display: none;" />
-						<input class="btn"  id="btnPlus.*" type="button" value='+'  />
-						<input class="btn"  id="btnCopy.*" type="button" value='拆分' />
+						<input class="btn"  id="btnMinus.*" type="button" value='-' style=" font-weight: bold;width: 26px;" />
+						<input class="btn"  id="btnPlus.*" type="button" value='+'  style=" font-weight: bold;width: 26px;"/>
 					</td>
 					<td><a id="lblNo.*" style="font-weight: bold;text-align: center;display: block;"> </a></td>
-					<td>
+					<td style="display: none;">
 						<input id="txtNos.*" type="text" class="txt c1"/>
 						<input id="txtNoq.*" type="hidden" class="txt c1"/>
-						<input id="txtCugunoq.*" type="hidden" class="txt c1"/>
-						<input id="txtNosold.*" type="hidden" class="txt c1"/>
-						<input id="txtStationno.*" type="hidden" class="txt c1"/>
-						<input id="txtStation.*" type="hidden" class="txt c1"/>
-					</td>
-					<td>
-						<input id="textDatea.*" type="text" class="txt c1"/>
-						<input id="btnChildchange.*" type="button" style="float: center;" value="子階開工異動"/>
-					</td>
-					<td>
-						<input id="txtProductno.*" type="text" class="txt c1"/>
-						<input id="txtProcess.*" type="text" class="txt c1"/>
-						<input id="txtProcessno.*" type="hidden" class="txt c1"/>
-						<span id='separationa.*' style="color: red;font-size: larger;"> </span>
-					</td>
-					<td>
-						<input id="txtProduct.*" type="text" class="txt c1"/>
-						<input id="txtSpec.*" type="text" class="txt c1"/>
-						<span id='separationb.*' style="font-size: medium;"> </span>
-					</td>
-					<td class="isstyle"><input id="txtStyle.*" type="text" class="txt c1"/></td>
-					<td><input id="txtMount.*" type="text" class="txt num c1"/></td>
-					<td><input id="txtHours.*" type="text" class="txt num c1"/></td>
-					<td style='display: none;'><input id="txtPretime.*" type="text" class="txt num c1"/></td>
-					<td><input id="txtOrgcuadate.*" type="text" class="txt c1"/></td>
-					<td><input id="txtOrguindate.*" type="text" class="txt c1"/></td>
-					<td><input id="txtCuadate.*" type="text" class="txt c1" style="color: red;"/></td>
-					<td style='display: none;'><input id="txtUindate.*" type="text" class="txt c1" style="color: red;"/></td>
-					<td>
-						<input id="txtThours.*" type="text" class="txt  num c1"/>
-						<input id="txtDhours.*" type="hidden" class="txt num c1"/>
 					</td>
 					<td><input id="txtWorkno.*" type="text" class="txt c1"/></td>
-					<td><input id="txtOrdeno.*" type="text" class="txt c1"/></td>
-					<td><input id="txtWorkgno.*" type="text" class="txt c1"/></td>
-					<!--<td><input id="txtMemo.*" type="text" class="txt c1"/></td>-->
+					<td><input id="txtProductno.*" type="text" class="txt c1"/></td>
+					<td><input id="txtProduct.*" type="text" class="txt c1"/></td>
+					<td><input id="txtSpec.*" type="text" class="txt c1"/></td>
+					<td><input id="txtStyle.*" type="text" class="txt c1"/></td>
+					<td><input id="txtMount.*" type="text" class="txt num c1"/></td>
+					<td><input id="txtCuadate.*" type="text" class="txt c1"/></td>
+					<td><input id="txtOrgcuadate.*" type="text" class="txt c1"/></td>
+					<td><input id="txtUindate.*" type="text" class="txt c1"/></td>
+					<td><input id="txtOrguindate.*" type="text" class="txt c1"/></td>
+					<td>
+						<input id="txtIssel.*" type="checkbox" class="txt c1" style="display: none;"/>
+						<input id="txtNosold.*" type="hidden" class="txt c1"/><!--紀錄按完工的時間-->
+						<input id="btnEnda.*" type="button" value="完工" >
+					</td>
 				</tr>
 			</table>
 		</div>

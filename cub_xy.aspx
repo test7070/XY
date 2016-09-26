@@ -261,7 +261,7 @@
 								$('#txtProduct').val(b_ret[0].product);
 								$('#txtSpec').val(b_ret[0].classa+' '+b_ret[0].spec);
 								$('#txtUnit').val(b_ret[0].unit);
-								$('#txtMount').val(b_ret[0].mount);
+								$('#txtMount').val(b_ret[0].lengthb);
 								$('#txtMemo').val(b_ret[0].memo);
 								$('#txtBdate').val(b_ret[0].datea);
 								//105/04/15 抓產品主檔 規格+製造規格(英文名稱)

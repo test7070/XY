@@ -281,6 +281,7 @@ where gno='9' and storeno=a.storeno and productno=a.productno and mount<0 order 
 where a.gno='0' and a.vccno is null and a.mount<0
 
 select 
+dbo.getComma(mount,-1) mount,
 dbo.getComma(lengthb,-1) lengthb,
 dbo.getComma(lengthc,-1) lengthc,*
 from #tmp a where gno='0'

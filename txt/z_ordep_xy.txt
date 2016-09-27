@@ -190,11 +190,7 @@ where gno='2'
 select recno no,
 dbo.getComma(money,0) money,
 dbo.getComma(tax,0) tax,
-
---dbo.getComma(mount,0) mount,
-case when a.unit=c.unit then dbo.getComma(a.lengthb,1) else dbo.getComma(a.lengthc,-1) end mount, 
-case when a.unit=c.unit and lengthc!=0 then '尾數:'+dbo.getComma(lengthc,-1)+' ' else '' end+a.memo memo, 
-
+dbo.getComma(mount,0) mount,
 dbo.getComma(a.price,2) price,
 dbo.getComma(total,0) total,
 replace(comp,'~#$',char(39)) comp,

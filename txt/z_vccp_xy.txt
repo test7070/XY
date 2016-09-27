@@ -184,10 +184,7 @@ from @tmp a
 select a.xrecno no,
 dbo.getComma(a.money,0) money,
 dbo.getComma(a.tax,0) tax,
---dbo.getComma(a.mount,1) mount,
-case when a.unit=c.unit then dbo.getComma(a.lengthb,1) else dbo.getComma(a.lengthc,-1) end mount,
-a.unit unit,
-case when a.unit=c.unit and lengthc!=0 then '尾數:'+dbo.getComma(lengthc,-1)+' ' else '' end+bmemo  bmemo,
+dbo.getComma(a.mount,1) mount,
 dbo.getComma(a.stock,1) stock,
 dbo.getComma(a.price,2) price,
 dbo.getComma(a.total,0) total,
@@ -200,7 +197,7 @@ a.*
 ,case when topage>1 then ' ('+cast(pageno as nvarchar(10))+'/'+cast(topage as nvarchar(10))+')' else '' end pagememo
 from @tmp a
 left join view_vcc b on a.noa=b.noa
-left join ucc c on a.productno=c.noa
+--left join ucc c on a.productno=c.noa
 order by a.noa,a.pageno,a.recno,a.gno;
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 z_vccp_xy2:--z_vccp_xy2--出貨單新格式105/08/08
@@ -392,10 +389,7 @@ from @tmp a
 select a.xrecno no,
 dbo.getComma(a.money,0) money,
 dbo.getComma(a.tax,0) tax,
---dbo.getComma(a.mount,1) mount,
-case when a.unit=c.unit then dbo.getComma(a.lengthb,1) else dbo.getComma(a.lengthc,-1) end mount,
-a.unit unit,
-case when a.unit=c.unit and lengthc!=0 then '尾數:'+dbo.getComma(lengthc,-1)+' ' else '' end+bmemo  bmemo,
+dbo.getComma(a.mount,1) mount,
 dbo.getComma(a.stock,1) stock,
 dbo.getComma(a.price,2) price,
 dbo.getComma(a.total,0) total,
@@ -412,7 +406,7 @@ a.*
 ,'<img width="50px" src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl='+upper(a.noa)+'&chld=H|0" style=" position: absolute'+char(59)+'">' barcode
 from @tmp a
 left join view_vcc b on a.noa=b.noa
-left join ucc c on a.productno=c.noa
+--left join ucc c on a.productno=c.noa
 order by a.noa,a.pageno,a.recno,a.gno;
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 --暫時拿掉 當新的出貨單格式

@@ -98,9 +98,7 @@
 					<td align="center" style="width:4%;"><a id='lblClassa'>版別</a></td>
 					<td align="center" style="width:16%;"><a id='lblSpec'>規格</a></td>
 					<td align="center" style="width:4%;"><a id='lblUnit'>單位</a></td>
-					<!--<td align="center" style="width:8%;"><a id='lblMount'>訂單量</a></td>-->
-					<td align="center" style="width:6%;"><a id='lblLengthb'>件數</a></td>
-					<td align="center" style="width:6%;"><a id='lblLengthc'>尾數</a></td>
+					<td align="center" style="width:8%;"><a id='lblMount'>訂單量</a></td>
 					<td align="center" style="width:8%;"><a id='lblNotv'>未交量</a></td>
 					<td align="center" style="width:12%;"><a id='lblNoa'>訂單編號</a></td>
 				</tr>
@@ -119,17 +117,9 @@
 					<td><input class="txt" id="txtClassa.*" type="text" style="width:98%; text-align:left;"/></td>
 					<td><input class="txt" id="txtSpec.*" type="text" style="width:98%; text-align:left;"/></td>
 					<td><input class="txt" id="txtUnit.*" type="text" style="width:98%; text-align:left;"/></td>
-					<td style="display: none;">
+					<td>
 						<input class="txt" id="txtMount.*" type="text" style="width:98%; text-align:right;"/>
 						<input class="txt" id="txtVccdime.*" type="hidden" style="width:98%; text-align:right;"/>
-					</td>
-					<td>
-						<input class="txt" id="txtLengthb.*" type="text" style="width:98%; text-align:right;"/>
-						<input class="txt" id="txtVcclengthb.*" type="hidden" style="width:98%; text-align:right;"/>
-					</td>
-					<td>
-						<input class="txt" id="txtLengthc.*" type="text" style="width:98%; text-align:right;"/>
-						<input class="txt" id="txtVcclengthc.*" type="hidden" style="width:98%; text-align:right;"/>
 					</td>
 					<td><input class="txt" id="txtNotv.*" type="text" style="width:98%; text-align:right;"/></td>
 					<td>

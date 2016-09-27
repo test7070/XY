@@ -111,9 +111,6 @@ begin
 		source nvarchar(10),--寄/出庫 0
 		unit nvarchar(100),
 		price float,
-		lengthb float,
-		lengthc float,
-		radius float,
 		mount float,
 		total float,
 		custno nvarchar(50),
@@ -132,28 +129,12 @@ begin
 	insert #bbs(custno,comp,odate,datea
 	,productno,product,spec,classa,size,dime,source,unit,price,lengthb,lengthc,radius,mount,total,memo,enda,cancel,c1,notv,quatno,no3)
 	select a.custno,left(b.comp,50),@t_odate,@t_datea
-	,c.noa,d.product,d.spec,d.style,'',0,'0',a.unit,a.price,0,0,0,a.mount,a.total,'',0,0,0,a.mount
+	,c.noa,d.product,d.spec,d.style,'',0,'0',a.unit,a.price,a.mount,a.total,'',0,0,0,a.mount
 	,isnull(e.noa,''),isnull(e.no3,'')
 	from @tmp a left join cust b on a.custno=b.noa
 	outer apply (select top 1 * from ucccust where productno=a.productno and (custno='WC002' or custno=left(a.custno,len(custno))))c
 	left join ucc d on c.noa=d.noa
 	outer apply (select top 1 * from view_quats where productno=c.noa and (custno='WC002' or custno=left(a.custno,len(custno))))e
-	
-	update a
-	set lengthb=case when a.unit=b.unit then a.mount else 0 end
-	,lengthc=case when a.unit!=b.unit then a.mount else 0 end
-	,radius=isnull(c.inmount,0)
-	from #bbs a left join ucc b on a.productno=b.noa
-	outer apply (select top 1 noq,case when ISNULL(inmount,0)=0 then 1 else inmount end inmount,pack,packway from pack2s where noa=a.productno and isnull(pack,'')!='' order by inmount desc)c
-	where b.noa is not null
-	
-	update a
-	set mount=(case when a.unit=b.unit then a.mount else 0 end*isnull(c.inmount,1))+case when a.unit!=b.unit then a.mount else 0 end 
-	,notv=(case when a.unit=b.unit then a.mount else 0 end*isnull(c.inmount,1))+case when a.unit!=b.unit then a.mount else 0 end
-	from #bbs a 
-	left join ucc b on a.productno=b.noa
-	outer apply (select top 1 noq,case when ISNULL(inmount,0)=0 then 1 else inmount end  inmount,pack,packway from pack2s where noa=a.productno and isnull(pack,'')!='' order by inmount desc)c
-	where b.noa is not null
 	
 	create table #bbm(
 		noa nvarchar(50),
@@ -243,9 +224,9 @@ begin
 	--105/04/18預交日不寫入
 	exec("
 	insert ordes"+@accy+"(noa,no2,productno,product,spec,classa,size,dime,source,unit,price
-	,lengthb,lengthc,radius,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv)
+	,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv)
 	select noa,no2,productno,product,spec,classa,size,dime,source,unit,price
-	,lengthb,lengthc,radius,mount,total,custno,comp,odate,'' datea,memo,enda,cancel,quatno,no3,c1,notv from #bbs order by noa,no2
+	,mount,total,custno,comp,odate,'' datea,memo,enda,cancel,quatno,no3,c1,notv from #bbs order by noa,no2
 	")
 end
 

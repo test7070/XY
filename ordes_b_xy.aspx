@@ -74,9 +74,7 @@
 					<td align="center"><a id='lblProductno'> </a>/<a id='lblProduct'> </a></td>
 					<td align="center"><a id='lblSpec'> </a></td>
 					<td align="center"><a id='lblUnit'> </a></td>
-					<td align="center"><a id='lblLengthb_xy'>件數</a></td>
-					<td align="center"><a id='lblLengthc_xy'>尾數</a></td>
-					<td align="center" style="display: none;"><a id='lblMount'> </a></td>
+					<td align="center"><a id='lblMount'> </a></td>
 					<td align="center"><a id='lblNoa'> </a></td>
 					<td align="center"><a id='lblCust'> </a></td>
 					<td align="center"><a id='lblMemo'> </a></td>
@@ -89,9 +87,7 @@
 					</td>
 					<td style="width:15%;"><input class="txt" id="txtSpec.*" type="text" style="width:98%;"/></td>
 					<td style="width:4%;"><input class="txt" id="txtUnit.*" type="text" style="width:98%;"/></td>
-					<td style="width:8%;"><input class="txt" id="txtLengthb.*" type="text" style="width:98%; text-align:right;"/></td>
-					<td style="width:8%;"><input class="txt" id="txtLengthc.*" type="text" style="width:98%; text-align:right;"/></td>
-					<td style="width:8%;display: none;"><input class="txt" id="txtMount.*" type="text" style="width:98%; text-align:right;"/></td>
+					<td style="width:8%;"><input class="txt" id="txtMount.*" type="text" style="width:98%; text-align:right;"/></td>
 					<td style="width:11%;">
 						<input class="txt" id="txtNoa.*" type="text" style="width:98%;"/>
 						<input class="txt" id="txtNo2.*" type="text"  style="width:98%;"/>

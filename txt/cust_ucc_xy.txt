@@ -1377,6 +1377,7 @@ declare @tmp table(
 	class nvarchar(50),
 	classa nvarchar(50),
 	unit nvarchar(10),
+	uunit nvarchar(10),
 	price float,
 	mount float,
 	total float,
@@ -1385,7 +1386,9 @@ declare @tmp table(
 
 insert @tmp
 select a.noa,b.no3,a.custno,a.datea,a.odate 
-,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit,b.price,b.mount,b.total,b.memo
+,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit
+,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'')
+,b.price,b.mount,b.total,b.memo
 from view_quat a left join view_quats b on a.noa=b.noa
 where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 and isnull(a.custno,'')!=''
 and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),'')
@@ -1530,11 +1533,13 @@ outer apply (
 
 if(@kind='PO')
 begin
-	select a.noa,a.datea,a.contract,b.noq,b.productno,b.product,b.spec,b.class,b.unit,b.mount,b.price,b.total,c.omount,d.price qprice
+	select a.noa,a.datea,a.contract,b.noq,b.productno,b.product,b.spec,b.class,b.unit
+	,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'') uunit
+	,b.mount,b.price,b.total,c.omount,d.price qprice
 	from cont a left join conts b on a.noa=b.noa
 	outer apply (select SUM(mount)omount from view_ordes where quatno=a.noa and no3=b.noq)c
 	outer apply (select top 1 price from @tmp where productno=b.productno order by noa,no3) d
-	where a.datea>=@datea and b.ucolor<=@datea
+	where a.datea<=@datea and b.ucolor>=@datea 
 	and isnull(a.contract,'')!='' and a.kind='PO' and b.mount-isnull(c.omount,0)>0
 	and a.custno=@custno and (len(@productno)=0 or b.productno=@productno)
 	and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))
@@ -1542,10 +1547,12 @@ begin
 end
 else
 begin
-	select a.noa,a.datea,a.contract,b.noq,b.productno,b.product,b.spec,b.class,b.unit,b.mount,b.price,b.total,d.price qprice
+	select a.noa,a.datea,a.contract,b.noq,b.productno,b.product,b.spec,b.class,b.unit
+	,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'') uunit
+	,b.mount,b.price,b.total,d.price qprice
 	from cont a left join conts b on a.noa=b.noa
 	outer apply (select top 1 price from @tmp where productno=b.productno order by noa,no3) d
-	where a.datea>=@datea and b.ucolor<=@datea
+	where a.datea<=@datea and b.ucolor>=@datea 
 	and isnull(a.contract,'')!='' and a.kind!='PO'
 	and a.custno=@custno and (len(@productno)=0 or b.productno=@productno)
 	and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))

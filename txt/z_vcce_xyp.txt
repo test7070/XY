@@ -61,8 +61,13 @@ and (len(@t_carno)=0 or a.carno=@t_carno)
 and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
 
 update a
-set ecount=case when rr>1 then 0 else ecount end
+set ecount=case when rr>1 then 0 else ecount end,comp=case when rr>1 then '' else comp end
+,memo=case when rr>1 then memo else memo+(case when len(memo)>0 then '<BR>' else '' end)+case when len(vccnoa)>0 then vccnoa else '' end end
 from (select *,ROW_NUMBER() over (partition by vccnoa order by vccnoa,vccnoq)rr from @tmp) a
+
+insert @tmp (gno,datea,driverno,recno,lengthb,lengthc,ecount,product)
+select '0' gno,datea,driverno,MAX(recno)+1,sum(lengthb),sum(lengthc),sum(ecount),'總計收現金額'
+from @tmp where gno='0' group by datea,driverno
 
 declare @datea nvarchar(50)
 declare @driverno nvarchar(50)
@@ -80,7 +85,7 @@ begin
 	into @datea,@driverno,@count
 	while(@@FETCH_STATUS <> -1)
 	begin
-	
+		
 		select @t_count=@t_pageline-(@count % @t_pageline)
 		while(@t_count>0 and @count % @t_pageline!=0)
 		begin
@@ -101,9 +106,9 @@ begin
 	insert @tmp (gno,datea,driverno,page)
 	select '1' gno,datea,driverno,page from @tmp where gno='0' group by datea,driverno,page
 	
-	insert @tmp (gno,datea,driverno,page,lengthb,lengthc,mount,vtotal,ecount)
-	select '2' gno,datea,driverno,MAX(page),sum(lengthb),sum(lengthc),sum(mount),sum(vtotal),sum(ecount) 
-	from @tmp where gno='0' group by datea,driverno
+	--insert @tmp (gno,datea,driverno,page,lengthb,lengthc,mount,vtotal,ecount)
+	--select '2' gno,datea,driverno,MAX(page),sum(lengthb),sum(lengthc),sum(mount),sum(vtotal),sum(ecount) 
+	--from @tmp where gno='0' group by datea,driverno
 end
 
 select 

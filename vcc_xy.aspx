@@ -2272,13 +2272,13 @@
 					<td align="center" style="width:80px;"><a id='lblTotal_s'> </a></td>
 					<td align="center" style="width:150px;">出貨倉庫</td>
 					<td class="store2" align="center" style="width:150px;"><a id='lblStore2_s'> </a></td>
-					<td class="store2" align="center" style="width:80px;"><a id='lblChecker_s_xy'>寄庫到期日</a></td>
 					<td align="center" style="width:80px;display: none;"><a id='lblTranmoney2_s'> </a></td>
 					<td align="center" style="width:80px;display: none;"><a id='lblTranmoney3_s'> </a></td>
 					<td align="center"><a id='lblMemo_s'> </a></td>
 					<td align="center" style="width:150px;">訂單號碼</td>
-					<td align="center" style="width:40px;"><a id='lblRecord_s'> </a></td>
 					<td align="center" style="width:40px;"><a id='lblStk_s'> </a></td>
+					<td align="center" style="width:40px;"><a id='lblRecord_s'> </a></td>
+					<td class="store2" align="center" style="width:80px;"><a id='lblChecker_s_xy'>寄庫到期日</a></td>
 				</tr>
 				<tr style='background:#cad3ff;'>
 					<td align="center"><input class="btn"  id="btnMinus.*" type="button" value='－' style=" font-weight: bold;" /></td>
@@ -2308,7 +2308,6 @@
 						<input class="btn"  id="btnStoreno2.*" type="button" value='.' style=" font-weight: bold;" />
 						<input id="txtStore2.*" type="text" class="txt c1 store2" style="width: 50%"/>
 					</td>
-					<td class="store2"><input id="txtChecker.*" type="text" class="txt c1"/></td>
 					<td style="display: none;"><input id="txtTranmoney2.*" type="text" class="txt num c1"/></td>
 					<td style="display: none;"><input id="txtTranmoney3.*" type="text" class="txt num c1"/></td>
 					<td><input id="txtMemo.*" type="text" class="txt c1"/></td>
@@ -2316,8 +2315,9 @@
 						<input id="txtOrdeno.*" type="text"  class="txt" style="width:65%;"/>
 						<input id="txtNo2.*" type="text" class="txt" style="width:23%;"/>
 					</td>
-					<td align="center"><input class="btn"  id="btnRecord.*" type="button" value='.' style=" font-weight: bold;" /></td>
 					<td align="center"><input class="btn"  id="btnStk.*" type="button" value='.' style="width:1%;"/></td>
+					<td align="center"><input class="btn"  id="btnRecord.*" type="button" value='.' style=" font-weight: bold;" /></td>
+					<td class="store2"><input id="txtChecker.*" type="text" class="txt c1"/></td>
 				</tr>
 			</table>
 		</div>

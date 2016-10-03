@@ -134,7 +134,7 @@ begin
 	--,c.noa,d.product,d.spec,d.style,'',0,'0',a.unit,a.price,a.mount,a.total,'',0,0,0,a.mount
 	
 	insert #bbs(custno,comp,odate,datea
-	,productno,product,spec,classa,size,dime,source,unit,price,lengthb,lengthc,radius,mount,total,memo,enda,cancel,c1,notv,quatno,no3
+	,productno,product,spec,classa,size,dime,source,unit,price,mount,total,memo,enda,cancel,c1,notv,quatno,no3
 	,zinc,lengthb,hard,lengthc)
 	select a.custno,left(b.comp,50),@t_odate,@t_datea
 	,c.noa,d.product,d.spec,d.style,'',0,'0',isnull(e.unit,d.unit),isnull(e.price,0),a.mount,round(a.mount*isnull(e.price,0),0),'',0,0,0,a.mount

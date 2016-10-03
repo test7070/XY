@@ -901,6 +901,7 @@ declare @tmp table(
 	idno nvarchar(50),
 	idno2 int,
 	noa nvarchar(50),
+	custno nvarchar(50),
 	cpno nvarchar(50),
 	ncomp nvarchar(200),
 	noq nvarchar(50),
@@ -919,7 +920,7 @@ declare @tmp table(
 )
 
 insert @tmp
-select '0','',0,a.noa
+select '0','',0,a.noa,a.custno
 ,case when c.grpno='WC002' then left(SUBSTRING(a.comp,charindex('-',a.comp)+1,len(a.comp)),3) else '' end cpno
 ,case when c.grpno='WC002' then SUBSTRING(c.comp,1,charindex('-',c.comp))+SUBSTRING(c.comp,charindex('-',c.comp)+4,len(c.comp)) else '' end ncomp
 ,b.noq,isnull(d.productno,'') custpno,b.productno,b.product+' '+b.spec,b.unit,b.price,b.lengthb,b.lengthc,b.dime,b.total 
@@ -934,8 +935,13 @@ and (len(@t_group)=0 or c.grpno=@t_group)
 and a.datea between @t_bdate and @t_edate
 and a.money between @t_bxmoney and @t_exmoney
 
+delete a
+from @tmp a where exists (select SUM(money) from view_vcc 
+where datea between @t_bdate and @t_edate and custno=a.custno 
+having SUM(money) not between @t_bxmoney and @t_exmoney )
+
 update a
-set idno=right('00000000000'+cast(rr as nvarchar(50)),10),ncomp=dbo.charbr(ncomp,18),product=dbo.charbr(product,15)
+set idno=right('00000000000'+cast(rr as nvarchar(50)),10),ncomp=dbo.charbr(ncomp,20),product=dbo.charbr(product,28)
 ,idno2=rr2
 from (select idno,product,ncomp,ROW_NUMBER()over (order by cpno,noa,noq)rr
 ,idno2,ROW_NUMBER()over (partition by noa order by noa,noq)rr2
@@ -1013,6 +1019,6 @@ dbo.getComma(amoney,-1)amoney,
 dbo.getComma(atax,-1)atax,
 dbo.getComma(atotal,-1)atotal,
 '<img width="50px" src="http://59.125.143.171/images/logo1_xy.png">' logo1,
-'vcc_xy?noa=$noa' qherf,
+'vcc_xy?noa=$noa' ghref,
 * from @tmp order by cpno,noa,noq,gno,idno
 ;

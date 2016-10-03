@@ -255,6 +255,7 @@
 								for (var i = 0; i < q_bbsCount; i++) {
 									combzincchange(i);
 									unitchange(i);
+									pricecolor();
 								}
 								
 								if(emp($('#txtCustorde').val())){
@@ -715,6 +716,7 @@
 								}
 								combzincchange(b_seq);
 								unitchange(b_seq);
+								pricecolor();
 								AutoNo2();
 							}
 						}
@@ -1658,6 +1660,7 @@
 							b_seq = t_IdSeq;
 							unitchange(b_seq);
 							$('#cmbSource_' + b_seq).change();
+							pricecolor();
 						});
 						
 						$('#txtMount_'+j).change(function() {
@@ -1680,6 +1683,7 @@
 							
 							unitchange(b_seq);
 							$('#cmbSource_' + b_seq).change();
+							pricecolor();
 						});
 						
 						$('#cmbSource_' + j).change(function() {
@@ -1732,6 +1736,7 @@
 									}
 								}
 							}
+							unitchange(b_seq);
 							sum();
 						});
 
@@ -2132,6 +2137,7 @@
 					}
 				}
 				_bbsAssign();
+				pricecolor();
 				HiddenTreat();
 				ShowDownlbl();
 				
@@ -2203,6 +2209,7 @@
 					combzincchange(i);
 					unitchange(i);
 				}
+				pricecolor();
 				ShowDownlbl();
 				//copy_field();
 				$('#txtCustno').focus();
@@ -2300,6 +2307,7 @@
 					browTicketForm($(this).get(0));
 				});
 				$('#div_addr2').hide();
+				pricecolor();
 				HiddenTreat();
 				ShowDownlbl();
 				$('.yellow').css('background-color','yellow');
@@ -2569,6 +2577,7 @@
 
 			function btnCancel() {
 				_btnCancel();
+				pricecolor();
 			}
 
 			function q_popPost(s1) {
@@ -2741,7 +2750,7 @@
 							combzincchange(i);
 							unitchange(i);
 						}
-						
+						pricecolor();
 						$('#txtMount_'+t_n).focus();
 						AutoNo2();
 						bbsAssign();
@@ -2776,7 +2785,7 @@
 							combzincchange(b_seq);
 							unitchange(b_seq);
 						}
-						
+						pricecolor();
 						HiddenTreat();
 						AutoNo2();
 						break;
@@ -2793,7 +2802,7 @@
 							unitchange(b_seq);
 							HiddenTreat();	
 						}
-						
+						pricecolor();
 						break;
 					case 'qtxt.query.btnOk_xy':
 						var as = _q_appendData("tmp0", "", true, true);
@@ -2936,17 +2945,40 @@
 						});
 						
 						if(t_m2!=0){
+							var t_f1=Math.floor(t_lengthb*t_m1/t_m2);
+							var t_c1=Math.ceil(t_lengthb*t_m1/t_m2);
+							
+							if(t_f1!=t_c1){
+								$('#txtZinc_'+i).val('');
+								$('#txtLengthb_'+i).val('');
+								$('#txtMount_'+i).val(0);
+								$('#txtPrice_'+i).val(0);
+								sum();
+								alert('數量錯誤，請確認單位是否正確!!');
+								return;
+							}	
+							
 							$('#txtMount_'+i).val(round(t_lengthb*t_m1/t_m2,0));
 						}else{
 							$('#txtMount_'+i).val(0);
 						}
-						if(t_m3!=0){
+						if(t_m3!=0 && ($('#cmbSource_'+i).val()=='1' || $('#cmbSource_'+i).val()=='0')){
 							$('#txtPrice_'+i).val(round(t_lengthc*t_m2/t_m3,4));
 						}else{
 							$('#txtPrice_'+i).val(0);
 						}
 					}
 					sum();
+				}
+			}
+			
+			function pricecolor(){
+				for (var i = 0; i < q_bbsCount; i++) {
+					var t_price=dec($('#txtPrice_'+i).val());
+					var t_lengthc=dec($('#txtLengthc_'+i).val());
+					if(t_lengthc!=t_price){
+						$('#txtPrice_'+i).css('color','red');
+					}
 				}
 			}
 			
@@ -3352,12 +3384,10 @@
 					<td align="center" style="width:300px;"><a>規格</a></td>
 					<td align="center" style="width:70px;"><a>最低<BR>訂購量</a></td>
 					<td align="center" style="width:40px;display: none;"><a>色數</a></td>
-					<td align="center" style="width:40px;"><a id='lblHard_xy_s'>報價單位</a></td>
-					<td align="center" style="width:80px;"><a id='lblLengthc_xy_s'>報價單價</a></td>
 					<td align="center" style="width:85px;"><a id='lblZinc_xy'>客單單位</a></td>
 					<td align="center" style="width:85px;"><a id='lblLengthb_xy'>客單數量</a></td>
-					<td align="center" style="width:40px;"><a id='lblUnit_xy_s'>庫存單位</a></td>
-					<td align="center" style="width:85px;"><a id='lblMount_xy'>庫存數量</a></td>
+					<td align="center" style="width:40px;"><a id='lblUnit_xy_s'>單位</a></td>
+					<td align="center" style="width:85px;"><a id='lblMount_xy'>訂貨數量</a></td>
 					<td align="center" style="width:60px;"><a >寄/出庫</a></td>
 					<td align="center" style="width:80px;"><a id='lblPrices'> </a></td>
 					<td align="center" style="width:100px;"><a id='lblTotal_s'> </a></td>
@@ -3366,6 +3396,8 @@
 					<td align="center" style="width:85px;"><a id='lblGemounts'> </a></td>
 					<td align="center" style="width:85px;"><a>未交量</a></td>
 					<td align="center" ><a>備註</a></td>
+					<td align="center" style="width:40px;"><a id='lblHard_xy_s'>報價單位</a></td>
+					<td align="center" style="width:80px;"><a id='lblLengthc_xy_s'>報價單價</a></td>
 					<td align="center" style="width:175px;"><a>報價單號</a></td>
 					<td align="center" style="width:43px;"><a id='lblEndas'> </a></td>
 					<td align="center" style="width:43px;"><a id='lblCancels'> </a></td>
@@ -3398,15 +3430,13 @@
 					</td>
 					<td><input id="txtSizea.*" type="text" class="txt c1"/></td>
 					<td style="display: none;"><input id="txtDime.*" type="text" class="txt c1 num"/></td>
-					<td align="center"><input class="txt c7" id="txtHard.*" type="text"/></td>
-					<td><input class="txt num c7" id="txtLengthc.*" type="text" /></td>
 					<td align="center">
 						<input class="txt c7" id="txtZinc.*" type="text" style="width:45px;"/>
 						<select id="combZinc.*" class="txt c1" style="width:35px;float: right;font-size: medium;"> </select>
 					</td>
 					<td><input class="txt num c7 yellow" id="txtLengthb.*" type="text"/></td>
 					<td align="center"><input class="txt c7" id="txtUnit.*" type="text"/></td>
-					<td><input class="txt num c7 yellow" id="txtMount.*" type="text"/></td>
+					<td><input class="txt num c7" id="txtMount.*" type="text"/></td>
 					<td><select id="cmbSource.*" class="txt c1"> </select></td>
 					<td><input class="txt num c7" id="txtPrice.*" type="text" /></td>
 					<td><input class="txt num c7" id="txtTotal.*" type="text" /></td>
@@ -3418,6 +3448,8 @@
 					<td><input class="txt num c1" id="txtC1.*" type="text" /></td>
 					<td><input class="txt num c1" id="txtNotv.*" type="text" /></td>
 					<td><input class="txt c7" id="txtMemo.*" type="text" /></td>
+					<td align="center"><input class="txt c7" id="txtHard.*" type="text"/></td>
+					<td><input class="txt num c7" id="txtLengthc.*" type="text" /></td>
 					<td>
 						<input class="txt" id="txtQuatno.*" type="text" style="width: 70%;" />
 						<input class="txt" id="txtNo3.*" type="text" style="width: 20%;"/>

@@ -127,17 +127,24 @@ begin
 		quatno nvarchar(50),
 		no3 nvarchar(10),
 		c1 float,
-		notv float
+		notv float,
+		zinc nvarchar(10),--客單單位
+		lengthb float,--客單數量
+		hard nvarchar(10),--報價單位
+		lengthc float--報價單價
 	)
 
 	insert #bbs(custno,comp,odate,datea
-	,productno,product,spec,classa,size,dime,source,unit,price,mount,total,memo,enda,cancel,c1,notv,quatno,no3)
+	,productno,product,spec,classa,size,dime,source,unit,price,mount,total,memo,enda,cancel,c1,notv,quatno,no3
+	,zinc,lengthb,hard,lengthc)
 	select a.custno,left(b.comp,50),@t_odate,''
 	,a.productno,c.product,c.spec,c.style,'',0,'0'
 	,a.unit,a.price,a.mount,a.total,'',0,0,0,a.mount 
 	,isnull(a.quatno,''),isnull(a.no3,'')
+	,a.unit,a.mount,d.unit,d.price
 	from @tmp a left join cust b on a.custno=b.noa
 	left join ucc c on a.productno=c.noa
+	outer apply (select * from view_quats where noa=isnull(a.quatno,'') and no3=isnull(a.no3,''))d
 
 	create table #bbm(
 		noa nvarchar(50),
@@ -221,9 +228,11 @@ begin
 
 	exec("
 	insert ordes"+@accy+"(noa,no2,productno,product,spec,classa,size,dime,source,unit,price
-	,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv)
+	,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc)
 	select noa,no2,productno,product,spec,classa,size,dime,source,unit,price
-	,mount,total,custno,comp,odate,'' datea,memo,enda,cancel,quatno,no3,c1,notv from #bbs order by noa,no2
+	,mount,total,custno,comp,odate,'' datea,memo,enda,cancel,quatno,no3,c1,notv 
+	,zinc,lengthb,hard,lengthc
+	from #bbs order by noa,no2
 	")
 end
 

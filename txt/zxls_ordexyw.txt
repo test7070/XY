@@ -123,18 +123,27 @@ begin
 		quatno nvarchar(50),
 		no3 nvarchar(10),
 		c1 float,
-		notv float
+		notv float,
+		zinc nvarchar(10),--客單單位
+		lengthb float,--客單數量
+		hard nvarchar(10),--報價單位
+		lengthc float--報價單價
+		
 	)
-
+	--105/10/03 單位和單價 一律抓報價單的資料
+	--,c.noa,d.product,d.spec,d.style,'',0,'0',a.unit,a.price,a.mount,a.total,'',0,0,0,a.mount
+	
 	insert #bbs(custno,comp,odate,datea
-	,productno,product,spec,classa,size,dime,source,unit,price,lengthb,lengthc,radius,mount,total,memo,enda,cancel,c1,notv,quatno,no3)
+	,productno,product,spec,classa,size,dime,source,unit,price,lengthb,lengthc,radius,mount,total,memo,enda,cancel,c1,notv,quatno,no3
+	,zinc,lengthb,hard,lengthc)
 	select a.custno,left(b.comp,50),@t_odate,@t_datea
-	,c.noa,d.product,d.spec,d.style,'',0,'0',a.unit,a.price,a.mount,a.total,'',0,0,0,a.mount
+	,c.noa,d.product,d.spec,d.style,'',0,'0',isnull(e.unit,d.unit),isnull(e.price,0),a.mount,round(a.mount*isnull(e.price,0),0),'',0,0,0,a.mount
 	,isnull(e.noa,''),isnull(e.no3,'')
+	,isnull(e.unit,d.unit),a.mount,isnull(e.unit,''),isnull(e.price,0)
 	from @tmp a left join cust b on a.custno=b.noa
 	outer apply (select top 1 * from ucccust where productno=a.productno and (custno='WC002' or custno=left(a.custno,len(custno))))c
 	left join ucc d on c.noa=d.noa
-	outer apply (select top 1 * from view_quats where productno=c.noa and (custno='WC002' or custno=left(a.custno,len(custno))))e
+	outer apply (select top 1 * from view_quats where productno=c.noa and (custno='WC002' or custno=left(a.custno,len(custno))) and datea>=@t_odate order by odate desc)e
 	
 	create table #bbm(
 		noa nvarchar(50),
@@ -224,9 +233,9 @@ begin
 	--105/04/18預交日不寫入
 	exec("
 	insert ordes"+@accy+"(noa,no2,productno,product,spec,classa,size,dime,source,unit,price
-	,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv)
+	,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc)
 	select noa,no2,productno,product,spec,classa,size,dime,source,unit,price
-	,mount,total,custno,comp,odate,'' datea,memo,enda,cancel,quatno,no3,c1,notv from #bbs order by noa,no2
+	,mount,total,custno,comp,odate,'' datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc from #bbs order by noa,no2
 	")
 end
 

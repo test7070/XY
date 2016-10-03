@@ -22,7 +22,7 @@
 			q_tables = 's';
 			var q_name = "cont";
 			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2','txtTotal'];
-			var q_readonlys = ['txtNoq','txtTotal'];
+			var q_readonlys = ['txtNoq','txtTotal','txtGweight','txtEweight'];
 			var bbmNum = [['txtTotal', 15, 0, 1]];
 			var bbsNum = [['txtMount', 10, 0, 1],['txtPrice', 10, 2, 1],['txtTotal', 15, 0, 1]];
 			var bbmMask = [];
@@ -238,14 +238,27 @@
 					
 					$('#txtMount_'+j).focusout(function() {sum();});
 					$('#txtPrice_'+j).focusout(function() {sum();});
+					
+					$('#checkCancel_'+j).change(function() {
+						t_IdSeq = -1;
+						q_bodyId($(this).attr('id'));
+						b_seq = t_IdSeq;
+						if($('#checkCancel_'+j).prop('checked')){
+							$('#txtOrdeweight_'+j).val(1);
+						}else{
+							$('#txtOrdeweight_'+j).val(0);
+						}
+					});
 				}
 				_bbsAssign();
 				ShowDownlbl();
+				checkboxchange();
 			}
 
 			function btnIns() {
 				_btnIns();
 				$('#txtNoa').val('AUTO');
+				$('#chkChka1').prop('checked',true);
 				$('#txtDatea').val(q_date());
 				$('#txtCno').val(z_cno);
 				$('#txtAcomp').val(z_acomp);
@@ -257,6 +270,7 @@
 					return;
 				_btnModi();
 				ShowDownlbl();
+				checkboxchange();
 			}
 
 			function btnPrint() {
@@ -280,6 +294,7 @@
 			function refresh(recno) {
 				_refresh(recno);
 				ShowDownlbl();
+				checkboxchange();
 			}
 			
 			function readonly(t_para, empty) {
@@ -289,6 +304,7 @@
                 }else{
                 	$('#btnUpload').removeAttr('disabled', 'disabled');
                 }
+                checkboxchange();
 			}
 			
 			function ShowDownlbl() {				
@@ -347,6 +363,29 @@
 
 			function btnCancel() {
 				_btnCancel();
+				checkboxchange();
+			}
+			
+			function checkboxchange() {
+				if(q_cur==1 || q_cur==2){
+					for(var j = 0; j < q_bbsCount; j++) {
+						$('#checkOrdeweight_'+j).removeAttr('disabled', 'disabled');
+						if($('#txtOrdeweight_'+j).val()=='1'){
+							$('#checkOrdeweight_'+j).prop('checked',true);
+						}else{
+							$('#checkOrdeweight_'+j).prop('checked',false);
+						}
+					}
+				}else{
+					for(var j = 0; j < q_bbsCount; j++) {
+						$('#checkOrdeweight_'+j).attr('disabled', 'disabled');
+						if($('#txtOrdeweight_'+j).val()=='1'){
+							$('#checkOrdeweight_'+j).prop('checked',true);
+						}else{
+							$('#checkOrdeweight_'+j).prop('checked',false);
+						}
+					}
+				}
 			}
 		</script> 
 	<style type="text/css">
@@ -533,6 +572,17 @@
 					<tr>
 						<td ><span> </span><a id="lblTotal_xy" class="lbl">小計</a></td>
 						<td><input id="txtTotal" type="text"  class="txt num c1"/></td>
+						<td> </td>
+						<td colspan="2">
+							<input id="chkChka1" type="checkbox"/>
+							<span> </span><a id='lblChka1_xy'>專案</a>
+							<input id="chkEnda" type="checkbox"/>
+							<span> </span><a id='lblEnda_xy'>結案</a>
+							<input id="chkChka2" type="checkbox"/>
+							<span> </span><a id='lblChka2_Xy'>取消</a>
+						</td>
+					</tr>
+					<tr>
 						<td ><span> </span><a id="lblWorker" class="lbl"> </a></td>
 						<td><input id="txtWorker" type="text"  class="txt c1"/></td>
 						<td ><span> </span><a id="lblWorker2" class="lbl"> </a></td>
@@ -543,7 +593,7 @@
 					</tr>
 				</table>
 			</div>
-		<div class='dbbs' style="width: 1260px;">
+		<div class='dbbs' style="width: 1460px;">
 			<table id="tbbs" class='tbbs'  border="1"  cellpadding='2' cellspacing='1'  >
 				  <tr style='color:White; background:#003366;' >
 					<td align="center" style="width:1%;"><input class="btn"  id="btnPlus" type="button" value='＋' style="font-weight: bold;"  /> </td>
@@ -551,13 +601,17 @@
 					<td align="center"  style="width:120px;"><a id='lblProductno_xy_s'>產品編號</a></td>
 					<td align="center" style="width:110px;"><a id='lblProduct_xy_s'>產品</a></td>
 					<td align="center" style="width:55px;"><a id='lblClass_xy_s'>版別</a></td>
-					<td align="center" style="width:300px;"><a id='lblSpec_xy_s'>規格</a></td>
+					<td align="center" style="width:200px;"><a id='lblSpec_xy_s'>規格</a></td>
 					<td align="center" style="width:40px;"><a id='lblUnit_xy_s'>單位</a></td>
 					<td align="center" style="width:85px;"><a id='lblMount_xy_s'>數量</a></td>
 					<td align="center" style="width:85px;"><a id='lblPrice_xy_s'>單價</a></td>
 					<td align="center" style="width:100px;"><a id='lblTotal_xy_s'>小計</a></td>
 					<td align="center" style="width:80px;"><a id='lblUcolor_xy_s'>有效日期</a></td>
+					<td align="center" style="width:85px;"><a id='lblGweight_xy_s'>已交量</a></td>
+					<td align="center" style="width:85px;"><a id='lblEweight_xy_s'>未交量</a></td>
 					<td align="center"><a id='lblMemon_xy_s'>備註</a></td>
+					<td align="center" style="width:43px;"><a id='lblEnda_xy_s'>結案</a></td>
+					<td align="center" style="width:43px;"><a id='lblOrdeweight_xy_s'>取消</a></td>
 				</tr>
 				<tr style='background:#cad3ff;'>
 					<td align="center"><input class="btn" id="btnMinus.*" type="button" value='－' style=" font-weight: bold;" /></td>
@@ -577,7 +631,14 @@
 					<td><input id="txtPrice.*" type="text" class="txt num c1" /></td>
 					<td><input id="txtTotal.*" type="text" class="txt num c1" /></td>
 					<td><input id="txtUcolor.*" type="text" class="txt c1" /></td>
+					<td><input id="txtGweight.*" type="text" class="txt num c1" /></td>
+					<td><input id="txtEweight.*" type="text" class="txt num c1" /></td>
 					<td><input id="txtMemo.*" type="text" class="txt c1" /></td>
+					<td align="center"><input id="chkEnda.*" type="checkbox"/></td>
+					<td align="center">
+						<input id="checkOrdeweight.*" type="checkbox"/>
+						<input id="txtOrdeweight.*" type="hidden"/>
+					</td>
 				</tr>
 			</table>
 		</div>

@@ -18,7 +18,7 @@
 			q_tables = 't';
 			var q_name = "cub";
 			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano'];
-			var q_readonlys = ['txtDate2', 'txtOrdeno', 'txtNo2','txtMo','txtW01'];
+			var q_readonlys = ['txtDate2', 'txtOrdeno', 'txtNo2','txtMo','txtW01','txtEdate'];
 			var q_readonlyt = [];
 			var bbmNum = [['txtMount',10,0,1],['txtNotv',10,0,1]];
 			var bbsNum = [];
@@ -440,6 +440,46 @@
 		            }
 				}
 				
+				//105/10/03 當最後一筆有KEY 工作天數才計算預估完工日
+				
+				if(!emp($('#txtDatea').val())){
+					var t_w03=0,isw03=0;
+					for (var j = 0; j < q_bbsCount; j++) {
+						t_w03=q_add(t_w03,$('#txtW03_'+j).val());
+						if(!emp($('#txtProcessno_'+j).val())){
+							isw03=dec($('#txtW03_'+j).val());
+						}
+					}
+					if(isw03!=0){
+						var t_year=dec($('#txtDatea').val().substr(0,r_len));
+						var t_mon=dec($('#txtDatea').val().substr(r_len+1,2))-1;
+						var t_day=dec($('#txtDatea').val().substr(r_lenm+1,2));
+						if(r_len==3)
+							t_year=t_year+1911;
+						var t_datea=new Date(t_year,t_mon,t_day);
+							
+						while(t_w03>0){
+							t_datea.setDate(t_datea.getDate()+1);
+							if(t_datea.getDay()!=0 && t_datea.getDay()!=6){
+								t_w03--;
+							}
+						}
+						t_year=t_datea.getFullYear();
+						t_mon=t_datea.getMonth();
+						t_day=t_datea.getDate();
+								
+						if(r_len==3)
+							t_year=t_year-1911;
+						t_year=('0000'+(t_year).toString()).slice(-1*r_len);
+						t_mon=('00'+(t_mon+1).toString()).slice(-2);
+						t_day=('00'+(t_day).toString()).slice(-2);
+								
+						$('#txtEdate').val(t_year+'/'+t_mon+'/'+t_day);
+					}else{
+						$('#txtEdate').val('');
+					}
+				}
+				
 				sum();
 				if(q_cur==1)
 					$('#txtWorker').val(r_name);
@@ -460,7 +500,7 @@
 			}
 
 			function bbsSave(as) {
-				if (!as['tggno']) {
+				if (!as['tggno'] && !as['processno']) {
 					as[bbsKey[1]] = '';
 					return;
 				}
@@ -618,37 +658,6 @@
                             q_bodyId($(this).attr('id'));
                             b_seq = t_IdSeq;
 							
-							if(!emp($('#txtDatea').val())){
-								var t_w03=0;
-								for (var j = 0; j < q_bbsCount; j++) {
-									t_w03=q_add(t_w03,$('#txtW03_'+j).val());
-								}
-								
-								var t_year=dec($('#txtDatea').val().substr(0,r_len));
-								var t_mon=dec($('#txtDatea').val().substr(r_len+1,2))-1;
-								var t_day=dec($('#txtDatea').val().substr(r_lenm+1,2));
-								if(r_len==3)
-									t_year=t_year+1911;
-								var t_datea=new Date(t_year,t_mon,t_day);
-								
-								while(t_w03>0){
-									t_datea.setDate(t_datea.getDate()+1);
-									if(t_datea.getDay()!=0 && t_datea.getDay()!=6){
-										t_w03--;
-									}
-								}
-								t_year=t_datea.getFullYear();
-								t_mon=t_datea.getMonth();
-								t_day=t_datea.getDate();
-								
-								if(r_len==3)
-									t_year=t_year-1911;
-								t_year=('0000'+(t_year).toString()).slice(-1*r_len);
-								t_mon=('00'+(t_mon+1).toString()).slice(-2);
-								t_day=('00'+(t_day).toString()).slice(-2);
-									
-								$('#txtEdate').val(t_year+'/'+t_mon+'/'+t_day);
-							}
                         });
 					}
 				}

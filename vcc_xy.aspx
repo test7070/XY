@@ -208,6 +208,7 @@
 						return;
 					}
 					//105/08/12 強制鎖 只能開3聯發票
+					//105/10/03 可以使用2聯式 但稅別禁止空白
 					var t_custno=$('#txtCustno').val(),t_serial='';
 					var t_p23='',t_taxtype='';
 					var t_where = " where=^^ noa='" + t_custno + "'^^";
@@ -244,8 +245,13 @@
 						return;
 					}
 					
-					if(t_taxtype!='應稅'){
+					/*if(t_taxtype!='應稅'){
 						alert('客戶發票非應稅禁止自動產生發票!!');
+						return;
+					}*/
+					
+					if($('#cmbTaxtype').val()=='0' || $('#cmbTaxtype').val()==''){
+						alert('稅別禁止空白!!');
 						return;
 					}
 					
@@ -709,6 +715,16 @@
 								tr.innerHTML+="<td><input id='store2_txtStk_"+store2_row+"' type='text' class='txt c1 num' value='"+dec(stk[0].mount)+"' disabled='disabled'/></td>";
 							}else{
 								tr.innerHTML+="<td><input id='store2_txtStk_"+store2_row+"' type='text' class='txt c1 num' value='0' disabled='disabled'/></td>";
+							}
+							
+							//庫存單位
+							var t_where = "where=^^ noa='"+as[i].productno+"' ^^";
+							q_gt('ucc', t_where, 0, 0, 0, "get_unit", r_accy,1);
+							var tunit = _q_appendData("stkucc", "", true);
+							if (tunit[0] != undefined) {
+								tr.innerHTML+="<td><input id='store2_txtUnit_"+store2_row+"' type='text' class='txt c1' value='"+tunit[0].unit+"' disabled='disabled'/></td>";
+							}else{
+								tr.innerHTML+="<td><input id='store2_txtUnit_"+store2_row+"' type='text' class='txt c1' value='' disabled='disabled'/></td>";
 							}
 							
 							var tmp = document.getElementById("store2_close");
@@ -2072,7 +2088,7 @@
 				</tr>
 			</table>
 		</div>
-		<div id="div_store2" style="position:absolute; top:300px; left:400px; display:none; width:780px; background-color: #CDFFCE; border: 5px solid gray;">
+		<div id="div_store2" style="position:absolute; top:300px; left:400px; display:none; width:820px; background-color: #CDFFCE; border: 5px solid gray;">
 			<table id="table_store2" style="width:100%;" border="1" cellpadding='2'  cellspacing='0'>
 				<tr id='store2_top'>
 					<td style="background-color: #f8d463;width: 130px;" align="center">產品編號</td>
@@ -2081,6 +2097,7 @@
 					<td style="background-color: #f8d463;width: 100px;" align="center">寄庫倉庫</td>
 					<td style="background-color: #f8d463;width: 100px;" align="center">寄庫數量</td>
 					<td style="background-color: #f8d463;width: 100px;" align="center">總倉數量</td>
+					<td style="background-color: #f8d463;width: 40px;" align="center">庫存單位</td>
 				</tr>
 				<tr id='store2_close'>
 					<td align="center" colspan='6'>

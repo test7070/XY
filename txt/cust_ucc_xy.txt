@@ -1562,5 +1562,36 @@ begin
 	and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))
 	order by a.datea,b.productno
 end
+;
+----------------------------------------------------------------------------------------------
+contenda:--contenda
+declare @noa nvarchar(50)=case when '#non'=[1] then '' else [1] end
 
+--更新已/未交量
+update b
+set gweight=isnull(c.mount,0),eweight=b.mount-isnull(c.mount,0)
+from cont a left join conts b on a.noa=b.noa
+outer apply (select SUM(mount)mount from view_ordes where quatno=a.noa and no3=b.noq) c
+where isnull(a.chka1,0)=1 and isnull(a.chka2,0)=0 and isnull(b.ordeweight,0)=0 and isnull(b.productno,'')!=''
+and (a.noa=@noa or exists (select * from view_ordes where noa=@noa and quatno=a.noa))
+
+--更新表身結案
+update b
+set enda=case when b.eweight<=0 then 1 else 0 end
+from cont a left join conts b on a.noa=b.noa
+where isnull(a.chka1,0)=1 and isnull(a.chka2,0)=0 and isnull(b.ordeweight,0)=0 and isnull(b.productno,'')!=''
+and (a.noa=@noa or exists (select * from view_ordes where noa=@noa and quatno=a.noa))
+
+--更新表頭結案
+update a
+set enda=case when isnull(b.xcount,0)!=isnull(b.ecount,0) then 0 else 1 end
+from cont a outer apply (select count(*)xcount,sum(case when isnull(enda,0)=1 then 1 else 0 end)ecount from conts where noa=a.noa and isnull(productno,'')!='' and isnull(ordeweight,0)=0 )b
+where isnull(a.chka1,0)=1 and isnull(a.chka2,0)=0
+and (a.noa=@noa or exists (select * from view_ordes where noa=@noa and quatno=a.noa))
+and isnull(b.xcount,0)>0
+
+--更新資料
+select a.noa,b.noq,a.enda,b.enda endas,b.gweight,b.eweight
+from cont a left join conts b on a.noa=b.noa
+where a.noa=@noa
 ;

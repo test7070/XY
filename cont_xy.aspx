@@ -24,7 +24,7 @@
 			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2','txtTotal'];
 			var q_readonlys = ['txtNoq','txtTotal','txtGweight','txtEweight'];
 			var bbmNum = [['txtTotal', 15, 0, 1]];
-			var bbsNum = [['txtMount', 10, 0, 1],['txtPrice', 10, 2, 1],['txtTotal', 15, 0, 1]];
+			var bbsNum = [['txtMount', 10, 0, 1],['txtGweight', 10, 0, 1],['txtEweight', 10, 0, 1],['txtPrice', 10, 2, 1],['txtTotal', 15, 0, 1]];
 			var bbmMask = [];
 			var bbsMask = [];
 			q_sqlCount = 6;
@@ -33,7 +33,8 @@
 			brwNowPage = 0;
 			brwKey = 'Datea';
 			aPop = new Array( ['txtCustno', 'lblCustno_xy', 'cust', 'noa,comp', 'txtCustno,txtComp', 'cust_b.aspx']
-							 ,['txtProductno_', 'btnProduct_', 'ucc', 'noa,product,unit', 'txtProductno_,txtProduct_,txtUnit', 'ucaucc_b.aspx']
+							 ,['txtProductno_', 'btnProduct_', 'ucc', 'noa,product,spec,style,unit'
+							 , 'txtProductno_,txtProduct_,txtSpec_,txtClass_,txtUnit', 'ucaucc_b.aspx']
 							 ,['txtSales', 'lblSales_xy', 'sss', 'namea,noa', 'txtSales,txtSalesno', 'sss_b.aspx']
 							 ,['txtCno','lblCno_xy','acomp','noa,acomp','txtCno,txtAcomp','acomp_b.aspx']
 							 
@@ -141,6 +142,15 @@
 						alert('無資料...!!');
 					}
 				});
+				
+				$('#chkChka2').click(function(){
+					if($(this).prop('checked')){
+						for(var i=0;i<q_bbsCount;i++){
+							$('#checkOrdeweight_'+i).prop('checked',true);
+							$('#txtOrdeweight_'+i).val(1);
+						}
+					}
+				});
 			}
 
 			function q_boxClose(s2) {
@@ -193,6 +203,24 @@
 					return;
 				}
 				
+				if(!emp($('#txtEnddate').val())){
+					for (var j = 0; j < q_bbsCount; j++) {
+						if(emp($('#txtUcolor_'+j).val())){
+							$('#txtUcolor_'+j).val($('#txtEnddate').val());
+						}
+					}
+				}
+				
+				if(!$('#chkChka1').prop('checked')){
+					for (var j = 0; j < q_bbsCount; j++) {
+						if($('#chkEnda').prop('checked'))
+							$('#chkEnda_'+j).prop('checked','true');
+						if($('#chkChka2').prop('checked'))
+							$('#checkOrdeweight_'+j).prop('checked','true');
+							$('#txtOrdeweight_'+j).val(1);
+					}
+				}
+				
 				if (q_cur == 1)
 					$('#txtWorker').val(r_name);
 				else
@@ -239,14 +267,14 @@
 					$('#txtMount_'+j).focusout(function() {sum();});
 					$('#txtPrice_'+j).focusout(function() {sum();});
 					
-					$('#checkCancel_'+j).change(function() {
+					$('#checkOrdeweight_'+j).change(function() {
 						t_IdSeq = -1;
 						q_bodyId($(this).attr('id'));
 						b_seq = t_IdSeq;
-						if($('#checkCancel_'+j).prop('checked')){
-							$('#txtOrdeweight_'+j).val(1);
+						if($('#checkOrdeweight_'+b_seq).prop('checked')){
+							$('#txtOrdeweight_'+b_seq).val(1);
 						}else{
-							$('#txtOrdeweight_'+j).val(0);
+							$('#txtOrdeweight_'+b_seq).val(0);
 						}
 					});
 				}
@@ -280,6 +308,53 @@
 				var i;
 				$('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val(key_value);
 				_btnOk(key_value, bbmKey[0], bbsKey[1], '', 2);
+			}
+			
+			function q_stPost() {
+				if (!(q_cur == 1 || q_cur == 2))
+					return false;
+				
+				if(!emp($('#txtNoa').val()) && $('#txtNoa').val()!='AUTO'){
+					var t_paras = $('#txtNoa').val();
+					q_func('qtxt.query.contenda', 'cust_ucc_xy.txt,contenda,' + t_paras);
+				}
+			}
+			
+			function q_funcPost(t_func, result) {
+				switch(t_func) {
+					case 'qtxt.query.contenda':
+						var as = _q_appendData("tmp0", "", true, true);
+                        if (as[0] != undefined) {
+                        	if($('#txtNoa').val()==as[0].noa){
+                        		if(as[0].enda=='ture' || as[0].enda=='1'){
+                        			$('#chkEnda').prop('checked',true);
+                        			abbm[q_recno]['enda']='true';
+                        		}else{
+                        			$('#chkEnda').prop('checked',false);
+                        			abbm[q_recno]['enda']='false';
+                        		}
+                        		for(var j = 0; j < q_bbsCount; j++) {
+                        			for(var i = 0; i < as.length; i++) {
+                        				if($('#txtNoa').val()==as[i].noa && $('#txtNoq_'+j).val()==as[i].noq){
+                        					$('#txtGweight_'+j).val(as[i].gweight);
+                        					$('#txtEweight_'+j).val(as[i].eweight);
+                        					if(as[i].endas=='ture' || as[i].endas=='1'){
+                        						$('#chkEnda_'+j).prop('checked',true);
+                        						abbs[j]['enda']='true';
+                        					}else{
+                        						$('#chkEnda_'+j).prop('checked',false);
+                        						abbm[j]['enda']='false';
+                        					}
+                        					break;	
+                        				}
+                        			}
+                        		}
+                        	}
+						}
+						break;
+					default:
+						break;
+				}
 			}
 
 			function bbsSave(as) {
@@ -555,19 +630,19 @@
 						<td ><span> </span><a  id="lblCustno_xy" class="lbl btn">簽約客戶</a></td>
 						<td><input id="txtCustno" type="text" class="txt c1"/></td>
 						<td colspan="2"><input id="txtComp" type="text" class="txt c1"/></td>
+						<td ><span> </span><a  id="lblEnddate_xy" class="lbl">有效期限</a></td>
+						<td><input id="txtEnddate" type="text" class="txt c1"/></td>
+					</tr>
+					<tr>
+						<td ><span> </span><a id="lblSales_xy" class="lbl btn">業務</a></td>
+						<td><input id="txtSalesno" type="text" class="txt c1"/></td>
+						<td colspan="2"><input id="txtSales" type="text" class="txt c1"></td>
 						<td><span> </span><a  id="lblUpload_xy" class="lbl">PO上傳</a></td>
 						<td>
 							<input type="file" id="btnUpload" value="選擇檔案" style="width: 98%;"/>
 							<input id="txtConn_acomp" type="hidden" class="txt c1"/><!--原檔名-->
 							<input id="txtConn_cust" type="hidden" class="txt c1"/><!--上傳檔名-->
 						</td>
-					</tr>
-					<tr>
-						<td ><span> </span><a id="lblSales_xy" class="lbl btn">業務</a></td>
-						<td><input id="txtSalesno" type="text" class="txt c1"/></td>
-						<td colspan="2"><input id="txtSales" type="text" class="txt c1"></td>
-						<td> </td>
-						<td><a id="lblDownload"> </a></td>
 					</tr>
 					<tr>
 						<td ><span> </span><a id="lblTotal_xy" class="lbl">小計</a></td>
@@ -581,6 +656,7 @@
 							<input id="chkChka2" type="checkbox"/>
 							<span> </span><a id='lblChka2_Xy'>取消</a>
 						</td>
+						<td><a id="lblDownload"> </a></td>
 					</tr>
 					<tr>
 						<td ><span> </span><a id="lblWorker" class="lbl"> </a></td>
@@ -606,7 +682,7 @@
 					<td align="center" style="width:85px;"><a id='lblMount_xy_s'>數量</a></td>
 					<td align="center" style="width:85px;"><a id='lblPrice_xy_s'>單價</a></td>
 					<td align="center" style="width:100px;"><a id='lblTotal_xy_s'>小計</a></td>
-					<td align="center" style="width:80px;"><a id='lblUcolor_xy_s'>有效日期</a></td>
+					<td align="center" style="width:80px;"><a id='lblUcolor_xy_s'>有效期限</a></td>
 					<td align="center" style="width:85px;"><a id='lblGweight_xy_s'>已交量</a></td>
 					<td align="center" style="width:85px;"><a id='lblEweight_xy_s'>未交量</a></td>
 					<td align="center"><a id='lblMemon_xy_s'>備註</a></td>

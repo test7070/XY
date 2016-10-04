@@ -2695,10 +2695,19 @@
 					/*if (confirm("是否要更新出貨單?"))
 						$('#btnOrdetoVcc').click();*/
 				}
+				
+				//更新PO單的未交量
+				if(!emp($('#txtNoa').val()) && $('#txtNoa').val()!='AUTO'){
+					var t_paras = $('#txtNoa').val();
+					q_func('qtxt.query.contenda', 'cust_ucc_xy.txt,contenda,' + t_paras);
+				}
 			}
 			
 			function q_funcPost(t_func, result) {
 				switch(t_func) {
+					case 'qtxt.query.contenda':
+						var as = _q_appendData("tmp0", "", true, true);
+						break;
 					case 'qtxt.query.apv':
                         var as = _q_appendData("tmp0", "", true, true);
                         if (as[0] != undefined) {
@@ -2937,6 +2946,7 @@
 					if(!emp($('#txtProductno_'+i).val())){
 						var t_lengthb=dec($('#txtLengthb_'+i).val());
 						var t_lengthc=dec($('#txtLengthc_'+i).val());
+						var t_unit=$('#txtUnit_'+i).val();
 						var t_m1=0;
 						var t_m2=0;
 						var t_m3=0;
@@ -2953,11 +2963,13 @@
 							}
 						});
 						
+						t_unit=t_unit.toUpperCase();
+						
 						if(t_m2!=0){
 							var t_f1=Math.floor(t_lengthb*t_m1/t_m2);
 							var t_c1=Math.ceil(t_lengthb*t_m1/t_m2);
 							
-							if(t_f1!=t_c1){
+							if(t_f1!=t_c1 && t_unit!='KG'){ //105/10/04 公斤排除
 								$('#txtZinc_'+i).val('');
 								$('#txtLengthb_'+i).val('');
 								$('#txtMount_'+i).val(0);
@@ -2966,11 +2978,16 @@
 								alert('數量錯誤，請確認單位是否正確!!');
 								return;
 							}	
+							if(t_unit!='KG'){
+								$('#txtMount_'+i).val(round(t_lengthb*t_m1/t_m2,0));
+							}else{
+								$('#txtMount_'+i).val(round(t_lengthb*t_m1/t_m2,2));
+							}
 							
-							$('#txtMount_'+i).val(round(t_lengthb*t_m1/t_m2,0));
 						}else{
 							$('#txtMount_'+i).val(0);
 						}
+						
 						if(t_m3!=0 && ($('#cmbSource_'+i).val()=='1' || $('#cmbSource_'+i).val()=='0')){
 							$('#txtPrice_'+i).val(round(t_lengthc*t_m2/t_m3,4));
 						}else{

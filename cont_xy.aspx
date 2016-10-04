@@ -22,9 +22,9 @@
 			q_tables = 's';
 			var q_name = "cont";
 			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2','txtTotal'];
-			var q_readonlys = ['txtNoq','txtTotal','txtGweight','txtEweight'];
+			var q_readonlys = ['txtNoq','txtTotal','txtGweight','txtEweight','txtProduct','txtClass','txtSpec','txtUnit'];
 			var bbmNum = [['txtTotal', 15, 0, 1]];
-			var bbsNum = [['txtMount', 10, 0, 1],['txtGweight', 10, 0, 1],['txtEweight', 10, 0, 1],['txtPrice', 10, 2, 1],['txtTotal', 15, 0, 1]];
+			var bbsNum = [['txtMount', 10, 0, 1],['txtGweight', 15, 2, 1],['txtEweight', 15, 2, 1],['txtPrice', 10, 2, 1],['txtTotal', 15, 0, 1]];
 			var bbmMask = [];
 			var bbsMask = [];
 			q_sqlCount = 6;
@@ -32,10 +32,10 @@
 			brwList = [];
 			brwNowPage = 0;
 			brwKey = 'Datea';
-			aPop = new Array( ['txtCustno', 'lblCustno_xy', 'cust', 'noa,comp', 'txtCustno,txtComp', 'cust_b.aspx']
+			aPop = new Array( ['txtCustno', 'lblCustno_xy', 'cust', 'noa,nick,salesno,sales', 'txtCustno,txtComp,txtSalesno,txtSales', 'cust_b.aspx']
 							 ,['txtProductno_', 'btnProduct_', 'ucc', 'noa,product,spec,style,unit'
-							 , 'txtProductno_,txtProduct_,txtSpec_,txtClass_,txtUnit', 'ucaucc_b.aspx']
-							 ,['txtSales', 'lblSales_xy', 'sss', 'namea,noa', 'txtSales,txtSalesno', 'sss_b.aspx']
+							 , 'txtProductno_,txtProduct_,txtSpec_,txtClass_,txtUnit_', 'ucaucc_b.aspx']
+							 ,['txtSales', 'lblSales_xy', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx']
 							 ,['txtCno','lblCno_xy','acomp','noa,acomp','txtCno,txtAcomp','acomp_b.aspx']
 							 
 			);
@@ -277,6 +277,18 @@
 							$('#txtOrdeweight_'+b_seq).val(0);
 						}
 					});
+					
+					/*$('#btnOrdes_'+j).click(function() {
+						t_IdSeq = -1;
+						q_bodyId($(this).attr('id'));
+						b_seq = t_IdSeq;
+						
+						if(!emp($('#txtNoa').val()) && !emp($('#txtNoq_'+b_seq).val())){
+							t_where=" noa in (select noa from view_ordes where quatno='"+$('#txtNoa').val()+"' and no3='"+$('#txtNoq_'+b_seq).val()+"')";
+							q_box("orde_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";"+t_where+";" + r_accy + ";" + q_cur, 'orde_xy', "95%", "95%", $('#lblOrde_xy_s').text());	
+						}
+					});*/
+					
 				}
 				_bbsAssign();
 				ShowDownlbl();
@@ -645,7 +657,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td ><span> </span><a id="lblTotal_xy" class="lbl">小計</a></td>
+						<td><span> </span><a id="lblTotal_xy" class="lbl">小計</a></td>
 						<td><input id="txtTotal" type="text"  class="txt num c1"/></td>
 						<td> </td>
 						<td colspan="2">
@@ -688,6 +700,7 @@
 					<td align="center"><a id='lblMemon_xy_s'>備註</a></td>
 					<td align="center" style="width:43px;"><a id='lblEnda_xy_s'>結案</a></td>
 					<td align="center" style="width:43px;"><a id='lblOrdeweight_xy_s'>取消</a></td>
+					<!--<td align="center" style="width:43px;"><a id='lblOrde_xy_s'>銷售紀錄</a></td>-->
 				</tr>
 				<tr style='background:#cad3ff;'>
 					<td align="center"><input class="btn" id="btnMinus.*" type="button" value='－' style=" font-weight: bold;" /></td>
@@ -715,6 +728,7 @@
 						<input id="checkOrdeweight.*" type="checkbox"/>
 						<input id="txtOrdeweight.*" type="hidden"/>
 					</td>
+					<!--<td align="center"><input id="btnOrdes.*" type="button" value="." /></td>-->
 				</tr>
 			</table>
 		</div>

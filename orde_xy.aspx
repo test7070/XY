@@ -814,7 +814,7 @@
 								q_box("ordc.aspx?;;;noa='" + noa + "';" + r_accy, 'ordc', "95%", "95%", q_getMsg("popOrdc"));
 								break;
 							case 'quatno':
-								if(noa.substr(0,1)='C'){
+								if(noa.substr(0,1)=='C'){
 									q_box("cont_xy.aspx?;;;noa='" + noa + "';" + r_accy, 'cont', "95%", "95%", q_getMsg("popCont"));
 								}else{
 									q_box("quat_xy.aspx?;;;noa='" + noa + "';" + r_accy, 'quat', "95%", "95%", q_getMsg("popQuat"));

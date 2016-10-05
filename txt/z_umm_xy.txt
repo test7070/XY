@@ -84,8 +84,10 @@ select  '0',a.typea, a.noa, a.datea , (case when isnull(a.mon,'')='' then left(a
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales 
 		,a.money--,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
 		,a.tax
-		,a.taxtype,a.total,a.payed payed,a.unpay unpay
+		,a.taxtype,a.total--,a.payed payed,a.unpay unpay
+		,isnull(b.paysale,0),a.total-isnull(b.paysale,0)
 	from view_vcc a left join cust c on  (case when isnull(a.custno2,'')!='' and @t_showcust!='1' then a.custno2 else a.custno end) = c.noa
+	outer apply (select sum(paysale)paysale from umms where vccno=a.noa and ((case when isnull(mon,'')='' then left(datea,6) else mon end)<=@t_mon) and a.datea <= @t_edate) b
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) < @t_mon) )
 		and (len(@t_bdate)=0 or a.datea < @t_bdate)
 		and ((case when a.custno2!='' and @t_showcust!='1' then a.custno2 else a.custno end) between @t_bcustno and @t_ecustno)
@@ -173,9 +175,11 @@ select '2' gno,ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq) idno,0 
 		,b.productno, b.product,b.spec, b.unit,b.lengthb,b.lengthc,b.dime,b.price,b.total money,a.money
 		--,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
 		,a.tax
-		,a.taxtype,a.total,0 paysale,0 discounts,case when a.typea='2' then -1 else 1 end*a.payed payed,0 punpay,a.unpay,0,b.memo
+		,a.taxtype,a.total,0 paysale,0 discounts
+		,isnull(d.paysale,0) payed,0 punpay,a.total-isnull(d.paysale,0),0,b.memo
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
 	left join cust c on  (case when isnull(a.custno2,'')!='' and @t_showcust!='1' then a.custno2 else a.custno end) = c.noa
+	outer apply (select sum(paysale)paysale from umms where vccno=a.noa and ((case when isnull(mon,'')='' then left(datea,6) else mon end)<=@t_mon) and a.datea <= @t_edate) d
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) = @t_mon)) 
 		and (a.datea between @t_bdate and @t_edate)
 		and ((case when a.custno2!='' and @t_showcust!='1' then a.custno2 else a.custno end) between @t_bcustno and @t_ecustno)
@@ -397,9 +401,10 @@ select '2' gno,0 idno,0 page,0 mpage, a.typea, a.noa, b.noq, a.datea , (case whe
 		,b.productno, b.product,b.spec, b.unit,b.lengthb,b.lengthc,b.dime,b.price,b.total money,a.money
 		--,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
 		,a.tax
-		,a.taxtype,a.total,0 paysale,a.payed payed,0 punpay,a.unpay,0,b.memo
+		,a.taxtype,a.total,0 paysale,isnull(d.paysale,0) payed,0 punpay,a.total-isnull(d.paysale,0),0,b.memo
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
 	left join cust c on a.custno = c.noa
+	outer apply (select sum(paysale)paysale from umms where vccno=a.noa and ((case when isnull(mon,'')='' then left(datea,6) else mon end)<=@t_mon) and a.datea <= @t_edate) d
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) = @t_mon)) 
 		and (a.datea between @t_bdate and @t_edate)
 		and ((case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end) between @t_bcustno and @t_ecustno)
@@ -415,8 +420,9 @@ set total=(case when (select count(*) from ucca )>0 then amoney+(case when taxty
 insert #result (gno,noa,noq,datea,mon,custno,comp,xcustno,xcomp,amoney,tax,total,punpay,unpay)
 select '3',CHAR(255),CHAR(255),'',@t_mon,a.custno,MAX(comp),LEFT(a.custno,5),''
 ,MAX(b.amoney),MAX(b.tax),MAX(b.total)
-,isnull((select sum(unpay) from view_vcc where custno=a.custno and unpay>0 and mon<@t_mon),0)
-,isnull((select sum(unpay) from view_vcc where custno=a.custno and unpay>0 and mon<@t_mon),0)+MAX(b.unpay)
+,isnull((select sum(case when typea='1' then 1 else -1 end *total-isnull(u.paysale,0)) from view_vcc v outer apply (select SUM(paysale)paysale from umms where vccno=v.noa and mon<=@t_mon)u where custno=a.custno and mon<@t_mon),0)
+,isnull((select sum(case when typea='1' then 1 else -1 end *total-isnull(u.paysale,0)) from view_vcc v outer apply (select SUM(paysale)paysale from umms where vccno=v.noa and mon<=@t_mon)u where custno=a.custno and mon<@t_mon),0)
++MAX(b.unpay)
 from #result a
 outer apply (
 	select custno,SUM(amoney)amoney,SUM(tax)tax,SUM(total)total,SUM(unpay)unpay from(

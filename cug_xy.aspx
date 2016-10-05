@@ -37,7 +37,7 @@
             aPop = new Array(
             	['txtStationno', 'lblStation_xy', 'mech', 'noa,mech', 'txtStationno,txtStation', 'mech_b.aspx'],
             	['txtProcessno', 'lblProcess_xy', 'sss', 'noa,namea', 'txtProcessno,txtProcess', 'sss_b.aspx'],
-            	['txtOrdeno_', '', 'view_cub', 'noa,productno,product,spec,unit,mount', '0txtOrdeno_,txtProductno_,txtProduct_,txtSpec_,txtStyle_,txtMount_', '']
+            	['txtWorkno_', '', 'view_cub', 'noa,productno,product,spec,unit,mount', '0txtWorkno_,txtProductno_,txtProduct_,txtSpec_,txtStyle_,txtMount_', '']
             );
             
             $(document).ready(function() {
@@ -165,12 +165,12 @@
                     alert(t_err);
                     return;
                 }
-                
+                var maxnoq='001';
                 for (var i = 0; i < q_bbsCount; i++) {
+                	$('txtNos_'+i).val('9000');
                 	//noq 重新排序
-                	var maxnoq='001';
-                	if((!emp($('#txtOrdeno_'+j).val()))){
-						$('#txtNoq_'+j).val(maxnoq);
+                	if((!emp($('#txtWorkno_'+i).val()))){
+						$('#txtNoq_'+i).val(maxnoq);
 						maxnoq=('000'+(dec(maxnoq)+1)).slice(-3);
 					}
                 	if(!$('#chkIssel_'+i).prop('checked')){
@@ -214,7 +214,7 @@
             }
 
             function btnPrint() {
-                q_box('z_cugp_xy.aspx', '', "95%", "95%", q_getMsg("popPrint"));
+                //q_box('z_cugp_xy.aspx', '', "95%", "95%", q_getMsg("popPrint"));
             }
 			
 			var issave=false;
@@ -319,7 +319,7 @@
 							b_seq = t_IdSeq;
 							if(!emp($('#txtNoa').val()) && !emp($('#txtNoq_'+b_seq).val())){
 								var t_worker=(q_date()+' '+padL(new Date().getHours(), '0', 2)+':'+padL(new Date().getMinutes(),'0',2)+':'+padL(new Date().getSeconds(),'0',2)+' '+r_name);
-								if (confirm('製令單【'+$('#txtOrdeno_'+b_seq)+'】確定要完工?\nPS.之前未完工製令也會完工')){
+								if (confirm('製令單【'+$('#txtWorkno_'+b_seq).val()+'】確定要完工?\nPS.之前未完工製令也會完工')){
 									var t_paras = $('#txtNoa').val()+';'+$('#txtNoq_'+b_seq).val()+';'+t_worker;
 									q_func('qtxt.query.cugsenda', 'cust_ucc_xy.txt,cugsenda,' + t_paras);
 								}
@@ -345,7 +345,7 @@
             }
 
             function bbsSave(as) {
-                if (!as['ordeno'] ) {//不存檔條件
+                if (!as['workno'] ) {//不存檔條件
                     as[bbsKey[1]] = '';
                     return;
                 }
@@ -450,7 +450,7 @@
                 			//移除相同的製令單
 							for(var i = 0; i < as.length; i++){
 								for (var j = 0; j < q_bbsCount; j++) {
-									if(as[i].noa==$('#txtOrdeno_'+j).val()){
+									if(as[i].noa==$('#txtWorkno_'+j).val()){
 										as.splice(i, 1);
 										i--;
 										break;
@@ -458,7 +458,7 @@
 								}
 							}
                 			
-                			q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtProductno,txtProduct,txtSpec,txtStyle,txtMount', as.length, as, 'noa,productno,product,spec,unit,emount', 'txtOrdeno');
+                			q_gridAddRow(bbsHtm, 'tbbs', 'txtWorkno,txtProductno,txtProduct,txtSpec,txtStyle,txtMount', as.length, as, 'noa,productno,product,spec,unit,emount', 'txtWorkno');
                 			
                 			
 		                	if(!emp($('#txtBdate').val()) && !emp($('#txtEdate').val())
@@ -581,11 +581,11 @@
 		<style type="text/css">
             #dmain {
                 overflow: hidden;
-                width: 1260px;
+                width: 1240px;
             }
             .dview {
                 float: left;
-                width: 30%;
+                width: 360px;
             }
             .tview {
                 margin: 0;
@@ -706,7 +706,7 @@
                 font-size: medium;
             }
             .dbbs {
-                width: 1260px;
+                width: 1240px;
                 background:#cad3ff;
             }
             .tbbs a {
@@ -758,7 +758,7 @@
 			<div class='dbbm'>
 				<table class="tbbm"  id="tbbm">
 					<tr>
-						<td style="width: 105px;"><span> </span><a id='lblNoa' class="lbl"> </a></td>
+						<td style="width: 105px;"><span> </span><a id='lblNoa_xy' class="lbl">排程單號</a></td>
 						<td style="width: 206px;"><input id="txtNoa"  type="text" class="txt c1"/></td>
 						<td style="width: 105px;"><span> </span><a id='lblKdate_xy' class="lbl">製單日期</a></td>
 						<td style="width: 176px;"><input id="txtKdate"  type="text" class="txt c1"/></td>
@@ -792,7 +792,7 @@
 					</tr>
 					<tr>
 						<td class="td1"><span> </span><a id='lblMemo' class="lbl"> </a></td>
-						<td class="td2" colspan="5"><input id="txtMemo"  type="text" class="txt c5"/></td>
+						<td class="td2" colspan="5"><input id="txtMemo"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td class="td1"><span> </span><a id='lblWorker' class="lbl"> </a></td>
@@ -809,7 +809,7 @@
 					<td align="center" style="width:45px;"><input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  /></td>
 					<td style="width:20px;"> </td>
 					<td align="center" style="width:60px;display: none;"><a id='lblNos_xy_s'>排程<br>序號</a></td>
-					<td align="center" style="width:130px;"><a id='lblOrdeno_s'>製令編號</a></td>
+					<td align="center" style="width:130px;"><a id='lblWorkno_xy_s'>製令編號</a></td>
 					<td align="center" style="width:100px;"><a id='lblProductno_s'> </a></td>
 					<td align="center" style="width:120px;"><a id='lblProduct_s'> </a></td>
 					<td align="center"><a id='lblSpec_s'> </a></td>
@@ -832,7 +832,7 @@
 						<input id="txtNos.*" type="text" class="txt c1"/>
 						<input id="txtNoq.*" type="hidden" class="txt c1"/>
 					</td>
-					<td><input id="txtOrdeno.*" type="text" class="txt c1"/></td>
+					<td><input id="txtWorkno.*" type="text" class="txt c1"/></td>
 					<td><input id="txtProductno.*" type="text" class="txt c1"/></td>
 					<td><input id="txtProduct.*" type="text" class="txt c1"/></td>
 					<td><input id="txtSpec.*" type="text" class="txt c1"/></td>

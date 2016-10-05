@@ -137,13 +137,29 @@ begin
 	,productno,product,spec,classa,size,dime,source,unit,price,mount,total,memo,enda,cancel,c1,notv,quatno,no3
 	,zinc,lengthb,hard,lengthc)
 	select a.custno,left(b.comp,50),@t_odate,@t_datea
-	,c.noa,d.product,d.spec,d.style,'',0,'0',isnull(e.unit,d.unit),isnull(e.price,0),a.mount,round(a.mount*isnull(e.price,0),0),'',0,0,0,a.mount
+	,c.noa,d.product,d.spec,d.style,'',0,'0'
+	--,isnull(e.unit,d.unit),isnull(e.price,0),a.mount,round(a.mount*isnull(e.price,0),0),'',0,0,0,a.mount
+	,d.unit,isnull(e.price,0),a.mount,round(a.mount*isnull(e.price,0),0),'',0,0,0,a.mount
 	,isnull(e.noa,''),isnull(e.no3,'')
 	,isnull(e.unit,d.unit),a.mount,isnull(e.unit,''),isnull(e.price,0)
 	from @tmp a left join cust b on a.custno=b.noa
 	outer apply (select top 1 * from ucccust where productno=a.productno and (custno='WC002' or custno=left(a.custno,len(custno))))c
 	left join ucc d on c.noa=d.noa
 	outer apply (select top 1 * from view_quats where productno=c.noa and (custno='WC002' or custno=left(a.custno,len(custno))) and datea>=@t_odate order by odate desc)e
+	
+	update a
+	set mount=case when isnull(c.m2,0)!=0 then
+	case when ceiling(lengthb*isnull(b.m1,0)/c.m2)!=floor(lengthb*isnull(b.m1,0)/c.m2) and UPPER(unit)!='KG' then 0 else 
+	case when UPPER(unit)='KG' then round(lengthb*isnull(b.m1,0)/c.m2,2) else round(lengthb*isnull(b.m1,0)/c.m2,0) end end else 0 end
+	,price=case when isnull(d.m3,0)!=0 then round(lengthc*isnull(c.m2,0)/d.m3,4) else 0 end
+	from #bbs a
+	outer apply (select inmount m1 from pack2s where noa=a.productno and pack=a.zinc)b
+	outer apply (select inmount m2 from pack2s where noa=a.productno and pack=a.unit)c
+	outer apply (select inmount m3 from pack2s where noa=a.productno and pack=a.hard)d
+	
+	update a
+	set total=round(mount*price,0),notv=mount
+	from #bbs a
 	
 	create table #bbm(
 		noa nvarchar(50),

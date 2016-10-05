@@ -1625,7 +1625,7 @@ set @spec=replace(@spec,'@$#','"')
 
 select a.noa,a.productno,a.product,a.spec,a.unit,a.mount,a.mount-isnull(b.mount,0) emount
 ,a.ordeno,a.no2,a.custno,a.comp,a.memo,a.bdate,a.edate
-from view_cub a outer apply (select SUM(mount)mount from view_cugs where ordeno=a.noa and isnull(issel,0)=1) b
+from view_cub a outer apply (select SUM(mount)mount from view_cugs where workno=a.noa and isnull(issel,0)=1) b
 where isnull(a.enda,0)!=1 
 and isnull(a.cancel,0)!=1
 and a.typea='製造部'

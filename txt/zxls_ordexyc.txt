@@ -139,12 +139,27 @@ begin
 	,zinc,lengthb,hard,lengthc)
 	select a.custno,left(b.comp,50),@t_odate,''
 	,a.productno,c.product,c.spec,c.style,'',0,'0'
-	,a.unit,a.price,a.mount,a.total,'',0,0,0,a.mount 
+	--,a.unit,a.price,a.mount,a.total,'',0,0,0,a.mount 
+	,c.unit,a.price,a.mount,a.total,'',0,0,0,a.mount
 	,isnull(a.quatno,''),isnull(a.no3,'')
 	,a.unit,a.mount,d.unit,d.price
 	from @tmp a left join cust b on a.custno=b.noa
 	left join ucc c on a.productno=c.noa
 	outer apply (select * from view_quats where noa=isnull(a.quatno,'') and no3=isnull(a.no3,''))d
+	
+	update a
+	set mount=case when isnull(c.m2,0)!=0 then
+	case when ceiling(lengthb*isnull(b.m1,0)/c.m2)!=floor(lengthb*isnull(b.m1,0)/c.m2) and UPPER(unit)!='KG' then 0 else 
+	case when UPPER(unit)='KG' then round(lengthb*isnull(b.m1,0)/c.m2,2) else round(lengthb*isnull(b.m1,0)/c.m2,0) end end else 0 end
+	,price=case when isnull(d.m3,0)!=0 then round(lengthc*isnull(c.m2,0)/d.m3,4) else 0 end
+	from #bbs a
+	outer apply (select inmount m1 from pack2s where noa=a.productno and pack=a.zinc)b
+	outer apply (select inmount m2 from pack2s where noa=a.productno and pack=a.unit)c
+	outer apply (select inmount m3 from pack2s where noa=a.productno and pack=a.hard)d
+	
+	update a
+	set total=round(mount*price,0),notv=mount
+	from #bbs a
 
 	create table #bbm(
 		noa nvarchar(50),

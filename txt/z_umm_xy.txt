@@ -914,26 +914,41 @@ create table #tmp(
 	opay float
 )
 
-insert #tmp (custno,salesno,total,payed)
-select (case when a.custno2!='' then a.custno2 else a.custno end),a.salesno,SUM(case when a.typea='2' then -1 else 1 end*total),SUM(case when a.typea='2' then -1 else 1 end*payed)
-from view_vcc a where mon=@t_mon
+insert #tmp (custno,salesno,total,payed,punpay)
+select (case when a.custno2!='' then a.custno2 else a.custno end),a.salesno
+,SUM(case when mon=@t_mon then case when a.typea='2' then -1 else 1 end*total else 0 end),isnull(SUM(b.paysale),0)
+,isnull(SUM(case when mon<@t_mon then case when a.typea='2' then -1 else 1 end*total else 0 end),0)-isnull(SUM(c.paysale),0)
+from view_vcc a 
+outer apply (select sum(paysale)paysale from umms ua where ua.vccno=a.noa and ua.mon=@t_mon and a.mon=@t_mon)b
+outer apply (select sum(paysale)paysale from umms ua where ua.vccno=a.noa and ua.mon<=@t_mon and a.mon<@t_mon)c
+where mon<=@t_mon
 and (case when a.custno2!='' then a.custno2 else a.custno end) between @t_bcustno and @t_ecustno
 and a.salesno between @t_bsalesno and @t_esalesno
 group by case when a.custno2!='' then a.custno2 else a.custno end,a.salesno
 
-update a
-set punpay=isnull((select SUM(case when typea='2' then -1 else 1 end*unpay) from view_vcc where (case when custno2!='' then custno2 else custno end)=a.custno and salesno=a.salesno and mon<@t_mon),0)
-from #tmp a
+--update a
+--set total=isnull((select SUM(case when typea='2' then -1 else 1 end*total) from view_vcc where (case when custno2!='' then custno2 else custno end)=a.custno and salesno=a.salesno and mon=@t_mon),0)
+--,payed=isnull((select sum(paysale) from umms ua left join view_vcc vb on ua.vccno=vb.noa where vb.noa is not null and ua.custno=a.custno and vb.salesno=a.salesno and ua.mon<=@t_mon and vb.mon=@t_mon),0)
+--,punpay=isnull((select SUM(case when typea='2' then -1 else 1 end*total) from view_vcc where (case when custno2!='' then custno2 else custno end)=a.custno and salesno=a.salesno and mon<@t_mon),0)
+---isnull((select sum(paysale) from umms ua left join view_vcc vb on ua.vccno=vb.noa where vb.noa is not null and ua.custno=a.custno and vb.salesno=a.salesno and ua.mon<=@t_mon and vb.mon<@t_mon),0)
+--from #tmp a
 
 insert #tmp (custno,salesno,punpay,total,payed)
 select (case when a.custno2!='' then a.custno2 else a.custno end),a.salesno
-,sum(case when a.typea='2' then -1 else 1 end*a.unpay),0,0
-from view_vcc a where mon<@t_mon
+,sum(case when a.typea='2' then -1 else 1 end*a.total-isnull(b.paysale,0)),0,0
+from view_vcc a outer apply (select sum(paysale)paysale from umms ua where ua.vccno=a.noa and ua.mon<=@t_mon and a.mon<@t_mon)b
+where mon<@t_mon
 and (case when a.custno2!='' then a.custno2 else a.custno end) between @t_bcustno and @t_ecustno
 and a.salesno between @t_bsalesno and @t_esalesno
 and not exists (select * from #tmp where custno=(case when a.custno2!='' then a.custno2 else a.custno end) and salesno=a.salesno)
-and isnull(a.unpay,0)!=0
+--and isnull(a.unpay,0)!=0
 group by case when a.custno2!='' then a.custno2 else a.custno end,a.salesno
+
+--update a
+--set punpay=isnull((select SUM(case when typea='2' then -1 else 1 end*total) from view_vcc where (case when custno2!='' then custno2 else custno end)=a.custno and salesno=a.salesno and mon<@t_mon),0)
+---isnull((select sum(paysale) from umms ua left join view_vcc vb on ua.vccno=vb.noa
+--where vb.noa is not null and ua.custno=a.custno and vb.salesno=a.salesno and ua.mon<=@t_mon and vb.mon<@t_mon),0)
+--from #tmp a
 
 update #tmp
 set unpay=punpay+total-payed
@@ -1187,7 +1202,7 @@ and a.mon<@t_xmon
 and a.custno between @t_bcustno and @t_ecustno
 and a.salesno between @t_bsalesno and @t_esalesno
 group by custno,salesno,mon
-having SUM((case when typea='2' then -1 else 1 end*total)-isnull(b.paysale,0))!=0
+having SUM((case when typea='2' then -1 else 1 end*total)-isnull(b.paysale,0))-ISNULL(SUM(c.paysale),0)!=0
 order by salesno,custno,mon
 
 if(@showpayed='N')

@@ -119,6 +119,9 @@
 						type : '5',
 						name : 'xuccorder',
                         value : 'noa@品號,product@品名,style@版別,unit@單位'.split(',')
+                    }, {/*[28][29]*/
+						type : '1',
+						name : 'xkdate',
                     }]
                 });
                 q_popAssign();
@@ -126,6 +129,8 @@
                 q_langShow();
                 
                 $('#txtXstartdate').mask('99');
+                $('#txtXkdate1').mask(r_picd);
+                $('#txtXkdate2').mask(r_picd);
                 
                 var tmp = document.getElementById("txtXpaytype");
 				var selectbox = document.createElement("select");

@@ -142,6 +142,8 @@ z_cust_xy02:--z_cust_xy02
 	declare @t_ucctypea nvarchar(max) = case when '#non'=[25] then '' else [25] end
 	declare @t_groupa nvarchar(max) = case when '#non'=[26] then '' else [26] end
 	declare @t_order nvarchar(max) = case when '#non'=[27] then 'noa' else [27] end
+	declare @t_bdate nvarchar(max) = case when '#non'=[28] then '' else [28] end
+	declare @t_edate nvarchar(max) = case when '#non'=[29] then CHAR(255) else [29] end
 	---------------------------------------------------------------------------------------
 IF OBJECT_ID('tempdb..#tmp')is not null
 BEGIN
@@ -159,17 +161,25 @@ END
 		unit nvarchar(max),
 		saleprice float,
 		custno nvarchar(max),
-		comp nvarchar(max)
+		comp nvarchar(max),
+		kdate nvarchar(20)
 	)
 
 	insert into #tmp
 	select 0,a.noa,a.product,a.spec,a.engpro,a.style,a.unit,a.saleprice,b.noa,b.comp
+	,''
 	from ucc a  
 	outer apply (select noa,comp from cust where left(a.noa,5)=noa and charindex('-',a.noa)>0 ) b
 	where (a.noa between @t_bpno and @t_epno) 
 	and (len(@t_product)=0 or charindex(isnull(@t_product,''),a.product)>0)
 	and (len(@t_ucctypea)=0 or isnull(a.typea,'')=@t_ucctypea)
 	and (len(@t_groupa)=0 or isnull(a.groupano,'')=@t_groupa)
+	
+	update a
+	set kdate =isnull((select top 1 datea+' '+timea from drun where noa=a.noa and action='Insert' and (tablea='ucc' or tablea='uca') order by datea desc,timea desc),'')
+	from #tmp a
+	
+	delete #tmp where kdate not between @t_bdate and @t_edate
 	
 	EXEC("update a set recno=RowNum
 	from (select recno,ROW_NUMBER()over (order by "+@t_order+",noa)RowNum from #tmp)a")

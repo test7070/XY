@@ -720,7 +720,7 @@
 							//庫存單位
 							var t_where = "where=^^ noa='"+as[i].productno+"' ^^";
 							q_gt('ucc', t_where, 0, 0, 0, "get_unit", r_accy,1);
-							var tunit = _q_appendData("stkucc", "", true);
+							var tunit = _q_appendData("ucc", "", true);
 							if (tunit[0] != undefined) {
 								tr.innerHTML+="<td><input id='store2_txtUnit_"+store2_row+"' type='text' class='txt c1' value='"+tunit[0].unit+"' disabled='disabled'/></td>";
 							}else{
@@ -1027,11 +1027,16 @@
 								if (t_paysale != 0)
 									z_msg += String.fromCharCode(13) + '收款單號【' + as[i].noa + '】 ' + FormatNumber(t_paysale);
 							}
-							if (z_msg.length > 0 && r_rank<'3') { //105/05/04 權限2以下提示
+							//105/10/06 恢復正常鎖單
+							alert('已沖帳:' + z_msg);
+							Unlock(1); //1041225暫時開放可以修改
+							return;
+							
+							/*if (z_msg.length > 0 && r_rank<'3') { //105/05/04 權限2以下提示
 								alert('已沖帳:' + z_msg);
 								//Unlock(1); //1041225暫時開放可以修改
 								//return;
-							}
+							}*/
 						}
 						_btnModi();
 						if((q_cur==1 || q_cur==2) && r_rank < '9')
@@ -1289,6 +1294,7 @@
 									$('#txtTranmoney3_'+b_seq).val(0);
 									$('#txtTranmoney2_'+b_seq).val(0);
 								}
+								$('#cmbItemno_' + b_seq).change();
 								sum();
 							}
 						});
@@ -1342,12 +1348,51 @@
 							}
 							sum();
 							
-							if($('#cmbItemno_' + b_seq).val()!='0'){
+							var t_max_unit='';
+							var t_max_inmout=0;
+							var t_unit=$('#txtUnit_'+b_seq).val();
+							var t_inmount=0;
+							var t_mount=dec($('#txtDime_'+b_seq).val());
+							
+							var t_where = "where=^^noa='"+$('#txtProductno_'+b_seq).val()+"'^^";
+							q_gt('pack2s', t_where, 0, 0, 0, "getpack2s", r_accy, 1);
+							var as = _q_appendData("pack2s", "", true);
+											
+							for(var i=0 ; i<as.length;i++){
+								if(t_max_inmout<dec(as[i].inmount)){
+									t_max_unit=as[i].pack;
+									t_max_inmout=dec(as[i].inmount);
+								}
+								if(t_unit==as[i].pack){
+									t_inmount=dec(as[i].inmount);
+								}
+							}
+							if(t_max_inmout==0){
+								t_max_inmout=1;
+								t_max_unit=t_unit;
+							}
+							
+							if(t_max_unit!=t_unit && t_mount/t_max_inmout>0){
+								var t_m1=Math.floor(t_mount/t_max_inmout);
+								var t_m2=t_mount-(Math.floor(t_mount/t_max_inmout)*t_max_inmout);
+								if($('#cmbItemno_' + b_seq).val()=='0')
+									$('#txtMemo_'+b_seq).val(t_m1+t_max_unit+(t_m2>0?t_m2+t_unit:''));
+								else
+									$('#txtMemo_'+b_seq).val($('#cmbItemno_' + b_seq).find("option:selected").text()+'：'+t_m1+t_max_unit+(t_m2>0?t_m2+t_unit:''));
+							}else{
+								if($('#cmbItemno_' + b_seq).val()!='0'){
+									$('#txtMemo_'+b_seq).val($('#cmbItemno_' + b_seq).find("option:selected").text()+'：'+t_mount+t_unit);
+								}else{
+									$('#txtMemo_'+b_seq).val('');
+								}
+							}
+							
+							/*if($('#cmbItemno_' + b_seq).val()!='0'){
 								if(!emp($('#txtMemo_'+b_seq).val()))
 									$('#txtMemo_'+b_seq).val($('#cmbItemno_' + b_seq).find("option:selected").text()+'：'+$('#txtDime_' + b_seq).val()+$('#txtUnit_' + b_seq).val()+','+$('#txtMemo_'+b_seq).val());
 								else
 									$('#txtMemo_'+b_seq).val($('#cmbItemno_' + b_seq).find("option:selected").text()+'：'+$('#txtDime_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
-							}
+							}*/
 						});
 						
 						$('#txtWidth_' + i).focusout(function() {

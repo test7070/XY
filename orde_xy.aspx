@@ -182,8 +182,9 @@
 						q_box("ordei.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $('#txtNoa').val() + "';" + r_accy + ";" + q_cur, 'ordei', "95%", "95%", q_getMsg('popOrdei'));
 				});
 				$('#btnQuat').click(function() {
-					if(q_cur==1 || q_cur==2)
+					if(q_cur==1 || q_cur==2){
 						btnQuat();
+					}
 				});
 				$('#txtFloata').change(function() {
 					sum();
@@ -240,6 +241,7 @@
 				});
 				
 				$('#btnCont').click(function() {
+					//105/10/06合併到＂報價匯入＂
 					var t_datea=q_date();
 					var t_custno = trim($('#txtCustno').val());
 					var t_productno='#non';
@@ -261,9 +263,9 @@
 								if(emp($('#txtCustorde').val())){
 									$('#txtCustorde').val(as[0].contract);
 								}
-							}else{
+							}/*else{
 								alert('無客戶PO!!');
-							}
+							}*/
 						}else{
 							alert(q_getMsg('msgCustEmp'));
 						}
@@ -1326,7 +1328,7 @@
 							//庫存單位
 							var t_where = "where=^^ noa='"+as[i].productno+"' ^^";
 							q_gt('ucc', t_where, 0, 0, 0, "get_unit", r_accy,1);
-							var tunit = _q_appendData("stkucc", "", true);
+							var tunit = _q_appendData("ucc", "", true);
 							if (tunit[0] != undefined) {
 								tr.innerHTML+="<td><input id='store2_txtUnit_"+store2_row+"' type='text' class='txt c1' value='"+tunit[0].unit+"' disabled='disabled'/></td>";
 							}else{
@@ -1423,6 +1425,7 @@
 				var t_odate=trim($('#txtOdate').val());
 				var t_where = '';
 				if (t_custno.length > 0) {
+					$('#btnCont').click();
 					//104/09/10 直接匯入 要直接打數量
 					if (emp(t_custno))
 						t_custno='#non';
@@ -1670,6 +1673,7 @@
 							unitchange(b_seq);
 							$('#cmbSource_' + b_seq).change();
 							pricecolor();
+							
 						});
 						
 						$('#txtMount_'+j).change(function() {
@@ -1699,23 +1703,61 @@
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
+							
+							var t_max_unit='';
+							var t_max_inmout=0;
+							var t_unit=$('#txtUnit_'+b_seq).val();
+							var t_inmount=0;
+							var t_mount=dec($('#txtMount_'+b_seq).val());
+											
+							$("#combZinc_"+b_seq).children().each(function(){
+								if(t_max_inmout<dec($(this).val())){
+									t_max_unit=$(this).text()
+									t_max_inmout=dec($(this).val());
+								}
+								if(t_unit==$(this).text()){
+									t_inmount=dec($(this).val());
+								}
+							});
+							if(t_max_inmout==0){
+								t_max_inmout=1;
+								t_max_unit=t_unit;
+							}
+							
+							if(t_max_unit!=t_unit && t_mount/t_max_inmout>0){
+								var t_m1=Math.floor(t_mount/t_max_inmout);
+								var t_m2=t_mount-(Math.floor(t_mount/t_max_inmout)*t_max_inmout);
+								if($('#cmbSource_' + b_seq).val()=='0')
+									$('#txtMemo_'+b_seq).val(t_m1+t_max_unit+(t_m2>0?t_m2+t_unit:''));
+								else
+									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+t_m1+t_max_unit+(t_m2>0?t_m2+t_unit:''));
+							}else{
+								if($('#cmbSource_' + b_seq).val()!='0'){
+									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+t_mount+t_unit);
+								}else{
+									$('#txtMemo_'+b_seq).val('');
+								}
+							}
+							
+							
 							if($('#cmbSource_' + b_seq).val()!='0' && $('#cmbSource_' + b_seq).val()!='1'){
 								//105/01/08 寄庫、寄出... 備註 直接為 寄庫、寄出...X件 
-								
+								/*
 								if(!emp($('#txtMemo_'+b_seq).val()))
 									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val()+','+$('#txtMemo_'+b_seq).val());
 								else 
 									$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
+								*/
 								
 								$('#txtPrice_'+b_seq).val(0);
 							}else{
-								$('#txtMemo_'+b_seq).val('');
+								/*$('#txtMemo_'+b_seq).val('');
 								if($('#cmbSource_' + b_seq).val()=='1'){
 									if(!emp($('#txtMemo_'+b_seq).val()))
 										$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val()+','+$('#txtMemo_'+b_seq).val());
 									else 
 										$('#txtMemo_'+b_seq).val($('#cmbSource_' + b_seq).find("option:selected").text()+'：'+$('#txtMount_' + b_seq).val()+$('#txtUnit_' + b_seq).val());
-								}
+								}*/
 								
 								if(!emp($('#txtQuatno_'+b_seq).val()) && !emp($('#txtNo3_'+b_seq).val())){
 									var t_where="where=^^noa='"+$('#txtQuatno_'+b_seq).val()+"' and no3='"+$('#txtNo3_'+b_seq).val()+"' ^^"
@@ -3341,7 +3383,7 @@
 							<span> </span><a id='lblOrdcno' class="lbl"> </a>
 							<input id="txtOrdcno" type="text" class="txt c1"/>
 						</td>-->
-						<td align="center"><input id="btnCont" type="button" value="PO匯入"/></td>
+						<!--<td align="center"><input id="btnCont" type="button" value="PO匯入"/></td>-->
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblTrantype' class="lbl"> </a></td>

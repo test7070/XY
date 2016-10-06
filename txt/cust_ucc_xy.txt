@@ -1574,6 +1574,7 @@ from cont a left join conts b on a.noa=b.noa
 outer apply (select SUM(mount)mount from view_ordes where quatno=a.noa and no3=b.noq) c
 where isnull(a.chka1,0)=1 and isnull(a.chka2,0)=0 and isnull(b.ordeweight,0)=0 and isnull(b.productno,'')!=''
 and (a.noa=@noa or exists (select * from view_ordes where noa=@noa and quatno=a.noa))
+and a.kind='PO'
 
 --更新表身結案
 update b
@@ -1581,6 +1582,7 @@ set enda=case when b.eweight<=0 then 1 else 0 end
 from cont a left join conts b on a.noa=b.noa
 where isnull(a.chka1,0)=1 and isnull(a.chka2,0)=0 and isnull(b.ordeweight,0)=0 and isnull(b.productno,'')!=''
 and (a.noa=@noa or exists (select * from view_ordes where noa=@noa and quatno=a.noa))
+and a.kind='PO'
 
 --更新表頭結案
 update a
@@ -1589,6 +1591,7 @@ from cont a outer apply (select count(*)xcount,sum(case when isnull(enda,0)=1 th
 where isnull(a.chka1,0)=1 and isnull(a.chka2,0)=0
 and (a.noa=@noa or exists (select * from view_ordes where noa=@noa and quatno=a.noa))
 and isnull(b.xcount,0)>0
+and a.kind='PO'
 
 --更新資料
 select a.noa,b.noq,a.enda,b.enda endas,b.gweight,b.eweight

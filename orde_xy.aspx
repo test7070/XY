@@ -272,6 +272,12 @@
 					}
 				});
 				
+				$('#btnCont2').click(function() {
+					if (!emp($('#txtCustno').val())) {
+						q_box("cont_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";kind!='PO' and custno like '" + $('#txtCustno').val().substr(0,5) + "%';" + r_accy + ";" + q_cur, 'ordei', "95%", "95%", $('#btnCont2').val());
+					}
+				});
+				
 				$('#btnUpload').change(function() {
 					if(emp($('#txtNoa').val()) || q_cur==1 || q_cur==2){
 						return;
@@ -3440,6 +3446,7 @@
 							<input id="txtPostname" type="hidden" />
 						</td>
 						<td><input id="btnOrderep" type="button" style="float: right;" value="訂單未交量"/></td>
+						<td><input id="btnCont2" type="button" style="float: float;" value="客戶備貨"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a class="lbl">發票資訊</a></td>

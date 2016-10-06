@@ -112,7 +112,7 @@
 				var t_where = "where=^^ 1=0  ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				//104/08/17 要跟訂單一樣 單行判斷出貨.寄庫.庫出
-				q_cmbParse("cmbItemno",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品','s');
+				q_cmbParse("cmbItemno",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@補送','s');
 				//1050111
 				q_gt('sss', "where=^^ typea='司機' ^^", 0, 0, 0, "driver_sss");
 				
@@ -1135,6 +1135,10 @@
 						$('#txtTranmoney3_'+i).val(0);
 						$('#txtTranmoney2_'+i).val(0);
 						$('#txtPrice_'+i).val(0);
+					}else if($('#cmbItemno_'+i).val()=='5'){//補送
+						$('#txtTranmoney2_'+i).val(0);
+						$('#txtTranmoney3_'+i).val(0);
+						$('#txtWidth_'+i).val(0);
 					}else{//出貨
 						$('#txtWidth_'+i).val($('#txtDime_'+i).val());
 						$('#txtTranmoney3_'+i).val(0);
@@ -1289,6 +1293,11 @@
 									$('#txtTranmoney3_'+b_seq).val(0);
 									$('#txtTranmoney2_'+b_seq).val(0);
 									$('#txtPrice_'+b_seq).val(0);
+								}else if($('#cmbItemno_'+b_seq).val()=='5'){//補送
+									$('#txtTranmoney3_'+b_seq).val(0);
+									$('#txtTranmoney2_'+b_seq).val(0);
+									$('#txtWidth_'+b_seq).val(0);
+									$('#txtPrice_'+b_seq).val(0);
 								}else{//出貨
 									$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 									$('#txtTranmoney3_'+b_seq).val(0);
@@ -1337,6 +1346,15 @@
 								$('#txtStore2_'+b_seq).val('');
 								if(emp($('#txtStoreno_'+b_seq).val()))
 									$('#txtStoreno_'+b_seq).val('A').change();
+							}else if($('#cmbItemno_'+b_seq).val()=='5'){//補送
+								$('#txtTranmoney3_'+b_seq).val(0);
+								$('#txtTranmoney2_'+b_seq).val(0);
+								$('#txtWidth_'+b_seq).val(0);
+								$('#txtPrice_'+b_seq).val(0);
+								$('#txtStoreno2_'+b_seq).val('');
+								$('#txtStore_'+b_seq).val('');
+								$('#txtStoreno_'+b_seq).val('');
+								$('#txtStore_'+b_seq).val('');
 							}else{//出貨
 								$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney3_'+b_seq).val(0);
@@ -1372,7 +1390,7 @@
 								t_max_unit=t_unit;
 							}
 							
-							if(t_max_unit!=t_unit && t_mount/t_max_inmout>0){
+							if(t_max_unit!=t_unit && Math.floor(t_mount/t_max_inmout)>0){
 								var t_m1=Math.floor(t_mount/t_max_inmout);
 								var t_m2=t_mount-(Math.floor(t_mount/t_max_inmout)*t_max_inmout);
 								if($('#cmbItemno_' + b_seq).val()=='0')

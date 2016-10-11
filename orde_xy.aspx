@@ -156,7 +156,7 @@
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
 				q_cmbParse("combClassa",' ,便,印,新版舊版保留,新版舊版作廢,再版,改版,打樣','s');
-				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@補送','s');
+				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@換貨','s');
 				q_cmbParse("cmbConform", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
 				q_cmbParse("cmbIndate", '當天@當天,之前@之前','s');
 
@@ -843,14 +843,6 @@
 						var as = _q_appendData("view_orde", "", true);
 						if (as[0] != undefined) {
 							alert('客戶訂單尚有未交貨產品，請確認是否有重複下單!!');
-						}
-						break;
-					case 'btnDel_orde':
-						var as = _q_appendData("view_vccs", "", true);
-						if (as[0] != undefined) {
-							alert('訂單已出貨【'+as[0].noa+'】禁止刪除!!');
-						}else{
-							_btnDele();
 						}
 						break;
 					case 'orde_Modi':
@@ -2648,8 +2640,14 @@
 				}
 				
 				//0107 判斷是否轉出貨單
-				var t_where = "where=^^ ordeno='"+$('#txtNoa').val()+"' ^^";
-				q_gt('view_vccs', t_where, 0, 0, 0, "btnDel_orde");
+				q_gt('view_vccs', "where=^^ ordeno='"+$('#txtNoa').val()+"' ^^", 0, 0, 0, "btnDel_orde",r_accy,1);
+				var as = _q_appendData("view_vccs", "", true);
+				if (as[0] != undefined) {
+					alert('訂單已出貨【'+as[0].noa+'】禁止刪除!!');
+					return;
+				}
+				
+				_btnDele();
 			}
 
 			function btnCancel() {

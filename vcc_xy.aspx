@@ -112,7 +112,7 @@
 				var t_where = "where=^^ 1=0  ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				//104/08/17 要跟訂單一樣 單行判斷出貨.寄庫.庫出
-				q_cmbParse("cmbItemno",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@補送','s');
+				q_cmbParse("cmbItemno",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@換貨','s');
 				//1050111
 				q_gt('sss', "where=^^ typea='司機' ^^", 0, 0, 0, "driver_sss");
 				

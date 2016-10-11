@@ -54,7 +54,7 @@
                 _refresh();
                 
                 for (var j = 0; j < q_bbsCount; j++) {
-                	q_cmbParse("combItemno_"+j,'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品');
+                	q_cmbParse("combItemno_"+j,'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@換貨');
                 	if(!emp($('#txtItemno_'+j).val()))
 			        	$('#combItemno_'+j).val($('#txtItemno_'+j).val());
 			        else
@@ -99,8 +99,7 @@
 					<td align="center" style="width:10%;"><a id='lblProduct'> </a></td>
 					<td align="center" style="width:15%;"><a id='lblSpec'> </a></td>
 					<td align="center" style="width:4%;"><a id='lblUnit'> </a></td>
-					<td align="center" style="width:8%;">件數</td>
-					<td align="center" style="width:8%;">尾數</td>
+					<td align="center" style="width:8%;">出貨數量</td>
 					<td align="center" style="width:8%;">寄/出庫</td>
 					<td align="center" style="width:8%;"><a id='lblPrice'> </a></td>
 					<td align="center" style="width:10%;"><a id='lblTotal'> </a></td>
@@ -122,15 +121,15 @@
 						<input id="txtOrdeno.*" type="hidden" />
 						<input id="txtNo2.*" type="hidden" />
 						<input id="txtItemno.*" type="hidden" />
-						<input id="txtDime.*" type="hidden" />
+						<input id="txtLengthb.*" type="hidden" />
+						<input id="txtLengthc.*" type="hidden" />
 					</td>
 					<td><input class="txt"  id="txtNoa.*" type="text" style="width:98%;" /></td>
 					<td><input class="txt"  id="txtProductno.*" type="text" style="width:98%;" /></td>
 					<td><input class="txt" id="txtProduct.*" type="text" style="width:98%;" /></td>
 					<td><input class="txt" id="txtSpec.*" type="text" style="width:98%;" /></td>
 					<td><input class="txt" id="txtUnit.*" type="text" style="width:94%;"/></td>
-					<td><input class="txt" id="txtLengthb.*" type="text" style="width:94%; text-align:right;"/></td>
-					<td><input class="txt" id="txtLengthc.*" type="text" style="width:94%; text-align:right;"/></td>
+					<td><input class="txt" id="txtDime.*" type="text" style="width:94%; text-align:right;"/></td>
 					<td><select id="combItemno.*" class="txt" style="width:98%;"> </select></td>
 					<td><input class="txt" id="txtPrice.*" type="text" style="width:96%; text-align:right;"/></td>
 					<td><input class="txt" id="txtTotal.*" type="text" style="width:96%; text-align:right;"/></td>

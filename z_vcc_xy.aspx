@@ -69,41 +69,30 @@
                         type : '8', //[14]
                         name : 'laststoein',
                         value:'1@最後寄庫追蹤'.split(',')
+                    }, {
+                        type : '5', //[15]
+                        name : 'posttype',
+                        value:'#non@全部,email@電郵,fax@傳真'.split(',')
+                    }, {
+                        type : '1', //[16][17]
+                        name : 'xedate'
                     }]
                 });
                 q_popAssign();
                 q_langShow();
                 
-                $('#txtDate1').mask('999/99/99');
+                $('#txtDate1').mask(r_picd);
 				$('#txtDate1').datepicker();
-				$('#txtDate2').mask('999/99/99');
+				$('#txtDate2').mask(r_picd);
 				$('#txtDate2').datepicker();
-				$('#txtEnddate').mask('999/99/99');
+				$('#txtEnddate').mask(r_picd);
 				$('#txtEnddate').datepicker();
 				$('#txtEnddate').val(q_date());
+				$('#txtXedate1').mask(r_picd);
+				$('#txtXedate2').mask(r_picd);
 				
-				var t_date, t_year, t_month, t_day;
-                t_date = new Date();
-                t_date.setDate(1);
-                t_year = t_date.getUTCFullYear() - 1911;
-                t_year = t_year > 99 ? t_year + '' : '0' + t_year;
-                t_month = t_date.getUTCMonth() + 1;
-                t_month = t_month > 9 ? t_month + '' : '0' + t_month;
-                t_day = t_date.getUTCDate();
-                t_day = t_day > 9 ? t_day + '' : '0' + t_day;
-                $('#txtDate1').val(t_year + '/' + t_month + '/' + t_day);
-
-                t_date = new Date();
-                t_date.setDate(35);
-                t_date.setDate(0);
-                t_year = t_date.getUTCFullYear() - 1911;
-                t_year = t_year > 99 ? t_year + '' : '0' + t_year;
-                t_month = t_date.getUTCMonth() + 1;
-                t_month = t_month > 9 ? t_month + '' : '0' + t_month;
-                t_day = t_date.getUTCDate();
-                t_day = t_day > 9 ? t_day + '' : '0' + t_day;
-                $('#txtDate2').val(t_year + '/' + t_month + '/' + t_day);
-                
+				$('#txtDate1').val(q_date().substr(0,r_lenm)+'/01');
+                $('#txtDate2').val(q_cdn(q_cdn(q_date().substr(0,r_lenm)+'/01',35).substr(0,r_lenm)+'/01',-1));
                 
             }
 

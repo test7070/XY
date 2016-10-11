@@ -41,7 +41,7 @@ declare @tmp table(
 insert into @tmp
 select '0' gno,a.noa,b.noq,a.storeno,a.store,a.datea
 ,a.tggno,(case when c.nick!='' then c.nick else left(a.comp,7) end)
-,b.sssno,(case when c.nick!='' then d.nick else left(b.namea,7) end)
+,b.sssno,(case when d.nick!='' then d.nick else left(b.namea,7) end)
 ,b.productno,b.product,b.spec,b.unit,b.mount,b.price,b.total,b.memo,b.rc2no
 from view_ina a
 left join view_inas b on a.noa = b.noa

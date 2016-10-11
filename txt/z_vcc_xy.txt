@@ -27,8 +27,8 @@ declare @tmp table(
 
 insert @tmp 
 select '0',a.storeno2,MAX(replace(b.store,'~#$',char(39))),a.productno
-,MAX(case when isnull(c.product,'')!='' then c.style+' '+c.product else a.productno end ) product
-,MAX(case when isnull(c.spec,'')!='' then c.spec else a.spec end) spec 
+,MAX(case when isnull(c.product,'')!='' then c.product else a.productno end ) product
+,MAX(case when isnull(c.spec,'')!='' then c.style+' '+c.spec else a.spec end) spec 
 ,sum(case when a.typea='2' then -1 else 1 end* isnull(tranmoney2,0))-sum(case when a.typea='2' then -1 else 1 end*isnull(tranmoney3,0)) stkmount 
 from view_vccs a left join store b on a.storeno2=b.noa 
 left join ucc c on a.productno=c.noa 

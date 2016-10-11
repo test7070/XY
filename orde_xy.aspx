@@ -3386,7 +3386,7 @@
 							<span> </span><a id='lblOrdcno' class="lbl"> </a>
 							<input id="txtOrdcno" type="text" class="txt c1"/>
 						</td>-->
-						<!--<td align="center"><input id="btnCont" type="button" value="PO匯入"/></td>-->
+						<td align="center" style="display: none;"><input id="btnCont" type="button" value="PO匯入"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblTrantype' class="lbl"> </a></td>

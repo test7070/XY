@@ -57,7 +57,7 @@ declare @tmp table(
 
 insert into @tmp 
 select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.no2)
-,a.noa,a.odate,a.custno,a.comp,c.serial,c.invoicetitle
+,a.noa,a.odate,a.custno,c.nick,c.serial,c.invoicetitle
 ,a.tel,a.fax,a.addr,c.email,e.conn,a.salesno,a.sales,d.mobile1,b.productno,b.product,b.spec,b.sizea
 ,case when b.dime=1 then '單' when b.dime=2 then '雙' when b.dime=3 then '參' when b.dime=4 then '肆' when b.dime=5 then '全彩' else '' end
 ,b.unit,b.lengthb,b.lengthc,b.mount,b.price,b.total,a.tax,a.taxtype,a.total,b.memo

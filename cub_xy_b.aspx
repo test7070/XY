@@ -79,7 +79,7 @@
 					<td align="center"><a id='lblUnit'>單位</a></td>
 					<td align="center"><a id='lblNotv'>未交量</a></td>
 					<td align="center"><a id='lblPrice'>單價</a></td>
-					<td align="center"><a id='lblCust'>客戶</a></td>
+					<td align="center"><a id='lblCust'>客戶簡稱</a></td>
 					<td align="center"><a id='lblMemo'>備註/訂單編號</a></td>
 				</tr>
 				<tr  style='background:#cad3ff;'>

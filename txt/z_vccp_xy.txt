@@ -49,7 +49,7 @@ declare @tmp table(
 
 insert into @tmp 
 select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0
-,a.noa,b.noq,a.datea,a.custno,a.comp,a.tel,c.mobile,case when a.addr2!='' then a.addr2 else a.addr end,cm.conn,cm.trantime
+,a.noa,b.noq,a.datea,a.custno,a.nick,a.tel,c.mobile,case when a.addr2!='' then a.addr2 else a.addr end,cm.conn,cm.trantime
 ,a.invono,replace(a.memo+' '+a.trantype,'chr(10)','<BR>'),a.salesno,replace(a.sales,'~#$',char(39))
 ,case when isnull(cm.notprice,0)=1 then null else a.money end
 ,case when isnull(cm.notprice,0)=1 then null else a.tax end
@@ -188,7 +188,7 @@ dbo.getComma(a.mount,1) mount,
 dbo.getComma(a.stock,1) stock,
 dbo.getComma(a.price,2) price,
 dbo.getComma(a.total,0) total,
-replace(a.comp,'~#$',char(39)) comp,
+a.custno+' '+replace(a.comp,'~#$',char(39)) comp,
 replace(a.conn,'~#$',char(39)) conn,
 a.*
 --,case when b.typea='2' then '<a style="font-size:18px'+CHAR(59)+'">'+'退貨'+'</a>'+a.amemo else a.amemo end memo
@@ -253,7 +253,7 @@ declare @tmp table(
 
 insert into @tmp 
 select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0
-,a.noa,b.noq,a.datea,a.custno,a.comp,a.tel,c.mobile,case when a.addr2!='' then a.addr2 else a.addr end,cm.conn,cm.trantime
+,a.noa,b.noq,a.datea,a.custno,a.nick,a.tel,c.mobile,case when a.addr2!='' then a.addr2 else a.addr end,cm.conn,cm.trantime
 ,a.invono,replace(a.memo+' '+a.trantype,'chr(10)','<BR>'),a.salesno,replace(a.sales,'~#$',char(39))
 ,case when isnull(cm.notprice,0)=1 then null else a.money end
 ,case when isnull(cm.notprice,0)=1 then null else a.tax end
@@ -567,7 +567,7 @@ declare @tmp table(
 )
 
 insert @tmp
-select '0',b.datea,a.custno,replace(a.comp,'~#$',char(39)),a.noa,a.memo
+select '0',b.datea,a.custno,replace(a.nick,'~#$',char(39)),a.noa,a.memo
 ,b.no2,b.productno,b.product,b.spec
 ,b.lengthb,b.lengthc,b.mount
 ,isnull(c.lengthb,0),isnull(c.lengthc,0),isnull(c.mount,0)
@@ -921,8 +921,8 @@ declare @tmp table(
 
 insert @tmp
 select '0','',0,a.noa,a.custno
-,case when c.grpno='WC002' then left(SUBSTRING(a.comp,charindex('-',a.comp)+1,len(a.comp)),3) else '' end cpno
-,case when c.grpno='WC002' then SUBSTRING(c.comp,1,charindex('-',c.comp))+SUBSTRING(c.comp,charindex('-',c.comp)+4,len(c.comp)) else '' end ncomp
+,case when c.grpno='WC002' then left(SUBSTRING(a.nick,charindex('-',a.nick)+1,len(a.nick)),3) else '' end cpno
+,case when c.grpno='WC002' then SUBSTRING(c.nick,1,charindex('-',c.nick))+SUBSTRING(c.nick,charindex('-',c.nick)+4,len(c.nick)) else '' end ncomp
 ,b.noq,isnull(d.productno,'') custpno,b.productno,b.product+' '+b.spec,b.unit,b.price,b.lengthb,b.lengthc,b.dime,b.total 
 ,a.money,a.tax,a.total
 from view_vcc a 

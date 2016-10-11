@@ -160,7 +160,7 @@
                             	b_ret[i].checkseq= maxnoq
                             }*/
 							
-							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount,txtSize,txtClass', b_ret.length, b_ret, 'noa,custno,comp,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
+							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount,txtSize,txtClass', b_ret.length, b_ret, 'noa,custno,nick,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
 						}
 						sum();
 						break;
@@ -224,7 +224,7 @@
 								}
 								as_vcc[i].unpay=q_sub(dec(as_vcc[i].total),dec(as_vcc[i].weight));
                             }
-							q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount,txtSize,txtClass', as_vcc.length, as_vcc, 'noa,custno,comp,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
+							q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount,txtSize,txtClass', as_vcc.length, as_vcc, 'noa,custno,nick,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
 						}else{
 							alert('出貨單已派車或無出貨資料!!');
 						}
@@ -312,7 +312,7 @@
 								if (as[0] != undefined) {
 									$('#txtOrdeno_'+b_seq).val(as[0].noa);
 									$('#txtCustno_'+b_seq).val(as[0].custno);
-									$('#txtComp_'+b_seq).val(as[0].comp);
+									$('#txtComp_'+b_seq).val(as[0].nick);
 									$('#txtOdate_'+b_seq).val(as[0].datea);
 									if(as[i].typea=='2'){
 										as[0].total=-1*dec(as[0].total);
@@ -899,7 +899,7 @@
 						<td align="center"><input class="btn"  id="btnPlus" type="button" value='+' style="font-weight: bold;"  /></td>
 						<td align="center" style="width:30px;display: none;">序</td>
 						<td align="center" style="width:120px;">客戶編號</td>
-						<td align="center" style="width:175px;">客戶名稱</td>
+						<td align="center" style="width:175px;">客戶簡稱</td>
 						<td align="center" style="width:130px;">出貨單號</td>
 						<td align="center" style="width:100px;">出貨日期</td>
 						<td align="center" style="width:100px;">出貨金額</td>

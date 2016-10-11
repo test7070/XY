@@ -36,9 +36,9 @@
 			q_copy=1;
 			aPop = new Array(
 				['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,spec,mount,custno,comp,memo', 'txtOrdeno,txtNo2,txtProductno,txtProduct,txtSpec,txtMount,txtCustno,txtComp,txtMemo', ''],
-				['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp', 'cust_b.aspx'],
+				['txtCustno', 'lblCust', 'cust', 'noa,nick,comp,tel,invoicetitle', 'txtCustno,txtComp', 'cust_b.aspx'],
 				['txtProductno', 'lblProduct', 'ucc_xy', 'noa,product,style,spec,unit', 'txtProductno,txtProduct,,txtSpec,txtUnit', 'ucaucc_b.aspx'],
-				['txtTggno_', '', 'tgg', 'noa,comp', 'txtTggno_,txtTgg_', ""],
+				['txtTggno_', '', 'tgg', 'noa,nick', 'txtTggno_,txtTgg_', ""],
 				['txtProcessno_', 'btnProcessno_', 'process', 'noa,process,tggno,tgg', 'txtProcessno_,txtProcess_,txtTggno_,txtTgg_', 'process_b.aspx'],
 				['txtProductno__', 'btnProductno__', 'ucc_xy', 'noa,product,spec,unit', 'txtProductno__,txtProduct__,txtSpec__,txtUnit__', 'ucaucc_b.aspx'],
 				['txtStoreno__', 'btnStoreno__', 'store', 'noa,store', 'txtStoreno__,txtStore__', 'store_b.aspx']
@@ -289,7 +289,7 @@
 								return;
 							}else{
 								$('#txtTggno_'+b_seq).val(b_ret[0].noa);
-								$('#txtTgg_'+b_seq).val(b_ret[0].comp);
+								$('#txtTgg_'+b_seq).val(b_ret[0].nick);
 							}
 						}
 						break;
@@ -380,7 +380,7 @@
 					$('#txtMo').attr('disabled', 'disabled');
 					$('#txtMemo').attr('disabled', 'disabled');
 					aPop = new Array(
-						['txtTggno_', '', 'tgg', 'noa,comp', 'txtTggno_,txtTgg_', ""],
+						['txtTggno_', '', 'tgg', 'noa,nick', 'txtTggno_,txtTgg_', ""],
 						['txtProcessno_', 'btnProcessno_', 'process', 'noa,process,tggno,tgg', 'txtProcessno_,txtProcess_,txtTggno_,txtTgg_', 'process_b.aspx'],
 						['txtProductno__', 'btnProductno__', 'ucc_xy', 'noa,product,spec,unit', 'txtProductno__,txtProduct__,txtSpec__,txtUnit__', 'ucaucc_b.aspx'],
 						['txtStoreno__', 'btnStoreno__', 'store', 'noa,store', 'txtStoreno__,txtStore__', 'store_b.aspx']
@@ -528,9 +528,9 @@
 				$('#checkCut').removeAttr('disabled');
 				aPop = new Array(
 					['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,spec,mount,custno,comp,memo', 'txtOrdeno,txtNo2,txtProductno,txtProduct,txtSpec,txtMount,txtCustno,txtComp,txtMemo', ''],
-					['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp', 'cust_b.aspx'],
+					['txtCustno', 'lblCust', 'cust', 'noa,nick,comp,tel,invoicetitle', 'txtCustno,txtComp', 'cust_b.aspx'],
 					['txtProductno', 'lblProduct', 'ucc_xy', 'noa,product,spec,unit,style', 'txtProductno,txtProduct,txtSpec,txtUnit', 'ucaucc_b.aspx'],
-					['txtTggno_', '', 'tgg', 'noa,comp', 'txtTggno_,txtTgg_', ""],
+					['txtTggno_', '', 'tgg', 'noa,nick', 'txtTggno_,txtTgg_', ""],
 					['txtProcessno_', 'btnProcessno_', 'process', 'noa,process,tggno,tgg', 'txtProcessno_,txtProcess_,txtTggno_,txtTgg_', 'process_b.aspx'],
 					['txtProductno__', 'btnProductno__', 'ucc_xy', 'noa,product,spec,unit', 'txtProductno__,txtProduct__,txtSpec__,txtUnit__', 'ucaucc_b.aspx'],
 					['txtStoreno__', 'btnStoreno__', 'store', 'noa,store', 'txtStoreno__,txtStore__', 'store_b.aspx']
@@ -797,7 +797,7 @@
 							var as = _q_appendData("cust", "", true);
 	                		if(as[0]!=undefined){
 	                			$('#txtCustno').val(as[0].noa);
-	                			$('#txtComp').val(as[0].comp);
+	                			$('#txtComp').val(as[0].nick);
 	                		}
 						}
 						if(!emp($('#txtProductno').val())){
@@ -982,14 +982,14 @@
 					<tr>
 						<td style="width:20px; color:black;"><a id='vewChk'> </a></td>
 						<td style="width:80px; color:black;"><a id='vewNoa'> </a></td>
-						<td style="width:100px; color:black;"><a id='vewDatea'> </a></td>
-						<td style="width:100px; color:black;"><a id='vewComp'>客戶 </a></td>
+						<td style="width:80px; color:black;"><a id='vewDatea'> </a></td>
+						<td style="width:120px; color:black;"><a id='vewComp'>客戶簡稱</a></td>
 					</tr>
 					<tr>
 						<td><input id="chkBrow.*" type="checkbox" style=''/></td>
 						<td id='noa' style="text-align: center;">~noa</td>
 						<td id='datea' style="text-align: center;">~datea</td>
-						<td id='comp,4' style="text-align: center;">~comp,4</td>
+						<td id='comp' style="text-align: center;">~comp</td>
 					</tr>
 				</table>
 			</div>
@@ -1014,7 +1014,7 @@
 						<td><input id="txtNoa" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
-						<td><span> </span><a id="lblCust" class="lbl btn" >客戶</a></td>
+						<td><span> </span><a id="lblCust" class="lbl btn" >客戶簡稱</a></td>
 						<td><input id="txtCustno" type="text" class="txt c1"/></td>
 						<td colspan="2"><input id="txtComp" type="text" class="txt c1"/></td>
 						<td> <input id="btnOrdes" type="button" value='訂單匯入'  style="float:right;"/></td>
@@ -1083,7 +1083,7 @@
 						<td style="width:20px;"><input id="btnPlus" type="button" style="font-size: medium; font-weight: bold;" value="＋"/></td>
 						<td style="width:20px;"> </td>
 						<td style="width:120px;"><a id='lblProcess_s'>製程名稱</a></td>
-						<td style="width:140px;"><a id='lblTgg_s'>廠商名稱</a></td>
+						<td style="width:140px;"><a id='lblTgg_s'>廠商簡稱</a></td>
 						<td style="width:80px;"><a id='lblMount_s'>數量</a></td>
 						<td style="width:40px;"><a id='lblUnit_s'>單位</a></td>
 						<td style="width:70px;"><a id='lblPrice_s'>單價</a></td>

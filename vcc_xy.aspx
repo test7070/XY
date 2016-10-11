@@ -17,7 +17,7 @@
  
 			q_tables = 's';
 			var q_name = "vcc";
-			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','textStatus','txtDriver','textInvomemo','textConn'];
+			var q_readonly = ['txtNoa', 'txtAccno', 'txtComp','txtNick','txtCardeal','txtSales', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtWorker', 'txtWorker2','txtComp2','textStatus','txtDriver','textInvomemo','textConn'];
 			var q_readonlys = ['txtTotal', 'txtOrdeno', 'txtNo2','txtNoq','txtProduct','txtStore','txtStore2','txtSpec','txtUnit'];//txtSpec
 			var bbmNum = [['txtMoney', 15, 0, 1], ['txtTax', 15, 0, 1],['txtTotal', 15, 0, 1], ['txtTotalus', 15, 0, 1]];
 			var bbsNum = [];
@@ -30,7 +30,7 @@
 			brwNowPage = 0;
 			brwKey = 'datea';
 			aPop = new Array(
-				['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp,txtNick,txtTel', 'cust_b.aspx'],
+				['txtCustno', 'lblCust_xy', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp,txtNick,txtTel', 'cust_b.aspx'],
 				['txtStoreno_', 'btnStoreno_', 'store', 'noa,store', 'txtStoreno_,txtStore_', 'store_b.aspx'],
 				['txtStoreno2_', 'btnStoreno2_', 'store', 'noa,store', 'txtStoreno2_,txtStore2_', 'store_b.aspx'],
 				['txtRackno_', 'btnRackno_', 'rack', 'noa,rack,storeno,store', 'txtRackno_', 'rack_b.aspx'],
@@ -1762,7 +1762,7 @@
 						$('#combAddr').removeAttr('disabled');
 						$('#btnOrdes').removeAttr('disabled');
 						aPop = new Array(
-							['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp,txtNick,txtTel', 'cust_b.aspx'],
+							['txtCustno', 'lblCust_xy', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp,txtNick,txtTel', 'cust_b.aspx'],
 							['txtStoreno_', 'btnStoreno_', 'store', 'noa,store', 'txtStoreno_,txtStore_', 'store_b.aspx'],
 							['txtStoreno2_', 'btnStoreno2_', 'store', 'noa,store', 'txtStoreno2_,txtStore2_', 'store_b.aspx'],
 							['txtRackno_', 'btnRackno_', 'rack', 'noa,rack,storeno,store', 'txtRackno_', 'rack_b.aspx'],
@@ -2178,7 +2178,7 @@
 						<td align="center" style="width:5%"><a id='vewType'> </a></td>
 						<td align="center" style="width:25%"><a id='vewDatea'> </a></td>
 						<td align="center" style="width:25%"><a id='vewNoa'> </a></td>
-						<td align="center" style="width:40%"><a id='vewComp'> </a></td>
+						<td align="center" style="width:40%"><a id='vewNick_xy'>客戶簡稱</a></td>
 					</tr>
 					<tr>
 						<td><input id="chkBrow.*" type="checkbox" style=''/></td>
@@ -2219,11 +2219,11 @@
 						<td><input id="txtOrdeno" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
-						<td><span> </span><a id="lblCust" class="lbl btn"> </a></td>
+						<td><span> </span><a id="lblCust_xy" class="lbl btn">客戶簡稱</a></td>
 						<td><input id="txtCustno" type="text" class="txt c1"/></td>
 						<td>
-							<input id="txtComp" type="text" class="txt c1"/>
-							<input id="txtNick" type="hidden" class="txt c1"/>
+							<input id="txtComp" type="hidden" class="txt c1"/>
+							<input id="txtNick" type="text" class="txt c1"/>
 						</td>
 						<td><span> </span><a id='lblPay' class="lbl"> </a></td>
 						<td><input id="txtPaytype" type="text" class="txt c1"/></td>

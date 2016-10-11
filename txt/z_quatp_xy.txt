@@ -52,7 +52,7 @@ declare @tmp table(
 
 insert into @tmp 
 select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq)
-,a.noa,a.odate,a.datea,a.custno,a.comp,a.pay,c.invoicetitle
+,a.noa,a.odate,a.datea,a.custno,c.nick,a.pay,c.invoicetitle
 ,a.tel,a.fax,case when a.addr2!='' then a.addr2 else a.addr end
 ,a.memo2,e.conn,a.salesno,a.sales,d.mobile1
 ,b.productno,b.product,b.spec,b.classa,b.sizea

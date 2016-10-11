@@ -1771,7 +1771,7 @@
 						<td align="center" style="width:15%"><a id='vewOdate'> </a></td>
 						<td align="center" style="width:15%">有效日期</td>
 						<td align="center" style="width:20%"><a id='vewNoa'> </a></td>
-						<td align="center" style="width:30%"><a id='vewComp'> </a></td>
+						<td align="center" style="width:30%"><a id='vewNick_xy'>客戶簡稱</a></td>
 						<td align="center" style="width:8%"><a id='vewGweight'>成交</a></td>
 						<td align="center" style="width:8%" class="bonus"><a id='vewEweight'>獎金</a></td>
 					</tr>
@@ -1780,7 +1780,7 @@
 						<td align="center" id='odate'>~odate</td>
 						<td align="center" id='datea'>~datea</td>
 						<td align="center" id='noa'>~noa</td>
-						<td align="center" id='comp' style="text-align: left;">~comp</td>
+						<td align="center" id='nick' style="text-align: left;">~nick</td>
 						<td align="center" id='gweight'>~gweight</td>
 						<td align="center" id='eweight' class="bonus">~eweight</td>
 					</tr>

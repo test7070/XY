@@ -2340,7 +2340,7 @@
 					as['datea'] = abbm2['datea'];
 
 				as['custno'] = abbm2['custno'];
-				as['comp'] = abbm2['comp'];
+				as['comp'] = abbm2['nick'];
 
 				if (!as['enda'])
 					as['enda'] = 'N';
@@ -3287,7 +3287,7 @@
 						<td align="center" style="width:5%"><a id='vewChk'> </a></td>
 						<td align="center" style="width:25%"><a id='vewDatea'> </a></td>
 						<td align="center" style="width:25%"><a id='vewNoa'> </a></td>
-						<td align="center" style="width:40%"><a id='vewComp'> </a></td>
+						<td align="center" style="width:40%"><a id='vewNick_xy'>客戶簡稱</a></td>
 					</tr>
 					<tr>
 						<td><input id="chkBrow.*" type="checkbox" style=''/></td>

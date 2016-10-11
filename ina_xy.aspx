@@ -32,7 +32,7 @@
 				//['txtPost', 'lblPost', 'addr', 'post,addr', 'txtPost', 'addr_b.aspx'],
 				['txtPost', 'lblPost', 'addr2', 'noa,post', 'txtPost,txtAddr', 'addr2_b.aspx'],
 				['txtStoreno', 'lblStore', 'store', 'noa,store', 'txtStoreno,txtStore', 'store_b.aspx'],
-				['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtComp', 'tgg_b.aspx'],
+				['txtTggno', 'lblTgg_xy', 'tgg', 'noa,nick', 'txtTggno,txtComp', 'tgg_b.aspx'],
 				['txtCardealno', 'lblCardeal', 'cardeal', 'noa,comp', 'txtCardealno,txtCardeal', 'cardeal_b.aspx'],
 				['txtProductno_', 'btnProductno_', 'ucc_xy', 'noa,product,spec,unit', 'txtProductno_,txtProduct_,txtSpec_,txtUnit_', 'ucaucc_b.aspx']
 			);
@@ -471,7 +471,7 @@
 					<tr>
 						<td align="center" style="width:5%"><a id='vewChk'> </a></td>
 						<td align="center" style="width:20%"><a id='vewDatea'> </a></td>
-						<td align="center" style="width:25%"><a id='vewTgg'> </a></td>
+						<td align="center" style="width:25%"><a id='vewTgg_xy'>廠商簡稱</a></td>
 					</tr>
 					<tr>
 						<td><input id="chkBrow.*" type="checkbox" style=' '/></td>
@@ -491,7 +491,7 @@
 						<td class="td4"><input id="txtNoa" type="text" class="txt c1"/></td>
 					</tr>
 					<tr class="tr4">
-						<td class='td1'><span> </span><a id="lblTgg" class="lbl btn"> </a></td>
+						<td class='td1'><span> </span><a id="lblTgg_xy" class="lbl btn">廠商簡稱</a></td>
 						<td class="td2" colspan="3">
 							<input id="txtTggno" type="text" class="txt c2"/>
 							<input id="txtComp" type="text" class="txt c3"/>
@@ -559,7 +559,7 @@
 					<td align="center" style="width:9%;"><a id='lblPrice_s'> </a></td>
 					<td align="center" style="width:10%;"><a id='lblTotal_s'> </a></td>
 					<td align="center"><a id='lblMemo_st'> </a></td>
-					<td align="center" style="width:10%;"><a id='lblCust_s'>客戶</a></td>
+					<td align="center" style="width:10%;"><a id='lblCust_s'>客戶簡稱</a></td>
 					<td align="center" style="width:10%;"><a id='lblRc2no_s'>製令單號</a></td>
 				</tr>
 				<tr style='background:#cad3ff;'>

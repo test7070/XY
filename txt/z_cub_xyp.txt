@@ -97,9 +97,11 @@ z_cub_xyp1:--z_cub_xyp1
 	)
 	
 	insert into @result
-	select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0,a.noa,b.noq,a.datea,a.bdate,a.ordeno+case when len(a.no2)>0 then '_'+a.no2 else '' end,a.custno,a.comp
+	select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0,a.noa,b.noq,a.datea,a.bdate,a.ordeno+case when len(a.no2)>0 then '_'+a.no2 else '' end
+	,a.custno,isnull((select nick from cust where noa=a.custno),'')
 	,a.productno,a.product,a.spec,a.memo,a.mount,a.unit
-	,b.tggno,b.tgg,b.processno,b.process,b.mount,b.unit,b.need,b.memo,'',''
+	,b.tggno,isnull((select nick from tgg where noa=b.tggno),'')
+	,b.processno,b.process,b.mount,b.unit,b.need,b.memo,'',''
 	from view_cub a left join view_cubs b on a.noa=b.noa
 	where a.noa between @t_bxnoa and @t_exnoa
 	
@@ -204,7 +206,9 @@ declare @result table(
 )
 insert @result
 select '0',a.bdate,a.datea,a.productno,a.product,a.spec,a.unit,a.mount,a.c1,a.notv
-	   ,b.tggno,b.tgg,a.custno,a.comp,a.noa,a.ordeno,a.no2,isnull(a.enda,0)
+	   ,b.tggno,isnull((select nick from tgg where noa=b.tggno),'')
+	   ,a.custno,isnull((select nick from cust where noa=a.custno),'')
+	   ,a.noa,a.ordeno,a.no2,isnull(a.enda,0)
 from view_cub a  outer apply (select top 1 * from view_cubs where noa=a.noa order by noq desc)b
 where a.bdate between @t_bdate and @t_edate 
 and a.productno between @t_bpno and @t_epno

@@ -27,7 +27,7 @@ declare @tmp table(
 
 insert @tmp 
 select '0',a.storeno2,MAX(replace(b.store,'~#$',char(39))),a.productno
-,MAX(case when isnull(c.product,'')!='' then c.product else a.productno end ) product
+,MAX(case when isnull(c.product,'')!='' then c.style+' '+c.product else a.productno end ) product
 ,MAX(case when isnull(c.spec,'')!='' then c.spec else a.spec end) spec 
 ,sum(case when a.typea='2' then -1 else 1 end* isnull(tranmoney2,0))-sum(case when a.typea='2' then -1 else 1 end*isnull(tranmoney3,0)) stkmount 
 from view_vccs a left join store b on a.storeno2=b.noa 
@@ -124,7 +124,7 @@ create table #tmpa(
 
 insert #tmpa
 select * from (
-	select a.accy,a.datea,'1' typea,isnull(b.storeno2,'') storeno,replace(c.store,'~#$',char(39)) store,a.custno custno,a.comp comp,b.productno,d.product,a.noa,b.noq
+	select a.accy,a.datea,'1' typea,isnull(b.storeno2,'') storeno,replace(c.store,'~#$',char(39)) store,a.custno custno,a.nick comp,b.productno,d.product,a.noa,b.noq
 	,(case when a.typea='2' then -1 else 1 end)*tranmoney2 tranmoney2
 	from view_vcc a left join view_vccs b on a.noa=b.noa 
 	left join store c on b.storeno2=c.noa
@@ -144,15 +144,32 @@ select * from (
 )tmp 
 order by storeno,productno,datea,custno,typea
 
-insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,mount,stkmount,ostkmount)
-select '0',MAX(idno),0,'','','期初',storeno,MAX(stores),'','',productno,MAX(products),'',0,0,0
-from #tmpa where datea<@t_bdate
-group by storeno,productno
-
-insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,noq,mount,stkmount,ostkmount)
-select '0',idno,ROW_NUMBER() over (partition by storeno,productno order by storeno,productno,typea,custno,datea,vccno,noq)
-,accy,datea,case when typea='1' then '寄庫' else '庫出' end,storeno,stores,custno,comp,productno,products,vccno,noq,mount,0,0
-from #tmpa where datea between @t_bdate and @t_edate
+if(@t_last='0')
+begin
+	insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,mount,stkmount,ostkmount)
+	select '0',MAX(idno),0,'','','期初',storeno,MAX(stores),'','',productno,MAX(products),'',0,0,0
+	from #tmpa where datea<@t_bdate
+	group by storeno,productno
+	
+	insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,noq,mount,stkmount,ostkmount)
+	select '0',idno,ROW_NUMBER() over (partition by storeno,productno order by storeno,productno,typea,custno,datea,vccno,noq)
+	,accy,datea,case when typea='1' then '寄庫' else '庫出' end,storeno,stores,custno,comp,productno,products,vccno,noq,mount,0,0
+	from #tmpa where datea between @t_bdate and @t_edate
+end
+else
+begin
+	insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,mount,stkmount,ostkmount)
+	select '0',isnull(b.idno,1)-1,0,'','','期初',storeno,MAX(stores),'','',productno,MAX(products),'',0,0,0
+	from #tmpa a
+	outer apply (select top 1 idno from #tmpa where typea='1' and storeno=a.storeno and productno=a.productno order by idno desc)b
+	group by a.storeno,a.productno,b.idno
+		
+	insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,noq,mount,stkmount,ostkmount)
+	select '0',a.idno,ROW_NUMBER() over (partition by storeno,productno order by storeno,productno,typea,custno,datea,vccno,noq)
+	,accy,datea,case when typea='1' then '寄庫' else '庫出' end,storeno,stores,custno,comp,productno,products,vccno,noq,mount,0,0
+	from #tmpa a outer apply (select top 1 idno from #tmp where storeno=a.storeno and productno=a.productno and typea='期初')b
+	where a.idno>b.idno
+end
 
 declare @idno int
 declare @storeno nvarchar(MAX)

@@ -19,6 +19,20 @@
                 _q_boxClose();
                 q_getId();
                 q_gf('', 'z_ordep_xy');
+                
+                $('#q_report').click(function(e) {
+                	if($('#q_report').data().info.reportData[$('#q_report').data().info.radioIndex].report=='z_ordepxy1'
+					&& (!emp($('#txtXnoa1').val()) || !emp($('#txtXnoa2').val()))){
+						$('#txtXdate1').val('');
+						$('#txtXdate2').val('');
+					}
+					
+					if($('#q_report').data().info.reportData[$('#q_report').data().info.radioIndex].report=='z_ordepxy2'
+					&& emp($('#txtXdate1').val()) && emp($('#txtXdate2').val())){
+						$('#txtXdate1').val(q_date());
+						$('#txtXdate2').val(q_date());
+					}
+				});
             });
             function q_gfPost() {
                 $('#q_report').q_report({
@@ -46,34 +60,12 @@
                 $('#txtXdate1').datepicker();
                 $('#txtXdate2').mask(r_picd);
                 $('#txtXdate2').datepicker();
-                $('#txtXdate1').val(q_date());
-                $('#txtXdate2').val(q_date());
+                //$('#txtXdate1').val(q_date());
+                //$('#txtXdate2').val(q_date());
                 
                 $('#txtXdate1').change(function() {
                 	$('#txtXdate2').val($('#txtXdate1').val());
 				});
-                
-                /*var t_date, t_year, t_month, t_day;
-				t_date = new Date();
-				t_date.setDate(1);
-				t_year = t_date.getUTCFullYear() - 1911;
-				t_year = t_year > 99 ? t_year + '' : '0' + t_year;
-				t_month = t_date.getUTCMonth() + 1;
-				t_month = t_month > 9 ? t_month + '' : '0' + t_month;
-				t_day = t_date.getUTCDate();
-				t_day = t_day > 9 ? t_day + '' : '0' + t_day;
-				$('#txtXdate1').val(t_year + '/' + t_month + '/' + t_day);
-
-				t_date = new Date();
-				t_date.setDate(35);
-				t_date.setDate(0);
-				t_year = t_date.getUTCFullYear() - 1911;
-				t_year = t_year > 99 ? t_year + '' : '0' + t_year;
-				t_month = t_date.getUTCMonth() + 1;
-				t_month = t_month > 9 ? t_month + '' : '0' + t_month;
-				t_day = t_date.getUTCDate();
-				t_day = t_day > 9 ? t_day + '' : '0' + t_day;
-				$('#txtXdate2').val(t_year + '/' + t_month + '/' + t_day);*/
                 
                 var t_key = q_getHref();
                 if(t_key[1] != undefined){

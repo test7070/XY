@@ -46,9 +46,9 @@
                 q_popAssign();
                 q_getFormat();
                 q_langShow();
-                $('#txtXdate1').mask('999/99/99');
+                $('#txtXdate1').mask(r_picd);
                 $('#txtXdate1').datepicker();
-                $('#txtXdate2').mask('999/99/99');
+                $('#txtXdate2').mask(r_picd);
                 $('#txtXdate2').datepicker();
                 
                 $('#Showmemo').css('width','300px');

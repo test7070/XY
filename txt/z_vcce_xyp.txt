@@ -36,8 +36,6 @@ declare @tmp table(
 	product nvarchar(MAX),
 	spec nvarchar(MAX),
 	unit nvarchar(50),
-	lengthb float,
-	lengthc float,
 	mount float,
 	vtotal float,--收現金額 --依據未收金額去判斷是否要收費
 	ecount float,--未收金額 前端會依據出貨單的付款條件是否是收現和貨到現金判斷是否有金額
@@ -46,11 +44,9 @@ declare @tmp table(
 )
 
 insert @tmp 
-select '0' gno,0,ROW_NUMBER() over (partition by a.datea,a.driverno  order by a.datea,a.driverno,a.noa,b.noq,b.ordeno,c.noq) recno
+select '0' gno,0,ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,a.noa,b.noq,b.ordeno,c.noq) recno
 ,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver,a.salesno,a.sales
 ,b.custno,d.nick,b.ordeno,c.noq,b.odate,c.productno,c.product,c.spec,c.unit
-,(case when c.typea='2' then -1 else 1 end)*c.lengthb
-,(case when c.typea='2' then -1 else 1 end)*c.lengthc
 ,(case when c.typea='2' then -1 else 1 end)*c.dime
 ,case when b.ecount!=0 then (case when c.typea='2' then -1 else 1 end)*c.total else 0 end vtotal,b.ecount,b.width,b.memo
 from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
@@ -60,14 +56,43 @@ and isnull(b.custno,'') between @t_bcust and @t_ecust
 and a.driverno between @t_bdriver and @t_edriver
 and (len(@t_carno)=0 or a.carno=@t_carno) 
 and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
+and c.noa is not null
+
+insert @tmp 
+select '0' gno,0,ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,a.noa,b.noq,b.ordeno,c.noq) recno
+,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver,a.salesno,a.sales
+,b.custno,b.comp,b.ordeno,c.noq,b.odate,c.productno,c.product,c.spec,c.unit
+,(case when c.typea='2' then -1 else 1 end)*c.mount
+,0 vtotal,b.ecount,b.width,b.memo
+from view_vcce a left join view_vcces b on a.noa=b.noa left join view_cngs c on b.ordeno=c.noa
+where a.datea between @t_bdate and @t_edate 
+and isnull(b.custno,'') between @t_bcust and @t_ecust
+and a.driverno between @t_bdriver and @t_edriver
+and (len(@t_carno)=0 or a.carno=@t_carno) 
+and isnull(c.mount,0)>0
+and c.noa is not null
+
+insert @tmp 
+select '0' gno,0,ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,a.noa,b.noq,b.ordeno,c.noq) recno
+,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver,a.salesno,a.sales
+,b.custno,b.comp,b.ordeno,c.noq,b.odate,c.productno,c.product,c.spec,c.unit
+,(case when c.typea='2' then -1 else 1 end)*c.mount
+,0 vtotal,b.ecount,b.width,b.memo
+from view_vcce a left join view_vcces b on a.noa=b.noa left join view_gets c on b.ordeno=c.noa
+where a.datea between @t_bdate and @t_edate 
+and isnull(b.custno,'') between @t_bcust and @t_ecust
+and a.driverno between @t_bdriver and @t_edriver
+and (len(@t_carno)=0 or a.carno=@t_carno) 
+and isnull(c.mount,0)>0
+and c.noa is not null
 
 update a
 set ecount=case when rr>1 then 0 else ecount end,comp=case when rr>1 then '' else comp end
 ,memo=case when rr>1 then memo else memo+(case when len(memo)>0 then '<BR>' else '' end)+case when len(vccnoa)>0 then vccnoa else '' end end
 from (select *,ROW_NUMBER() over (partition by vccnoa order by vccnoa,vccnoq)rr from @tmp) a
 
-insert @tmp (gno,datea,driverno,recno,lengthb,lengthc,ecount,product)
-select '0' gno,datea,driverno,MAX(recno)+1,sum(lengthb),sum(lengthc),sum(ecount),'總計收現金額'
+insert @tmp (gno,datea,driverno,recno,ecount,product)
+select '0' gno,datea,driverno,MAX(recno)+1,sum(ecount),'總計收現金額'
 from @tmp where gno='0' group by datea,driverno
 
 declare @datea nvarchar(50)
@@ -113,8 +138,6 @@ begin
 end
 
 select 
-dbo.getComma(lengthb,-1) lengthb,
-dbo.getComma(lengthc,-1) lengthc,
 dbo.getComma(mount,-1) mount,
 dbo.getComma(case when vtotal=0 then null else vtotal end,-1) vtotal,
 dbo.getComma(case when ecount=0 then null else ecount end,-1) ecount,
@@ -155,8 +178,6 @@ declare @tmp table(
 	product nvarchar(MAX),
 	spec nvarchar(MAX),
 	unit nvarchar(50),
-	lengthb float,
-	lengthc float,
 	mount float,
 	prodspec nvarchar(MAX)
 )
@@ -178,8 +199,6 @@ declare @tmpa table(
 	spec1 nvarchar(MAX),
 	prodspec1 nvarchar(100),
 	unit1 nvarchar(50),
-	lengthb1 float,
-	lengthc1 float,
 	mount1 float,
 	
 	rr2 int,
@@ -190,24 +209,64 @@ declare @tmpa table(
 	spec2 nvarchar(MAX),
 	prodspec2 nvarchar(100),
 	unit2 nvarchar(50),
-	lengthb2 float,
-	lengthc2 float,
 	mount2 float
 )
 
+--insert @tmp 
+--select ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,c.product,c.spec) recno,1 recno2
+--,a.datea,MAX(a.carno),a.driverno,MAX(a.driver)
+--,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,'',c.productno,c.product,c.spec,c.unit
+--,SUM(c.dime)
+--,dbo.charbr(c.product+' '+c.spec,25)
+--from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
+--where a.datea between @t_bdate and @t_edate 
+--and isnull(b.custno,'') between @t_bcust and @t_ecust
+--and a.driverno between @t_bdriver and @t_edriver
+--and (len(@t_carno)=0 or a.carno=@t_carno) and c.typea='1'
+--and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
+--and c.noa is not null
+--group by a.datea,a.driverno,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,c.productno,c.product,c.spec,c.unit
+
 insert @tmp 
-select ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,c.product,c.spec) recno,1 recno2
-,a.datea,MAX(a.carno),a.driverno,MAX(a.driver)
-,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,'',c.productno,c.product,c.spec,c.unit
-,sum(c.lengthb),sum(c.lengthc),SUM(c.dime)
-,dbo.charbr(c.product+' '+c.spec,25)
-from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
-where a.datea between @t_bdate and @t_edate 
-and isnull(b.custno,'') between @t_bcust and @t_ecust
-and a.driverno between @t_bdriver and @t_edriver
-and (len(@t_carno)=0 or a.carno=@t_carno) and c.typea='1'
-and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
-group by a.datea,a.driverno,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,c.productno,c.product,c.spec,c.unit
+select ROW_NUMBER() over (partition by datea,driverno order by datea,driverno,product,spec) recno,1 recno2
+,datea,MAX(carno),driverno,MAX(driver),custno,'' comp,productno,product,spec,unit,SUM(mount)
+,dbo.charbr(product+' '+spec,25)
+from (
+	select a.datea,a.carno,a.driverno,a.driver
+	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end custno,'' comp,c.productno,c.product,c.spec,c.unit
+	,c.dime mount
+	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
+	where a.datea between @t_bdate and @t_edate 
+	and isnull(b.custno,'') between @t_bcust and @t_ecust
+	and a.driverno between @t_bdriver and @t_edriver
+	and (len(@t_carno)=0 or a.carno=@t_carno) and c.typea='1'
+	and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
+	and c.noa is not null
+		
+	union all
+	select a.datea,a.carno,a.driverno,a.driver
+	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,'',c.productno,c.product,c.spec,c.unit
+	,c.mount
+	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_cngs c on b.ordeno=c.noa
+	where a.datea between @t_bdate and @t_edate 
+	and isnull(b.custno,'') between @t_bcust and @t_ecust
+	and a.driverno between @t_bdriver and @t_edriver
+	and (len(@t_carno)=0 or a.carno=@t_carno)
+	and isnull(c.mount,0)>0
+	and c.noa is not null
+	
+	union all
+	select a.datea,a.carno,a.driverno,a.driver
+	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,'',c.productno,c.product,c.spec,c.unit
+	,c.mount
+	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_gets c on b.ordeno=c.noa
+	where a.datea between @t_bdate and @t_edate 
+	and isnull(b.custno,'') between @t_bcust and @t_ecust
+	and a.driverno between @t_bdriver and @t_edriver
+	and (len(@t_carno)=0 or a.carno=@t_carno)
+	and isnull(c.mount,0)>0
+	and c.noa is not null
+)tmp group by datea,driverno,custno,productno,product,spec,unit
 
 declare @recno nvarchar(50)
 declare @recno2 nvarchar(50)
@@ -231,9 +290,9 @@ begin
 		
 		set @prodspec=SUBSTRING(@prodspec,CHARINDEX('<BR>',@prodspec)+4,LEN(@prodspec))
 	
-		insert @tmp(recno,recno2,datea,carno,driverno,driver,custno,comp,productno,product,spec,unit,mount,lengthb,lengthc,prodspec)
+		insert @tmp(recno,recno2,datea,carno,driverno,driver,custno,comp,productno,product,spec,unit,mount,prodspec)
 			
-		select @recno,@recno2+1,datea,carno,driverno,driver,custno,comp,productno,product,spec,null,null,null,null,@prodspec
+		select @recno,@recno2+1,datea,carno,driverno,driver,custno,comp,productno,product,spec,null,null,@prodspec
 		from @tmp where datea=@datea and driverno=@driverno and recno=@recno and recno2=@recno2
 	end
 
@@ -283,14 +342,14 @@ from @tmp a where custno!=''
 
 insert @tmpa
 select '0'gno,CEILING(cast(a.recno as float)/(@pagelien*2)),0 mpage,a.datea,a.carno,a.driverno,a.driver
-,a.recno,a.custno,a.comp,a.productno,a.product,a.spec,a.prodspec,a.unit,a.lengthb,a.lengthc,a.mount
-,a.recno+@pagelien,b.custno,b.comp,b.productno,b.product,b.spec,b.prodspec,b.unit,b.lengthb,b.lengthc,b.mount
+,a.recno,a.custno,a.comp,a.productno,a.product,a.spec,a.prodspec,a.unit,a.mount
+,a.recno+@pagelien,b.custno,b.comp,b.productno,b.product,b.spec,b.prodspec,b.unit,b.mount
 from @tmp a
 left join @tmp b on a.datea=b.datea and a.carno=b.carno and a.driverno=b.driverno and a.recno+@pagelien=b.recno
 where a.recno % (@pagelien*2)<=(@pagelien) and a.recno % (@pagelien*2)!=0
 group by a.datea,a.carno,a.driverno,a.driver
-,a.recno,a.custno,a.comp,a.productno,a.product,a.spec,a.prodspec,a.unit,a.lengthb,a.lengthc,a.mount
-,b.recno,b.custno,b.comp,b.productno,b.product,b.spec,b.prodspec,b.unit,b.lengthb,b.lengthc,b.mount
+,a.recno,a.custno,a.comp,a.productno,a.product,a.spec,a.prodspec,a.unit,a.mount
+,b.recno,b.custno,b.comp,b.productno,b.product,b.spec,b.prodspec,b.unit,b.mount
 
 update a
 set mpage=(select MAX(page) from @tmpa where datea=a.datea and driverno=a.driverno)
@@ -303,10 +362,6 @@ begin
 end
 
 select
-dbo.getComma(lengthb1,-1) lengthb1,
-dbo.getComma(lengthb2,-1) lengthb2,
-dbo.getComma(lengthc1,-1) lengthc1,
-dbo.getComma(lengthc2,-1) lengthc2, 
 dbo.getComma(mount1,-1) mount1,
 dbo.getComma(mount2,-1) mount2,
 * 

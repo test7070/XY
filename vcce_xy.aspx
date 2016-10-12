@@ -76,21 +76,42 @@
 					var t_edate = $('#txtEdate').val();
 					var t_cardealno = $('#txtCardealno').val();
 					
-					//var t_where = "left(memo,1)!='#' and exists (select noa from view_vccs where (isnull(mount,0)-isnull(tranmoney2,0)>0 or isnull(tranmoney3,0)>0) and not exists (select ordeno from view_vcces where isnull(enda,0)=1 and noa!='"+$('#txtNoa').val()+"' and ordeno=view_vccs.noa ) group by noa having noa=view_vcc.noa )";
-					var t_where = "left(memo,1)!='#' and exists (select noa from view_vccs where not exists (select ordeno from view_vcces where isnull(enda,0)=1 and noa!='"+$('#txtNoa').val()+"' and ordeno=view_vccs.noa ) group by noa having noa=view_vcc.noa )";
-					t_where+=" and not exists (select * from view_vcces where datea='"+$('#txtDatea').val()+"' and ordeno=view_vcc.noa) ";
-					if(t_cardealno.length>0)
-						t_where+=" and cardealno='"+t_cardealno+"'";
-					if(t_post.length>0)
-						t_where+=" and left((case when isnull(post2,'')!='' then post2 else post end),"+t_post.length+")='"+t_post+"'";
-					if(t_vccno.length>0)
-						t_where+=" and noa='"+t_vccno+"'";
+					var t_where = "left(memo,1)!='#' and exists (select noa from view_vccs where datea>='"+q_cdn(q_date(),-183)+"' and not exists (select ordeno from view_vcces where isnull(enda,0)=1 and noa!='"+$('#txtNoa').val()+"' and ordeno=view_vccs.noa ) group by noa having noa=a.noa )";
+					t_where+=" and not exists (select * from view_vcces where datea='"+$('#txtDatea').val()+"' and ordeno=a.noa) ";
+					
+					var t_where1="not exists (select * from view_vcces where ISNULL(enda,0)!=1 and ordeno=a.noa and noa!='"+$('#txtNoa').val()+"')";
+					t_where1+=" and not exists (select * from view_vcces where datea='"+$('#txtDatea').val()+"' and ordeno=a.noa)";
+
+					var t_where2="not exists (select * from view_vcces where ISNULL(enda,0)!=1 and ordeno=a.noa and noa!='"+$('#txtNoa').val()+"')";
+					t_where2+=" and not exists (select * from view_vcces where datea='"+$('#txtDatea').val()+"' and ordeno=a.noa)";
+					
+					if(t_cardealno.length>0){
+						t_where+=" and a.cardealno='"+t_cardealno+"'";
+						t_where1+=" and a.cardealno='"+t_cardealno+"'";
+						t_where2+=" and a.cardealno='"+t_cardealno+"'";
+					}
+					if(t_post.length>0){
+						t_where+=" and left((case when isnull(a.post2,'')!='' then a.post2 else a.post end),"+t_post.length+")='"+t_post+"'";
+						t_where1+=" and left(a.post,"+t_post.length+")='"+t_post+"'";
+						t_where2+=" and left(a.post,"+t_post.length+")='"+t_post+"'";
+					}
+					if(t_vccno.length>0){
+						t_where+=" and a.noa='"+t_vccno+"'";
+						t_where1+=" and a.noa='"+t_vccno+"'";
+						t_where2+=" and a.noa='"+t_vccno+"'";
+					}
 					if(t_edate==''){
 						t_edate='999/99/99'
 					}
-					t_where+=" and (datea between '"+t_bdate+"' and '"+t_edate+"')";
+					t_where+=" and (a.datea between '"+t_bdate+"' and '"+t_edate+"')";
+					t_where1+=" and (a.datea between '"+t_bdate+"' and '"+t_edate+"')";
+					t_where2+=" and (a.datea between '"+t_bdate+"' and '"+t_edate+"')";
 					
-					q_box("vcc_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'vcc', "95%", "95%", $('#btnVccimport').val());
+					t_where=t_where+'^^';
+					t_where1="where[1]=^^"+t_where1+"^^";
+					t_where2="where[2]=^^"+t_where2+"^^";
+					
+					q_box("vcce_import_xy_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+t_where1+t_where2+';', 'vcc', "95%", "95%", $('#btnVccimport').val());
 				});
 
 				$('#txtOrdeno').change(function() {
@@ -298,7 +319,13 @@
 	                    	/*滑鼠右鍵*/
 	                    	e.preventDefault();
 	                    	if($(this).val().length>0){
-	                    		q_box("vcc_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + r_accy, 'vcc_xy', "95%", "95%", '出貨單');
+	                    		if($(this).val().substr(0,1)=='X'){
+	                    			q_box("cng.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + r_accy, 'cng', "95%", "95%", '調撥單');
+	                    		}else if($(this).val().substr(0,1)=='G'){
+	                    			q_box("get.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + r_accy, 'get', "95%", "95%", '領料單');
+	                    		}else{
+	                    			q_box("vcc_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";noa='" + $(this).val() + "';" + r_accy, 'vcc_xy', "95%", "95%", '出貨單');
+	                    		}
 	                    	}
 	                   	}).change(function() {
 							t_IdSeq = -1;  /// 要先給  才能使用 q_bodyId()
@@ -306,31 +333,71 @@
 							b_seq = t_IdSeq;
 							
 							if(!emp($('#txtOrdeno_'+b_seq).val())){
-								var t_where = "where=^^ noa='" + $('#txtOrdeno_'+b_seq).val() + "' ^^";
-								q_gt('view_vcc', t_where, 0, 0, 0, "getvcc", r_accy,1);
-								var as = _q_appendData("view_vcc", "", true);
-								if (as[0] != undefined) {
-									$('#txtOrdeno_'+b_seq).val(as[0].noa);
-									$('#txtCustno_'+b_seq).val(as[0].custno);
-									$('#txtComp_'+b_seq).val(as[0].nick);
-									$('#txtOdate_'+b_seq).val(as[0].datea);
-									if(as[i].typea=='2'){
-										as[0].total=-1*dec(as[0].total);
-									}
-									if(!(as[0].paytype.indexOf('貨到收現')>-1 || as[0].paytype.indexOf('貨運代收')>-1))
+								if($('#txtOrdeno_'+b_seq).val().substr(0,1)=='X'){
+									var t_where = "where=^^ noa='" + $('#txtOrdeno_'+b_seq).val() + "' ^^";
+									q_gt('view_cng', t_where, 0, 0, 0, "getcng", r_accy,1);
+									var as = _q_appendData("view_cng", "", true);
+									if (as[0] != undefined) {
+										$('#txtOrdeno_'+b_seq).val(as[0].noa);
+										$('#txtCustno_'+b_seq).val(as[0].tggno);
+										$('#txtComp_'+b_seq).val(as[0].tgg);
+										$('#txtOdate_'+b_seq).val(as[0].datea);
 										$('#txtAdjweight_'+b_seq).val(0);
-									else
-										$('#txtAdjweight_'+b_seq).val(as[0].total);
-									$('#txtEcount_'+b_seq).val(as[0].unpay);
-									$('#txtSize_'+b_seq).val(as[0].paytype);
-									q_gt('custm', "where=^^noa ='"+as[0].custno+"' ^^", 0, 0, 0, "getcustm", r_accy,1);
-									var ass = _q_appendData("custm", "", true);
-									if (ass[0] != undefined) {
-										$('#txtClass_'+b_seq).val(ass[0].checkmemo);
+										$('#txtEcount_'+b_seq).val(0);
+										$('#txtSize_'+b_seq).val('');
+										$('#txtClass_'+b_seq).val('');
+									}else{
+										alert('無此調撥單!!');
+										$('#txtOrdeno_'+b_seq).val('');
+									}
+								}else if($('#txtOrdeno_'+b_seq).val().substr(0,1)=='G'){
+									var t_where = "where=^^ noa='" + $('#txtOrdeno_'+b_seq).val() + "' ^^";
+									q_gt('view_get', t_where, 0, 0, 0, "getget", r_accy,1);
+									var as = _q_appendData("view_get", "", true);
+									if (as[0] != undefined) {
+										$('#txtOrdeno_'+b_seq).val(as[0].noa);
+										$('#txtCustno_'+b_seq).val(as[0].custno);
+										$('#txtComp_'+b_seq).val(as[0].comp);
+										$('#txtOdate_'+b_seq).val(as[0].datea);
+										$('#txtAdjweight_'+b_seq).val(0);
+										$('#txtEcount_'+b_seq).val(0);
+										$('#txtSize_'+b_seq).val('');
+										q_gt('custm', "where=^^noa ='"+as[0].custno+"' ^^", 0, 0, 0, "getcustm", r_accy,1);
+										var ass = _q_appendData("custm", "", true);
+										if (ass[0] != undefined) {
+											$('#txtClass_'+b_seq).val(ass[0].checkmemo);
+										}
+									}else{
+										alert('無此領料單!!');
+										$('#txtOrdeno_'+b_seq).val('');
 									}
 								}else{
-									alert('無此出貨單!!');
-									$('#txtOrdeno_'+b_seq).val('');
+									var t_where = "where=^^ noa='" + $('#txtOrdeno_'+b_seq).val() + "' ^^";
+									q_gt('view_vcc', t_where, 0, 0, 0, "getvcc", r_accy,1);
+									var as = _q_appendData("view_vcc", "", true);
+									if (as[0] != undefined) {
+										$('#txtOrdeno_'+b_seq).val(as[0].noa);
+										$('#txtCustno_'+b_seq).val(as[0].custno);
+										$('#txtComp_'+b_seq).val(as[0].nick);
+										$('#txtOdate_'+b_seq).val(as[0].datea);
+										if(as[i].typea=='2'){
+											as[0].total=-1*dec(as[0].total);
+										}
+										if(!(as[0].paytype.indexOf('貨到收現')>-1 || as[0].paytype.indexOf('貨運代收')>-1))
+											$('#txtAdjweight_'+b_seq).val(0);
+										else
+											$('#txtAdjweight_'+b_seq).val(as[0].total);
+										$('#txtEcount_'+b_seq).val(as[0].unpay);
+										$('#txtSize_'+b_seq).val(as[0].paytype);
+										q_gt('custm', "where=^^noa ='"+as[0].custno+"' ^^", 0, 0, 0, "getcustm", r_accy,1);
+										var ass = _q_appendData("custm", "", true);
+										if (ass[0] != undefined) {
+											$('#txtClass_'+b_seq).val(ass[0].checkmemo);
+										}
+									}else{
+										alert('無此出貨單!!');
+										$('#txtOrdeno_'+b_seq).val('');
+									}
 								}
 							}
 						});

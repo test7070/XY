@@ -831,6 +831,7 @@
 			.dview {
 				float: left;
 				border-width: 0px;
+				width: 30%;
 			}
 			.tview {
 				border: 5px solid gray;

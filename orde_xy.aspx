@@ -1458,10 +1458,35 @@
 				}
 				
 				//出貨單數量0不存檔 104/09/10
+				//105/10/13 若訂購量小於最低訂購量時，不能存檔
+				var t_err = '';
 				for(var k=0;k<q_bbsCount;k++){
 					if(dec($('#txtMount_'+k).val())==0){
 						$('#btnMinus_'+k).click();
 					}
+					
+					var t_sizea=dec($('#txtSizea_'+k).val());
+					var t_m1=0;
+					var t_m3=0;
+					
+					$("#combZinc_"+k).children().each(function(){
+						if($('#txtZinc_'+k).val()==$(this).text()){
+							t_m1=$(this).val();
+						}
+						if($('#txtHard_'+k).val()==$(this).text()){
+							t_m3=$(this).val();
+						}
+					});
+					t_sizea=round(t_sizea*t_m1/t_m3,1);
+					
+					if(t_sizea>dec($('#txtLengthb_'+k).val())){
+						t_err=t_err+$('#txtProductno_'+k).val()+"客單數量低於最低訂購量\n"
+					}
+				}
+				
+				if (t_err.length > 0) {
+					alert(t_err);
+					return;
 				}
 				
 				t_err = '';

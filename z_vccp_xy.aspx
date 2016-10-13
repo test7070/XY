@@ -116,7 +116,7 @@
 				$('#btnWebPrint').hide();
 				
 				$('#btnWebPrint2').click(function() {
-					if($('#q_report').data('info').radioIndex==0){//先判斷是否可列印
+					if($('#q_report').data('info').radioIndex==0 || $('#q_report').data('info').radioIndex==1){//先判斷是否可列印
 						//20160115判斷隨貨發票是否存在 暫時拿掉
 						//q_gt('view_vcc', "where=^^ noa between '"+$('#txtXnoa1').val()+"' and '"+$('#txtXnoa2').val()+"' ^^", 0, 0, 0, "getcustno2");
 						

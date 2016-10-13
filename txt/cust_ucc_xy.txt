@@ -1623,11 +1623,21 @@ cubimport:--cubimport
 SET QUOTED_IDENTIFIER OFF
 declare @product nvarchar(100)=case when '#non'=[1] then '' else [1] end
 declare @spec nvarchar(100)=case when '#non'=[2] then '' else [2] end
+declare @size9 nvarchar(100)=case when '#non'=[3] then '' else [3] end
+declare @size13 nvarchar(100)=case when '#non'=[4] then '' else [4] end
+declare @size17 nvarchar(100)=case when '#non'=[5] then '' else [5] end
 
+set @product=replace(@product,'@$#','"')
 set @spec=replace(@spec,'@$#','"')
 
 select a.noa,a.productno,a.product,a.spec,a.unit,a.mount,a.mount-isnull(b.mount,0) emount
 ,a.ordeno,a.no2,a.custno,a.comp,a.memo,a.bdate,a.edate
+,a.mount*case when a.spec like '%9"%' then CAST(@size9 as float) 
+when a.spec like '%13"%' then CAST(@size13 as float)
+when a.spec like '%17"%' then CAST(@size17 as float) else 0 end ahours
+,(a.mount-isnull(b.mount,0))*case when a.spec like '%9"%' then CAST(@size9 as float) 
+when a.spec like '%13"%' then CAST(@size13 as float)
+when a.spec like '%17"%' then CAST(@size17 as float) else 0 end ehours
 from view_cub a outer apply (select SUM(mount)mount from view_cugs where workno=a.noa and isnull(issel,0)=1) b
 where isnull(a.enda,0)!=1 
 and isnull(a.cancel,0)!=1
@@ -1635,6 +1645,9 @@ and a.typea='製造部'
 and a.mount-isnull(b.mount,0)>0
 and (len(@product)=0 or a.product like '%'+@product+'%')
 and (len(@spec)=0 or a.spec like '%'+@spec+'%')
+and (1=0 or (CAST(@size9 as float)>0 and a.spec like '%9"%')
+or (CAST(@size13 as float)>0 and a.spec like '%13"%')
+or (CAST(@size17 as float)>0 and a.spec like '%17"%'))
 order by case when a.bdate='' then CHAR(255) else a.bdate end,a.noa
 ;
 -------------------------------------------------------------------------------------------------------------

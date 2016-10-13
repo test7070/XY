@@ -64,6 +64,9 @@
 			
 			var t_bdate='';
 			var t_edate='';
+			var t_9=0;
+			var t_13=0;
+			var t_17=0;
             function mainPost() {
             	if(r_len==4){                	
                 	$.datepicker.r_len=4;
@@ -74,6 +77,8 @@
                 bbsNum=[['txtMount',15,0,1],['txtHours',10,0,1]]
                 q_getFormat();
                 q_mask(bbmMask);
+                
+                q_cmbParse("combProcess", ',壓花輪,墨水,換版','s');
                 
                 $('#txtBdate').focusin(function() {
                 	t_bdate=$('#txtBdate').val();
@@ -103,13 +108,44 @@
                 
                 $('#btnCub').click(function() {
                 	if(q_cur==1 || q_cur==2){
-                		var t_product=emp($('#txtProduct').val())?'#non':$('#txtProduct').val();
-                		var t_spec=emp($('#txtSpec').val())?'#non':$('#txtSpec').val();
-                		
-                		t_spec=replaceAll(t_spec,'"','@$#');
-                		
-                		var t_paras = t_product+';'+t_spec;
-						q_func('qtxt.query.cubimport', 'cust_ucc_xy.txt,cubimport,' + t_paras);
+                		if(emp($('#txtStationno').val())){
+                			alert('請輸入機台!!');
+                			return;
+                		}
+                		q_gt('mech', "where=^^noa='" +$('#txtStationno').val() + "'^^", 0, 0, 0, "getmech",r_accy,1);
+                		var as = _q_appendData("mech", "", true);
+						if (as[0] != undefined) {
+							t_9=dec(as[0].gen);
+							t_13=dec(as[0].dime1);
+							t_17=dec(as[0].dime2);
+							
+							var c_9=dec(as[0].gen);
+							var c_13=dec(as[0].dime1);
+							var c_17=dec(as[0].dime2);
+							
+	                		var t_product=emp($('#txtProduct').val())?'#non':$('#txtProduct').val();
+	                		var t_spec=emp($('#txtSpec').val())?'#non':$('#txtSpec').val();
+	                		var t_size=$.trim($('#cmbSize').val());
+	                		if(t_size.length>0){
+	                			if(t_size=='9"'){
+	                				c_13=0;
+	                				c_17=0;
+	                			}else if(t_size=='13"'){
+	                				c_9=0;
+	                				c_17=0;
+	                			}else if(t_size=='17"'){
+	                				c_9=0;
+	                				c_13=0;
+	                			}
+	                		}
+	                		
+	                		t_spec=replaceAll(t_spec,'"','@$#');
+	                		
+	                		var t_paras = t_product+';'+t_spec+';'+c_9+';'+c_13+';'+c_17;
+							q_func('qtxt.query.cubimport', 'cust_ucc_xy.txt,cubimport,' + t_paras);
+						}else{
+							alert('機台不存在!!');
+						}
 					}
 				});
                 
@@ -204,6 +240,7 @@
                 $('#txtKdate').val(q_date());
                 $('#txtBdate').val(q_date());
                 $('#txtEdate').val(padL(new Date().getHours(), '0', 2)+':'+padL(new Date().getMinutes(),'0',2));
+                changecmbSize();
             }
 
             function btnModi() {
@@ -211,6 +248,7 @@
                     return;
                 _btnModi();
                 endashow();
+                changecmbSize();
             }
 
             function btnPrint() {
@@ -239,6 +277,20 @@
                 for (var i = 0; i < q_bbsCount; i++) {
                 	$('#lblNo_' + i).text(i + 1);
                     if (!$('#btnMinus_' + i).hasClass('isAssign')) {
+                    	$('#combProcess_'+i).change(function() {
+                    		t_IdSeq = -1;
+							q_bodyId($(this).attr('id'));
+							b_seq = t_IdSeq;
+							
+							if(q_cur==1 || q_cur==2){
+								var t_process=$(this).val();
+								
+	                    		$('#btnMinus_'+b_seq).click();
+	                    		$('#combProcess_'+b_seq)[0].selectedIndex=0;
+	                    		$('#txtWorkno_'+b_seq).val(t_process);
+                    		}
+						});
+                    	
 						$('#btnPlus_' + i).mousedown(function(e) {
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
@@ -291,6 +343,25 @@
 		                		}
 		                	}
 		                });
+		                
+		                $('#txtMount_'+i).change(function() {
+		                	t_IdSeq = -1;
+							q_bodyId($(this).attr('id'));
+							b_seq = t_IdSeq;
+							var t_spec=$('#txtSpec_'+b_seq).val();
+							var mount=$('#txtMount_'+b_seq).val();
+							var t_gen=0;
+							if(t_spec.indexOf('9"')>-1){
+								t_gen=t_9;
+							}else if(t_spec.indexOf('13"')>-1){
+								t_gen=t_13;
+							}else if(t_spec.indexOf('17"')>-1){
+								t_gen=t_17;
+							}
+							$('#txtHours_'+b_seq).val(round(mount*t_gen,0));
+							
+							changeetime(b_seq);
+						});
 		                
 		                $('#txtHours_'+i).change(function() {
 		                	t_IdSeq = -1;
@@ -442,7 +513,37 @@
                 endashow();
             }
             
-		   function q_funcPost(t_func, result) {
+            function q_popPost(s1) {
+			   	switch (s1) {
+					case 'txtStationno':
+						changecmbSize();
+						break;
+			   	}
+			}
+			
+			function changecmbSize() {
+				$('#cmbSize').text('');
+				if(!emp($('#txtStationno').val())){
+					q_gt('mech', "where=^^noa='" +$('#txtStationno').val() + "'^^", 0, 0, 0, "getmech",r_accy,1);
+                	var as = _q_appendData("mech", "", true);
+					if (as[0] != undefined) {
+						t_9=dec(as[0].gen);
+						t_13=dec(as[0].dime1);
+						t_17=dec(as[0].dime2);
+						var t_size='@全部';
+						if(t_9!=0)
+							t_size=t_size+',9"';
+						if(t_13!=0)
+							t_size=t_size+',13"';
+						if(t_17!=0)
+							t_size=t_size+',17"';
+						
+						q_cmbParse("cmbSize", t_size);
+					}
+				}
+			}
+            
+			function q_funcPost(t_func, result) {
                 switch(t_func) {
                 	case 'qtxt.query.cubimport':
                 		var as = _q_appendData("tmp0", "", true, true);
@@ -458,7 +559,7 @@
 								}
 							}
                 			
-                			q_gridAddRow(bbsHtm, 'tbbs', 'txtWorkno,txtProductno,txtProduct,txtSpec,txtStyle,txtMount', as.length, as, 'noa,productno,product,spec,unit,emount', 'txtWorkno');
+                			q_gridAddRow(bbsHtm, 'tbbs', 'txtWorkno,txtProductno,txtProduct,txtSpec,txtStyle,txtMount,txtHours', as.length, as, 'noa,productno,product,spec,unit,emount,ehours', 'txtWorkno');
                 			
                 			
 		                	if(!emp($('#txtBdate').val()) && !emp($('#txtEdate').val())
@@ -779,7 +880,10 @@
 					</tr>
 					<tr>
 						<td><span> </span><a id='lblProduct_xy' class="lbl">品名篩選</a></td>
-						<td><input id="txtProduct"  type="text" class="txt c1"/></td>
+						<td>
+							<input id="txtProduct"  type="text" class="txt c1" style="width: 50%;" />
+							<select id="cmbSize" style="font-size: medium;width: 40%;"> </select>
+						</td>
 						<td><span> </span><a id='lblSpec_xy' class="lbl">規格篩選</a></td>
 						<td><input id="txtSpec"  type="text" class="txt c1"/></td>
 					</tr>
@@ -832,7 +936,10 @@
 						<input id="txtNos.*" type="text" class="txt c1"/>
 						<input id="txtNoq.*" type="hidden" class="txt c1"/>
 					</td>
-					<td><input id="txtWorkno.*" type="text" class="txt c1"/></td>
+					<td>
+						<input id="txtWorkno.*" type="text" class="txt c1" style="width: 80%;"/>
+						<select id="combProcess.*" style="font-size: medium;width: 20px;"> </select>
+					</td>
 					<td><input id="txtProductno.*" type="text" class="txt c1"/></td>
 					<td><input id="txtProduct.*" type="text" class="txt c1"/></td>
 					<td><input id="txtSpec.*" type="text" class="txt c1"/></td>

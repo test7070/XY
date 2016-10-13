@@ -17,8 +17,8 @@
 			this.errorHandler = null;
 			q_tables = 't';
 			var q_name = "cub";
-			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano'];
-			var q_readonlys = ['txtDate2', 'txtOrdeno', 'txtNo2','txtMo','txtW01','txtEdate'];
+			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano','txtEdate'];
+			var q_readonlys = ['txtDate2', 'txtOrdeno', 'txtNo2','txtMo','txtW01'];
 			var q_readonlyt = [];
 			var bbmNum = [['txtMount',10,0,1],['txtNotv',10,0,1]];
 			var bbsNum = [];
@@ -837,6 +837,7 @@
 				border: 5px solid gray;
 				font-size: medium;
 				background-color: black;
+				width: 100%;
 			}
 			.tview tr {
 				height: 30px;
@@ -984,7 +985,7 @@
 						<td style="width:20px; color:black;"><a id='vewChk'> </a></td>
 						<td style="width:80px; color:black;"><a id='vewNoa'> </a></td>
 						<td style="width:80px; color:black;"><a id='vewDatea'> </a></td>
-						<td style="width:120px; color:black;"><a id='vewComp'>客戶簡稱</a></td>
+						<td style="color:black;"><a id='vewComp'>客戶簡稱</a></td>
 					</tr>
 					<tr>
 						<td><input id="chkBrow.*" type="checkbox" style=''/></td>

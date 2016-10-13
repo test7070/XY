@@ -1619,6 +1619,33 @@ end
 select * from view_cugs where noa=@noa;
 ;
 -------------------------------------------------------------------------------------------------------
+cugsup2cub:--cugsup2cub
+SET QUOTED_IDENTIFIER OFF
+declare @noa nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @workno nvarchar(50)
+declare @edate nvarchar(50)
+declare @accy nvarchar(50)
+
+declare cursor_table cursor for
+select a.workno,a.edate,b.accy 
+from (select workno,MAX(uindate) edate from view_cugs a where noa=@noa group by workno) a
+left join view_cub b on a.workno=b.noa 
+where b.noa is not null and isnull(a.edate,'')!=''
+open cursor_table
+fetch next from cursor_table
+into @workno,@edate,@accy
+while(@@FETCH_STATUS <> -1)
+begin
+		
+	EXEC("update cub"+@accy+" set edate='"+@edate+"' where noa='"+@workno+"'")
+		
+	fetch next from cursor_table
+	into @workno,@edate,@accy
+end
+close cursor_table
+deallocate cursor_table
+;
+-------------------------------------------------------------------------------------------------------
 cubimport:--cubimport
 SET QUOTED_IDENTIFIER OFF
 declare @product nvarchar(100)=case when '#non'=[1] then '' else [1] end

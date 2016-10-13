@@ -192,6 +192,11 @@
             function q_stPost() {
                 if (!(q_cur == 1 || q_cur == 2))
                     return false;
+                    
+				//更新cub的預估完工日
+				if(!emp($('#txtNoa').val()) && $('#txtNoa').val()!='AUTO'){
+					q_func('qtxt.query.cugsup2cub', 'cust_ucc_xy.txt,cugsup2cub,' + $('#txtNoa').val());
+				}
             }
 			
             function btnOk() {
@@ -390,7 +395,7 @@
 							b_seq = t_IdSeq;
 							if(!emp($('#txtNoa').val()) && !emp($('#txtNoq_'+b_seq).val())){
 								var t_worker=(q_date()+' '+padL(new Date().getHours(), '0', 2)+':'+padL(new Date().getMinutes(),'0',2)+':'+padL(new Date().getSeconds(),'0',2)+' '+r_name);
-								if (confirm('製令單【'+$('#txtWorkno_'+b_seq).val()+'】確定要完工?\nPS.之前未完工製令也會完工')){
+								if (confirm('製令單【'+$('#txtWorkno_'+b_seq).val()+'】確定要完工?\nPS.之前未完工製令也會強制完工')){
 									var t_paras = $('#txtNoa').val()+';'+$('#txtNoq_'+b_seq).val()+';'+t_worker;
 									q_func('qtxt.query.cugsenda', 'cust_ucc_xy.txt,cugsenda,' + t_paras);
 								}

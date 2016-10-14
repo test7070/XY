@@ -380,11 +380,13 @@
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
 							
-							for (var i = dec(b_seq); i < q_bbsCount; i++) {
-								changeetime(i);
-								if(i+1 < q_bbsCount){
-									$('#txtCuadate_'+(i+1)).val($('#txtUindate_'+i).val());
-									$('#txtOrgcuadate_'+(i+1)).val($('#txtOrguindate_'+i).val());
+							if(q_cur==1 || q_cur==2){
+								for (var i = dec(b_seq); i < q_bbsCount; i++) {
+									changeetime(i);
+									if(i+1 < q_bbsCount){
+										$('#txtCuadate_'+(i+1)).val($('#txtUindate_'+i).val());
+										$('#txtOrgcuadate_'+(i+1)).val($('#txtOrguindate_'+i).val());
+									}
 								}
 							}
 						});
@@ -455,9 +457,13 @@
 					if(q_cur==1 || q_cur==2){
 						$('#btnPlus_'+i).removeAttr('disabled');
 						$('#btnEnda_'+i).attr('disabled', 'disabled');
+						$('#combProcess_'+i).removeAttr('disabled');
+						$('#btnDowntime_'+i).removeAttr('disabled');
 					}else{
 						$('#btnPlus_'+i).attr('disabled', 'disabled');
 						$('#btnEnda_'+i).removeAttr('disabled');
+						$('#combProcess_'+i).attr('disabled', 'disabled');
+						$('#btnDowntime_'+i).attr('disabled', 'disabled');
 					}
 				}
 				endashow();

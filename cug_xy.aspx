@@ -383,7 +383,7 @@
 							if(q_cur==1 || q_cur==2){
 								for (var i = dec(b_seq); i < q_bbsCount; i++) {
 									changeetime(i);
-									if(i+1 < q_bbsCount){
+									if(i+1 < q_bbsCount && !emp($('#txtWorkno_'+(i+1)).val())){
 										$('#txtCuadate_'+(i+1)).val($('#txtUindate_'+i).val());
 										$('#txtOrgcuadate_'+(i+1)).val($('#txtOrguindate_'+i).val());
 									}

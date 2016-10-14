@@ -75,13 +75,15 @@
 				});
 								
 				$('#btnCub').click(function() {
-					var t_where = '';
-					t_where = " isnull(enda,0)!=1 and isnull(cancel,0)!=1";
-					if (!emp($('#txtOrdeno').val()))
-						t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0 ";
-					t_where = t_where;
-					
-					q_box("cub_xy_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'cub', "95%", "650px", $('#btnCub').val());
+					if(q_cur==1 || q_cur==2){
+						var t_where = '';
+						t_where = " isnull(enda,0)!=1 and isnull(cancel,0)!=1";
+						if (!emp($('#txtOrdeno').val()))
+							t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0 ";
+						t_where = t_where;
+						
+						q_box("cub_xy_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'cub', "95%", "650px", $('#btnCub').val());
+					}
 				});
 			}
 
@@ -277,6 +279,11 @@
 
 			function readonly(t_para, empty) {
 				_readonly(t_para, empty);
+				if(t_para){
+					$('#btnCub').attr('disabled', 'disabled');
+				}else{
+					$('#btnCub').removeAttr('disabled');
+				}
 			}
 
 			function btnMinus(id) {

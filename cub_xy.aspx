@@ -87,25 +87,27 @@
 				document.title='連續製令單'
 				
 				$('#btnOrdes').click(function() {
-					var t_custno = trim($('#txtCustno').val());
-					var t_noa = trim($('#txtNoa').val());
-					var t_where = '';
-					t_where = " isnull(a.enda,0)!=1 and isnull(a.cancel,0)!=1";
-					t_where += " and not exists(select * from view_cub where ordeno=a.noa and no2=a.no2 and a.noa!='"+t_noa+"') ";//已匯入 105/05/03
-					t_where += " and left(a.productno,2)!='##' and left(a.custno,2)!='##' ";//非正式編號
-					if (t_custno.length > 0) {
-						t_where += " and a.custno='"+t_custno+"'";
-						//只有印刷才會進來 印刷編號=客戶編號-流水號
-						//105/05/04 便品也要進來 空白版
-						//t_where += " and charindex('"+t_custno.substr(0,5)+"-',a.productno)=1 ";
-					} else{
-						//t_where += " and charindex('-',a.productno)>0 ";
+					if(q_cur==1 || q_cur==2){
+						var t_custno = trim($('#txtCustno').val());
+						var t_noa = trim($('#txtNoa').val());
+						var t_where = '';
+						t_where = " isnull(a.enda,0)!=1 and isnull(a.cancel,0)!=1";
+						t_where += " and not exists(select * from view_cub where ordeno=a.noa and no2=a.no2 and a.noa!='"+t_noa+"') ";//已匯入 105/05/03
+						t_where += " and left(a.productno,2)!='##' and left(a.custno,2)!='##' ";//非正式編號
+						if (t_custno.length > 0) {
+							t_where += " and a.custno='"+t_custno+"'";
+							//只有印刷才會進來 印刷編號=客戶編號-流水號
+							//105/05/04 便品也要進來 空白版
+							//t_where += " and charindex('"+t_custno.substr(0,5)+"-',a.productno)=1 ";
+						} else{
+							//t_where += " and charindex('-',a.productno)>0 ";
+						}
+						
+						if (!emp($('#txtOrdeno').val()))
+							t_where += " and charindex(a.noa,'" + $('#txtOrdeno').val() + "')>0 ";
+						t_where = t_where;
+						q_box("ordes_b_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes', "95%", "650px", q_getMsg('popOrde'));
 					}
-					
-					if (!emp($('#txtOrdeno').val()))
-						t_where += " and charindex(a.noa,'" + $('#txtOrdeno').val() + "')>0 ";
-					t_where = t_where;
-					q_box("ordes_b_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes', "95%", "650px", q_getMsg('popOrde'));
 				});
 				
 				$('#txtMo').change(function() {
@@ -548,6 +550,11 @@
 
 			function readonly(t_para, empty) {
 				_readonly(t_para, empty);
+				if(t_para){
+					$('#btnOrdes').attr('disabled', 'disabled');
+				}else{
+					$('#btnOrdes').removeAttr('disabled');
+				}
 			}
 
 			function btnMinus(id) {

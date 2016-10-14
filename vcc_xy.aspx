@@ -151,18 +151,20 @@
 				});
 				
 				$('#btnOrdes').click(function() {
-					var t_custno = trim($('#txtCustno').val());
-					var t_where = '';
-						//105/08/08
-						t_where = "isnull(a.enda,0)!=1 and isnull(a.cancel,0)!=1 and a.productno!='' and (a.mount-isnull(b.vccdime,0))>0"
-						t_where += " and exists (select * from view_orde where noa=a.noa and len(isnull(apv,''))>0 )";
-						if (t_custno.length>0)
-							t_where += " and (a.custno='"+t_custno+"')";
-						if (!emp($('#txtOrdeno').val()))
-							t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0";
-						t_where+=" order by case when isnull(a.datea,'')<='"+q_date()+"' and isnull(a.datea,'') !='' then 'A' else 'B' end+isnull(a.datea,''),a.noa,a.no2 -- "
-					
-					q_box("ordes_b2_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes_xy', "95%", "650px", q_getMsg('popOrde'));
+					if(q_cur==1 || q_cur==2){
+						var t_custno = trim($('#txtCustno').val());
+						var t_where = '';
+							//105/08/08
+							t_where = "isnull(a.enda,0)!=1 and isnull(a.cancel,0)!=1 and a.productno!='' and (a.mount-isnull(b.vccdime,0))>0"
+							t_where += " and exists (select * from view_orde where noa=a.noa and len(isnull(apv,''))>0 )";
+							if (t_custno.length>0)
+								t_where += " and (a.custno='"+t_custno+"')";
+							if (!emp($('#txtOrdeno').val()))
+								t_where += " and charindex(noa,'" + $('#txtOrdeno').val() + "')>0";
+							t_where+=" order by case when isnull(a.datea,'')<='"+q_date()+"' and isnull(a.datea,'') !='' then 'A' else 'B' end+isnull(a.datea,''),a.noa,a.no2 -- "
+						
+						q_box("ordes_b2_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ordes_xy', "95%", "650px", q_getMsg('popOrde'));
+					}
 				});
 				
 				$('#btnVccs').click(function() {
@@ -1723,9 +1725,11 @@
 				if (t_para) {
 					$('#combAddr').attr('disabled', 'disabled');
 					$('#btnGenvcca').removeAttr('disabled');
+					$('#btnOrdes').attr('disabled', 'disabled');
 				} else {
 					$('#combAddr').removeAttr('disabled');
 					$('#btnGenvcca').attr('disabled', 'disabled');
+					$('#btnOrdes').removeAttr('disabled');
 				}
 				//$('.bbsprice').attr('disabled', 'disabled');
 				//1050108 鎖住 //105/07/01 只開放給等級9以上改
@@ -2163,7 +2167,7 @@
 					<td style="background-color: #f8d463;width: 40px;" align="center">庫存單位</td>
 				</tr>
 				<tr id='store2_close'>
-					<td align="center" colspan='6'>
+					<td align="center" colspan='7'>
 						<input id="btnClose_div_store2" type="button" value="關閉視窗">
 					</td>
 				</tr>

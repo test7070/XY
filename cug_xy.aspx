@@ -442,30 +442,44 @@
             function refresh(recno) {
                 _refresh(recno);
                 endashow();
+                if(q_cur==1 || q_cur==2){
+                	for (var i = 0; i < q_bbsCount; i++) {
+                		$('#btnPlus_'+i).removeAttr('disabled');
+						$('#btnEnda_'+i).attr('disabled', 'disabled');
+						$('#combProcess_'+i).removeAttr('disabled');
+						$('#btnDowntime_'+i).removeAttr('disabled');
+                	}
+	            }else{
+	            	for (var i = 0; i < q_bbsCount; i++) {
+                		$('#btnPlus_'+i).attr('disabled', 'disabled');
+						$('#btnEnda_'+i).removeAttr('disabled');
+						$('#combProcess_'+i).attr('disabled', 'disabled');
+						$('#btnDowntime_'+i).attr('disabled', 'disabled');
+                	}
+	            }
             }
 
             function readonly(t_para, empty) {
                 _readonly(t_para, empty);
                 
                 if(t_para){
-	            	
-	            }else{
-	            	
-	            }
-	            
-				for (var i = 0; i < q_bbsCount; i++) {
-					if(q_cur==1 || q_cur==2){
-						$('#btnPlus_'+i).removeAttr('disabled');
-						$('#btnEnda_'+i).attr('disabled', 'disabled');
-						$('#combProcess_'+i).removeAttr('disabled');
-						$('#btnDowntime_'+i).removeAttr('disabled');
-					}else{
-						$('#btnPlus_'+i).attr('disabled', 'disabled');
+                	$('#btnCub').attr('disabled', 'disabled');
+                	for (var i = 0; i < q_bbsCount; i++) {
+                		$('#btnPlus_'+i).attr('disabled', 'disabled');
 						$('#btnEnda_'+i).removeAttr('disabled');
 						$('#combProcess_'+i).attr('disabled', 'disabled');
 						$('#btnDowntime_'+i).attr('disabled', 'disabled');
-					}
-				}
+                	}
+	            }else{
+	            	$('#btnCub').removeAttr('disabled');
+	            	for (var i = 0; i < q_bbsCount; i++) {
+                		$('#btnPlus_'+i).removeAttr('disabled');
+						$('#btnEnda_'+i).attr('disabled', 'disabled');
+						$('#combProcess_'+i).removeAttr('disabled');
+						$('#btnDowntime_'+i).removeAttr('disabled');
+                	}
+	            }
+	            
 				endashow();
             }
 

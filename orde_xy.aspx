@@ -3307,7 +3307,7 @@
 					<td style="background-color: #f8d463;width: 40px;" align="center">庫存單位</td>
 				</tr>
 				<tr id='store2_close'>
-					<td align="center" colspan='6'>
+					<td align="center" colspan='7'>
 						<input id="btnClose_div_store2" type="button" value="關閉視窗">
 					</td>
 				</tr>

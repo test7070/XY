@@ -210,7 +210,7 @@ select '3',noa,'001',CHAR(255),CHAR(255),custno,comp,post,addr,tel,serial,0,0,0
 ,0--,isnull((select SUM(money) from @umms where (len(@t_mon)=0 or mon=@t_mon) and (datea between @t_bdate and @t_edate) and custno=a.custno and CHARINDEX('折讓',acc2)=0),0) 
 ,0--,isnull((select SUM(money) from @umms where (len(@t_mon)=0 or mon=@t_mon) and (datea between @t_bdate and @t_edate) and custno=a.custno and CHARINDEX('折讓',acc2)>0),0) 
 ,0--,isnull((select SUM(money) from @umms where (len(@t_mon)=0 or mon=@t_mon) and (datea between @t_bdate and @t_edate) and custno=a.custno),0) 
-,unpay,unpay,0 from @tmp a 
+,isnull(unpay,0),isnull(unpay,0),0 from @tmp a 
 where not exists (select custno from @result where custno=a.custno ) 
 
 --未付 和 出貨筆數

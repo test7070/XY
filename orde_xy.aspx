@@ -1469,18 +1469,20 @@
 					var t_m1=0;
 					var t_m3=0;
 					
-					$("#combZinc_"+k).children().each(function(){
-						if($('#txtZinc_'+k).val()==$(this).text()){
-							t_m1=$(this).val();
+					if($('#cmbSource_'+k).val()=='0' || $('#cmbSource_'+k).val()=='1'){
+						$("#combZinc_"+k).children().each(function(){
+							if($('#txtZinc_'+k).val()==$(this).text()){
+								t_m1=$(this).val();
+							}
+							if($('#txtHard_'+k).val()==$(this).text()){
+								t_m3=$(this).val();
+							}
+						});
+						t_sizea=round(t_sizea*t_m1/t_m3,1);
+						
+						if(t_sizea>dec($('#txtLengthb_'+k).val())){
+							t_err=t_err+$('#txtProductno_'+k).val()+"客單數量低於最低訂購量\n"
 						}
-						if($('#txtHard_'+k).val()==$(this).text()){
-							t_m3=$(this).val();
-						}
-					});
-					t_sizea=round(t_sizea*t_m1/t_m3,1);
-					
-					if(t_sizea>dec($('#txtLengthb_'+k).val())){
-						t_err=t_err+$('#txtProductno_'+k).val()+"客單數量低於最低訂購量\n"
 					}
 				}
 				

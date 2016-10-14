@@ -62,7 +62,7 @@ insert @tmp
 select '0' gno,0,ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,a.noa,b.noq,b.ordeno,c.noq) recno
 ,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver,a.salesno,a.sales
 ,b.custno,b.comp,b.ordeno,c.noq,b.odate,c.productno,c.product,c.spec,c.unit
-,(case when c.typea='2' then -1 else 1 end)*c.mount
+,c.mount
 ,0 vtotal,b.ecount,b.width,b.memo
 from view_vcce a left join view_vcces b on a.noa=b.noa left join view_cngs c on b.ordeno=c.noa
 where a.datea between @t_bdate and @t_edate 
@@ -76,7 +76,7 @@ insert @tmp
 select '0' gno,0,ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,a.noa,b.noq,b.ordeno,c.noq) recno
 ,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver,a.salesno,a.sales
 ,b.custno,b.comp,b.ordeno,c.noq,b.odate,c.productno,c.product,c.spec,c.unit
-,(case when c.typea='2' then -1 else 1 end)*c.mount
+,c.mount
 ,0 vtotal,b.ecount,b.width,b.memo
 from view_vcce a left join view_vcces b on a.noa=b.noa left join view_gets c on b.ordeno=c.noa
 where a.datea between @t_bdate and @t_edate 

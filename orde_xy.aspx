@@ -155,7 +155,7 @@
 				q_cmbParse("combPaytype", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
-				q_cmbParse("combClassa",' ,便,印,新版舊版保留,新版舊版作廢,再版,改版,打樣','s');
+				q_cmbParse("combClassa",' ,便,印','s');
 				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@換貨','s');
 				q_cmbParse("cmbConform", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
 				q_cmbParse("cmbIndate", '當天@當天,之前@之前','s');

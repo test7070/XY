@@ -179,6 +179,10 @@ END
 	set kdate =isnull((select top 1 datea+' '+timea from drun where noa=a.noa and action='Insert' and (tablea='ucc' or tablea='uca') order by datea desc,timea desc),'')
 	from #tmp a
 	
+	update #tmp
+	set kdate=dbo.AD2ChineseEraName(left(kdate,10))+RIGHT(kdate,6)
+	where kdate!=''
+	
 	delete #tmp where kdate not between @t_bdate and @t_edate
 	
 	EXEC("update a set recno=RowNum

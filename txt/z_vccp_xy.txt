@@ -547,6 +547,7 @@ set @t_ecustno = case when '#non' = [9] then CHAR(255) else [9] end
 --*******************************************************************************************************
 declare @tmp table(
 	gno nvarchar(1),
+	recno int,
 	datea nvarchar(15),
 	custno nvarchar(90),
 	comp nvarchar(150),
@@ -556,22 +557,18 @@ declare @tmp table(
 	productno nvarchar(90),
 	products nvarchar(90),
 	spec nvarchar(90),
-	lengthb float,
-	lengthc float,
+	unit nvarchar(90),
 	mount float,
-	vlengthb float,
-	vlengthc float,
 	vmount float,
 	umount float,
 	bmemo nvarchar(MAX)
 )
 
 insert @tmp
-select '0',b.datea,a.custno,replace(a.nick,'~#$',char(39)),a.noa,a.memo
-,b.no2,b.productno,b.product,b.spec
-,b.lengthb,b.lengthc,b.mount
-,isnull(c.lengthb,0),isnull(c.lengthc,0),isnull(c.mount,0)
-,b.mount-isnull(c.mount,0),b.memo
+select '0',ROW_NUMBER() over (partition by a.noa order by a.noa,b.no2),b.datea,a.custno
+,replace(a.nick,'~#$',char(39)),a.noa,replace(a.memo,'chr(10)','<BR>')
+,b.no2,b.productno,b.product,b.spec,b.unit
+,b.mount,isnull(c.mount,0),b.mount-isnull(c.mount,0),replace(b.memo,'chr(10)','<BR>')
 from view_orde a left join view_ordes b on a.noa=b.noa
 outer apply (select sum(lengthb)lengthb,sum(lengthc)lengthc,sum(mount)mount from view_vccs where ordeno=a.noa and no2=b.no2 ) c
 where b.mount!=0
@@ -580,7 +577,8 @@ and ((b.datea between @t_bdate and @t_edate) or (b.mount-c.mount>0))
 and  (b.productno between @t_bpno and @t_epno)
 and  (a.custno between @t_bcustno and @t_ecustno)
 
-select * from @tmp order by datea,custno,ordeno,no2;
+select 'orde_xy?noa=$ordeno' qhref,case when recno>1 then '' else ordeno end ordeno,ordeno xordeno,* 
+from @tmp order by datea,custno,xordeno,no2;
 
 ------------------------------------------------------------------------------------------------------------------------
 z_vccp_xy4:--z_vccp_xy4

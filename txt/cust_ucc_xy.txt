@@ -1428,7 +1428,46 @@ set mount=case when xcount>0 then 0 else mount end
 ,total=case when xcount>0 then 0 else total end
 from @tmp a outer apply (select count(*)xcount from view_ordes where quatno=a.noa and no3=a.no3)b
 
-select * from @tmp order by noa,no3
+--放入conts
+declare @tmpa table(
+	noa nvarchar(30),
+	no3 nvarchar(10),
+	custno  nvarchar(50),
+	datea nvarchar(10),
+	odate nvarchar(10),
+	productno nvarchar(30),
+	product nvarchar(max),
+	spec nvarchar(max),
+	sizea nvarchar(max),
+	dime float,
+	class nvarchar(50),
+	classa nvarchar(50),
+	unit nvarchar(10),
+	uunit nvarchar(10),
+	ounit nvarchar(10),
+	price float,
+	mount float,
+	total float,
+	memo nvarchar(max)
+)
+insert @tmpa
+select a.noa,b.noq,a.custno,b.ucolor,a.datea,b.productno,b.product,b.spec,'' sizea,0 dime,100 class,b.class classa
+,b.unit,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'') uunit
+,isnull((select top 1 unit from view_ordes where noa=b.productno order by odate desc,noa desc),b.unit) ounit
+,b.price,b.mount-isnull(c.omount,0)mount,round((b.mount-isnull(c.omount,0))*b.price,0)total,a.contract memo
+from cont a left join conts b on a.noa=b.noa
+outer apply (select SUM(mount)omount from view_ordes where quatno=a.noa and no3=b.noq)c
+where a.datea<=@datea and b.ucolor>=@datea 
+and isnull(a.contract,'')!='' and a.kind='PO' and b.mount-isnull(c.omount,0)>0
+and a.custno=@custno and (len(@productno)=0 or b.productno=@productno)
+and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))
+order by a.datea,b.productno
+
+select * from @tmpa
+union all
+select * from @tmp a
+where not exists (select* from @tmpa where productno=a.productno)
+order by noa,no3
 ;
 ---------------------------------------------------------------------------------------------------------------------------------
 vccprintcount:--vccprintcount

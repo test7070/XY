@@ -158,6 +158,12 @@ begin
 	outer apply (select inmount m3 from pack2s where noa=a.productno and pack=a.hard)d
 	
 	update a
+	set memo=case when a.unit=c.pack then '' else case when FLOOR(a.mount*b.m1/c.m2)>0 then CAST(FLOOR(a.mount*b.m1/c.m2) as nvarchar(100))+c.pack else '' end
+	+case when a.mount-(FLOOR(a.mount*b.m1/c.m2)*c.m2)>0 then  CAST(a.mount-(FLOOR(a.mount*b.m1/c.m2)*c.m2) as nvarchar(100))+a.unit else '' end end
+	from #bbs a	outer apply (select inmount m1 from pack2s where noa=a.productno and pack=a.unit)b
+	outer apply (select top 1 inmount m2,pack from pack2s where noa=a.productno order by inmount desc)c
+	
+	update a
 	set total=round(mount*price,0),notv=mount
 	from #bbs a
 	

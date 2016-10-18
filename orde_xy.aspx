@@ -22,7 +22,7 @@
 			q_tables = 's';
 			var q_name = "orde";
 			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno','txtVccno','txtApv','textInvomemo','textConn'];
-			var q_readonlys = ['txtTotal', 'txtQuatno', 'txtNo2', 'txtNo3', 'txtC1', 'txtNotv','txtHard','txtLengthc','txtMount','txtUnit','txtPrice','txtZinc'];
+			var q_readonlys = ['txtTotal', 'txtQuatno', 'txtNo2', 'txtNo3', 'txtC1', 'txtNotv','txtHard','txtLengthc','txtMount','txtPrice','txtZinc'];
 			var bbmNum = [['txtTotal', 10, 0, 1], ['txtMoney', 10, 0, 1], ['txtTax', 10, 0, 1],['txtFloata', 10, 5, 1], ['txtTotalus', 15, 2, 1]];
 			var bbsNum = [];
 			var bbmMask = [];
@@ -254,8 +254,8 @@
 								q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtClassa,txtSpec,txtHard,txtLengthc,txtZinc,txtUnit,txtPrice,txtQuatno,txtNo3'
 								, as.length, as, 'productno,product,class,spec,unit,price,ounit,uunit,price,noa,noq', 'txtProductno,txtProduct,txtSpec');
 								
+								combzincchange('ALL');
 								for (var i = 0; i < q_bbsCount; i++) {
-									combzincchange(i);
 									unitchange(i);
 									pricecolor();
 								}
@@ -1457,7 +1457,7 @@
 				}
 				
 				//出貨單數量0不存檔 104/09/10
-				//105/10/13 若訂購量小於最低訂購量時，不能存檔
+				//105/10/13 若訂購量小於最低訂購量時，不能存檔 //105/10/18 提示 可以存檔
 				var t_err = '';
 				for(var k=0;k<q_bbsCount;k++){
 					if(dec($('#txtMount_'+k).val())==0){
@@ -1487,7 +1487,7 @@
 				
 				if (t_err.length > 0) {
 					alert(t_err);
-					return;
+					//return;
 				}
 				
 				t_err = '';
@@ -1810,11 +1810,22 @@
 									}
 								}
 							}
+							
+							if((q_cur==1 || q_cur==2) && ($('#cmbSource_'+b_seq).val()=='3' || $('#cmbSource_'+b_seq).val()=='4' || $('#cmbSource_'+b_seq).val()=='5')){
+								$('#txtUnit_'+b_seq).removeAttr('disabled');
+							}else{
+								$('#txtUnit_'+b_seq).attr('disabled', 'disabled');
+							}
+							
 							unitchange(b_seq);
 							sum();
 						});
 
 						$('#txtUnit_' + j).focusout(function() {
+							t_IdSeq = -1;
+							q_bodyId($(this).attr('id'));
+							b_seq = t_IdSeq;
+							unitchange(b_seq);
 							sum();
 						});
 						
@@ -2225,9 +2236,10 @@
 				HiddenTreat();
 				ShowDownlbl();
 				
-				for (var i = 0; i < q_bbsCount; i++) {
+				/*for (var i = 0; i < q_bbsCount; i++) {
 					combzincchange(i);
-				}
+				}*/
+				combzincchange('ALL');
 				
 				$('.yellow').css('background-color','yellow');
 				if (q_cur<1 && q_cur>2) {
@@ -2289,8 +2301,8 @@
 					
 				_btnModi();
 				
+				combzincchange('ALL');
 				for (var i = 0; i < q_bbsCount; i++) {
-					combzincchange(i);
 					unitchange(i);
 				}
 				pricecolor();
@@ -2503,21 +2515,21 @@
 				}*/
 				
 				for (var j = 0; j < q_bbsCount; j++) {
-					if(!emp($('#txtQuatno_'+j).val()) || !q_authRun(7)){
-						//$('#txtProductno_'+j).attr('disabled', 'disabled'); //1050127 開放修改 輸入相同產品 
-						//$('#btnProduct_'+j).attr('disabled', 'disabled');
-						$('#btnSpec_'+j).attr('disabled', 'disabled');
-						$('#txtProduct_'+j).attr('disabled', 'disabled');
-						$('#txtSpec_'+j).attr('disabled', 'disabled');
-						$('#txtClassa_'+j).attr('disabled', 'disabled');
-						$('#txtSizea_'+j).attr('disabled', 'disabled');
-						$('#txtDime_'+j).attr('disabled', 'disabled');
-						//$('#txtUnit_'+j).attr('disabled', 'disabled');
-						//$('#txtPrice_'+j).attr('disabled', 'disabled');
-						$('#combGroupbno_'+j).attr('disabled', 'disabled');
-						$('#combClassa_'+j).attr('disabled', 'disabled');
-					}else{
-						if(q_cur==1 || q_cur==2){
+					if(q_cur==1 || q_cur==2){
+						if(!emp($('#txtQuatno_'+j).val()) || !q_authRun(7)){
+							//$('#txtProductno_'+j).attr('disabled', 'disabled'); //1050127 開放修改 輸入相同產品 
+							//$('#btnProduct_'+j).attr('disabled', 'disabled');
+							$('#btnSpec_'+j).attr('disabled', 'disabled');
+							$('#txtProduct_'+j).attr('disabled', 'disabled');
+							$('#txtSpec_'+j).attr('disabled', 'disabled');
+							$('#txtClassa_'+j).attr('disabled', 'disabled');
+							$('#txtSizea_'+j).attr('disabled', 'disabled');
+							$('#txtDime_'+j).attr('disabled', 'disabled');
+							//$('#txtUnit_'+j).attr('disabled', 'disabled');
+							//$('#txtPrice_'+j).attr('disabled', 'disabled');
+							$('#combGroupbno_'+j).attr('disabled', 'disabled');
+							$('#combClassa_'+j).attr('disabled', 'disabled');
+						}else{
 							//$('#txtProductno_'+j).removeAttr('disabled');
 							//$('#btnProduct_'+j).removeAttr('disabled');
 							$('#btnSpec_'+j).removeAttr('disabled');
@@ -2530,16 +2542,16 @@
 							//$('#txtPrice_'+j).removeAttr('disabled');
 							$('#combGroupbno_'+j).removeAttr('disabled');
 							$('#combClassa_'+j).removeAttr('disabled');
-						}else{
-							$('#btnSpec_'+j).attr('disabled', 'disabled');
-							$('#txtProduct_'+j).attr('disabled', 'disabled');
-							$('#txtSpec_'+j).attr('disabled', 'disabled');
-							$('#txtClassa_'+j).attr('disabled', 'disabled');
-							$('#txtSizea_'+j).attr('disabled', 'disabled');
-							$('#txtDime_'+j).attr('disabled', 'disabled');
-							$('#combGroupbno_'+j).attr('disabled', 'disabled');
-							$('#combClassa_'+j).attr('disabled', 'disabled');
 						}
+					}else{
+						$('#btnSpec_'+j).attr('disabled', 'disabled');
+						$('#txtProduct_'+j).attr('disabled', 'disabled');
+						$('#txtSpec_'+j).attr('disabled', 'disabled');
+						$('#txtClassa_'+j).attr('disabled', 'disabled');
+						$('#txtSizea_'+j).attr('disabled', 'disabled');
+						$('#txtDime_'+j).attr('disabled', 'disabled');
+						$('#combGroupbno_'+j).attr('disabled', 'disabled');
+						$('#combClassa_'+j).attr('disabled', 'disabled');
 					}
 					
 					if(orde2vcc57 && q_cur==2 && r_rank<'8'){
@@ -2563,6 +2575,13 @@
 							//$('#txtDatea_'+j).attr('disabled', 'disabled');
 							$('#txtMemo_'+j).attr('disabled', 'disabled');
 						}
+					}
+					
+					//105/10/18 訂單 若為 公關 樣品 換貨 倉庫=換貨倉 且庫存單位可以修改
+					if((q_cur==1 || q_cur==2) && ($('#cmbSource_'+j).val()=='3' || $('#cmbSource_'+j).val()=='4' || $('#cmbSource_'+j).val()=='5')){
+						$('#txtUnit_'+j).removeAttr('disabled');
+					}else{
+						$('#txtUnit_'+j).attr('disabled', 'disabled');
 					}
 					
 					//copy_field();
@@ -2865,8 +2884,8 @@
 						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtSizea,txtDime,txtZinc,txtUnit,txtPrice,txtHard,txtLengthc,txtQuatno,txtNo3,txtClassa,txtClass'
 						, as.length, as, 'productno,product,spec,sizea,dime,ounit,uunit,price,unit,price,noa,no3,classa,class', 'txtProductno,txtProduct,txtSpec');
 						
+						combzincchange('ALL');
 						for (var i = 0; i < q_bbsCount; i++) {
-							combzincchange(i);
 							unitchange(i);
 						}
 						pricecolor();
@@ -3025,19 +3044,44 @@
 			
 			function combzincchange(i){
 				if(q_cur==1 || q_cur==2){
-					$('#combZinc_'+i).text('');
-					if(!emp($('#txtProductno_'+i).val())){
-						var t_where = "where=^^noa='"+$('#txtProductno_'+i).val()+"'^^";
-						var t_unit='';
-						q_gt('pack2s', t_where, 0, 0, 0, "getpack2s", r_accy, 1);
-						var as = _q_appendData("pack2s", "", true);
-						for(var j=0;j<as.length;j++){
-							if(as[j].pack.length>0 && t_unit.indexOf(as[j].pack)==-1){
-								t_unit=t_unit+(t_unit.length>0 && as[j].pack.length>0?',':'')+(as[j].inmount+'@'+as[j].pack);
+					if(i=='ALL'){
+						var t_where = "1=0";
+						for (var j = 0; j < q_bbsCount; j++) {
+							$('#combZinc_'+i).text('');
+							if(!emp($('#txtProductno_'+j).val())){
+								t_where=t_where+" or noa='"+$('#txtProductno_'+j).val()+"'";
 							}
 						}
-						if(t_unit.length>0)
-							q_cmbParse("combZinc_"+i,','+t_unit);
+						t_where="where=^^"+t_where+"^^";
+						q_gt('pack2s', t_where, 0, 0, 0, "getpack2s", r_accy, 1);
+						var as = _q_appendData("pack2s", "", true);
+						for (var j = 0; j < q_bbsCount; j++) {
+							if(!emp($('#txtProductno_'+j).val())){
+								var t_unit='';
+								for(var k=0;k<as.length;k++){
+									if($('#txtProductno_'+j).val()==as[k].noa && as[k].pack.length>0 && t_unit.indexOf(as[k].pack)==-1){
+										t_unit=t_unit+(t_unit.length>0 && as[k].pack.length>0?',':'')+(as[k].inmount+'@'+as[k].pack);
+									}
+								}
+								if(t_unit.length>0)
+									q_cmbParse("combZinc_"+j,','+t_unit);
+							}
+						}
+					}else{
+						$('#combZinc_'+i).text('');
+						if(!emp($('#txtProductno_'+i).val())){
+							var t_where = "where=^^noa='"+$('#txtProductno_'+i).val()+"'^^";
+							var t_unit='';
+							q_gt('pack2s', t_where, 0, 0, 0, "getpack2s", r_accy, 1);
+							var as = _q_appendData("pack2s", "", true);
+							for(var j=0;j<as.length;j++){
+								if(as[j].pack.length>0 && t_unit.indexOf(as[j].pack)==-1){
+									t_unit=t_unit+(t_unit.length>0 && as[j].pack.length>0?',':'')+(as[j].inmount+'@'+as[j].pack);
+								}
+							}
+							if(t_unit.length>0)
+								q_cmbParse("combZinc_"+i,','+t_unit);
+						}
 					}
 				}
 			}

@@ -1132,15 +1132,11 @@
 						$('#txtTranmoney3_'+i).val($('#txtDime_'+i).val());
 						$('#txtTranmoney2_'+i).val(0);
 						$('#txtWidth_'+i).val(0);
-					}else if($('#cmbItemno_'+i).val()=='3' || $('#cmbItemno_'+i).val()=='4'){//公關品 樣品
+					}else if($('#cmbItemno_'+i).val()=='3' || $('#cmbItemno_'+i).val()=='4' || $('#cmbItemno_'+i).val()=='5'){//公關品 樣品 補送
 						$('#txtWidth_'+i).val($('#txtDime_'+i).val());
 						$('#txtTranmoney3_'+i).val(0);
 						$('#txtTranmoney2_'+i).val(0);
 						$('#txtPrice_'+i).val(0);
-					}else if($('#cmbItemno_'+i).val()=='5'){//補送
-						$('#txtTranmoney2_'+i).val(0);
-						$('#txtTranmoney3_'+i).val(0);
-						$('#txtWidth_'+i).val(0);
 					}else{//出貨
 						$('#txtWidth_'+i).val($('#txtDime_'+i).val());
 						$('#txtTranmoney3_'+i).val(0);
@@ -1290,15 +1286,10 @@
 									$('#txtTranmoney2_'+b_seq).val(0);
 									$('#txtWidth_'+b_seq).val(0);
 									$('#txtPrice_'+b_seq).val(0);
-								}else if($('#cmbItemno_'+b_seq).val()=='3' || $('#cmbItemno_'+b_seq).val()=='4'){//公關品 樣品
+								}else if($('#cmbItemno_'+b_seq).val()=='3' || $('#cmbItemno_'+b_seq).val()=='4' || $('#cmbItemno_'+b_seq).val()=='5'){//公關品 樣品 補送
 									$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 									$('#txtTranmoney3_'+b_seq).val(0);
 									$('#txtTranmoney2_'+b_seq).val(0);
-									$('#txtPrice_'+b_seq).val(0);
-								}else if($('#cmbItemno_'+b_seq).val()=='5'){//補送
-									$('#txtTranmoney3_'+b_seq).val(0);
-									$('#txtTranmoney2_'+b_seq).val(0);
-									$('#txtWidth_'+b_seq).val(0);
 									$('#txtPrice_'+b_seq).val(0);
 								}else{//出貨
 									$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
@@ -1339,7 +1330,7 @@
 								$('#txtWidth_'+b_seq).val(0);
 								$('#txtPrice_'+b_seq).val(0);
 								$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
-							}else if($('#cmbItemno_'+b_seq).val()=='3' || $('#cmbItemno_'+b_seq).val()=='4'){//公關品樣品
+							}else if($('#cmbItemno_'+b_seq).val()=='3' || $('#cmbItemno_'+b_seq).val()=='4' || $('#cmbItemno_'+b_seq).val()=='5'){//公關品樣品補送
 								$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney3_'+b_seq).val(0);
 								$('#txtTranmoney2_'+b_seq).val(0);
@@ -1347,16 +1338,8 @@
 								$('#txtStoreno2_'+b_seq).val('');
 								$('#txtStore2_'+b_seq).val('');
 								if(emp($('#txtStoreno_'+b_seq).val()))
-									$('#txtStoreno_'+b_seq).val('A').change();
-							}else if($('#cmbItemno_'+b_seq).val()=='5'){//補送
-								$('#txtTranmoney3_'+b_seq).val(0);
-								$('#txtTranmoney2_'+b_seq).val(0);
-								$('#txtWidth_'+b_seq).val(0);
-								$('#txtPrice_'+b_seq).val(0);
-								$('#txtStoreno2_'+b_seq).val('');
-								$('#txtStore_'+b_seq).val('');
-								$('#txtStoreno_'+b_seq).val('');
-								$('#txtStore_'+b_seq).val('');
+									$('#txtStoreno_'+b_seq).val('HHC').change();
+								//105/10/18 若為 公關 樣品 換貨 倉庫=換貨倉
 							}else{//出貨
 								$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney3_'+b_seq).val(0);

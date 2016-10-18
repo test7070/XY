@@ -1461,6 +1461,7 @@ where a.datea<=@datea and b.ucolor>=@datea
 and isnull(a.contract,'')!='' and a.kind='PO' and b.mount-isnull(c.omount,0)>0
 and a.custno=@custno and (len(@productno)=0 or b.productno=@productno)
 and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))
+and isnull(b.ordeweight,0)=0 and isnull(b.enda,0)=0 and a.isnull(a.chka2,0)=0 and a.isnull(a.enda,0)=0
 order by a.datea,b.productno
 
 select * from @tmpa

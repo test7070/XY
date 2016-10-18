@@ -18,6 +18,7 @@
 			aPop = new Array(
 				['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,custno,comp', 'txtOrdeno,txtNo2', ''],
 				['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,invoicetitle,serial', 'txtCustno,txtComp', 'cust_b.aspx'],
+				['txtTggno', 'lblTgg', 'tgg', 'noa,comp,nick', 'txtTggno,txtTgg', 'tgg_b.aspx'],
 				['txtProductno', 'lblProduct', 'ucc', 'noa,product', 'txtProductno,txtProduct', 'ucc_b.aspx']
 			);
 			$(document).ready(function() {
@@ -49,6 +50,7 @@
                 var t_edate = $.trim($('#txtEdate').val());
 				var t_noa = $.trim($('#txtNoa').val());
 				var t_custno = $.trim($('#txtCustno').val());
+				var t_tggno = $.trim($('#txtTggno').val());
 				var t_pno = $.trim($('#txtProductno').val());
 				var t_product = $.trim($('#txtProduct').val());
 				var t_ordeno = $.trim($('#txtOrdeno').val());
@@ -68,6 +70,8 @@
 				if(t_enda=='N')
 					t_where += " and isnull(enda,0)=0 ";
 					
+				if(t_tggno.length>0)
+					t_where += " and exists (select * from view_cubs"+r_accy+" where tggno='"+t_tggno+"' and noa=view_cub"+r_accy+".noa) ";
 				if(t_product.length>0)
 					t_where += " and charindex('"+t_product+"',product)>0 ";
 				
@@ -111,7 +115,7 @@
 				</tr>
 				<tr class='seek_tr'>
 					<td class='seek' style="width:90px;"><a id='lblTypea'>類別</a></td>
-					<td><select id="cmbTypea" class="txt c1"> </select></td>
+					<td><select id="cmbTypea" class="txt c1" style="font-size:medium;"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td class='seek'  style="width:20%;"><a id='lblEnda'>結案</a></td>
@@ -123,6 +127,14 @@
 						<input class="txt" id="txtCustno" type="text" style="width:90px;" />
 						&nbsp;
 						<input class="txt readonly" id="txtComp" type="text" style="width:120px;" />
+					</td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek' style="width:90px;"><a id='lblTgg'>廠商</a></td>
+					<td style="width:215px;">
+						<input class="txt" id="txtTggno" type="text" style="width:90px;" />
+						&nbsp;
+						<input class="txt readonly" id="txtTgg" type="text" style="width:120px;" />
 					</td>
 				</tr>
 				<tr class='seek_tr'>

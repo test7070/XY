@@ -215,9 +215,10 @@
 					for (var j = 0; j < q_bbsCount; j++) {
 						if($('#chkEnda').prop('checked'))
 							$('#chkEnda_'+j).prop('checked','true');
-						if($('#chkChka2').prop('checked'))
+						if($('#chkChka2').prop('checked')){
 							$('#checkOrdeweight_'+j).prop('checked','true');
 							$('#txtOrdeweight_'+j).val(1);
+						}
 					}
 				}
 				

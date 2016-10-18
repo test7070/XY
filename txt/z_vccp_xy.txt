@@ -577,7 +577,8 @@ and ((b.datea between @t_bdate and @t_edate) or (b.mount-c.mount>0))
 and  (b.productno between @t_bpno and @t_epno)
 and  (a.custno between @t_bcustno and @t_ecustno)
 
-select 'orde_xy?noa=$ordeno' qhref,case when recno>1 then '' else ordeno end ordeno,ordeno xordeno,* 
+select 'orde_xy?noa=$ordeno' qhref,case when recno>1 then '' else ordeno end ordeno
+,ordeno xordeno,'ucc?noa=$productno' qhrefb,* 
 from @tmp order by datea,custno,xordeno,no2;
 
 ------------------------------------------------------------------------------------------------------------------------

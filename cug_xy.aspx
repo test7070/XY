@@ -35,8 +35,8 @@
             brwNowPage = 0;
             brwKey = 'noa';
             aPop = new Array(
-            	['txtStationno', 'lblStation_xy', 'mech', 'noa,mech', 'txtStationno,txtStation', 'mech_b.aspx'],
-            	['txtProcessno', 'lblProcess_xy', 'sss', 'noa,namea', 'txtProcessno,txtProcess', 'sss_b.aspx'],
+            	//['txtStationno', 'lblStation_xy', 'mech', 'noa,mech', 'txtStationno,txtStation', 'mech_b.aspx'],
+            	//['txtProcessno', 'lblProcess_xy', 'sss', 'noa,namea', 'txtProcessno,txtProcess', 'sss_b.aspx'],
             	['txtWorkno_', '', 'view_cub', 'noa,productno,product,spec,unit,mount', '0txtWorkno_,txtProductno_,txtProduct_,txtSpec_,txtStyle_,txtMount_', '']
             );
             
@@ -77,6 +77,8 @@
                 bbsNum=[['txtMount',15,0,1],['txtHours',10,0,1]]
                 q_getFormat();
                 q_mask(bbmMask);
+                q_gt('mech', 'where=^^1=1^^', 0, 0, 0, "init_mech");
+                q_gt('sss', "where=^^left(noa,1)='M'^^", 0, 0, 0, "init_sss");
                 
                 q_cmbParse("combProcess", ',壓花輪,墨水,換版','s');
                 
@@ -106,13 +108,18 @@
                 	}
                 });
                 
+                $('#cmbStationno').change(function() {
+                	changecmbSize();
+                	$('#txtStation').val($('#cmbStationno').find(":selected").text());
+                });
+                
                 $('#btnCub').click(function() {
                 	if(q_cur==1 || q_cur==2){
-                		if(emp($('#txtStationno').val())){
+                		if(emp($('#cmbStationno').val())){
                 			alert('請輸入機台!!');
                 			return;
                 		}
-                		q_gt('mech', "where=^^noa='" +$('#txtStationno').val() + "'^^", 0, 0, 0, "getmech",r_accy,1);
+                		q_gt('mech', "where=^^noa='" +$('#cmbStationno').val() + "'^^", 0, 0, 0, "getmech",r_accy,1);
                 		var as = _q_appendData("mech", "", true);
 						if (as[0] != undefined) {
 							t_9=dec(as[0].gen);
@@ -181,7 +188,32 @@
 			var child_row = 0;//異動子階的欄位數
             function q_gtPost(t_name) {
                 switch (t_name) {
-                	
+                	case 'init_sss':
+                		var as = _q_appendData("sss", "", true);
+						if (as[0] != undefined) {
+							var t_item = "@";
+							for ( i = 0; i < as.length; i++) {
+								t_item = t_item + (t_item.length > 0 ? ',' : '') + as[i].noa + '@' + as[i].namea;
+							}
+							q_cmbParse("cmbProcessno", t_item);
+							if (abbm[q_recno]) {
+	                        	$("#cmbProcessno").val(abbm[q_recno].processno);
+	                        }
+						}
+                		break;
+                	case 'init_mech':
+                		var as = _q_appendData("mech", "", true);
+						if (as[0] != undefined) {
+							var t_item = "@";
+							for ( i = 0; i < as.length; i++) {
+								t_item = t_item + (t_item.length > 0 ? ',' : '') + as[i].noa + '@' + as[i].mech;
+							}
+							q_cmbParse("cmbStationno", t_item);
+							if (abbm[q_recno]) {
+	                        	$("#cmbStationno").val(abbm[q_recno].stationno);
+	                        }
+						}
+                		break;
                     case q_name:
                         if (q_cur == 4)
                             q_Seek_gtPost();
@@ -201,7 +233,7 @@
 			
             function btnOk() {
                 var t_err = '';
-                t_err = q_chkEmpField([['txtStationno', '機台'],['txtProcessno', '員工']]);
+                t_err = q_chkEmpField([['cmbStationno', '機台'],['cmbProcessno', '員工']]);
                 if (t_err.length > 0) {
                     alert(t_err);
                     return;
@@ -218,6 +250,9 @@
                 		$('#txtNosold_'+i).val('');
                 	}
                 }
+                
+                $('#txtStation').val($('#cmbStationno').find(":selected").text());
+                $('#txtProcess').val($('#cmbProcessno').find(":selected").text());
                 
                 if (q_cur == 1)
                     $('#txtWorker').val(r_name);
@@ -540,16 +575,16 @@
             
             function q_popPost(s1) {
 			   	switch (s1) {
-					case 'txtStationno':
+					/*case 'txtStationno':
 						changecmbSize();
-						break;
+						break;*/
 			   	}
 			}
 			
 			function changecmbSize() {
 				$('#cmbSize').text('');
-				if(!emp($('#txtStationno').val())){
-					q_gt('mech', "where=^^noa='" +$('#txtStationno').val() + "'^^", 0, 0, 0, "getmech",r_accy,1);
+				if(!emp($('#cmbStationno').val())){
+					q_gt('mech', "where=^^noa='" +$('#cmbStationno').val() + "'^^", 0, 0, 0, "getmech",r_accy,1);
                 	var as = _q_appendData("mech", "", true);
 					if (as[0] != undefined) {
 						t_9=dec(as[0].gen);
@@ -892,15 +927,17 @@
 						<td style="width: 176px;"> </td>
 					</tr>
 					<tr>
-						<td><span> </span><a id='lblStation_xy' class="lbl btn">機台</a></td>
+						<td><span> </span><a id='lblStation_xy' class="lbl">機台</a></td>
 						<td>
-							<input id="txtStationno"  type="text" class="txt c2"/>
-							<input id="txtStation"  type="text" class="txt c3"/>
+							<select id="cmbStationno" class="txt c1"> </select>
+							<!--<input id="txtStationno"  type="text" class="txt c2"/>-->
+							<input id="txtStation"  type="hidden" class="txt c3"/>
 						</td>
-						<td><span> </span><a id='lblProcess_xy' class="lbl btn">員工</a></td>
+						<td><span> </span><a id='lblProcess_xy' class="lbl">員工</a></td>
 						<td>
-							<input id="txtProcessno"  type="text" class="txt c2"/>
-							<input id="txtProcess"  type="text" class="txt c3"/>
+							<select id="cmbProcessno" class="txt c1"> </select>
+							<!--<input id="txtProcessno"  type="text" class="txt c2"/>-->
+							<input id="txtProcess"  type="hidden" class="txt c3"/>
 						</td>
 					</tr>
 					<tr>

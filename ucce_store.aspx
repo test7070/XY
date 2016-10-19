@@ -24,8 +24,8 @@
 	            {
 	                ParaIn para = new ParaIn();
 
-                    para.userno = "Z001";  // 倉庫編號
-                    para.namea = "軒威電腦";  // 產品編號
+                    para.userno = "Z001";  // 使用者編號
+                    para.namea = "軒威電腦";  // 使用者名稱
 	                itemIn = para;
 	            }
 	             
@@ -41,7 +41,7 @@
 					";
 					
 					System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(queryString, connSource);
-					cmd.ExecuteNonQuery();
+					//cmd.ExecuteNonQuery();
                     adapter.SelectCommand = cmd;
                     adapter.Fill(dt);
 					connSource.Close();

@@ -66,7 +66,7 @@
 					cmd.Parameters.AddWithValue("@storeno", itemIn.storeno);
 					cmd.Parameters.AddWithValue("@datea", itemIn.datea);
 					cmd.Parameters.AddWithValue("@productno", itemIn.productno);
-					cmd.ExecuteNonQuery();
+					//cmd.ExecuteNonQuery();
                     adapter.SelectCommand = cmd;
                     adapter.Fill(dt);
 					connSource.Close();

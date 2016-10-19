@@ -178,7 +178,7 @@
                     t_out=System.DBNull.Value.Equals(r.ItemArray[0]) ? "" : (System.String)r.ItemArray[0];
 	            }
 
-                t_out = (itemIn.ucceins.Length == 0 ? "無盤點資料" : t_out);
+                t_out = (itemIn.ucceins.Length == 0 ? "盤點測試資料成功" : t_out);
 				
             }
             catch (Exception ex) {

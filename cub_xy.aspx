@@ -92,7 +92,7 @@
 						var t_noa = trim($('#txtNoa').val());
 						var t_where = '';
 						t_where = " isnull(a.enda,0)!=1 and isnull(a.cancel,0)!=1";
-						t_where += " and not exists(select * from view_cub where ordeno=a.noa and no2=a.no2 and a.noa!='"+t_noa+"') ";//已匯入 105/05/03
+						t_where += " and not exists(select * from view_cub where ordeno=a.noa and no2=a.no2 and noa!='"+t_noa+"') ";//已匯入 105/05/03
 						t_where += " and left(a.productno,2)!='##' and left(a.custno,2)!='##' ";//非正式編號
 						if (t_custno.length > 0) {
 							t_where += " and a.custno='"+t_custno+"'";
@@ -261,7 +261,7 @@
 								$('#txtNo2').val(b_ret[0].no2);
 								$('#txtProductno').val(b_ret[0].productno);
 								$('#txtProduct').val(b_ret[0].product);
-								$('#txtSpec').val(b_ret[0].classa+' '+b_ret[0].spec);
+								//$('#txtSpec').val(b_ret[0].classa+' '+b_ret[0].spec);
 								$('#txtUnit').val(b_ret[0].unit);
 								$('#txtMount').val(b_ret[0].mount);
 								$('#txtMemo').val(b_ret[0].memo);
@@ -272,7 +272,7 @@
 									var as = _q_appendData("ucc", "", true);
 				                    if (as[0] != undefined) {
 				                    	//$('#txtUnit').val(as[0].uunit);
-				                    	$('#txtSpec').val(as[0].style+' '+as[0].spec+' '+as[0].engpro);
+				                    	$('#txtSpec').val(b_ret[0].classa+' '+as[0].spec+' '+as[0].engpro);
 				                    	if(as[0].cdate=='採購' || as[0].cdate.length==0){
 											alert(b_ret[i].product+' 採購製令方式 非【製造或委外】');
 										}
@@ -303,8 +303,59 @@
 			}
 			
 			function getpredate() {
-				//105/04/19 抓上次的流程領料資料
-				var t_where="where=^^noa= (select top 1 noa from view_cub where productno='" +$('#txtProductno').val() + "' order by noa desc) ^^"
+				for (var i = 0; i < q_bbsCount; i++) {
+					$('#btnMinus_'+i).click();
+				}
+				for (var i = 0; i < q_bbtCount; i++) {
+					$('#btnMinut__'+i).click();
+				}
+				//105/10/18 
+				//若為新版、改版，自動產生二個製程，一個是製版，一個是印刷，二個製程都是同一個廠商，廠商預設由報價單帶入。
+				//若為正式樣，自動產生製版、印刷、打樣三個製程，三個製程都是同一個廠商，廠商第一次預設由報價單帶入，第二次以後則由前一次製令帶入。
+				//若為空白、公版、私版－印刷、私版－空白，則自動產生一個印刷製程，廠商由前一次製令帶入。
+				
+				var ztggno='',z_tgg='';
+				
+				if(!emp($('#txtOrdeno').val())){
+					var t_where="where=^^ exists (select * from view_ordes where quatno=a.noa and no3=a.no3 and noa='"+$('#txtOrdeno').val()+"' and no2='"+$('#txtNo2').val()+"') ^^"
+					q_gt('view_quats', t_where, 0, 0, 0, "gettggno",r_accy,1);
+					var quatas = _q_appendData("view_quats", "", true);
+					if (quatas[0] != undefined) {
+						ztggno=quatas[0].addno1;
+						z_tgg=quatas[0].add1;
+					}
+				}
+				
+				if($('#txtSpec').val().indexOf('新版')>-1 || $('#txtSpec').val().indexOf('改版')>-1){
+					$('#txtProcessno_0').val('ZB');
+					$('#txtProcess_0').va('製板');
+					$('#txtTggno_0').val(ztggno);
+					$('#txtTgg_0').val(z_tgg);
+					
+					$('#txtProcessno_1').val('YS');
+					$('#txtProcess_1').va('印刷');
+					$('#txtTggno_1').val(ztggno);
+					$('#txtTgg_1').val(z_tgg);
+				}else if ($('#txtSpec').val().indexOf('正式樣')>-1){
+					$('#txtProcessno_0').val('ZB');
+					$('#txtProcess_0').va('製板');
+					$('#txtTggno_0').val(ztggno);
+					$('#txtTgg_0').val(z_tgg);
+					
+					$('#txtProcessno_1').val('YS');
+					$('#txtProcess_1').va('印刷');
+					$('#txtTggno_1').val(ztggno);
+					$('#txtTgg_1').val(z_tgg);
+					
+					$('#txtProcessno_2').val('DY');
+					$('#txtProcess_2').va('打樣');
+					$('#txtTggno_2').val(ztggno);
+					$('#txtTgg_2').val(z_tgg);
+					
+				}
+				
+				//105/04/19 抓上次的流程領料資料 //1051019 依品名 不依產品編號
+				var t_where="where=^^noa= (select top 1 noa from view_cub where product='" +$('#txtProduct').val() + "' order by noa desc) ^^"
 				q_gt('view_cub', t_where, 0, 0, 0, "getpredate",r_accy,1);
 				var as = _q_appendData("view_cub", "", true);
 				if (as[0] != undefined) {
@@ -313,9 +364,21 @@
 					q_gt('view_cubs', "where=^^noa='" +t_noa + "'^^", 0, 0, 0, "getpredates",r_accy,1);
 					var ass = _q_appendData("view_cubs", "", true);
 					if (ass[0] != undefined) {
+						var is_ys=0;
 						for (var i = 0; i < ass.length; i++) {
 							ass[i].mount=round(q_mul(dec(ass[i].mount),t_per),dec(q_getPara('vcc.mountPrecision')));
+							if(ass[i].processno=='YS'){
+								is_ys=is_ys+1
+							}
 						}
+						if (is_ys==0 && ($('#txtSpec').val().indexOf('空白')>-1 || $('#txtSpec').val().indexOf('公版')>-1
+						|| $('#txtSpec').val().indexOf('私版－印刷')>-1 || $('#txtSpec').val().indexOf('私版－空白')>-1)){
+							$('#txtProcessno_0').val('YS');
+							$('#txtProcess_0').va('印刷');
+							$('#txtTggno_0').val(ztggno);
+							$('#txtTgg_0').val(z_tgg);
+						}
+						
 						q_gridAddRow(bbsHtm, 'tbbs', 'txtProcessno,txtProcess,txtTggno,txtTgg,txtMount,txtUnit,txtPrice,txtMo,chkSale,txtW02,txtW01,txtNeed,txtMemo', ass.length, ass
 						,'processno,process,tggno,tgg,mount,unit,price,mo,sale,w02,w01,need,memo'
 						,'txtProcessno,txtProcess,txtTggno,txtTgg');
@@ -352,10 +415,26 @@
 				$('#chkIsproj').prop('checked',true);
 				$('#chkEnda').prop('checked',false);
 				$('#chkCancel').prop('checked',false);
+				$('#txtEdate').val('');
+				$('#textInano').val('');
+				$('#txtC1').val('');
+				$('#txtNotv').val('');
+				var t_hj=0;
 				for (var i = 0; i < q_bbsCount; i++) {
 					$('#txtOrdeno_'+i).val('');
 					$('#txtDatea_'+i).val('');
 					$('#chkCut_'+i).prop('checked',false);
+					
+					//105/10/19 后街加工 廠商拿掉 只留一組
+					if($('#txtProcessno_'+i).val()=='HJ' || $('#txtProcess_'+i).val()=='后街加工' ){
+						if(t_hj>0){
+							$('#btnMinus_'+i).click();
+						}else{
+							$('#txtTggno_'+i).val('');
+							$('#txtTgg_'+i).val('');
+						}
+						t_hj++;
+					}
 				}
 				if(r_userno.substr(0,1).toUpperCase()=='C'){
 					$('#cmbTypea').val('委外部');	
@@ -808,14 +887,12 @@
 	                		}
 						}
 						if(!emp($('#txtProductno').val())){
-							
 							q_gt('ucc_xy', "where=^^noa='" +$('#txtProductno').val() + "'^^", 0, 0, 0, "getuccspec",r_accy,1);
 							var as = _q_appendData("ucc", "", true);
 							if (as[0] != undefined) {
 								//$('#txtUnit').val(as[0].uunit);
 								$('#txtSpec').val(as[0].style+' '+as[0].spec+' '+as[0].engpro);
 							}
-							
 							getpredate();
 						}
 						break;

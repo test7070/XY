@@ -156,6 +156,7 @@ z_cub_xyp1:--z_cub_xyp1
 	dbo.getComma(mount,[2]) mount,
 	dbo.getComma(amount,[2]) amount,
 	'<img width="50px" src="http://59.125.143.171/images/logo1_xy.png">' logo1
+	,dbo.AD2ChineseEraName(CONVERT (VARCHAR(10), GETDATE(),20 )) pdate
 	,*
 	from @result order by noa,pageno,recno,gno;
 --*******************************************************************************************************

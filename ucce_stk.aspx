@@ -32,7 +32,7 @@
 	                ParaIn para = new ParaIn();
 	                
 	               	para.storeno="A";  // 倉庫編號
-                    para.productno = "10001-001";  // 產品編號
+                    para.productno = "D520100003";  // 產品編號
 	                itemIn = para;
 	            }
 	            

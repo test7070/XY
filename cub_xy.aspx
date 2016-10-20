@@ -17,7 +17,7 @@
 			this.errorHandler = null;
 			q_tables = 't';
 			var q_name = "cub";
-			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano','txtEdate'];
+			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano','txtEdate','txtSpec'];
 			var q_readonlys = ['txtDate2', 'txtOrdeno', 'txtNo2','txtMo','txtW01'];
 			var q_readonlyt = [];
 			var bbmNum = [['txtMount',10,0,1],['txtNotv',10,0,1]];
@@ -81,7 +81,7 @@
 				q_mask(bbmMask);
 				
 				//q_cmbParse("combTypea", '西餐紙,火柴,筷子套,刀叉套,比薩盒,蛋糕盒,店卡,名片,餐盒,聯單,背心袋,炸雞盤,薯條杯,雜類,炸雞盒,紙袋,手提紙袋,瓦楞紙,帽子,桌巾紙,紙盒,公文袋,牙千套,紙包吸,紙包可吸,紙包可彩吸,紙包彩吸,紙包白色吸,白色吸,其他');
-				q_cmbParse("cmbTypea", '製造部,加工部,委外部');
+				q_cmbParse("cmbTypea", '製造部,加工部,委外部,採購部');
 				
 				//$('title').text("連續製令單"); //IE8會有問題
 				document.title='連續製令單'
@@ -128,6 +128,16 @@
 					if(!emp($('#textInano').val())){
 						var t_where="1=1 and charindex(noa,'"+$('#textInano').val()+"')>0 "
 						q_box("ina_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'ina_xy', "95%", "650px", '入庫單');
+					}
+				});
+				
+				$('#btnUpdata').click(function() {
+					q_box("uploadXYupcust.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";;"+r_accy, 'updata', "600px", "500px", $('#btnUpdata').val());
+				});
+				$('#btnUpCust').click(function() {
+					if(!emp($('#txtVcceno').val())){
+						var t_where="noa='"+$('#txtVcceno').val()+"'";
+						q_box("upcust.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'upcust', "95%", "650px", $('#btnUpCust').val());
 					}
 				});
 			}
@@ -239,6 +249,11 @@
                     Lock(1, {
                         opacity : 0
                     });
+                    
+                    if(q_cur==1 && !emp($('#txtVcceno').val())){
+                    	q_func('qtxt.query.cub2upcust', 'cub.txt,cub2upcust,' + encodeURI($('#txtNoa').val()) + ';' + encodeURI($('#txtVcceno').val()) );
+                    }
+                    
                     if($('#txtDatea').val()>='105/03/21')
                     	q_gt('view_rc2', "where=^^postname='" + $('#txtNoa').val() + "'^^", 0, 0, 0, "stpost_rc2_0");
                     else
@@ -280,9 +295,13 @@
 				                    	alert(b_ret[0].product+'不在產品主檔內!!');
 				                    }
 								}
+								style_upshow();
 								getpredate();
 							}
 						}
+						break;
+					case 'updata':
+						style_upshow();
 						break;
 					case 'bbs_tgg':
 						if (q_cur > 0 && q_cur < 4) {
@@ -520,9 +539,13 @@
 		            	return;
 		            }
 				}
+				//105/10/17 沒有上傳不能存檔
+				if(($('#txtSpec').val().indexOf('新版')>-1 || $('#txtSpec').val().indexOf('改版')>-1) && emp($('#txtVcceno').val())){
+					alert('請上傳新版/改版資料!!');
+		            return;
+				}
 				
 				//105/10/03 當最後一筆有KEY 工作天數才計算預估完工日
-				
 				if(!emp($('#txtDatea').val())){
 					var t_w03=0,isw03=0;
 					for (var j = 0; j < q_bbsCount; j++) {
@@ -601,6 +624,7 @@
 
 			function refresh(recno) {
 				_refresh(recno);
+				style_upshow();
 				//取得類別
 				//q_gt('cub_typea', '', 0, 0, 0, "cub_typea");
 				$("[name='checkCut']").prop('checked',false);
@@ -629,9 +653,12 @@
 
 			function readonly(t_para, empty) {
 				_readonly(t_para, empty);
+				style_upshow();
 				if(t_para){
+					$('#btnUpdata').attr('disabled', 'disabled');
 					$('#btnOrdes').attr('disabled', 'disabled');
 				}else{
+					$('#btnUpdata').removeAttr('disabled');
 					$('#btnOrdes').removeAttr('disabled');
 				}
 			}
@@ -748,6 +775,7 @@
 					}
 				}
 				_bbsAssign();
+				style_upshow();
 				$("[name='checkCut']").click(function() {
 					if((q_cur==1 || q_cur==2)){
 						for (var j = 0; j < q_bbsCount; j++) {
@@ -893,10 +921,34 @@
 								//$('#txtUnit').val(as[0].uunit);
 								$('#txtSpec').val(as[0].style+' '+as[0].spec+' '+as[0].engpro);
 							}
+							style_upshow();
 							getpredate();
 						}
 						break;
 			   	}
+			}
+			
+			function style_upshow() {
+				if($('#txtSpec').val().indexOf('新版')>-1 || $('#txtSpec').val().indexOf('改版')>-1){
+					$('#btnUpdata').val('檔案上傳');
+					if(emp($('#txtVcceno').val()) && q_cur==1){
+						$('#btnUpCust').hide();
+						$('#btnUpdata').show();
+					}else if(!emp($('#txtVcceno').val()) && q_cur==1){
+						$('#btnUpCust').hide();
+						$('#btnUpdata').show();
+						$('#btnUpdata').val('重新上傳');
+					}else if (!emp($('#txtVcceno').val())){
+						$('#btnUpdata').hide();
+						$('#btnUpCust').show();
+					}else{
+						$('#btnUpCust').hide();
+						$('#btnUpdata').hide();
+					}
+				}else{
+					$('#btnUpCust').hide();
+					$('#btnUpdata').hide();
+				}
 			}
 			
 			/*function combTypea_chg() {
@@ -1103,7 +1155,12 @@
 						<td><span> </span><a id="lblCust" class="lbl btn" >客戶簡稱</a></td>
 						<td><input id="txtCustno" type="text" class="txt c1"/></td>
 						<td colspan="2"><input id="txtComp" type="text" class="txt c1"/></td>
-						<td> <input id="btnOrdes" type="button" value='訂單匯入'  style="float:right;"/></td>
+						<td><input id="btnOrdes" type="button" value='訂單匯入'  style="float:right;"/></td>
+						<td> 
+							<input id="btnUpdata" type="button" value='檔案上傳' style="float:right;display: none;"/>
+							<input id="btnUpCust" type="button" value='版別檔案' style="float:right;display: none;"/>
+							<input id="txtVcceno" type="hidden" class="txt c1"/><!--存放上傳單號-->
+						</td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblOrdeno" class="lbl" >訂單編號</a></td>

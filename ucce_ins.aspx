@@ -115,7 +115,8 @@
 				                        set @str3=dbo.split(@tmount,'^',0)
 				                        set @xmount=cast(dbo.split(@str3,'@',0) as float)
 				                        set @xunit=dbo.split(@str3,'@',1)
-				                        set @memo=@memo+dbo.split(@str3,'@',0)+dbo.split(@str3,'@',1)
+				                        if(@xmount>0)
+				                        	set @memo=@memo+dbo.split(@str3,'@',0)+dbo.split(@str3,'@',1)
 				
 				                        set @xinmount=isnull((select inmount from pack2s where noa=@productno and pack=@xunit),1)
 				                        set @xinmount=case when @xinmount=0 then 1 else @xinmount end

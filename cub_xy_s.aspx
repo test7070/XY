@@ -36,7 +36,7 @@
                 q_mask(bbmMask);
 				$('#txtNoa').focus();
 				$('.readonly').attr('readonly',true);
-				q_cmbParse("cmbTypea", '@全部,製造部,加工部,委外部');
+				q_cmbParse("cmbTypea", '@全部,製造部,加工部,委外部,採購部');
 				q_cmbParse("cmbEnda", '@全部,Y@Y,N@N');
 			}
 

@@ -1461,7 +1461,7 @@ where a.datea<=@datea and b.ucolor>=@datea
 and isnull(a.contract,'')!='' and a.kind='PO' and b.mount-isnull(c.omount,0)>0
 and a.custno=@custno and (len(@productno)=0 or b.productno=@productno)
 and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))
-and isnull(b.ordeweight,0)=0 and isnull(b.enda,0)=0 and a.isnull(a.chka2,0)=0 and a.isnull(a.enda,0)=0
+and isnull(b.ordeweight,0)=0 and isnull(b.enda,0)=0 and isnull(a.chka2,0)=0 and isnull(a.enda,0)=0
 order by a.datea,b.productno
 
 select * from @tmpa
@@ -1718,3 +1718,16 @@ or (CAST(@size17 as float)>0 and a.spec like '%17"%'))
 order by case when a.bdate='' then CHAR(255) else a.bdate end,a.noa
 ;
 -------------------------------------------------------------------------------------------------------------
+cub2upcust:--cub2upcust
+declare @noa nvarchar(100)=case when '#non'=[1] then '' else [1] end
+declare @upnoa nvarchar(100)=case when '#non'=[2] then '' else [2] end
+
+update upcust
+set memo='製令單【'+@noa+'】上傳',typea=''
+where noa=@upnoa
+
+update upcusts
+set namea=@noa
+where noa=@upnoa
+;
+-------------------------------------------------------------------------------------------------------

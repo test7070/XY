@@ -36,8 +36,9 @@
                 $('#txtUserno').val(r_userno);
                 if(window.parent.q_name=='cub'){
                 	$('#txtCustno').val(window.parent.$('#txtCustno').val());	
+                	$('#txtComp').val(window.parent.$('#txtComp').val());	
                 }
-                if(window.parent.q_name=='ordc'){ //只抓第一個客戶
+                if(window.parent.q_name=='ordc'){ //只抓第一個客戶 //10/19 採購暫時不做
                 	$('#txtCustno').val(window.parent.$('#txtCustno_0').val());	
                 }
             }
@@ -49,6 +50,22 @@
 
             function getAddr() {
                 document.getElementsByName('TextBox1').value = location.href;
+            }
+            
+            if(navigator.appName=="Microsoft Internet Explorer"){
+            	window.onbeforeunload = function(e){
+					 if(window.parent.q_name=='cub'){
+						 var wParent = window.parent.document;
+						 wParent.getElementById("txtVcceno").value=$('#txtNoa').val();
+					 }
+				}
+            }else{
+            	window.onunload = function(e){
+					  if(window.parent.q_name=='cub'){
+						 var wParent = window.parent.document;
+						 wParent.getElementById("txtVcceno").value=$('#txtNoa').val();
+					 }
+				}
             }
 		</script>
 
@@ -207,7 +224,7 @@
                                             declare @t_filename nvarchar(50)=@filename
 
 											EXEC('insert upcust (noa,datea,typea,custno,comp,nick,memo,worker,worker2)
-											select '''+@noa+''','''+@t_datea+''',''''
+											select '''+@noa+''','''+@t_datea+''',''CUBAUTO''
 											,'''+@t_custno+''',(select comp from cust where noa='''+@t_custno+''')
 											,(select nick from cust where noa='''+@t_custno+''')
 											,'''',(select namea from nhpe where noa='''+@t_userno+'''),'''' ')
@@ -233,7 +250,7 @@
                                         t_noa = System.DBNull.Value.Equals(r.ItemArray[0]) ? "" : (System.String)r.ItemArray[0];
                                     }
                                     
-                                    var script = "$('#txtNoa').val('"+t_noa+"');";
+                                    var script = "$('#txtNoa').val('"+t_noa+"');if(window.parent.q_name=='cub'){window.parent.$('#txtVcceno').val('"+t_noa+"')}";
 	            					ClientScript.RegisterStartupScript(typeof(string), "textvaluesetter", script, true);
 									
 	                                Response.Write("<br>" + ofilename + "  upload finish!" + "</br>");
@@ -279,14 +296,17 @@
 			&nbsp;
 		</p>
 		<div>
-			<form id="Form1" name='form1' method='post' action=' ' runat="server" enctype='multipart/form-data' style='width:725px'>
+			<form id="Form1" name='form1' method='post' action=' ' runat="server" enctype='multipart/form-data' style='width:725px;'>
 				<input type='file' name='btnFile1' style='font-size:16px;' onclick='getAddr()'/>
 				<input type='hidden' name='txtAddr' style='font-size:16px;'/>
 				<asp:TextBox ID="TextBox1"  name="TextBox1" runat="server" Visible="false"></asp:TextBox>
 				<input type='submit' name='btnUpload' value='上傳' style='font-size:16px;'/>
-				<input id="txtUserno"  name="txtUserno" type="hidden"  />
-				<input id="txtCustno"  name="txtCustno" type="hidden"  />
-                <input id="txtNoa"  name="txtNoa" type="hidden"  />
+				<BR><BR>
+				<input id="txtUserno" name="txtUserno" type="hidden"/>
+				<input id="txtCustno" name="txtCustno" type="hidden"/>
+				<BR>
+				<a>客戶名稱 </a><input id="txtComp" name="txtComp" type="text" disabled="disabled"/>
+                <input id="txtNoa"  name="txtNoa" type="hidden" />
 			</form>
 		</div>
 

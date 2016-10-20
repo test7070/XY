@@ -332,9 +332,19 @@
 				//若為新版、改版，自動產生二個製程，一個是製版，一個是印刷，二個製程都是同一個廠商，廠商預設由報價單帶入。
 				//若為正式樣，自動產生製版、印刷、打樣三個製程，三個製程都是同一個廠商，廠商第一次預設由報價單帶入，第二次以後則由前一次製令帶入。
 				//若為空白、公版、私版－印刷、私版－空白，則自動產生一個印刷製程，廠商由前一次製令帶入。
-				
+				//105/10/19
+				//新版、改版製令：
+				//採購部、製造部的製令單：自動添加二個製程：一個是製版、一個是生產
+				//廠　商：製造部＝有達YD02；採購部＝報價單上的廠商
+				//新版數位樣、改版數位樣製令：
+				//採購部、製造部的製令單：自動添加三個製程：一個是打樣（數位樣）、一個是製版、一個是生產
+				//廠　商：製造部＝有達YD02；採購部＝報價單上的廠商
+				//新版正式樣、改版正式樣製令：
+				//採購部、製造部的製令單：自動添加三個製程：一個是製版、一個是打樣（正式樣）、一個是生產
+				//廠　商：製造部＝有達YD02；採購部＝報價單上的廠商
+
 				var ztggno='',z_tgg='';
-				
+				//取報架上的廠商
 				if(!emp($('#txtOrdeno').val())){
 					var t_where="where=^^ exists (select * from view_ordes where quatno=a.noa and no3=a.no3 and noa='"+$('#txtOrdeno').val()+"' and no2='"+$('#txtNo2').val()+"') ^^"
 					q_gt('view_quats', t_where, 0, 0, 0, "gettggno",r_accy,1);
@@ -345,32 +355,70 @@
 					}
 				}
 				
-				if($('#txtSpec').val().indexOf('新版')>-1 || $('#txtSpec').val().indexOf('改版')>-1){
+				if ($('#txtSpec').val().indexOf('新版數位樣')>-1 || $('#txtSpec').val().indexOf('改版數位樣')>-1){
+					$('#txtProcessno_0').val('DY');
+					$('#txtProcess_0').va('打樣（數位樣）');
+					$('#txtProcessno_1').val('ZB');
+					$('#txtProcess_1').va('製板');
+					$('#txtProcessno_2').val('SC01');
+					$('#txtProcess_2').va('生產');
+					if($('#cmbTypea').val()=='製造部'){
+						$('#txtTggno_0').val('YD02');
+						$('#txtTgg_0').val('有達實業有限公司');
+						$('#txtTggno_1').val('YD02');
+						$('#txtTgg_1').val('有達實業有限公司');
+						$('#txtTggno_2').val('YD02');
+						$('#txtTgg_2').val('有達實業有限公司');
+					}
+					if($('#cmbTypea').val()=='採購部'){
+						$('#txtTggno_0').val(ztggno);
+						$('#txtTgg_0').val(z_tgg);
+						$('#txtTggno_1').val(ztggno);
+						$('#txtTgg_1').val(z_tgg);
+						$('#txtTggno_2').val(ztggno);
+						$('#txtTgg_2').val(z_tgg);
+					}
+				}else if ($('#txtSpec').val().indexOf('新版正式樣')>-1 || $('#txtSpec').val().indexOf('改版正式樣')>-1){
 					$('#txtProcessno_0').val('ZB');
 					$('#txtProcess_0').va('製板');
-					$('#txtTggno_0').val(ztggno);
-					$('#txtTgg_0').val(z_tgg);
-					
-					$('#txtProcessno_1').val('YS');
-					$('#txtProcess_1').va('印刷');
-					$('#txtTggno_1').val(ztggno);
-					$('#txtTgg_1').val(z_tgg);
-				}else if ($('#txtSpec').val().indexOf('正式樣')>-1){
+					$('#txtProcessno_1').val('DY');
+					$('#txtProcess_1').va('打樣（正式樣）');
+					$('#txtProcessno_2').val('SC01');
+					$('#txtProcess_2').va('生產');
+					if($('#cmbTypea').val()=='製造部'){
+						$('#txtTggno_0').val('YD02');
+						$('#txtTgg_0').val('有達實業有限公司');
+						$('#txtTggno_1').val('YD02');
+						$('#txtTgg_1').val('有達實業有限公司');
+						$('#txtTggno_2').val('YD02');
+						$('#txtTgg_2').val('有達實業有限公司');
+					}
+					if($('#cmbTypea').val()=='採購部'){
+						$('#txtTggno_0').val(ztggno);
+						$('#txtTgg_0').val(z_tgg);
+						$('#txtTggno_1').val(ztggno);
+						$('#txtTgg_1').val(z_tgg);
+						$('#txtTggno_2').val(ztggno);
+						$('#txtTgg_2').val(z_tgg);
+					}
+				}else if($('#txtSpec').val().indexOf('新版')>-1 || $('#txtSpec').val().indexOf('改版')>-1){
 					$('#txtProcessno_0').val('ZB');
 					$('#txtProcess_0').va('製板');
-					$('#txtTggno_0').val(ztggno);
-					$('#txtTgg_0').val(z_tgg);
 					
-					$('#txtProcessno_1').val('YS');
-					$('#txtProcess_1').va('印刷');
-					$('#txtTggno_1').val(ztggno);
-					$('#txtTgg_1').val(z_tgg);
-					
-					$('#txtProcessno_2').val('DY');
-					$('#txtProcess_2').va('打樣');
-					$('#txtTggno_2').val(ztggno);
-					$('#txtTgg_2').val(z_tgg);
-					
+					$('#txtProcessno_1').val('SC01');
+					$('#txtProcess_1').va('生產');
+					if($('#cmbTypea').val()=='製造部'){
+						$('#txtTggno_0').val('YD02');
+						$('#txtTgg_0').val('有達實業有限公司');
+						$('#txtTggno_1').val('YD02');
+						$('#txtTgg_1').val('有達實業有限公司');
+					}
+					if($('#cmbTypea').val()=='採購部'){
+						$('#txtTggno_0').val(ztggno);
+						$('#txtTgg_0').val(z_tgg);
+						$('#txtTggno_1').val(ztggno);
+						$('#txtTgg_1').val(z_tgg);
+					}
 				}
 				
 				//105/04/19 抓上次的流程領料資料 //1051019 依品名 不依產品編號
@@ -383,19 +431,8 @@
 					q_gt('view_cubs', "where=^^noa='" +t_noa + "'^^", 0, 0, 0, "getpredates",r_accy,1);
 					var ass = _q_appendData("view_cubs", "", true);
 					if (ass[0] != undefined) {
-						var is_ys=0;
 						for (var i = 0; i < ass.length; i++) {
 							ass[i].mount=round(q_mul(dec(ass[i].mount),t_per),dec(q_getPara('vcc.mountPrecision')));
-							if(ass[i].processno=='YS'){
-								is_ys=is_ys+1
-							}
-						}
-						if (is_ys==0 && ($('#txtSpec').val().indexOf('空白')>-1 || $('#txtSpec').val().indexOf('公版')>-1
-						|| $('#txtSpec').val().indexOf('私版－印刷')>-1 || $('#txtSpec').val().indexOf('私版－空白')>-1)){
-							$('#txtProcessno_0').val('YS');
-							$('#txtProcess_0').va('印刷');
-							$('#txtTggno_0').val(ztggno);
-							$('#txtTgg_0').val(z_tgg);
 						}
 						
 						q_gridAddRow(bbsHtm, 'tbbs', 'txtProcessno,txtProcess,txtTggno,txtTgg,txtMount,txtUnit,txtPrice,txtMo,chkSale,txtW02,txtW01,txtNeed,txtMemo', ass.length, ass

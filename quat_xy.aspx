@@ -135,7 +135,7 @@
 				q_cmbParse("combPaytype", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
-				q_cmbParse("combClassa",' ,便,印','s');
+				q_cmbParse("combClassa",' ,便品,空白,公版,加工,印刷,私-空白(客製),新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣','s');
 				q_cmbParse("combDay",'0@ ,15@15天,30@30天,45@45天');
 				
 				var t_where = "where=^^ 1=0 ^^";
@@ -551,7 +551,7 @@
 			function btnOk() {
 				if(!$('#div_cost').is(':hidden')){
 					var t_class=$.trim($('#combClassa_'+b_seq).val());
-					if(t_class=='印')
+					if(t_class.indexOf('印')>-1)
 						$('#cost_txtCost0').focus();
 					else
 						$('#cost_txtWdate').focus();
@@ -761,7 +761,7 @@
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
-							if($('#txtClassa_'+b_seq).val()=='印' || $('#txtClassa_'+b_seq).val()=='便'){
+							if($('#txtClassa_'+b_seq).val().indexOf('印')>-1 || $('#txtClassa_'+b_seq).val().indexOf('便')>-1){
 								$('#combClassa_' + b_seq).val($('#txtClassa_'+b_seq).val());
 								$('#combClassa_' + b_seq).focusout();
 							}else{
@@ -775,7 +775,7 @@
 							b_seq = t_IdSeq;
 							
 							$('#txtClassa_'+b_seq).val($('#combClassa_'+b_seq).val());
-							if($('#combClassa_'+b_seq).val()=='印'){
+							if($('#combClassa_'+b_seq).val().indexOf('印')>-1){
 								
 								//取得客戶集團105/04/11
 								var t_grpno='';
@@ -787,19 +787,21 @@
 								}
 								//105/07/21 集團出貨可以出底下子公司
 								//集團本身底下子公司
-								var t_where = "where=^^ grpno='"+$('#txtCustno').val()+"' ^^";
-								q_gt('cust', t_where, 0, 0, 0, "getcustgrpno2", r_accy, 1);
-								var as2 = _q_appendData("cust", "", true);
 								var isexists=false;
-								for ( i = 0; i < as2.length; i++) {
-									if($('#txtProductno_' + b_seq).val().substr(0,5)==as2[i].noa.substr(0,5)){
-										isexists=true;
+								if($('#txtCustno').val().length>0){
+									var t_where = "where=^^ grpno='"+$('#txtCustno').val()+"' ^^";
+									q_gt('cust', t_where, 0, 0, 0, "getcustgrpno2", r_accy, 1);
+									var as2 = _q_appendData("cust", "", true);
+									for ( i = 0; i < as2.length; i++) {
+										if($('#txtProductno_' + b_seq).val().substr(0,5)==as2[i].noa.substr(0,5)){
+											isexists=true;
+										}
 									}
 								}
 								//非該客戶的印品
 								if ($('#txtProductno_'+b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
 									&& $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno.substr(0,5)
-									&& !isexists	){
+									&& !isexists ){
 									$('#txtProductno_'+b_seq).val('');
 								}
 							}
@@ -807,146 +809,148 @@
 							var t_class=$.trim($('#combClassa_'+b_seq).val());
 							if(t_class.length>0 &&(q_cur==1 || q_cur==2)){
 								var t_html='';
-								if(t_class=='印'){
-									t_html="<table id='table_cost' style='width:610px;text-align: center;' border='1' cellpadding='2'  cellspacing='0'><tr>";
-									t_html+="<td style='width:100px'>版費</td>";
-									t_html+="<td style='width:100px'>刀模費</td>";
-									t_html+="<td style='width:100px'>訂金</td>";
-									t_html+="<td style='width:100px'>工期</td>";
-									t_html+="<td style='width:150px'>其他</td>";
-									t_html+="<td> </td></tr><tr>";
-									t_html+="<td><input id='cost_txtCost0' type='text' class='txt num c1'/></td>";	
-									t_html+="<td><input id='cost_txtCost1' type='text' class='txt num c1'/></td>";
-									t_html+="<td><input id='cost_txtDeposit' type='text' class='txt c1'/></td>";
-									t_html+="<td><input id='cost_txtWdate' type='text' class='txt c1'/></td>";
-									t_html+="<td><input id='cost_txtOther' type='text' class='txt c1'/></td>";
-								}
-								if(t_class=='便'){
-									t_html="<table id='table_cost' style='width:310px;text-align: center;' border='1' cellpadding='2'  cellspacing='0'><tr>";
-									t_html+="<td style='width:100px'>交貨日</td>";
-									t_html+="<td style='width:150px'>其他</td>";
-									t_html+="<td> </td></tr><tr>";
-									t_html+="<td><input id='cost_txtWdate' type='text' class='txt c1'/></td>";
-									t_html+="<td><input id='cost_txtOther' type='text' class='txt c1'/></td>";
-								}
-								t_html+="<td><input id='btnClose_div_cost' type='button' value='確定' style='width:55px'></td></tr></table>";
-								
-								$('#div_cost').html(t_html);
-								
-								var SeekF= new Array();
-								$('#table_cost td').children("input:text").each(function() {
-									SeekF.push($(this).attr('id'));
-								});
-								SeekF.push('btnClose_div_cost');
-								
-								$('#table_cost td').children("input:text").each(function() {
-									$(this).mousedown(function(e) {
-										$(this).focus();
-										$(this).select();
-									});
-										
-									$(this).bind('keydown', function(event) {
-										keypress_bbm(event, $(this), SeekF, SeekF[$.inArray($(this).attr('id'),SeekF)+1]);	
-									});
-								});
-								$('#div_cost').css('top',$('#combClassa_'+b_seq).offset().top-parseInt($('#div_cost').css('height')));
-								$('#div_cost').css('left',$('#combClassa_'+b_seq).offset().left+50);
-								
-								$('#div_cost').show();
-								if(t_class=='印')
-									$('#cost_txtCost0').focus();
-								if(t_class=='便')
-									$('#cost_txtWdate').focus();
+								if(t_class.indexOf('印')>-1 || t_class.indexOf('便')>-1){
+									if(t_class.indexOf('印')>-1){
+										t_html="<table id='table_cost' style='width:610px;text-align: center;' border='1' cellpadding='2'  cellspacing='0'><tr>";
+										t_html+="<td style='width:100px'>版費</td>";
+										t_html+="<td style='width:100px'>刀模費</td>";
+										t_html+="<td style='width:100px'>訂金</td>";
+										t_html+="<td style='width:100px'>工期</td>";
+										t_html+="<td style='width:150px'>其他</td>";
+										t_html+="<td> </td></tr><tr>";
+										t_html+="<td><input id='cost_txtCost0' type='text' class='txt num c1'/></td>";	
+										t_html+="<td><input id='cost_txtCost1' type='text' class='txt num c1'/></td>";
+										t_html+="<td><input id='cost_txtDeposit' type='text' class='txt c1'/></td>";
+										t_html+="<td><input id='cost_txtWdate' type='text' class='txt c1'/></td>";
+										t_html+="<td><input id='cost_txtOther' type='text' class='txt c1'/></td>";
+									}
+									if(t_class.indexOf('便')>-1){
+										t_html="<table id='table_cost' style='width:310px;text-align: center;' border='1' cellpadding='2'  cellspacing='0'><tr>";
+										t_html+="<td style='width:100px'>交貨日</td>";
+										t_html+="<td style='width:150px'>其他</td>";
+										t_html+="<td> </td></tr><tr>";
+										t_html+="<td><input id='cost_txtWdate' type='text' class='txt c1'/></td>";
+										t_html+="<td><input id='cost_txtOther' type='text' class='txt c1'/></td>";
+									}
+									t_html+="<td><input id='btnClose_div_cost' type='button' value='確定' style='width:55px'></td></tr></table>";
 									
-								$('#btnClose_div_cost').click(function() {
-									var t_memo='';
+									$('#div_cost').html(t_html);
 									
-									if(t_class=='印'){
-										//判斷下兩行是否存在版費 或 刀模費
-										var iscost1=-1,iscost2=-1;
-										if($('#txtProduct_'+(b_seq+1)).length>0){//判斷物件是否存在
-											if($('#txtProduct_'+(dec(b_seq)+1)).val().indexOf('版費')>-1){
-												iscost1=dec(b_seq)+1;
-											}
-											if($('#txtProduct_'+(dec(b_seq)+1)).val().indexOf('刀模費')>-1){
-												iscost2=dec(b_seq)+1;
-											}
-										}
-										if($('#txtProduct_'+(b_seq+2)).length>0){//判斷物件是否存在
-											if($('#txtProduct_'+(dec(b_seq)+2)).val().indexOf('版費')>-1){
-												iscost1=dec(b_seq)+2;
-											}
-											if($('#txtProduct_'+(dec(b_seq)+2)).val().indexOf('刀模費')>-1){
-												iscost2=dec(b_seq)+2;
-											}
-										}
+									var SeekF= new Array();
+									$('#table_cost td').children("input:text").each(function() {
+										SeekF.push($(this).attr('id'));
+									});
+									SeekF.push('btnClose_div_cost');
+									
+									$('#table_cost td').children("input:text").each(function() {
+										$(this).mousedown(function(e) {
+											$(this).focus();
+											$(this).select();
+										});
+											
+										$(this).bind('keydown', function(event) {
+											keypress_bbm(event, $(this), SeekF, SeekF[$.inArray($(this).attr('id'),SeekF)+1]);	
+										});
+									});
+									$('#div_cost').css('top',$('#combClassa_'+b_seq).offset().top-parseInt($('#div_cost').css('height')));
+									$('#div_cost').css('left',$('#combClassa_'+b_seq).offset().left+50);
+									
+									$('#div_cost').show();
+									if(t_class.indexOf('印')>-1)
+										$('#cost_txtCost0').focus();
+									if(t_class.indexOf('便')>-1)
+										$('#cost_txtWdate').focus();
 										
-										//版費處理
-										if(!emp($('#cost_txtCost0').val())){
-											if(iscost1>-1){//存在版費>>改費用金額
-												q_tr('txtPrice_'+iscost1,dec($('#cost_txtCost0').val()));
-											}else{
-												q_bbs_addrow('bbs', b_seq, 1);
-												$('#txtProductno_'+(dec(b_seq)+1)).val('BF0000001');
-												$('#txtProduct_'+(dec(b_seq)+1)).val('費用');
-												$('#txtSpec_'+(dec(b_seq)+1)).val('版費');
-												$('#txtUnit_'+(dec(b_seq)+1)).val('色');
-												$('#txtMount_'+(dec(b_seq)+1)).val(1);
-												$('#txtPrice_'+(dec(b_seq)+1)).val($('#cost_txtCost0').val());
-												AutoNo3();
-											}
-											sum();	
-										}
+									$('#btnClose_div_cost').click(function() {
+										var t_memo='';
 										
-										//刀模費處理
-										if(!emp($('#cost_txtCost1').val())){
-											if(iscost2>-1){
-												q_tr('txtPrice_'+iscost2,dec($('#cost_txtCost1').val()));
-											}else{
-												var t_iscost1=0;
-												if($('#txtProduct_'+(b_seq+1)).length>0){
-													if($('#txtProduct_'+(b_seq+1)).val().indexOf('版費')>-1){
-														t_iscost1=1;
-													}
+										if(t_class.indexOf('印')>-1){
+											//判斷下兩行是否存在版費 或 刀模費
+											var iscost1=-1,iscost2=-1;
+											if($('#txtProduct_'+(b_seq+1)).length>0){//判斷物件是否存在
+												if($('#txtProduct_'+(dec(b_seq)+1)).val().indexOf('版費')>-1){
+													iscost1=dec(b_seq)+1;
 												}
-												q_bbs_addrow('bbs', (dec(b_seq)+t_iscost1), 1);
-												$('#txtProductno_'+((dec(b_seq)+t_iscost1)+1)).val('DM0000001');
-												$('#txtProduct_'+((dec(b_seq)+t_iscost1)+1)).val('費用');
-												$('#txtSpec_'+((dec(b_seq)+t_iscost1)+1)).val('刀模費');
-												$('#txtUnit_'+((dec(b_seq)+t_iscost1)+1)).val('式');
-												$('#txtMount_'+((dec(b_seq)+t_iscost1)+1)).val(1);
-												$('#txtPrice_'+((dec(b_seq)+t_iscost1)+1)).val($('#cost_txtCost1').val());
-												AutoNo3();
+												if($('#txtProduct_'+(dec(b_seq)+1)).val().indexOf('刀模費')>-1){
+													iscost2=dec(b_seq)+1;
+												}
 											}
-											sum();
+											if($('#txtProduct_'+(b_seq+2)).length>0){//判斷物件是否存在
+												if($('#txtProduct_'+(dec(b_seq)+2)).val().indexOf('版費')>-1){
+													iscost1=dec(b_seq)+2;
+												}
+												if($('#txtProduct_'+(dec(b_seq)+2)).val().indexOf('刀模費')>-1){
+													iscost2=dec(b_seq)+2;
+												}
+											}
+											
+											//版費處理
+											if(!emp($('#cost_txtCost0').val())){
+												if(iscost1>-1){//存在版費>>改費用金額
+													q_tr('txtPrice_'+iscost1,dec($('#cost_txtCost0').val()));
+												}else{
+													q_bbs_addrow('bbs', b_seq, 1);
+													$('#txtProductno_'+(dec(b_seq)+1)).val('BF0000001');
+													$('#txtProduct_'+(dec(b_seq)+1)).val('費用');
+													$('#txtSpec_'+(dec(b_seq)+1)).val('版費');
+													$('#txtUnit_'+(dec(b_seq)+1)).val('色');
+													$('#txtMount_'+(dec(b_seq)+1)).val(1);
+													$('#txtPrice_'+(dec(b_seq)+1)).val($('#cost_txtCost0').val());
+													AutoNo3();
+												}
+												sum();	
+											}
+											
+											//刀模費處理
+											if(!emp($('#cost_txtCost1').val())){
+												if(iscost2>-1){
+													q_tr('txtPrice_'+iscost2,dec($('#cost_txtCost1').val()));
+												}else{
+													var t_iscost1=0;
+													if($('#txtProduct_'+(b_seq+1)).length>0){
+														if($('#txtProduct_'+(b_seq+1)).val().indexOf('版費')>-1){
+															t_iscost1=1;
+														}
+													}
+													q_bbs_addrow('bbs', (dec(b_seq)+t_iscost1), 1);
+													$('#txtProductno_'+((dec(b_seq)+t_iscost1)+1)).val('DM0000001');
+													$('#txtProduct_'+((dec(b_seq)+t_iscost1)+1)).val('費用');
+													$('#txtSpec_'+((dec(b_seq)+t_iscost1)+1)).val('刀模費');
+													$('#txtUnit_'+((dec(b_seq)+t_iscost1)+1)).val('式');
+													$('#txtMount_'+((dec(b_seq)+t_iscost1)+1)).val(1);
+													$('#txtPrice_'+((dec(b_seq)+t_iscost1)+1)).val($('#cost_txtCost1').val());
+													AutoNo3();
+												}
+												sum();
+											}
 										}
-									}
-									
-									//訂金
-									if(t_class=='印'){
-										if($('#cost_txtDeposit').val()!='')
-											t_memo=t_memo+(t_memo.length>0?' ':'')+'訂金：'+$('#cost_txtDeposit').val();
-									}
-									//工期,交貨日
-									if($('#cost_txtWdate').val()!=''){
-										if(t_class=='印'){
-											t_memo=t_memo+(t_memo.length>0?' ':'')+'工期：'+$('#cost_txtWdate').val();
+										
+										//訂金
+										if(t_class.indexOf('印')>-1){
+											if($('#cost_txtDeposit').val()!='')
+												t_memo=t_memo+(t_memo.length>0?' ':'')+'訂金：'+$('#cost_txtDeposit').val();
 										}
-										if(t_class=='便'){
-											t_memo=t_memo+(t_memo.length>0?' ':'')+'交貨日：'+$('#cost_txtWdate').val();
+										//工期,交貨日
+										if($('#cost_txtWdate').val()!=''){
+											if(t_class.indexOf('印')>-1){
+												t_memo=t_memo+(t_memo.length>0?' ':'')+'工期：'+$('#cost_txtWdate').val();
+											}
+											if(t_class.indexOf('便')>-1){
+												t_memo=t_memo+(t_memo.length>0?' ':'')+'交貨日：'+$('#cost_txtWdate').val();
+											}
 										}
-									}
-									//其他
-									if($('#cost_txtOther').val()!=''){
-										t_memo=t_memo+(t_memo.length>0?' ':'')+$('#cost_txtOther').val();
-									}
-									
-									if(t_memo.length>0)
-										$('#txtMemo_'+b_seq).val($('#txtMemo_'+b_seq).val()+($('#txtMemo_'+b_seq).val().length>0?' ':'')+t_memo);
-									
-									$('#div_cost').hide();
-									$('#txtSizea_'+b_seq).focus();
-								});
+										//其他
+										if($('#cost_txtOther').val()!=''){
+											t_memo=t_memo+(t_memo.length>0?' ':'')+$('#cost_txtOther').val();
+										}
+										
+										if(t_memo.length>0)
+											$('#txtMemo_'+b_seq).val($('#txtMemo_'+b_seq).val()+($('#txtMemo_'+b_seq).val().length>0?' ':'')+t_memo);
+										
+										$('#div_cost').hide();
+										$('#txtSizea_'+b_seq).focus();
+									});
+								}
 							}
 						});
 						
@@ -956,9 +960,9 @@
 							b_seq = t_IdSeq;
 							var t_class=$.trim($('#combClassa_'+b_seq).val());
 							if(!$('#div_cost').is(':hidden')){
-								if(t_class=='印')
+								if(t_class.indexOf('印')>-1)
 									$('#cost_txtCost0').focus();
-								if(t_class=='便')
+								if(t_class.indexOf('便')>-1)
 									$('#cost_txtWdate').focus();
 							}
 						});
@@ -1443,13 +1447,16 @@
 								t_grpno=as[0].grpno;
 							}
 							//集團本身底下子公司
-							var t_where = "where=^^ grpno='"+$('#txtCustno').val()+"' ^^";
-							q_gt('cust', t_where, 0, 0, 0, "getcustgrpno2", r_accy, 1);
-							var as2 = _q_appendData("cust", "", true);
 							var isexists=false;
-							for ( i = 0; i < as2.length; i++) {
-								if($('#txtProductno_' + b_seq).val().substr(0,5)==as2[i].noa.substr(0,5)){
-									isexists=true;
+							if($('#txtCustno').val().length>0){
+								var t_where = "where=^^ grpno='"+$('#txtCustno').val()+"' ^^";
+								q_gt('cust', t_where, 0, 0, 0, "getcustgrpno2", r_accy, 1);
+								var as2 = _q_appendData("cust", "", true);
+								
+								for ( i = 0; i < as2.length; i++) {
+									if($('#txtProductno_' + b_seq).val().substr(0,5)==as2[i].noa.substr(0,5)){
+										isexists=true;
+									}
 								}
 							}
 							
@@ -1457,7 +1464,7 @@
 								
 								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
 								&& $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno.substr(0,5)
-								&& !isexists	){
+								&& !isexists ){
 									$('#txtProductno_' + b_seq).val('');
 								}
 								

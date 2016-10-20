@@ -155,7 +155,7 @@
 				q_cmbParse("combPaytype", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
-				q_cmbParse("combClassa",' ,便,印,新版,改版舊版作廢,新版兼打樣,改版兼打樣,重新製版','s');
+				q_cmbParse("combClassa",' ,便品,空白,公版,加工,印刷,私-空白(客製),新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣','s');
 				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@換貨','s');
 				q_cmbParse("cmbConform", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
 				q_cmbParse("cmbIndate", '當天@當天,之前@之前','s');
@@ -618,6 +618,24 @@
 					
 					if(emp($('#txtApv').val())){
 						alert("請先核准!!");
+						return;
+					}
+					
+					//105/10/17 判斷 新版、改版的訂單，若未進貨或入庫，禁止轉出貨單
+					var t_err='';
+					for(var i=0;i<q_bbsCount;i++){
+						if($('#txtClassa_'+i).val().indexOf('新版')>-1 || $('#txtClassa_'+i).val().indexOf('改版')>-1){
+							t_newstyle++;
+							var t_where = " where=^^ ordeno='" + $('#txtNoa').val() + "' and no2='"+$('#txtNo2_'+i).val()+"' and isnull(enda,0)=1 and isnull(mount,0)>0 ^^";
+							q_gt('view_cub', t_where, 0, 0, 0, 'checkcubenda', r_accy, 1);
+							var as = _q_appendData("view_cub", "", true);
+							if (as[0] == undefined) {
+								t_err=t_err+($('#txtProduct_'+i).val()+' '+$('#txtProduct_'+i).val()+' 未入庫禁止轉出貨!!\n');
+							}
+						}
+					}
+					if(t_err.length>0){
+						alert(t_err);
 						return;
 					}
 					
@@ -1932,7 +1950,7 @@
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
 							if(q_cur==1 || q_cur==2){
-								if($('#txtClassa_'+b_seq).val()=='印' || $('#txtClassa_'+b_seq).val()=='便'){
+								if($('#txtClassa_'+b_seq).val().indexOf('印')>-1 || $('#txtClassa_'+b_seq).val().indexOf('便')>-1){
 									$('#combClassa_' + b_seq).val($('#txtClassa_'+b_seq).val());
 									$('#combClassa_' + b_seq).focusout();
 								}else{
@@ -1952,8 +1970,8 @@
 							var t_class=$.trim($('#combClassa_'+b_seq).val());
 							if(t_class.length>0 &&(q_cur==1 || q_cur==2)){
 								var t_html='';
-								if(t_class=='印' || t_class=='便'){
-									if(t_class=='印'){
+								if(t_class.indexOf('印')>-1 || t_class.indexOf('便')>-1){
+									if(t_class.indexOf('印')>-1){
 										t_html="<table id='table_cost' style='width:610px;text-align: center;' border='1' cellpadding='2'  cellspacing='0'><tr>";
 										t_html+="<td style='width:100px'>版費</td>";
 										t_html+="<td style='width:100px'>刀模費</td>";
@@ -1967,7 +1985,7 @@
 										t_html+="<td><input id='cost_txtWdate' type='text' class='txt c1'/></td>";
 										t_html+="<td><input id='cost_txtOther' type='text' class='txt c1'/></td>";
 									}
-									if(t_class=='便'){
+									if(t_class.indexOf('便')>-1){
 										t_html="<table id='table_cost' style='width:310px;text-align: center;' border='1' cellpadding='2'  cellspacing='0'><tr>";
 										t_html+="<td style='width:100px'>交貨日</td>";
 										t_html+="<td style='width:150px'>其他</td>";
@@ -1999,15 +2017,15 @@
 									$('#div_cost').css('left',$('#combClassa_'+b_seq).offset().left+50);
 									
 									$('#div_cost').show();
-									if(t_class=='印')
+									if(t_class.indexOf('印')>-1)
 										$('#cost_txtCost0').focus();
-									if(t_class=='便')
+									if(t_class.indexOf('便')>-1)
 										$('#cost_txtWdate').focus();
 										
 									$('#btnClose_div_cost').click(function() {
 										var t_memo='';
 										
-										if(t_class=='印'){
+										if(t_class.indexOf('印')>-1){
 											//判斷下兩行是否存在版費 或 刀模費
 											var iscost1=-1,iscost2=-1;
 											if($('#txtProduct_'+(b_seq+1)).length>0){//判斷物件是否存在
@@ -2079,16 +2097,16 @@
 										}
 										
 										//訂金
-										if(t_class=='印'){
+										if(t_class.indexOf('印')>-1){
 											if($('#cost_txtDeposit').val()!='')
 												t_memo=t_memo+(t_memo.length>0?' ':'')+'訂金：'+$('#cost_txtDeposit').val();
 										}
 										//工期,交貨日
 										if($('#cost_txtWdate').val()!=''){
-											if(t_class=='印'){
+											if(t_class.indexOf('印')>-1){
 												t_memo=t_memo+(t_memo.length>0?' ':'')+'工期：'+$('#cost_txtWdate').val();
 											}
-											if(t_class=='便'){
+											if(t_class.indexOf('便')>-1){
 												t_memo=t_memo+(t_memo.length>0?' ':'')+'交貨日：'+$('#cost_txtWdate').val();
 											}
 										}
@@ -2113,9 +2131,9 @@
 							b_seq = t_IdSeq;
 							var t_class=$.trim($('#combClassa_'+b_seq).val());
 							if(!$('#div_cost').is(':hidden')){
-								if(t_class=='印')
+								if(t_class.indexOf('印')>-1)
 									$('#cost_txtCost0').focus();
-								if(t_class=='便')
+								if(t_class.indexOf('便')>-1)
 									$('#cost_txtWdate').focus();
 							}
 						});
@@ -2127,8 +2145,8 @@
 							
 							if($('#combGroupbno_'+b_seq).find("option:selected").text()!=''){
 								$('#txtProduct_'+b_seq).val($('#combGroupbno_'+b_seq).find("option:selected").text());
-								$('#combClassa_'+b_seq).val('印');
-								$('#txtClassa_'+b_seq).val('印');
+								$('#combClassa_'+b_seq).val('印刷');
+								$('#txtClassa_'+b_seq).val('印刷');
 							}
 							
 							$('#combGroupbno_'+b_seq)[0].selectedIndex=0;

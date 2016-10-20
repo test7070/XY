@@ -273,7 +273,7 @@ select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),ROW_NUMBER(
 ,case when a.typea='2' then '退貨 ' else '' end+replace(b.memo,'chr(10)','<BR>')
 ,case when a.worker2!='' then a.worker2 else a.worker end
 ,stuff((select ','+custorde from view_orde where CHARINDEX(noa,a.ordeno)>0 and custorde!='' for xml path('')),1,1,'')
-,dbo.charbr(b.product+' '+b.spec,38)
+,dbo.charbr(b.product+' '+b.spec,40)
 from view_vcc a left join view_vccs b on a.noa=b.noa left join cust c on a.custno=c.noa left join custm cm on a.custno=cm.noa
 left join ucc d on b.productno=d.noa
 where a.noa between @t_bxnoa and @t_exnoa
@@ -349,7 +349,7 @@ begin
 		
 		insert @tmp(gno,recno,pageno,noa,datea,custno,comp,tel,mobile,addr,invopay,checkvcc,chkordc,paytype,payday,amemo,salesno,sales,tax,money,worker,custorde)
 		select top 1 '2',((@t_count)*@t_pageline),@t_count,@t_noa,datea,custno,comp,tel,mobile,addr,invopay,checkvcc,chkordc,paytype,payday,amemo,salesno,sales,tax,money,worker,custorde
-		from @tmp where noa=@t_noa and datea!=''
+		from @tmp where noa=@t_noa and datea!='' and isnull(noq,'')!='' order by noa,noq
 		
 		--if(@t_count!=1)
 		--begin

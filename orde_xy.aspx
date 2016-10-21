@@ -21,7 +21,7 @@
 			q_desc = 1;
 			q_tables = 's';
 			var q_name = "orde";
-			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno','txtVccno','txtApv','textInvomemo','textConn'];
+			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtCno', 'txtAcomp', 'txtMoney', 'txtTax', 'txtTotal', 'txtTotalus', 'txtSales', 'txtOrdbno', 'txtOrdcno','txtVccno','txtApv','textInvomemo','textConn','textMemo2'];
 			var q_readonlys = ['txtTotal', 'txtQuatno', 'txtNo2', 'txtNo3', 'txtC1', 'txtNotv','txtHard','txtLengthc','txtMount','txtPrice','txtZinc'];
 			var bbmNum = [['txtTotal', 10, 0, 1], ['txtMoney', 10, 0, 1], ['txtTax', 10, 0, 1],['txtFloata', 10, 5, 1], ['txtTotalus', 15, 2, 1]];
 			var bbsNum = [];
@@ -2446,6 +2446,10 @@
 					t_where = " where=^^ noa='" + $('#txtCustno').val() + "'^^";
 					q_gt('custm', t_where, 0, 0, 0, '', r_accy);
 				}
+				if(!emp($('#txtNoa').val()) && $('#txtNoa').val()!='AUTO' && !$('#chkEnda').prop('checked') && !$('#chkCancel').prop('checked')){//1051017
+					var t_para = encodeURI($('#txtNoa').val());
+					q_func('qtxt.query.ordecheckstk', 'cust_ucc_xy.txt,ordecheckstk,' + t_para);
+				}
 			}
 
 			function readonly(t_para, empty) {
@@ -2843,6 +2847,16 @@
 			
 			function q_funcPost(t_func, result) {
 				switch(t_func) {
+					case 'qtxt.query.ordecheckstk':
+						var as = _q_appendData("tmp0", "", true, true);
+						var t_memo2='';
+						for(var i = 0; i < as.length; i++){
+							if(as[i].stkmemo.length>0){
+								t_memo2=t_memo2+(t_memo2.length>0?',':'')+'項次:'+as[i].no2+' '+as[i].stkmemo;
+							}
+						}
+						$('#textMemo2').val(t_memo2);
+						break;
 					case 'qtxt.query.contenda':
 						var as = _q_appendData("tmp0", "", true, true);
 						break;
@@ -3553,6 +3567,8 @@
 							<input id="txtGdate" type="hidden" class="txt c1"/><!--原檔名-->
 							<input id="txtGtime" type="hidden" class="txt c1"/><!--上傳檔名-->
 						</td>
+						<td><span> </span><a id='lblMemo2_xy' class='lbl'>庫存不足</a></td>
+						<td colspan='7'><input id="textMemo2" type="text" class="txt c1" /></td>
 						<td><a id="lblDownload"> </a></td>
 						<td style="display: none;"><div style="width:100%;" id="FileList"> </div></td>
 					<tr>

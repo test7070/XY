@@ -1731,3 +1731,85 @@ set namea=@noa
 where noa=@upnoa
 ;
 -------------------------------------------------------------------------------------------------------
+ordecheckstk:--ordecheckstk
+declare @t_noa nvarchar(50)=case when '#non'=[1] then '' else [1] end
+
+declare @tmp table(
+	noa nvarchar(50),
+	no2 nvarchar(50),
+	productno nvarchar(100),
+	products nvarchar(MAX),
+	mount decimal(25, 4),
+	unit nvarchar(10),
+	notv decimal(25, 4),	
+	smount decimal(25, 4),
+	cmount decimal(25, 4),
+	dcmount decimal(25, 4),
+	towork nvarchar(20),
+	stkmemo nvarchar(100)
+)
+
+	insert into @tmp
+	select b.noa,a.no2,	a.productno,a.product+' '+a.classa+' '+isnull(a.spec,'') 
+	,a.mount,a.unit,a.notv,0
+	,isnull((select sum(tranmoney2-tranmoney3) from view_vccs where productno=a.productno),0)
+	,isnull((select sum(notv) from view_ordcs where productno=a.productno and enda!=1 and cancel!=1),0) 
+	+isnull((select sum(notv) from view_cub where productno=a.productno and enda!=1 and cancel!=1),0) 
+	,d.cdate,''
+	from view_ordes a
+	left join view_orde b on a.noa = b.noa
+	left join cust c on b.custno = c.noa
+	left join ucc d on a.productno=d.noa
+	where a.noa=@t_noa and (a.mount!=0) 
+	and isnull(a.enda,0)!=1 and isnull(b.enda,0)!=1 
+	and isnull(a.cancel,0)!=1 and isnull(b.cancel,0)!=1
+	order by b.custno,a.product,b.noa,b.odate,b.datea
+	
+declare @stkmount table(
+	productno nvarchar(50),
+	mount float
+)
+
+declare @t_sdate nvarchar(10)=dbo.AD2ChineseEraName(CONVERT (VARCHAR(10), GETDATE(),20))
+
+declare @counts int=(select count(*) from @tmp)
+
+if(@counts>0)
+begin
+	if(@counts<=7)
+	begin
+		declare @productno nvarchar(50)
+		declare cursor_table cursor for 
+		select productno from @tmp
+		open cursor_table 
+		fetch next from cursor_table 
+		into @productno
+		while(@@FETCH_STATUS <> -1) 
+		begin
+			insert @stkmount
+			select productno,mount from stkucc(@t_sdate,'A',@productno) a 
+			
+			fetch next from cursor_table 
+			into @productno
+		end 
+		close cursor_table 
+		deallocate cursor_table 
+	end
+	else
+	begin
+		insert @stkmount
+		select productno,mount from stkucc(@t_sdate,'A','') a 
+		where exists (select * from @tmp where productno=a.productno)
+	end
+end
+
+update a
+set smount=b.mount,stkmemo=case when isnull(a.notv,0)-a.dcmount-a.cmount-b.mount>0 then case when len(towork)>0 then +'需'+towork else '庫存不足' end else '' end
+from @tmp a left join @stkmount b on a.productno=b.productno
+
+select noa,no2,productno,products,unit
+,mount,notv,smount,cmount,dcmount,stkmemo 
+from @tmp order by noa,no2
+
+;
+-------------------------------------------------------------------------------------------------------

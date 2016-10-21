@@ -135,7 +135,7 @@
 				q_cmbParse("combPaytype", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
-				q_cmbParse("combClassa",' ,便品,空白,公版,加工,印刷,私-空白(客製),新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣','s');
+				q_cmbParse("combClassa",' ,便品,空白,公版,加工,印刷,私-空白,新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣','s');
 				q_cmbParse("combDay",'0@ ,15@15天,30@30天,45@45天');
 				
 				var t_where = "where=^^ 1=0 ^^";

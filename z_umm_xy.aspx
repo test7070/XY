@@ -47,7 +47,8 @@
 				});
 
             });
-
+			
+			var bsdate='';
             function q_gfPost() {
                 $('#q_report').q_report({
                     fileName : 'z_umm_xy',
@@ -87,46 +88,62 @@
                         value:'Y@顯示備註與發票號碼'.split(',')
                     }, {
                         type : '5', //[12]
-                        name : 'xorder',
-                        value:'cust@業務-客戶,paytype@業務-寄單-客戶'.split(',')
+                        name : 'xorder', //105/10/17 paytype@收款方式,custno2@收款客戶
+                        value:'cust@業務-客戶,paytype@業務-寄單-客戶'.split(',') 
                     }, {
                         type : '5', //[13]
                         name : 'showpayed',
                         value:'Y@顯示已收,N@顯示未收'.split(',')
-                    },{//105/10/17   3FC00
+                    },{//105/10/17   3FFC00
                         type : '6', //[14]
                         name : 'xgrpno'
                     },{
-                        type : '1', //[15]
+                        type : '1', //[15][16]
                         name : 'xstartdate'
                     }, {
-                        type : '2', //[16][17]
+                        type : '2', //[17][18]
                         name : 'xcust2',
                         dbf : 'cust',
                         index : 'noa,comp,nick,invoicetitle,serial',
                         src : 'cust_b.aspx'
                     }, {
-                        type : '2', //[18][19]
+                        type : '2', //[19][20]
                         name : 'xcustv',
                         dbf : 'cust',
                         index : 'noa,comp,nick,invoicetitle,serial',
                         src : 'cust_b.aspx'
                     }, {
-                        type : '5', //[20]
+                        type : '5', //[21]
                         name : 'xpaytype',
                         value:'月結@月結,收現@收現'.split(',')
                     }, {
-                        type : '5', //[21]
+                        type : '5', //[22]
                         name : 'xpostmemo',
                         value:'寄單@寄單,僅回郵@僅回郵,親送單@親送單'.split(',')
                     }, {
-                        type : '8', //[22]
+                        type : '8', //[23]
                         name : 'xmerge',
                         value:'1@合併帳單,2@未開發票金額'.split(',')
                     }, {
-                        type : '5', //[23]
+                        type : '5', //[24]
                         name : 'xorder1',
                         value:'1@出貨日期,2@出貨客戶'.split(',')
+                    }, {
+                        type : '5', //[25]
+                        name : 'xorder2',
+                        value:'1@出貨客戶,2@店號'.split(',')
+                    }, {
+                        type : '8', //[26]
+                        name : 'xshow1',
+                        value:'1@所屬集團,2@收款方式,3@發票開立,4@起算日,5@對帳客戶,6@對帳超連結,7@開發票金額,8@未開發票金額,9@發票號碼'.split(',')
+                    }, {
+                        type : '5', //[27]
+                        name : 'xorder3',
+                        value:'1@出貨客戶,2@收款客戶'.split(',')
+                    }, {
+                        type : '8', //[28]
+                        name : 'xshow2',
+                        value:'1@寄單方式'.split(',')
                     }]
                 });
 
@@ -149,6 +166,13 @@
                 
                 $('#Xstartdate').css('width','300px');
                 $('#Xstartdate input').css('width','85px');
+                
+                $('#txtXstartdate1').focusin(function() {
+                	bsdate=$('#txtXstartdate1').val();
+				}).blur(function() {
+					if(bsdate!=$('#txtXstartdate1').val())
+                		$('#txtXstartdate2').val($('#txtXstartdate1').val());
+				});
                 
                 $('#txtXstartdate1').mask('99');
                 $('#txtXstartdate2').mask('99');

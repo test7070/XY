@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" >
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title></title>
+		<title> </title>
 		<script src="../script/jquery.min.js" type="text/javascript"></script>
 		<script src='../script/qj2.js' type="text/javascript"></script>
 		<script src='qset.js' type="text/javascript"></script>
@@ -15,7 +15,7 @@
 		<script src="css/jquery/ui/jquery.ui.widget.js"></script>
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
-            aPop = new Array();
+            aPop = new Array(['txtXgrpno', 'lblXgrpno', 'cust', 'noa,comp,nick,tel,invoicetitle','txtXgrpno', 'cust_b.aspx']);
             if (location.href.indexOf('?') < 0) {
                 location.href = location.href + "?;;;;" + ((new Date()).getUTCFullYear() - 1911);
             }
@@ -93,6 +93,40 @@
                         type : '5', //[13]
                         name : 'showpayed',
                         value:'Y@顯示已收,N@顯示未收'.split(',')
+                    },{//105/10/17   3FC00
+                        type : '6', //[14]
+                        name : 'xgrpno'
+                    },{
+                        type : '1', //[15]
+                        name : 'xstartdate'
+                    }, {
+                        type : '2', //[16][17]
+                        name : 'xcust2',
+                        dbf : 'cust',
+                        index : 'noa,comp,nick,invoicetitle,serial',
+                        src : 'cust_b.aspx'
+                    }, {
+                        type : '2', //[18][19]
+                        name : 'xcustv',
+                        dbf : 'cust',
+                        index : 'noa,comp,nick,invoicetitle,serial',
+                        src : 'cust_b.aspx'
+                    }, {
+                        type : '5', //[20]
+                        name : 'xpaytype',
+                        value:'月結@月結,收現@收現'.split(',')
+                    }, {
+                        type : '5', //[21]
+                        name : 'xpostmemo',
+                        value:'寄單@寄單,僅回郵@僅回郵,親送單@親送單'.split(',')
+                    }, {
+                        type : '8', //[22]
+                        name : 'xmerge',
+                        value:'1@合併帳單,2@未開發票金額'.split(',')
+                    }, {
+                        type : '5', //[23]
+                        name : 'xorder1',
+                        value:'1@出貨日期,2@出貨客戶'.split(',')
                     }]
                 });
 
@@ -106,6 +140,21 @@
                 $('#txtXdate1').datepicker();
                 $('#txtXdate2').mask(r_picd);
                 $('#txtXdate2').datepicker();
+                
+                $('#Xdate').css('width','300px');
+                $('#Xdate input').css('width','85px');
+                
+                $('#Showinvomemo').css('height','30px');
+                $('#chkShowinvomemo').css('margin-top','5px');
+                
+                $('#Xstartdate').css('width','300px');
+                $('#Xstartdate input').css('width','85px');
+                
+                $('#txtXstartdate1').mask('99');
+                $('#txtXstartdate2').mask('99');
+                
+                $('#Xmerge').css('height','30px');
+                $('#chkXmerge').css('margin-top','5px');
             }
 
             function q_boxClose(s2) {

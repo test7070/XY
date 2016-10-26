@@ -155,7 +155,8 @@
 				q_cmbParse("combPaytype", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
-				q_cmbParse("combClassa",' ,便品,空白,公版,加工,印刷,私-空白,新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣','s');
+				q_cmbParse("combClassa",' ,便品,空白,公版,加工,印刷,私-空白','s');
+				q_cmbParse("cmbScolor",',新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣','s');
 				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@換貨','s');
 				q_cmbParse("cmbConform", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
 				q_cmbParse("cmbIndate", '當天@當天,之前@之前','s');
@@ -279,7 +280,7 @@
 				});
 				
 				$('#btnUpload').change(function() {
-					if(emp($('#txtNoa').val()) || q_cur==1 || q_cur==2){
+					if(!(q_cur==1 || q_cur==2)){
 						return;
 					}
 					var file = $(this)[0].files[0];
@@ -624,7 +625,7 @@
 					//105/10/17 判斷 新版、改版的訂單，若未進貨或入庫，禁止轉出貨單
 					var t_err='';
 					for(var i=0;i<q_bbsCount;i++){
-						if($('#txtClassa_'+i).val().indexOf('新版')>-1 || $('#txtClassa_'+i).val().indexOf('改版')>-1){
+						if($('#cmbScolor_'+i).val().indexOf('新版')>-1 || $('#cmbScolor_'+i).val().indexOf('改版')>-1){
 							t_newstyle++;
 							var t_where = " where=^^ ordeno='" + $('#txtNoa').val() + "' and no2='"+$('#txtNo2_'+i).val()+"' and isnull(enda,0)=1 and isnull(mount,0)>0 ^^";
 							q_gt('view_cub', t_where, 0, 0, 0, 'checkcubenda', r_accy, 1);
@@ -657,6 +658,11 @@
 					}
 				});
 			}
+			
+			var guid = (function() {
+				function s4() {return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);}
+				return function() {return s4() + s4() + s4() + s4();};
+			})();
 			
 			//addr2控制事件vvvvvv-------------------
 			function minus_addr2(seq) {	
@@ -1476,9 +1482,10 @@
 				
 				//出貨單數量0不存檔 104/09/10
 				//105/10/13 若訂購量小於最低訂購量時，不能存檔 //105/10/18 提示 可以存檔
+				//105/10/26 修改狀態 數量0不刪除
 				var t_err = '';
 				for(var k=0;k<q_bbsCount;k++){
-					if(dec($('#txtMount_'+k).val())==0){
+					if(dec($('#txtMount_'+k).val())==0 && q_cur==1){
 						$('#btnMinus_'+k).click();
 					}
 					
@@ -1486,7 +1493,7 @@
 					var t_m1=0;
 					var t_m3=0;
 					
-					if($('#cmbSource_'+k).val()=='0' || $('#cmbSource_'+k).val()=='1'){
+					if(($('#cmbSource_'+k).val()=='0' || $('#cmbSource_'+k).val()=='1') && dec($('#txtMount_'+k).val())>0){
 						$("#combZinc_"+k).children().each(function(){
 							if($('#txtZinc_'+k).val()==$(this).text()){
 								t_m1=$(this).val();
@@ -3070,8 +3077,8 @@
 			
 			function ShowDownlbl() {				
 				$('#lblDownload').text('').hide();
-				if(!emp($('#txtConn_cust').val()))
-					$(this).text('下載').show();
+				if(!emp($('#txtGtime').val()))
+					$('#lblDownload').text('下載').show();
 			}
 			
 			function combzincchange(i){
@@ -3563,13 +3570,13 @@
 					</tr>
 						<td><span> </span><a  id="lblUpload_xy" class="lbl">PO上傳</a></td>
 						<td colspan="3">
-							<input type="file" id="btnUpload" value="選擇檔案" style="width: 98%;"/>
+							<input type="file" id="btnUpload" value="選擇檔案" style="width: 70%;"/>
 							<input id="txtGdate" type="hidden" class="txt c1"/><!--原檔名-->
 							<input id="txtGtime" type="hidden" class="txt c1"/><!--上傳檔名-->
+							<a id="lblDownload" class='lbl btn'> </a>
 						</td>
 						<td><span> </span><a id='lblMemo2_xy' class='lbl'>庫存不足</a></td>
-						<td colspan='7'><input id="textMemo2" type="text" class="txt c1" /></td>
-						<td><a id="lblDownload"> </a></td>
+						<td colspan='3'><input id="textMemo2" type="text" class="txt c1" /></td>
 						<td style="display: none;"><div style="width:100%;" id="FileList"> </div></td>
 					<tr>
 						<td><span> </span><a id='lblMemo' class='lbl'> </a></td>
@@ -3580,7 +3587,7 @@
 				</table>
 			</div>
 		</div>
-		<div class='dbbs' style="width: 2600px;">
+		<div class='dbbs' style="width: 2800px;">
 			<table id="tbbs" class='tbbs' border="1" cellpadding='2' cellspacing='1'>
 				<tr style='color:White; background:#003366;' >
 					<td align="center" style="width:40px;"><input class="btn" id="btnPlus" type="button" value='＋' style="font-weight: bold;" /></td>
@@ -3588,6 +3595,7 @@
 					<td align="center" style="width:120px;"><a id='lblProductno'> </a></td>
 					<td align="center" style="width:130px;"><a id='lblProduct_s'> </a></td>
 					<td align="center" style="width:85px;"><a>版別</a></td>
+					<td align="center" style="width:115px;"><a>版本</a></td>
 					<td align="center" style="width:300px;"><a>規格</a></td>
 					<td align="center" style="width:70px;"><a>最低<BR>訂購量</a></td>
 					<td align="center" style="width:40px;display: none;"><a>色數</a></td>
@@ -3631,6 +3639,7 @@
 						<input id="txtClassa.*" type="text" class="txt c1" style="width: 60px;"/>
 						<select id="combClassa.*" class="txt c1" style="width:20px;float: right;"> </select>
 					</td>
+					<td><select id="cmbScolor.*" class="txt c1" style="font-size: medium;"> </select></td>
 					<td>
 						<input id="txtSpec.*" type="text" class="txt c1" style="width:270px;"/>
 						<input class="btn" id="btnSpec.*" type="button" value='.' style=" font-weight: bold;" />
@@ -3674,6 +3683,7 @@
 		</div>
 		<div id="div_spec" style="position:absolute; top:300px; left:400px; display:none; background-color: #CDFFCE; border: 5px solid gray;"> </div>
 		<div id="div_cost" style="position:absolute; top:300px; left:400px; display:none; background-color: #CDFFCE; border: 5px solid gray;"> </div>
+		<iframe id="xdownload" style="display:none;"> </iframe>
 		<input id="q_sys" type="hidden" />
 	</body>
 </html>

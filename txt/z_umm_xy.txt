@@ -472,31 +472,46 @@ begin
 	where case when isnull(b.vcccustno,'')!='' then b.vcccustno else a.custno end not between @t_bcustvno and @t_ecustvno
 end
 
-if(@t_paytype='月結')
+if(len(@t_paytype)>0)
 begin
-	delete a from #result a where paytype not like '%月結%'
-end
-else
-begin
-	delete a from #result a where paytype like '%月結%'
+	if(@t_paytype='月結')
+	begin
+		delete a from #result a where paytype not like '%月結%'
+	end
+	else
+	begin
+		delete a from #result a where paytype like '%月結%'
+	end
 end
 
-if(@t_postmemo='寄單')
+--寄單方式以對帳客戶為主
+update a
+set postmemo=b.postmemo
+from #result a left join custm b on a.vcustno=b.noa
+
+if(len(@t_postmemo)>0)
 begin
-	delete a from #result a where not(postmemo='郵寄' or postmemo='附回郵' or postmemo='雙掛號')
-end
-else
-begin
-	delete a from #result a where postmemo!=@t_postmemo
+	if(@t_postmemo='寄單')
+	begin
+		delete a from #result a where not(postmemo='郵寄' or postmemo='附回郵' or postmemo='雙掛號')
+	end
+	else
+	begin
+		delete a from #result a where postmemo!=@t_postmemo
+	end
 end
 
 if(charindex('1',@t_merge)>0) --以發票客戶為客戶
 begin
 	update a
-	set xcustno=icustno,comp=b.comp
+	set xcustno=icustno,comp=b.nick
 	,post=isnull(b.zip_home,''),addr=isnull(b.addr_invo,''),tel=isnull(b.tel,''),serial=isnull(b.serial,'')
 	from #result a left join cust b on a.icustno=b.noa
 	where icustno!=xcustno
+end
+else
+begin
+	update a set comp=b.nick from #result a left join cust b on a.xcustno=b.noa
 end
 
 if(charindex('2',@t_merge)>0)
@@ -622,6 +637,7 @@ replace(comp,'~#$',char(39)) comp,
 replace(addr,'~#$',char(39)) addr,
 @nowdate qtoday,
 noa xnoa,noq xnoq,
+case when gno='6' and len(noa)>0 and isnull(imoney,0)>0 then 'vcca?custno=\'''+custno+'\'' and '+CAST(imoney as nvarchar(100))+'=$imoney' else '' end ghref,
 * from #result order by salesno,xcustno,page,idno,gno,datea,xnoa,xnoq
 
 IF OBJECT_ID('tempdb..#result')is not null
@@ -968,7 +984,7 @@ set @t_esalesno = case when '#non'=[7] then char(255) else [7] end
 set @t_order =  case when '#non'=[12] then 'cust' else [12] end
 set @t_show =  case when '#non'=[28] then '' else [28] end
 
-declare @pageline int = 27 
+declare @pageline int = 27
 
 -------------------------------------------------------------------------------------------------------------------------
 IF OBJECT_ID('tempdb..#tmp')is not null
@@ -1200,7 +1216,7 @@ begin
 	insert #result(gno,page,salesno,sales,title,torder,m01,m02,m03,m04,m05,m06,m07,m08,m09,m10,m11,m12)
 	select '11',@maxpage,salesno,MAX(sales),MAX(title),torder
 	,SUM(m01),SUM(m02),SUM(m03),SUM(m04),SUM(m05),SUM(m06),SUM(m07),SUM(m08),SUM(m09),SUM(m10),SUM(m11),SUM(m12)
-	from #tmpa group by salesno,torder3
+	from #tmpa group by salesno,torder
 	
 	--總計
 	insert #result(gno,page,salesno,sales,title,torder,m01,m02,m03,m04,m05,m06,m07,m08,m09,m10,m11,m12)
@@ -1243,7 +1259,7 @@ begin
 	dbo.getComma(round(popay,0),-1)popay,
 	dbo.getComma(round(opay,0),-1)opay,
 	replace(comp,'~#$',char(39)) comp,
-	* from #result order by page,gno,salesno,custno,torder
+	* from #result order by page,right('0'+gno,2),salesno,custno,torder
 end
 else
 begin
@@ -1269,7 +1285,7 @@ begin
 	dbo.getComma(round(popay,0),-1)popay,
 	dbo.getComma(round(opay,0),-1)opay,
 	replace(comp,'~#$',char(39)) comp,
-	* from #result order by page,gno,salesno,paytype,custno,torder
+	* from #result order by page,right('0'+gno,2),salesno,paytype,custno,torder
 end
 
 IF OBJECT_ID('tempdb..#tmp')is not null

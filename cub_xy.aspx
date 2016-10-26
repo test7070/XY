@@ -17,7 +17,7 @@
 			this.errorHandler = null;
 			q_tables = 't';
 			var q_name = "cub";
-			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano','txtEdate','txtSpec'];
+			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano','txtEdate','txtSpec','txtBdate','txtKind','textScolor'];
 			var q_readonlys = ['txtDate2', 'txtOrdeno', 'txtNo2','txtMo','txtW01'];
 			var q_readonlyt = [];
 			var bbmNum = [['txtMount',10,0,1],['txtNotv',10,0,1]];
@@ -32,7 +32,7 @@
 			brwNowPage = 0;
 			brwKey = 'noa';
 			q_desc = 1;
-			brwCount2 = 8;
+			brwCount2 = 10;
 			q_copy=1;
 			aPop = new Array(
 				['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,spec,mount,custno,comp,memo', 'txtOrdeno,txtNo2,txtProductno,txtProduct,txtSpec,txtMount,txtCustno,txtComp,txtMemo', ''],
@@ -279,8 +279,10 @@
 								//$('#txtSpec').val(b_ret[0].classa+' '+b_ret[0].spec);
 								$('#txtUnit').val(b_ret[0].unit);
 								$('#txtMount').val(b_ret[0].mount);
+								$('#textScolor').val(b_ret[0].scolor);
 								$('#txtMemo').val(b_ret[0].memo);
 								$('#txtBdate').val(b_ret[0].datea);
+								$('#txtKind').val(b_ret[0].indate);
 								//105/04/15 抓產品主檔 規格+製造規格(英文名稱)
 								if(!emp($('#txtProductno').val())){
 									q_gt('ucc_xy', "where=^^noa='" +$('#txtProductno').val() + "'^^", 0, 0, 0, "getuccspec",r_accy,1);
@@ -356,7 +358,7 @@
 						}
 					}
 					
-					if ($('#txtSpec').val().indexOf('新版數位樣')>-1 || $('#txtSpec').val().indexOf('改版數位樣')>-1){
+					if ($('#textScolor').val().indexOf('新版數位樣')>-1 || $('#textScolor').val().indexOf('改版數位樣')>-1){
 						$('#txtProcessno_0').val('DY');
 						$('#txtProcess_0').va('打樣（數位樣）');
 						$('#txtProcessno_1').val('ZB');
@@ -379,7 +381,7 @@
 							$('#txtTggno_2').val(ztggno);
 							$('#txtTgg_2').val(z_tgg);
 						}
-					}else if ($('#txtSpec').val().indexOf('新版正式樣')>-1 || $('#txtSpec').val().indexOf('改版正式樣')>-1){
+					}else if ($('#textScolor').val().indexOf('新版正式樣')>-1 || $('#textScolor').val().indexOf('改版正式樣')>-1){
 						$('#txtProcessno_0').val('ZB');
 						$('#txtProcess_0').va('製板');
 						$('#txtProcessno_1').val('DY');
@@ -402,7 +404,7 @@
 							$('#txtTggno_2').val(ztggno);
 							$('#txtTgg_2').val(z_tgg);
 						}
-					}else if($('#txtSpec').val().indexOf('新版')>-1 || $('#txtSpec').val().indexOf('改版')>-1){
+					}else if($('#textScolor').val().indexOf('新版')>-1 || $('#textScolor').val().indexOf('改版')>-1){
 						$('#txtProcessno_0').val('ZB');
 						$('#txtProcess_0').va('製板');
 						
@@ -487,6 +489,7 @@
 				$('#chkCancel').prop('checked',false);
 				$('#txtEdate').val('');
 				$('#textInano').val('');
+				$('#textScolor').val('');
 				$('#txtC1').val('');
 				$('#txtNotv').val('');
 				var t_hj=0;
@@ -524,6 +527,7 @@
 					$('#cmbTypea').attr('disabled', 'disabled');
 					$('#btnOrdes').attr('disabled', 'disabled');
 					$('#txtBdate').attr('disabled', 'disabled');
+					$('#txtIndate').attr('disabled', 'disabled');
 					$('#txtProductno').attr('disabled', 'disabled');
 					$('#txtSpec').attr('disabled', 'disabled');
 					$('#txtPrice').attr('disabled', 'disabled');
@@ -543,7 +547,7 @@
 						q_gt('pays', "where=^^ rc2no='" + $('#txtOrdeno_'+i).val() + "' ^^", 0, 0, 0, "istopay",r_accy,1);
 						var as = _q_appendData("pays", "", true);
 						if(as[0]!=undefined){
-							$('#checkCut').attr('disabled', 'disabled');
+							$("[name='checkCut']").attr('disabled', 'disabled');
 							$('#btnMinus_'+i).attr('disabled', 'disabled');
 							$('#txtProcessno_'+i).attr('disabled', 'disabled');
 							$('#txtProcess_'+i).attr('disabled', 'disabled');
@@ -581,6 +585,13 @@
 				var t_ordeno = trim($('#txtOrdeno').val());
 				var t_no2 = trim($('#txtNo2').val());
 				
+				var t_err = '';
+				t_err = q_chkEmpField([['txtProductno', '製成品']]); //['txtOrdeno', '訂單編號']
+				if (t_err.length > 0) {
+					alert(t_err);
+					return;
+				}
+				
 				//105/05/03 判斷已轉製令單就不讓存檔
 				if(t_ordeno.length>0 && t_no2.length>0){
 					q_gt('view_cub', "where=^^ ordeno='" + t_ordeno + "' and no2='" + t_no2 + "' and  noa!='" + t_noa + "' ^^", 0, 0, 0, "getrepordeno",r_accy,1);
@@ -591,7 +602,7 @@
 		            }
 				}
 				//105/10/17 沒有上傳不能存檔
-				if(($('#txtSpec').val().indexOf('新版')>-1 || $('#txtSpec').val().indexOf('改版')>-1) && emp($('#txtVcceno').val())){
+				if(($('#textScolor').val().indexOf('新版')>-1 || $('#textScolor').val().indexOf('改版')>-1) && emp($('#txtVcceno').val())){
 					alert('請上傳新版/改版資料!!');
 		            return;
 				}
@@ -680,8 +691,8 @@
 				//q_gt('cub_typea', '', 0, 0, 0, "cub_typea");
 				$("[name='checkCut']").prop('checked',false);
 				
-				$('#btnOrdes').removeAttr('disabled');
-				$('#checkCut').removeAttr('disabled');
+				//$('#btnOrdes').removeAttr('disabled');
+				
 				aPop = new Array(
 					['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,spec,mount,custno,comp,memo', 'txtOrdeno,txtNo2,txtProductno,txtProduct,txtSpec,txtMount,txtCustno,txtComp,txtMemo', ''],
 					['txtCustno', 'lblCust', 'cust', 'noa,nick,comp,tel,invoicetitle', 'txtCustno,txtComp', 'cust_b.aspx'],
@@ -700,6 +711,14 @@
 					t_inano=t_inano+(t_inano.length>0?',':'')+as[i].noa;
 				}
 				$('#textInano').val(t_inano);
+				
+				if(!emp($('#txtOrdeno').val()) && !emp($('#txtNo2').val())){
+					q_gt('view_ordes', "where=^^ noa='" + $('#txtOrdeno').val() + "' and no2='"+$('#txtNo2').val()+"' ^^", 0, 0, 0, "isorde",r_accy,1);
+					var as = _q_appendData("view_ordes", "", true);
+					if(as[0]!=undefined){
+						$('#textScolor').val(as[0].scolor);
+					}
+				}
 			}
 
 			function readonly(t_para, empty) {
@@ -708,9 +727,11 @@
 				if(t_para){
 					$('#btnUpdata').attr('disabled', 'disabled');
 					$('#btnOrdes').attr('disabled', 'disabled');
+					$("[name='checkCut']").attr('disabled', 'disabled');
 				}else{
 					$('#btnUpdata').removeAttr('disabled');
 					$('#btnOrdes').removeAttr('disabled');
+					$("[name='checkCut']").removeAttr('disabled');
 				}
 			}
 
@@ -827,6 +848,12 @@
 				}
 				_bbsAssign();
 				style_upshow();
+				if(q_cur==1 || q_cur==2){
+					$("[name='checkCut']").removeAttr('disabled');
+				}else{
+					$("[name='checkCut']").attr('disabled', 'disabled');
+				}
+				$("[name='checkCut']").unbind('click');
 				$("[name='checkCut']").click(function() {
 					if((q_cur==1 || q_cur==2)){
 						for (var j = 0; j < q_bbsCount; j++) {
@@ -980,7 +1007,7 @@
 			}
 			
 			function style_upshow() {
-				if($('#txtSpec').val().indexOf('新版')>-1 || $('#txtSpec').val().indexOf('改版')>-1){
+				if($('#textScolor').val().indexOf('新版')>-1 || $('#textScolor').val().indexOf('改版')>-1){
 					$('#btnUpdata').val('檔案上傳');
 					if(emp($('#txtVcceno').val()) && q_cur==1){
 						$('#btnUpCust').hide();
@@ -1220,6 +1247,7 @@
 						<td><input id="txtNo2" type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblBdate" class="lbl" >訂單預交日</a></td>
 						<td><input id="txtBdate" type="text" class="txt c1"/></td>
+						<td><input id="txtKind" type="text" class="txt c1"style="width:60px;"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblProduct" class="lbl btn" >製成品</a></td>
@@ -1231,24 +1259,28 @@
 					<tr>
 						<td><span> </span><a id="lblSpec" class="lbl" >規格</a></td>
 						<td colspan="3"><input id="txtSpec" type="text" class="txt c1"/></td>
-						<td><span> </span><a id="lblUnit" class="lbl" >單位</a></td>
-						<td><input id="txtUnit" type="text" class="txt c1"/></td>
+						<td><span> </span><a id="lblScolor" class="lbl" >版本</a></td>
+						<td><input id="textScolor" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMount" class="lbl" >數量</a></td>
 						<td><input id="txtMount" type="text" class="txt num c1"/></td>
+						<td><span> </span><a id="lblUnit" class="lbl" >單位</a></td>
+						<td><input id="txtUnit" type="text" class="txt c1"/></td>
 						<td><span> </span><a id="lblPrice" class="lbl" >單價</a></td>
 						<td><input id="txtPrice" type="text" class="txt num c1"/></td>
+					</tr>
+					<tr>
 						<td><span> </span><a id="lblMoney" class="lbl" >總計</a></td>
 						<td><input id="txtMo" type="text" class="txt num c1"/></td>
+						<td><span> </span><a id="lblInano" class="lbl" >入庫單號</a></td>
+						<td><input id="textInano" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblC1" class="lbl" >已交量</a></td>
 						<td><input id="txtC1" type="text" class="txt num c1"/></td>
 						<td><span> </span><a id="lblNotv" class="lbl" >未交量</a></td>
 						<td><input id="txtNotv" type="text" class="txt num c1"/></td>
-						<td><span> </span><a id="lblInano" class="lbl" >入庫單</a></td>
-						<td><input id="textInano" type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMemo" class="lbl" > </a></td>

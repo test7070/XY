@@ -20,7 +20,7 @@
             }
             $(document).ready(function() {
                 q_getId();
-                q_gf('', 'z_vcce_xyp');
+                q_gt('cardeal', "where=^^ 1=1 ^^", 0, 0, 0, "getcardeal");
             });
             function q_gfPost() {
                 $('#q_report').q_report({
@@ -47,14 +47,20 @@
                     }, {
                         type : '6',
                         name : 'xcarno'
+                    },{
+                    	type : '5',
+                    	name : 'xcardeal',
+                    	value : t_cardeal.split(',')
                     }]
                 });
-                q_popAssign();
+				q_popAssign();
+                q_getFormat();
+                q_langShow();
 
-                $('#txtDate1').mask('999/99/99');
+                $('#txtDate1').mask(r_picd);
                 $('#txtDate1').datepicker();
                 $('#txtDate1').val(q_cdn(q_date(),1));
-                $('#txtDate2').mask('999/99/99');
+                $('#txtDate2').mask(r_picd);
                 $('#txtDate2').datepicker();
 				$('#txtDate2').val(q_cdn(q_date(),1));
                 
@@ -62,8 +68,19 @@
 
             function q_boxClose(s2) {
             }
-
-            function q_gtPost(s2) {
+			
+			var t_cardeal='#non@全部';
+			
+            function q_gtPost(t_name) {
+				switch (t_name) {
+					case 'getcardeal':
+						var as = _q_appendData("cardeal", "", true);
+						for(var i=0;i<as.length;i++){
+							t_cardeal=t_cardeal+','+as[0].noa+'@'+as[0].comp;
+						}
+						q_gf('', 'z_vcce_xyp');
+						break;
+				}
             }
 		</script>
 	</head>

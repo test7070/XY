@@ -115,11 +115,11 @@
                     }, {
                         type : '5', //[21]
                         name : 'xpaytype',
-                        value:'月結@月結,收現@收現'.split(',')
+                        value:'#non@全部,月結@月結,收現@收現'.split(',')
                     }, {
                         type : '5', //[22]
                         name : 'xpostmemo',
-                        value:'寄單@寄單,僅回郵@僅回郵,親送單@親送單'.split(',')
+                        value:'#non@全部,寄單@寄單,僅回郵@僅回郵,親送單@親送單'.split(',')
                     }, {
                         type : '8', //[23]
                         name : 'xmerge',

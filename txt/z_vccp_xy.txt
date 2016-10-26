@@ -261,7 +261,8 @@ select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),ROW_NUMBER(
 ,case when cm.checkmemo='須' then '&#9745'+' 需驗收' else '' end
 ,case when isnull(cm.isfranchisestore,0)=1 then '&#9745'+' 附採購單' else '' end
 --,c.paytype
-,case when a.paytype='貨到收現' or a.paytype='貨運代收' then '收款方式：'+a.paytype+'  ('+dbo.getComma(a.total-a.weight,0) +'元)' else '' end
+,case when a.paytype='貨到收現' or a.paytype='貨運代收' then '收款方式：'+a.paytype+'  ('+dbo.getComma(a.total-a.weight,0) +'元)' 
+when a.paytype like '貨到收現%' or a.paytype like'貨運代收%' then '收款方式：'+a.paytype else '' end
 ,case when cast(c.startdate as int)-1>0 then cast(cast(c.startdate as int)-1 as nvarchar(10))+'日' else '月底' end
 ,b.productno,b.product,b.spec,b.unit
 ,b.dime --1050111 數量要出來不判斷是否是寄庫 ,b.mount+b.tranmoney3-b.tranmoney2

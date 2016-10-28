@@ -88,8 +88,8 @@
                         value:'Y@顯示備註與發票號碼'.split(',')
                     }, {
                         type : '5', //[12]
-                        name : 'xorder', //105/10/17 paytype@收款方式,custno2@收款客戶
-                        value:'cust@業務-客戶,paytype@業務-寄單-客戶'.split(',') 
+                        name : 'xorder',
+                        value:'custno2@收款客戶,icust@發票客戶'.split(',') 
                     }, {
                         type : '5', //[13]
                         name : 'showpayed',
@@ -117,13 +117,13 @@
                         name : 'xpaytype',
                         value:'#non@全部,月結@月結,收現@收現'.split(',')
                     }, {
-                        type : '5', //[22]
+                        type : '8', //[22]
                         name : 'xpostmemo',
-                        value:'#non@全部,寄單@寄單,僅回郵@僅回郵,親送單@親送單'.split(',')
+                        value:'空白@空白,不寄單@不寄單,郵寄@郵寄,附回郵@附回郵,雙掛號@雙掛號,抵貨款@抵貨款,僅回郵@僅回郵,親送單@親送單'.split(',')
                     }, {
                         type : '8', //[23]
                         name : 'xmerge',
-                        value:'1@合併帳單,2@未開發票金額'.split(',')
+                        value:'1@合併帳單,2@未開發票金額,3@顯示應收=0'.split(',')
                     }, {
                         type : '5', //[24]
                         name : 'xorder1',
@@ -143,7 +143,7 @@
                     }, {
                         type : '8', //[28]
                         name : 'xshow2',
-                        value:'1@寄單方式'.split(',')
+                        value:'1@寄單方式、收款方式、對帳客戶'.split(',')
                     }]
                 });
 
@@ -177,8 +177,13 @@
                 $('#txtXstartdate1').mask('99');
                 $('#txtXstartdate2').mask('99');
                 
-                $('#Xmerge').css('height','30px');
-                $('#chkXmerge').css('margin-top','5px');
+                //$('#Xmerge').css('height','30px');
+                //$('#chkXmerge').css('margin-top','5px');
+                $('#chkXpostmemo input').prop('checked',true)
+                
+                $('#Xshow2').css('height','30px');
+                $('#chkXshow2').css('margin-top','5px');
+                $('#chkXshow2 span').css('width','400px');
             }
 
             function q_boxClose(s2) {

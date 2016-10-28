@@ -1482,10 +1482,20 @@
 				
 				//出貨單數量0不存檔 104/09/10
 				//105/10/13 若訂購量小於最低訂購量時，不能存檔 //105/10/18 提示 可以存檔
-				//105/10/26 修改狀態 數量0不刪除
+				//105/10/26 修改狀態 數量0不刪除 //10/27 有出貨數量0不刪除
+				var isvcc=false;
+				if(q_cur==2){
+					var t_where = "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^";
+					q_gt('view_vccs', t_where, 0, 0, 0, "istovcc", r_accy, 1);
+					var as = _q_appendData("view_vccs", "", true);
+					if (as[0] != undefined) {
+						isvcc=true;
+					}
+				}
+				
 				var t_err = '';
 				for(var k=0;k<q_bbsCount;k++){
-					if(dec($('#txtMount_'+k).val())==0 && q_cur==1){
+					if(dec($('#txtMount_'+k).val())==0 && !isvcc){
 						$('#btnMinus_'+k).click();
 					}
 					

@@ -1695,6 +1695,10 @@ declare @spec nvarchar(100)=case when '#non'=[2] then '' else [2] end
 declare @size9 nvarchar(100)=case when '#non'=[3] then '' else [3] end
 declare @size13 nvarchar(100)=case when '#non'=[4] then '' else [4] end
 declare @size17 nvarchar(100)=case when '#non'=[5] then '' else [5] end
+declare @bcubdate nvarchar(100)=case when '#non'=[6] then '' else [6] end
+declare @ecubdate nvarchar(100)=case when '#non'=[7] then char(255) else [7] end
+declare @bodate nvarchar(100)=case when '#non'=[8] then '' else [8] end
+declare @eodate nvarchar(100)=case when '#non'=[9] then char(255) else [9] end
 
 set @product=replace(@product,'@$#','"')
 set @spec=replace(@spec,'@$#','"')
@@ -1707,7 +1711,9 @@ when a.spec like '%17"%' then CAST(@size17 as float) else 0 end ahours
 ,(a.mount-isnull(b.mount,0))*case when a.spec like '%9"%' then CAST(@size9 as float) 
 when a.spec like '%13"%' then CAST(@size13 as float)
 when a.spec like '%17"%' then CAST(@size17 as float) else 0 end ehours
+,a.bdate odate,a.kind,c.*
 from view_cub a outer apply (select SUM(mount)mount from view_cugs where workno=a.noa and isnull(issel,0)=1) b
+outer apply (select product oproduct,spec ospec,classa oclassa,scolor from view_ordes where noa=a.ordeno and no2=a.no2) c
 where isnull(a.enda,0)!=1 
 and isnull(a.cancel,0)!=1
 and a.typea='製造部'
@@ -1717,6 +1723,8 @@ and (len(@spec)=0 or a.spec like '%'+@spec+'%')
 and (1=0 or (CAST(@size9 as float)>0 and a.spec like '%9"%')
 or (CAST(@size13 as float)>0 and a.spec like '%13"%')
 or (CAST(@size17 as float)>0 and a.spec like '%17"%'))
+and a.datea between @bcubdate and @ecubdate
+and a.bdate between @bodate and @eodate
 order by case when a.bdate='' then CHAR(255) else a.bdate end,a.noa
 ;
 -------------------------------------------------------------------------------------------------------------

@@ -17,7 +17,7 @@
 			this.errorHandler = null;
 			q_tables = 't';
 			var q_name = "cub";
-			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano','txtEdate','txtSpec','txtBdate','txtKind','textScolor'];
+			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano','txtEdate','txtSpec','txtBdate','txtKind','textScolor','txtUnit'];
 			var q_readonlys = ['txtDate2', 'txtOrdeno', 'txtNo2','txtMo','txtW01'];
 			var q_readonlyt = [];
 			var bbmNum = [['txtMount',10,0,1],['txtNotv',10,0,1]];
@@ -602,7 +602,7 @@
 		            }
 				}
 				//105/10/17 沒有上傳不能存檔
-				if(($('#textScolor').val().indexOf('新版')>-1 || $('#textScolor').val().indexOf('改版')>-1) && emp($('#txtVcceno').val())){
+				if(($('#textScolor').val().indexOf('新版')>-1 || $('#textScolor').val().indexOf('改版')>-1) && emp($('#txtVcceno').val()) && q_cur==1){
 					alert('請上傳新版/改版資料!!');
 		            return;
 				}

@@ -24,7 +24,7 @@
             q_tables = 's';
             var q_name = "cug";
             var q_readonly = ['txtNoa','txtWorker','txtWorker2','txtStation','txtProcess','txtKdate'];
-            var q_readonlys = ['txtProductno','txtProduct','txtSpec','txtStyle'];
+            var q_readonlys = ['txtProductno','txtProduct','txtSpec','txtStyle','txtWbdate','txtWedate','txtWadate'];
             var bbmNum = [];
             var bbsNum = [];
             var bbmMask = [];
@@ -37,7 +37,7 @@
             aPop = new Array(
             	//['txtStationno', 'lblStation_xy', 'mech', 'noa,mech', 'txtStationno,txtStation', 'mech_b.aspx'],
             	//['txtProcessno', 'lblProcess_xy', 'sss', 'noa,namea', 'txtProcessno,txtProcess', 'sss_b.aspx'],
-            	['txtWorkno_', '', 'view_cub', 'noa,productno,product,spec,unit,mount', '0txtWorkno_,txtProductno_,txtProduct_,txtSpec_,txtStyle_,txtMount_', '']
+            	['txtWorkno_', '', 'view_cub', 'noa,productno,product,spec,unit,mount,bdate,kind', '0txtWorkno_,txtProductno_,txtProduct_,txtSpec_,txtStyle_,txtMount_,txtWbdate_,txtWedate_', '']
             );
             
             $(document).ready(function() {
@@ -72,7 +72,8 @@
                 	$.datepicker.r_len=4;
 					//$.datepicker.setDefaults($.datepicker.regional["ENG"]);
                 }
-                bbmMask = [['txtKdate', r_picd],['txtBdate', r_picd],['txtEdate', '99:99']];
+                bbmMask = [['txtKdate', r_picd],['txtBdate', r_picd],['txtEdate', '99:99']
+                ,['txtBcubdate', r_picd],['txtEcubdate', r_picd],['txtBodate', r_picd],['txtEodate', r_picd]];
                 bbsMask = [['txtNos', '9999'],['txtCuadate', r_picd],['txtOrgcuadate', '99:99'],['txtUindate', r_picd],['txtOrguindate', '99:99']];
                 bbsNum=[['txtMount',15,0,1],['txtHours',10,0,1]]
                 q_getFormat();
@@ -148,7 +149,13 @@
 	                		
 	                		t_spec=replaceAll(t_spec,'"','@$#');
 	                		
-	                		var t_paras = t_product+';'+t_spec+';'+c_9+';'+c_13+';'+c_17;
+	                		var t_bcubdate=emp($('#txtBcubdate').val())?'#non':$('#txtBcubdate').val();
+	                		var t_ecubdate=emp($('#txtEcubdate').val())?'#non':$('#txtEcubdate').val();
+	                		var t_bodate=emp($('#txtBodate').val())?'#non':$('#txtBodate').val();
+	                		var t_eodate=emp($('#txtEodate').val())?'#non':$('#txtEodate').val();
+	                		
+	                		var t_paras = t_product+';'+t_spec+';'+c_9+';'+c_13+';'+c_17
+	                		+';'+t_bcubdate+';'+t_ecubdate+';'+t_bodate+';'+t_eodate;
 							q_func('qtxt.query.cubimport', 'cust_ucc_xy.txt,cubimport,' + t_paras);
 						}else{
 							alert('機台不存在!!');
@@ -317,6 +324,21 @@
                 for (var i = 0; i < q_bbsCount; i++) {
                 	$('#lblNo_' + i).text(i + 1);
                     if (!$('#btnMinus_' + i).hasClass('isAssign')) {
+                    	$('#txtWorkno_'+i).change(function() {
+                    		t_IdSeq = -1;
+							q_bodyId($(this).attr('id'));
+							b_seq = t_IdSeq;
+							/*if(q_cur==1 || q_cur==2){
+								if(!emp($(this).val())){
+									q_gt('view_ordes', "where=^^ exists (select * from view_cub where ordeno=a.noa and no2=a.no2 and noa='" +$(this).val() + "')^^", 0, 0, 0, "getordes",r_accy,1);
+				                	var as = _q_appendData("view_ordes", "", true);
+									if (as[0] != undefined) {
+										$('#txtWadate_'+b_seq).val(as[0].scolor);
+									}
+								}
+							}*/
+						});
+                    	
                     	$('#combProcess_'+i).change(function() {
                     		t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
@@ -575,6 +597,17 @@
             
             function q_popPost(s1) {
 			   	switch (s1) {
+			   		case 'txtWorkno_':
+			   			if(q_cur==1 || q_cur==2){
+							if(!emp($('#txtWorkno_'+b_seq).val() && $('#txtWorkno_'+b_seq).val().substr(0,1)==q_getPara('sys.key_cub'))){
+								q_gt('view_ordes', "where=^^ exists (select * from view_cub where ordeno=a.noa and no2=a.no2 and noa='" +$('#txtWorkno_'+b_seq).val() + "')^^", 0, 0, 0, "getordes",r_accy,1);
+				               	var as = _q_appendData("view_ordes", "", true);
+								if (as[0] != undefined) {
+									$('#txtWadate_'+b_seq).val(as[0].scolor);
+								}
+							}
+						}
+			   			break;
 					/*case 'txtStationno':
 						changecmbSize();
 						break;*/
@@ -619,7 +652,7 @@
 								}
 							}
                 			
-                			q_gridAddRow(bbsHtm, 'tbbs', 'txtWorkno,txtProductno,txtProduct,txtSpec,txtStyle,txtMount,txtHours', as.length, as, 'noa,productno,product,spec,unit,emount,ehours', 'txtWorkno');
+                			q_gridAddRow(bbsHtm, 'tbbs', 'txtWorkno,txtProductno,txtProduct,txtSpec,txtStyle,txtMount,txtHours,txtWbdate,txtWedate,txtWadate', as.length, as, 'noa,productno,product,spec,unit,emount,ehours,odate,kind,scolor', 'txtWorkno');
                 			
                 			
 		                	if(!emp($('#txtBdate').val()) && !emp($('#txtEdate').val())
@@ -867,7 +900,7 @@
                 font-size: medium;
             }
             .dbbs {
-                width: 1240px;
+                width: 1500px;
                 background:#cad3ff;
             }
             .tbbs a {
@@ -950,6 +983,20 @@
 						<td><input id="txtSpec"  type="text" class="txt c1"/></td>
 					</tr>
 					<tr>
+						<td><span> </span><a id='lblBcubdate_xy' class="lbl">製令日起訖</a></td>
+						<td>
+							<input id="txtBcubdate"  type="text" class="txt c1" style="width: 40%;"/>
+							<a style="float: left;">~</a>
+							<input id="txtEcubdate"  type="text" class="txt c1" style="width: 40%;"/>
+						</td>
+						<td><span> </span><a id='lblBodate_xy' class="lbl">預交日起迄</a></td>
+						<td>
+							<input id="txtBodate"  type="text" class="txt c1" style="width: 40%;"/>
+							<a style="float: left;">~</a>
+							<input id="txtEodate"  type="text" class="txt c1" style="width: 40%;"/>
+						</td>
+					</tr>
+					<tr>
 						<td><span> </span><a id='lblBdate_xy' class="lbl">開始日期</a></td>
 						<td><input id="txtBdate"  type="text" class="txt c1"/></td>
 						<td><span> </span><a id='lblEdate_xy' class="lbl">開始時間</a></td>
@@ -979,6 +1026,7 @@
 					<td align="center" style="width:100px;"><a id='lblProductno_s'> </a></td>
 					<td align="center" style="width:120px;"><a id='lblProduct_s'> </a></td>
 					<td align="center"><a id='lblSpec_s'> </a></td>
+					<td align="center" style="width: 100px;"><a id='lblWadate_xy_s'>版本</a></td>
 					<td align="center" style="width:40px;"><a id='lblStyle_xy_s'>單位 </a></td>
 					<td align="center" style="width:80px;"><a id='lblMount_s'> </a></td>
 					<td align="center" style="width:70px;"><a id='lblhours_xy_s'>工作時數(Min.)</a></td>
@@ -987,6 +1035,7 @@
 					<td align="center" style="width:80px;"><a id='lblUindate_xy_s'>預估完成<br>日期</a></td>
 					<td align="center" style="width:75px;"><a id='lblOrguindate_xy_s'>預估完成<br>時間</a></td>
 					<td align="center" style="width:45px;"><a id='lblIssel_xy_s'>完工</a></td>
+					<td align="center" style="width:120px;"><a id='lblWbdate_xy_s'>訂單預交日</a></td>
 				</tr>
 				<tr id="trSel.*">
 					<td align="center">
@@ -1005,6 +1054,7 @@
 					<td><input id="txtProductno.*" type="text" class="txt c1"/></td>
 					<td><input id="txtProduct.*" type="text" class="txt c1"/></td>
 					<td><input id="txtSpec.*" type="text" class="txt c1"/></td>
+					<td><input id="txtWadate.*" type="text" class="txt c1"/></td>
 					<td><input id="txtStyle.*" type="text" class="txt c1"/></td>
 					<td><input id="txtMount.*" type="text" class="txt num c1"/></td>
 					<td><input id="txtHours.*" type="text" class="txt num c1"/></td>
@@ -1019,6 +1069,10 @@
 						<input id="chkIssel.*" type="checkbox" class="txt c1" style="display: none;"/>
 						<input id="txtNosold.*" type="hidden" class="txt c1"/><!--紀錄按完工的時間-->
 						<input id="btnEnda.*" type="button" value="完工" >
+					</td>
+					<td>
+						<input id="txtWbdate.*" type="text" class="txt c1" style="width: 60%;"/>
+						<input id="txtWedate.*" type="text" class="txt c1" style="width: 30%;"/>
 					</td>
 				</tr>
 			</table>

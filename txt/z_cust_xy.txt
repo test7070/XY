@@ -162,18 +162,47 @@ END
 		saleprice float,
 		custno nvarchar(max),
 		comp nvarchar(max),
-		kdate nvarchar(20)
+		kdate nvarchar(20),
+		
+		u1 nvarchar(20),
+		u2 nvarchar(20),
+		u3 nvarchar(20),
+		u4 nvarchar(20),
+		um1 float,
+		um2 float,
+		um3 float,
+		um4 float
 	)
 
 	insert into #tmp
-	select 0,a.noa,a.product,a.spec,a.engpro,a.style,a.unit,a.saleprice,b.noa,b.comp
-	,''
+	select 0,a.noa,a.product,a.spec,a.engpro,a.style,a.unit,a.saleprice,b.noa,b.nick
+	,'',null,null,null,null,null,null,null,null
 	from ucc a  
-	outer apply (select noa,comp from cust where left(a.noa,5)=noa and charindex('-',a.noa)>0 ) b
+	outer apply (select noa,comp,nick from cust where left(a.noa,5)=noa and charindex('-',a.noa)>0 ) b
 	where (a.noa between @t_bpno and @t_epno) 
 	and (len(@t_product)=0 or charindex(isnull(@t_product,''),a.product)>0)
 	and (len(@t_ucctypea)=0 or isnull(a.typea,'')=@t_ucctypea)
 	and (len(@t_groupa)=0 or isnull(a.groupano,'')=@t_groupa)
+	
+	update a
+	set u1=case when b.rr=1 then b.pack else u1 end,um1=case when b.rr=1 then b.inmount else um1 end
+	from #tmp a outer apply(select noa,pack,inmount,ROW_NUMBER()over (partition by noa order by noa,inmount)rr from pack2s where noa=a.noa) b 
+	where rr=1
+	
+	update a
+	set u2=case when b.rr=2 then b.pack else u2 end,um2=case when b.rr=2 then b.inmount else um2 end
+	from #tmp a outer apply(select noa,pack,inmount,ROW_NUMBER()over (partition by noa order by noa,inmount)rr from pack2s where noa=a.noa) b 
+	where rr=2
+	
+	update a
+	set u3=case when b.rr=3 then b.pack else u3 end,um3=case when b.rr=3 then b.inmount else um3 end
+	from #tmp a outer apply(select noa,pack,inmount,ROW_NUMBER()over (partition by noa order by noa,inmount)rr from pack2s where noa=a.noa) b 
+	where rr=3
+	
+	update a
+	set u4=case when b.rr=4 then b.pack else u4 end,um4=case when b.rr=4 then b.inmount else um4 end
+	from #tmp a outer apply(select noa,pack,inmount,ROW_NUMBER()over (partition by noa order by noa,inmount)rr from pack2s where noa=a.noa) b 
+	where rr=4
 	
 	update a
 	set kdate =isnull((select top 1 datea+' '+timea from drun where noa=a.noa and action='Insert' and (tablea='ucc' or tablea='uca') order by datea desc,timea desc),'')

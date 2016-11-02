@@ -19,30 +19,27 @@
             if (location.href.indexOf('?') < 0) {
                 location.href = location.href + "?;;;;" + ((new Date()).getUTCFullYear() - 1911);
             }
-
+			
+			var t_first=true;
             $(document).ready(function() {
                 q_getId();
                 q_gf('', 'z_umm_xy');
 
                 $('#q_report').click(function(e) {
-					if(r_rank<9){
-						var delete_report=999;
+					if(window.parent.q_name=="z_umm_xy"){
 						for(var i=0;i<$('#q_report').data().info.reportData.length;i++){
-							if($('#q_report').data().info.reportData[i].report=='z_umm_xy3')
-								delete_report=i;
+							if($('#q_report').data().info.reportData[i].report!='z_umm_xy2')
+								$('#q_report div div').eq(i).hide();
 						}
-						if($('#q_report div div').text().indexOf('業務出貨獎金明細表')>-1)
-							$('#q_report div div').eq(delete_report).hide();
-						
-						if(r_rank<5){
-							delete_report=999;
-							for(var i=0;i<$('#q_report').data().info.reportData.length;i++){
-								if($('#q_report').data().info.reportData[i].report=='z_umm_xy5')
-									delete_report=i;
+						$('#q_report div div .radio').parent().each(function(index) {
+							if(!$(this).is(':hidden') && t_first){
+								$(this).children().removeClass('nonselect').addClass('select');
+								t_first=false;
 							}
-							if($('#q_report div div').text().indexOf('對帳年月銷貨總帳統計表')>-1)
-								$('#q_report div div').eq(delete_report).hide();
-						}
+							if($(this).is(':hidden') && t_first){
+								$(this).children().removeClass('select').addClass('nonselect');
+							}
+						});
 					}
 				});
 
@@ -194,6 +191,20 @@
                 $('#Xshow2').css('height','30px');
                 $('#chkXshow2').css('margin-top','5px');
                 $('#chkXshow2 span').css('width','400px');
+                
+                if(window.parent.q_name=="z_umm_xy"){
+					$('#q_report div div .radio.select').click();
+					
+					$('#txtXmon').val(window.parent.$('#txtXmon').val());
+					if(q_getHref()[3]!=undefined){
+						$('#txtXcustv1a').val(q_getHref()[3]);
+						$('#txtXcustv1b').val(q_getHref()[5]);
+						$('#txtXcustv2a').val(q_getHref()[3]);
+						$('#txtXcustv2b').val(q_getHref()[5]);
+						
+						$('#btnOk').click();
+					}
+				}
             }
 
             function q_boxClose(s2) {

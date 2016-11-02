@@ -435,7 +435,7 @@ select '3' gno,0 idno,0 page,0 mpage, a.typea, a.noa, b.noq, a.datea
 		,(case when isnull(a.salesno2,'')!='' then a.salesno2 when isnull(a.salesno,'')!='' then a.salesno else isnull(c.salesno,'') end) salesno
 		,(case when isnull(a.salesno2,'')!='' then a.sales2 when isnull(a.salesno,'')!='' then a.sales else c.sales end)sales
 		,a.invono,case when @t_showinvomemo='Y' then a.total-isnull((select sum(total) from vcca where a.invono like '%'+noa+'%'),0) else 0 end
-		,a.paytype,e.postmemo
+		,c.paytype,e.postmemo
 		,b.productno, b.product,b.spec, b.unit,b.lengthb,b.lengthc,b.dime,b.price,b.total money,a.money,a.tax
 		,a.taxtype,a.total,0 paysale,isnull(d.paysale,0) payed,0 punpay,a.total-isnull(d.paysale,0),0,b.memo
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
@@ -853,7 +853,7 @@ begin
 		,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 		,case when isnull((select invocustno from custm where noa=a.custno),a.custno)!='' then isnull((select invocustno from custm where noa=a.custno),a.custno) else a.custno end
 		,case when isnull((select vcccustno from custm where noa=a.custno),a.custno)!='' then isnull((select vcccustno from custm where noa=a.custno),a.custno) else a.custno end
-		,a.paytype,isnull((select postmemo from custm where noa=a.custno),'')
+		,c.paytype,isnull((select postmemo from custm where noa=a.custno),'')
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
 	left join cust c on a.custno = c.noa
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) = @t_mon)) 
@@ -881,7 +881,7 @@ begin
 		,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 		,case when isnull((select invocustno from custm where noa=a.custno),a.custno)!='' then isnull((select invocustno from custm where noa=a.custno),a.custno) else a.custno end
 		,case when isnull((select vcccustno from custm where noa=a.custno),a.custno)!='' then isnull((select vcccustno from custm where noa=a.custno),a.custno) else a.custno end
-		,a.paytype,isnull((select postmemo from custm where noa=a.custno),'')
+		,c.paytype,isnull((select postmemo from custm where noa=a.custno),'')
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
 	left join cust c on  (case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end) = c.noa
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) = @t_mon)) 
@@ -1614,8 +1614,8 @@ dbo.getComma(round(udis,0),-1)udis,
 dbo.getComma(round(popay,0),-1)popay,
 dbo.getComma(round(opay,0),-1)opay,
 replace(comp,'~#$',char(39)) comp,
-isnull((select nick from cust where noa=vcustno),'') vcust,
-isnull((select nick from cust where noa=icustno),'') icust,
+replace(isnull((select nick from cust where noa=vcustno),''),'~#$',char(39)) vcust,
+replace(isnull((select nick from cust where noa=icustno),''),'~#$',char(39)) icust,
 * from #result order by page,right('0'+gno,2),salesno,idno,torder
 
 
@@ -1717,10 +1717,10 @@ create table #tmp(
 	page int
 )
 
-insert #tmp(gno,salesno,custno,mon,money,pmoney,paytype,custno2)
+insert #tmp(gno,salesno,custno,mon,money,pmoney,custno2)
 select '9',salesno,custno,mon
 ,SUM((case when typea='2' then -1 else 1 end*total)-isnull(b.paysale,0)),SUM(c.paysale)
-,paytype,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
+,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 from view_vcc a
 outer apply (select sum(paysale)paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))<@t_xmon)b
 outer apply (select sum(paysale)paysale from umms where vccno=a.noa and left(datea,len(@t_xmon))=@t_xmon)c
@@ -1730,15 +1730,15 @@ and a.custno between @t_bcustno and @t_ecustno
 and a.salesno between @t_bsalesno and @t_esalesno
 group by custno,salesno,mon,paytype,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 having SUM((case when typea='2' then -1 else 1 end*total)-isnull(b.paysale,0))!=0 or ISNULL(SUM(c.paysale),0)!=0
-order by salesno,custno,mon,paytype,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
+order by salesno,custno,mon,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 
 if(@showpayed='N')
 	delete #tmp where gno='9' and isnull(money,0)-isnull(pmoney,0)=0
 
-insert #tmp(gno,salesno,custno,mon,total,payed,paytype,custno2,imoney,iunmoney)
+insert #tmp(gno,salesno,custno,mon,total,payed,custno2,imoney,iunmoney)
 select '1',salesno,custno,mon
 ,SUM(case when typea='2' then -1 else 1 end*total),SUM(b.paysale)
-,paytype,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
+,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 ,isnull(sum(c.imoney),0)
 ,SUM(case when typea='2' then -1 else 1 end*total)-isnull(sum(c.imoney),0)
 from view_vcc a
@@ -1748,61 +1748,59 @@ where a.total!=0
 and a.mon=@t_xmon
 and a.custno between @t_bcustno and @t_ecustno
 and a.salesno between @t_bsalesno and @t_esalesno
-group by custno,salesno,mon,paytype,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
-order by salesno,custno,mon,paytype,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
+group by custno,salesno,mon,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
+order by salesno,custno,mon,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 
-insert #tmp(gno,salesno,custno,mon,umoney,dis,paytype,custno2)
+insert #tmp(gno,salesno,custno,mon,umoney,dis,custno2)
 select '2',c.salesno,a.custno,@t_xmon
 ,sum(case when b.acc1 not in ('6015.','4202.','6020.','4201.','5021.','6014.','8046.','6023.') then money else 0 end)
 ,sum(case when b.acc1 in ('6015.','4202.','6020.','4201.','5021.','6014.','8046.','6023.') then money else 0 end)
-,c.paytype,a.custno
+,a.custno
 from umm a left join umms b on a.noa=b.noa
 left join cust c on a.custno=c.noa
 where left(a.datea,len(@t_xmon))=@t_xmon
 and a.custno between @t_bcustno and @t_ecustno
 and c.salesno between @t_bsalesno and @t_esalesno
-group by c.salesno,a.custno,c.paytype
+group by c.salesno,a.custno
 
-insert #tmp(gno,salesno,custno,mon,popay,paytype,custno2)
-select '3',c.salesno,a.custno,@t_xmon,SUM(a.opay-a.unopay),c.paytype,a.custno
+insert #tmp(gno,salesno,custno,mon,popay,custno2)
+select '3',c.salesno,a.custno,@t_xmon,SUM(a.opay-a.unopay),a.custno
 from umm a left join cust c on a.custno=c.noa
 where left(a.datea,len(@t_xmon))<@t_xmon
 and a.custno between @t_bcustno and @t_ecustno
 and c.salesno between @t_bsalesno and @t_esalesno
-group by c.salesno,a.custno,c.paytype
+group by c.salesno,a.custno
 
-insert #tmp(gno,salesno,custno,mon,total,payed,umoney,dis,popay,paytype,custno2,imoney,iunmoney)
-select '0',salesno,custno,mon,SUM(total),SUM(payed),SUM(umoney),SUM(dis),SUM(popay),paytype,custno2,SUM(imoney),SUM(iunmoney)
+insert #tmp(gno,salesno,custno,mon,total,payed,umoney,dis,popay,custno2,imoney,iunmoney)
+select '0',salesno,custno,mon,SUM(total),SUM(payed),SUM(umoney),SUM(dis),SUM(popay),custno2,SUM(imoney),SUM(iunmoney)
 from #tmp where gno!='9'
-group by salesno,custno,mon,paytype,custno2
+group by salesno,custno,mon,custno2
 
 delete #tmp where gno!='0' and gno!='9'
 
-insert #tmp(gno,salesno,custno,mon,total,payed,umoney,dis,popay,paytype,custno2)
-select '0',a.salesno,a.custno,@t_xmon,0,0,0,0,0,paytype,custno2
+insert #tmp(gno,salesno,custno,mon,total,payed,umoney,dis,popay,custno2)
+select '0',a.salesno,a.custno,@t_xmon,0,0,0,0,0,custno2
 from #tmp a 
 where gno='9' and not exists (select * from #tmp 
-where gno='0' and salesno=a.salesno and custno=a.custno and paytype=a.paytype and custno2=a.custno2)
-group by a.salesno,a.custno,a.paytype,a.custno2
+where gno='0' and salesno=a.salesno and custno=a.custno and custno2=a.custno2)
+group by a.salesno,a.custno,a.custno2
 
 update a
 set unpay=isnull(a.total,0)-ISNULL(a.payed,0)+isnull(b.punpay,0)
 from #tmp a
 outer apply (select SUM(isnull(money,0)-isnull(pmoney,0))punpay from #tmp where gno='9'
-and custno=a.custno and salesno=a.salesno and paytype=a.paytype and custno2=a.custno2) b
+and custno=a.custno and salesno=a.salesno and custno2=a.custno2) b
 where gno='0'
 
 update a
 set mon=b.mon,money=b.money,pmoney=b.pmoney
 from #tmp a
-outer apply(select top 1 * from #tmp 
-where gno='9' and custno=a.custno and salesno=a.salesno and paytype=a.paytype and custno2=a.custno2 order by mon)b
+outer apply(select top 1 * from #tmp where gno='9' and custno=a.custno and salesno=a.salesno and custno2=a.custno2 order by mon)b
 where a.gno='0'
 
 delete a
 from #tmp a where gno='9'
-and exists (select * from #tmp 
-where gno='0' and mon=a.mon and custno=a.custno and salesno=a.salesno and paytype=a.paytype and custno2=a.custno2)
+and exists (select * from #tmp where gno='0' and mon=a.mon and custno=a.custno and salesno=a.salesno and custno2=a.custno2)
 
 update #tmp set gno=case when gno='9' then '2' else '1' end
 
@@ -1813,7 +1811,7 @@ update a
 set grpno=b.grpno,startdate=b.startdate
 ,vcustno=case when isnull(c.vcccustno,'')='' then a.custno else isnull(c.vcccustno,'') end
 ,icustno=case when isnull(c.invocustno,'')='' then a.custno else isnull(c.invocustno,'') end
-,postmemo=c.postmemo,invomemo=c.invomemo
+,paytype=b.paytype,postmemo=c.postmemo,invomemo=c.invomemo
 ,invono=case when gno='1' then stuff((select ','+invono from view_vcc where custno=a.custno and paytype=a.paytype and case when isnull(custno2,'')!='' then custno2 else custno end=a.custno2 and isnull(invono,'')!='' and mon=@t_xmon group by invono FOR XML PATH('') ),1,1,'') else '' end
 from #tmp a left join cust b on a.custno=b.noa
 left join custm c on a.custno=c.noa
@@ -1940,18 +1938,18 @@ begin
 end
 if(charindex('5',@t_show)>0)
 begin
-	set @cmd =@cmd+"'對帳客戶' tit"+CAST(@t_tcount as nvarchar(10))+",(select nick from cust where noa=a.vcustno) tda"+CAST(@t_tcount as nvarchar(10))+","
+	set @cmd =@cmd+"'對帳客戶' tit"+CAST(@t_tcount as nvarchar(10))+",replace((select nick from cust where noa=a.vcustno),'~#$','’') tda"+CAST(@t_tcount as nvarchar(10))+","
 	set @cmd =@cmd+"'z_umm_xy_b?report=\''z_umm_xy2\'' and vcustno=\'''+a.vcustno+'\'' and vcust=$tda"+CAST(@t_tcount as nvarchar(10))+"' ghref,"
 	set @t_tcount=@t_tcount+1
 end
 if(charindex('6',@t_show)>0)
 begin
-	set @cmd =@cmd+"'開發票金額' tit"+CAST(@t_tcount as nvarchar(10))+",a.imoney tda"+CAST(@t_tcount as nvarchar(10))+","
+	set @cmd =@cmd+"'開發票金額' tit"+CAST(@t_tcount as nvarchar(10))+",dbo.getComma(a.imoney,0) tda"+CAST(@t_tcount as nvarchar(10))+","
 	set @t_tcount=@t_tcount+1
 end
 if(charindex('7',@t_show)>0)
 begin
-	set @cmd =@cmd+"'未開發票金額' tit"+CAST(@t_tcount as nvarchar(10))+",a.iunmoney tda"+CAST(@t_tcount as nvarchar(10))+","
+	set @cmd =@cmd+"'未開發票金額' tit"+CAST(@t_tcount as nvarchar(10))+",dbo.getComma(a.iunmoney,0) tda"+CAST(@t_tcount as nvarchar(10))+","
 	set @t_tcount=@t_tcount+1
 end
 if(charindex('8',@t_show)>0)

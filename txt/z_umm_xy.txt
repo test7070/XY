@@ -1728,7 +1728,7 @@ where a.total!=0
 and a.mon<@t_xmon
 and a.custno between @t_bcustno and @t_ecustno
 and a.salesno between @t_bsalesno and @t_esalesno
-group by custno,salesno,mon,paytype,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
+group by custno,salesno,mon,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 having SUM((case when typea='2' then -1 else 1 end*total)-isnull(b.paysale,0))!=0 or ISNULL(SUM(c.paysale),0)!=0
 order by salesno,custno,mon,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 
@@ -1812,7 +1812,7 @@ set grpno=b.grpno,startdate=b.startdate
 ,vcustno=case when isnull(c.vcccustno,'')='' then a.custno else isnull(c.vcccustno,'') end
 ,icustno=case when isnull(c.invocustno,'')='' then a.custno else isnull(c.invocustno,'') end
 ,paytype=b.paytype,postmemo=c.postmemo,invomemo=c.invomemo
-,invono=case when gno='1' then stuff((select ','+invono from view_vcc where custno=a.custno and paytype=a.paytype and case when isnull(custno2,'')!='' then custno2 else custno end=a.custno2 and isnull(invono,'')!='' and mon=@t_xmon group by invono FOR XML PATH('') ),1,1,'') else '' end
+,invono=case when gno='1' then stuff((select ','+invono from view_vcc where custno=a.custno and case when isnull(custno2,'')!='' then custno2 else custno end=a.custno2 and isnull(invono,'')!='' and mon=@t_xmon group by invono FOR XML PATH('') ),1,1,'') else '' end
 from #tmp a left join cust b on a.custno=b.noa
 left join custm c on a.custno=c.noa
 

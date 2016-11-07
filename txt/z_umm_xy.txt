@@ -85,7 +85,7 @@ select  '0',a.typea, a.noa, a.datea , (case when isnull(a.mon,'')='' then left(a
 		,a.money--,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
 		,a.tax
 		,a.taxtype,a.total--,a.payed payed,a.unpay unpay
-		,isnull(b.paysale,0),a.total-isnull(b.paysale,0)
+		,isnull(b.paysale,0),(case when a.typea='1' then 1 else -1 end*a.total)-isnull(b.paysale,0)
 	from view_vcc a left join cust c on  (case when isnull(a.custno2,'')!='' and @t_showcust!='1' then a.custno2 else a.custno end) = c.noa
 	outer apply (select sum(paysale)paysale from umms where vccno=a.noa and ((case when isnull(mon,'')='' then left(datea,6) else mon end)<=@t_mon) and a.datea <= @t_edate) b
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) < @t_mon) )
@@ -176,7 +176,7 @@ select '2' gno,ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq) idno,0 
 		--,case when  (select count(*) from ucca )>0 then (select sum(tax) from vcca where vccno=a.noa) else a.tax end
 		,a.tax
 		,a.taxtype,a.total,0 paysale,0 discounts
-		,isnull(d.paysale,0) payed,0 punpay,a.total-isnull(d.paysale,0),0,b.memo
+		,isnull(d.paysale,0) payed,0 punpay,(case when a.typea='1' then 1 else -1 end*a.total)-isnull(d.paysale,0),0,b.memo
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
 	left join cust c on  (case when isnull(a.custno2,'')!='' and @t_showcust!='1' then a.custno2 else a.custno end) = c.noa
 	outer apply (select sum(paysale)paysale from umms where vccno=a.noa and ((case when isnull(mon,'')='' then left(datea,6) else mon end)<=@t_mon) and a.datea <= @t_edate) d

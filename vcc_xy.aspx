@@ -264,9 +264,11 @@
 					}else if($('#cmbTranstyle').val()!='隨貨'){
 						alert('發票開立非【隨貨】!!');
 					}else{
-						if(r_rank>='3' && $('#txtDatea').val()>='105/07/01') //105/08/02 調整3以上可以開發票
+						if($('#txtInvono').val().length>10){
+							alert("多張發票不產生發票!!");
+						}else if(r_rank>='3' && $('#txtDatea').val()>='105/07/01'){ //105/08/02 調整3以上可以開發票
 							q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0'+ ';' + encodeURI(r_userno));
-						else if($('#txtDatea').val()<'105/07/01'){
+						}else if($('#txtDatea').val()<'105/07/01'){
 							alert("出貨單日期小於 105/07/01 不產生發票!!");
 						}else
 							alert('權限不足!!');
@@ -1604,7 +1606,8 @@
 					abbm[q_recno]['accno'] = s2[0];
 				}
 				
-				if(q_cur==2){//修改後重新產生 避免發票資料不對應
+				//105/11/07 1張發票號碼才更新
+				if(q_cur==2 && $('#txtInvono').val().length==10){//修改後重新產生 避免發票資料不對應
 					stpostvcca=true;
 					q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0'+ ';' + encodeURI(r_userno));
 				}
@@ -1720,6 +1723,10 @@
 				//1050108 鎖住 //105/07/01 只開放給等級9以上改
 				if((q_cur==1 || q_cur==2) && r_rank < '9')
 					$('.bbsitem').attr('disabled', 'disabled');
+				
+				//105/11/07 只開放權限5以下禁止改發票號碼 //出貨單開兩張發票
+				if((q_cur==1 || q_cur==2) && r_rank < '5')
+					$('#txtInvono').attr('disabled', 'disabled');
 				
 				HiddenTreat();
 				//限制帳款月份的輸入 只有在備註的第一個字為*才能手動輸入

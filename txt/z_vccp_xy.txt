@@ -257,11 +257,11 @@ select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),ROW_NUMBER(
 ,a.invono,replace(a.memo+' '+a.trantype,'chr(10)','<BR>'),a.salesno,replace(a.sales,'~#$',char(39))
 ,case when isnull(cm.notprice,0)=1 then null else a.money end
 ,case when isnull(cm.notprice,0)=1 then null else a.tax end
-,cm.invomemo
+,a.transtyle--,cm.invomemo
 ,case when cm.checkmemo='須' then '&#9745'+' 需驗收' else '' end
 ,case when isnull(cm.isfranchisestore,0)=1 then '&#9745'+' 附採購單' else '' end
 --,c.paytype
-,case when a.paytype='貨到收現' or a.paytype='貨運代收' then '收款方式：'+a.paytype+'  ('+dbo.getComma(a.total-a.weight,0) +'元)' 
+,case when a.paytype='貨到收現' or a.paytype='貨運代收' then '收款方式：'+a.paytype+'  ('+dbo.getComma(isnull(a.total,0)-isnull(a.weight,0),0) +'元)' 
 when a.paytype like '貨到收現%' or a.paytype like'貨運代收%' then '收款方式：'+a.paytype else '' end
 ,case when cast(c.startdate as int)-1>0 then cast(cast(c.startdate as int)-1 as nvarchar(10))+'日' else '月底' end
 ,b.productno,b.product,b.spec,b.unit
@@ -397,6 +397,7 @@ dbo.getComma(a.total,0) total,
 replace(a.comp,'~#$',char(39)) comp,
 replace(a.conn,'~#$',char(39)) conn,
 '採購單號：'+custorde custorde,
+case when b.paytype='%月結%' then '結單日：'+payday else '' end payday,
 a.*
 --,case when b.typea='2' then '<a style="font-size:18px'+CHAR(59)+'">'+'退貨'+'</a>'+a.amemo else a.amemo end memo
 ,a.amemo memo

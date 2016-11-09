@@ -368,8 +368,8 @@
 						if($('#cmbTypea').val()=='製造部'){
 							$('#txtTggno_0').val('YD02');
 							$('#txtTgg_0').val('有達實業有限公司');
-							$('#txtTggno_1').val('YD02');
-							$('#txtTgg_1').val('有達實業有限公司');
+							$('#txtTggno_1').val('QD01');
+							$('#txtTgg_1').val('慶大企業行');
 							$('#txtTggno_2').val('YD02');
 							$('#txtTgg_2').val('有達實業有限公司');
 						}
@@ -389,8 +389,8 @@
 						$('#txtProcessno_2').val('SC01');
 						$('#txtProcess_2').val('生產');
 						if($('#cmbTypea').val()=='製造部'){
-							$('#txtTggno_0').val('YD02');
-							$('#txtTgg_0').val('有達實業有限公司');
+							$('#txtTggno_0').val('QD01');
+							$('#txtTgg_0').val('慶大企業行');
 							$('#txtTggno_1').val('YD02');
 							$('#txtTgg_1').val('有達實業有限公司');
 							$('#txtTggno_2').val('YD02');
@@ -411,8 +411,8 @@
 						$('#txtProcessno_1').val('SC01');
 						$('#txtProcess_1').val('生產');
 						if($('#cmbTypea').val()=='製造部'){
-							$('#txtTggno_0').val('YD02');
-							$('#txtTgg_0').val('有達實業有限公司');
+							$('#txtTggno_0').val('QD01');
+							$('#txtTgg_0').val('慶大企業行');
 							$('#txtTggno_1').val('YD02');
 							$('#txtTgg_1').val('有達實業有限公司');
 						}

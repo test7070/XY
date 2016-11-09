@@ -360,11 +360,11 @@
 					
 					if ($('#textScolor').val().indexOf('新版數位樣')>-1 || $('#textScolor').val().indexOf('改版數位樣')>-1){
 						$('#txtProcessno_0').val('DY');
-						$('#txtProcess_0').va('打樣（數位樣）');
+						$('#txtProcess_0').val('打樣（數位樣）');
 						$('#txtProcessno_1').val('ZB');
-						$('#txtProcess_1').va('製板');
+						$('#txtProcess_1').val('製板');
 						$('#txtProcessno_2').val('SC01');
-						$('#txtProcess_2').va('生產');
+						$('#txtProcess_2').val('生產');
 						if($('#cmbTypea').val()=='製造部'){
 							$('#txtTggno_0').val('YD02');
 							$('#txtTgg_0').val('有達實業有限公司');
@@ -383,11 +383,11 @@
 						}
 					}else if ($('#textScolor').val().indexOf('新版正式樣')>-1 || $('#textScolor').val().indexOf('改版正式樣')>-1){
 						$('#txtProcessno_0').val('ZB');
-						$('#txtProcess_0').va('製板');
+						$('#txtProcess_0').val('製板');
 						$('#txtProcessno_1').val('DY');
-						$('#txtProcess_1').va('打樣（正式樣）');
+						$('#txtProcess_1').val('打樣（正式樣）');
 						$('#txtProcessno_2').val('SC01');
-						$('#txtProcess_2').va('生產');
+						$('#txtProcess_2').val('生產');
 						if($('#cmbTypea').val()=='製造部'){
 							$('#txtTggno_0').val('YD02');
 							$('#txtTgg_0').val('有達實業有限公司');
@@ -406,10 +406,10 @@
 						}
 					}else if($('#textScolor').val().indexOf('新版')>-1 || $('#textScolor').val().indexOf('改版')>-1){
 						$('#txtProcessno_0').val('ZB');
-						$('#txtProcess_0').va('製板');
+						$('#txtProcess_0').val('製板');
 						
 						$('#txtProcessno_1').val('SC01');
-						$('#txtProcess_1').va('生產');
+						$('#txtProcess_1').val('生產');
 						if($('#cmbTypea').val()=='製造部'){
 							$('#txtTggno_0').val('YD02');
 							$('#txtTgg_0').val('有達實業有限公司');

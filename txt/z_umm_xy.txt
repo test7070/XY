@@ -670,10 +670,12 @@ z_umm_xy3:--z_umm_xy3
 declare @t_mon nvarchar(7)
 declare @t_bsalesno nvarchar(20)
 declare @t_esalesno nvarchar(20)
+declare @t_abnormal nvarchar(20)
 
 set @t_mon = case when '#non'=[1] then '' else [1] end
 set @t_bsalesno = case when '#non'=[6] then '' else [6] end
 set @t_esalesno = case when '#non'=[7] then char(255) else [7] end
+set @t_abnormal = case when '#non'=[30] then '' else [30] end
 -------------------------------------------------------------------------------------------------------------------------
 declare @tmp table(
 	gno nvarchar(4),
@@ -704,7 +706,7 @@ declare @tmp table(
 insert into @tmp 
 select '0',a.datea,a.noa,b.noq,a.custno,(select case when isnull(nick,'')!='' then nick else left(comp,8) end from cust where noa=a.custno) 
 ,a.total,b.paysale,isnull(f.salesno,''),f.sales,c.datea,c.custno,(select case when isnull(nick,'')!='' then nick else left(comp,8) end from cust where noa=c.custno) 
-,c.noa,c.noq,c.product,c.lengthb,c.lengthc,c.mount,c.price,c.total,e.class,null 
+,c.noa,c.noq,c.product,c.lengthb,c.lengthc,c.mount,c.price,c.total,isnull(e.class,''),null 
 from umm a left join umms b on a.noa=b.noa left join view_vccs c on b.vccno=c.noa 
 left join view_ordes d on (c.ordeno=d.noa and c.no2=d.no2) 
 left join view_quats e on (d.quatno=e.noa and d.no3=e.no3) 
@@ -715,6 +717,9 @@ and isnull(f.taxtype,'1')!='6' --1050112 作廢不顯示
 
 update @tmp
 set bonus=(case when rate='' then 100 else cast(rate as float) end)/100*vtotal
+
+if(@t_abnormal!='')
+	delete @tmp where rate='100' or rate=''
 
 if((select count(*) from @tmp)>0)
 begin
@@ -730,7 +735,7 @@ begin
 	select '2',salesno from @tmp where salesno != (select MAX(salesno) from @tmp where gno='1') group by salesno
 	
 	insert @tmp (gno,salesno,saless,utotal,vtotal,bonus)
-	select '3',MAX(salesno),MAX(saless),sum(utotal),sum(vtotal),sum(bonus) from @tmp where gno = '1'
+	select '3',char(255),MAX(saless),sum(utotal),sum(vtotal),sum(bonus) from @tmp where gno = '1'
 end
 
 select 

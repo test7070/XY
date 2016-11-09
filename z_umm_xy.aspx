@@ -148,6 +148,10 @@
                         type : '5', //[29]
                         name : 'ummcust2',
                         value:'0@收款客戶,1@收款客戶+發票客戶'.split(',')
+                    }, {
+                        type : '8', //[30]
+                        name : 'xabnormal',
+                        value:'1@顯示異常獎金'.split(',')
                     }]
                 });
 

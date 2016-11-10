@@ -989,8 +989,8 @@ begin
 		select '2','','000',@t_mon+'/00',@t_mon,b.noa custno,b.nick comp 
 		,a.noa xcustno,isnull(a.nick,'') xcomp,isnull(b.zip_invo,'') post, isnull(b.addr_invo,'') addr, isnull(b.tel,'') tel,isnull(b.serial,'')serial 
 		,0,0,0,0,0,0,0,a.salesno,a.sales 
-		,case when isnull(a.custno2,'') !='' then a.custno2 else a.custno2 end
-		,c.invocustno,c.vcccustno,a.paytype
+		,case when isnull(a.custno2,'') !='' then a.custno2 else a.noa end
+		,isnull(c.invocustno,''),isnull(c.vcccustno,''),isnull(a.paytype,'')
 		from cust a 
 		outer apply(select top 1 * from cust where serial=a.serial order by noa)b
 		outer apply(select top 1 * from custm where noa=a.noa )c
@@ -1006,8 +1006,8 @@ begin
 		,(case when isnull(a.custno2,'')!='' then a.cust2 else a.nick end) comp 
 		,a.noa xcustno,isnull(a.nick,'') xcomp, isnull(b.zip_home,'') post, isnull(b.addr_invo,'') addr, isnull(b.tel,'') tel,isnull(b.serial,'')serial 
 		,0,0,0,0,0,0,0,a.salesno,a.sales 
-		,case when isnull(a.custno2,'') !='' then a.custno2 else a.custno2 end
-		,c.invocustno,c.vcccustno,a.paytype
+		,case when isnull(a.custno2,'') !='' then a.custno2 else a.noa end
+		,isnull(c.invocustno,''),isnull(c.vcccustno,''),isnull(a.paytype,'')
 		from cust a 
 		outer apply(select * from cust where noa=(case when isnull(a.custno2,'')!='' then a.custno2 else a.noa end))b
 		outer apply(select top 1 * from custm where noa=a.noa )c

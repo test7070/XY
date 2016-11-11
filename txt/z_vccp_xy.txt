@@ -263,7 +263,7 @@ select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),ROW_NUMBER(
 --,c.paytype
 ,case when a.paytype='貨到收現' or a.paytype='貨運代收' then '收款方式：'+a.paytype+'  ('+dbo.getComma(case when isnull(a.total,0)<isnull(a.weight,0) then 0 else isnull(a.total,0)-isnull(a.weight,0) end,0) +'元)' 
 when a.paytype like '貨到收現%' or a.paytype like'貨運代收%' then '收款方式：'+a.paytype else '' end
-,case when cast(c.startdate as int)-1>0 then cast(cast(c.startdate as int)-1 as nvarchar(10))+'日' else '月底' end
+,case when cast(isnull(c.startdate,'00') as int)-1>0 then cast(cast(isnull(c.startdate,'00') as int)-1 as nvarchar(10))+'日' else '月底' end
 ,b.productno,b.product,b.spec,b.unit
 ,b.dime --1050111 數量要出來不判斷是否是寄庫 ,b.mount+b.tranmoney3-b.tranmoney2
 ,b.lengthb,b.lengthc
@@ -397,7 +397,7 @@ dbo.getComma(a.total,0) total,
 replace(a.comp,'~#$',char(39)) comp,
 replace(a.conn,'~#$',char(39)) conn,
 '採購單號：'+custorde custorde,
-case when b.paytype='%月結%' then '結單日：'+payday else '' end payday,
+case when b.paytype like '%月結%' then '結單日：'+payday else '' end payday,
 a.*
 --,case when b.typea='2' then '<a style="font-size:18px'+CHAR(59)+'">'+'退貨'+'</a>'+a.amemo else a.amemo end memo
 ,a.amemo memo

@@ -167,6 +167,9 @@
 	                                	b_ret[i].total=-1*dec(b_ret[i].total);
 	                                }
 	                                b_ret[i].unpay=q_sub(dec(b_ret[i].total),dec(b_ret[i].weight));
+	                                if(b_ret[i].unpay<0){//105/11/11 收款金額-訂金小於0=0
+	                                	b_ret[i].unpay=0;
+	                                }
                                 }
                             }
                             

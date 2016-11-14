@@ -2279,7 +2279,7 @@
 				$('.yellow').css('background-color','yellow');
 				if (q_cur<1 && q_cur>2) {
 					for (var j = 0; j < q_bbsCount; j++) {
-						$('#txtDatea_'+j).datepicker( 'destroy' );
+						$('#txtDatea_'+j).datepicker('destroy');
 					}
 				} else {
 					for (var j = 0; j < q_bbsCount; j++) {
@@ -2476,6 +2476,7 @@
 				}else{
 					$('#btnPlusCust').hide();
 				}
+				
 				if (t_para) {
 					$('#lblAcomp').show();$('#lblAcompx').hide();
 					$('#lblCust').show();$('#lblCustx').hide();
@@ -2485,8 +2486,8 @@
 						$('#btnOrdetoVcc').attr('disabled', 'disabled');
 					else
 						$('#btnOrdetoVcc').removeAttr('disabled');
-						
 					$('#txtOdate').datepicker( 'destroy' );
+					$('#txtXydatea').datepicker('destroy');
 					for (var j = 0; j < q_bbsCount; j++) {
 						$('#combGroupbno_'+j).attr('disabled', 'disabled');
 						$('#combClassa_'+j).attr('disabled', 'disabled');
@@ -2507,6 +2508,8 @@
 					$('#combAddr').removeAttr('disabled');
 					$('#btnOrdetoVcc').attr('disabled', 'disabled');
 					$('#txtOdate').datepicker();
+					$('#txtXydatea').removeClass('hasDatepicker');
+					$('#txtXydatea').datepicker();
 					for (var j = 0; j < q_bbsCount; j++) {
 						$('#combGroupbno_'+j).removeAttr('disabled');
 						$('#combClassa_'+j).removeAttr('disabled');

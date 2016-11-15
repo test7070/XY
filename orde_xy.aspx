@@ -3415,7 +3415,7 @@
 				<table class="tview" id="tview">
 					<tr>
 						<td align="center" style="width:5%"><a id='vewChk'> </a></td>
-						<td align="center" style="width:25%"><a id='vewDatea'> </a></td>
+						<td align="center" style="width:25%"><a id='vewOdate'> </a></td>
 						<td align="center" style="width:25%"><a id='vewNoa'> </a></td>
 						<td align="center" style="width:40%"><a id='vewNick_xy'>客戶簡稱</a></td>
 					</tr>

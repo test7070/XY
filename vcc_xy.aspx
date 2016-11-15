@@ -1236,9 +1236,7 @@
 
 			function combPay_chg() {
 				var cmb = document.getElementById("combPay");
-				if (!q_cur)
-					cmb.value = '';
-				else
+				if (q_cur==1 || q_cur==2)
 					$('#txtPaytype').val(cmb.value);
 				cmb.value = '';
 			}

@@ -397,7 +397,8 @@ dbo.getComma(a.total,0) total,
 replace(a.comp,'~#$',char(39)) comp,
 replace(a.conn,'~#$',char(39)) conn,
 '採購單號：'+custorde custorde,
-case when b.paytype like '%月結%' then '結單日：'+payday else '' end payday,
+case when b.paytype not like '%貨到收現%' and b.paytype not like '%貨到收票%' and b.paytype not like '%貨到匯款%' and b.paytype not like '%貨運代收%' then '結單日：'+payday else '' end payday,
+--case when b.paytype like '%月結%' then '結單日：'+payday else '' end payday,
 a.*
 --,case when b.typea='2' then '<a style="font-size:18px'+CHAR(59)+'">'+'退貨'+'</a>'+a.amemo else a.amemo end memo
 ,a.amemo memo

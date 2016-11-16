@@ -1109,7 +1109,7 @@
 				}
 				_bbsAssign();
 				change_check();
-				if (r_rank<9){
+				if (r_rank<9 && r_userno!='C31'){ //105/11/16 開放給 C31修改
 					$('.bonus').hide();
 				}
 				

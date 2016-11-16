@@ -164,7 +164,7 @@
 				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
 				
-				$('#txtXydatea').focusout(function() {
+				$('#txtXydatea').change(function() {
 					if((q_cur==1 || q_cur==2) && xy_datea!=$('#txtXydatea').val()){
 						for(var i=0;i<q_bbsCount;i++){
 							$('#txtDatea_'+i).val($('#txtXydatea').val());

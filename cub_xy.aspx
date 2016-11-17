@@ -251,7 +251,7 @@
                     });
                     
                     if(q_cur==1 && !emp($('#txtVcceno').val())){
-                    	q_func('qtxt.query.cub2upcust', 'cub.txt,cub2upcust,' + encodeURI($('#txtNoa').val()) + ';' + encodeURI($('#txtVcceno').val()) );
+                    	q_func('qtxt.query.cub2upcust', 'cust_ucc_xy.txt,cub2upcust,' + encodeURI($('#txtNoa').val()) + ';' + encodeURI($('#txtVcceno').val()) );
                     }
                     
                     if($('#txtDatea').val()>='105/03/21')

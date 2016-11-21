@@ -598,6 +598,7 @@
 				});
 				
 				$('#btnOrdetoVcc').click(function() {
+					$('#btnOrdetoVcc').attr('disabled', 'disabled');
 					//20160113 多預交日不轉單，或單一預交日
 					var t_datea=$('#txtDatea_0').val();
 					var date_rep=false;
@@ -737,7 +738,7 @@
 											t_pno='#non';
 										
 										var t_where = t_odate+ ';'+t_custno+ ';'+t_pno;
-										q_func('qtxt.query.keyin_productno_xy', 'cust_ucc_xy.txt,quatimport,' + t_where);
+										q_func('qtxt.query.keyin_pno_xy_'+b_seq, 'cust_ucc_xy.txt,quatimport,' + t_where);
 										
 									}else {
 										alert(q_getMsg('msgCustEmp'));
@@ -1723,6 +1724,10 @@
 						});
 						$('#txtProductno_' + j).focusin(function() {
 							pno_keyin_apop=false;
+						}).change(function() {
+							t_IdSeq = -1;
+							q_bodyId($(this).attr('id'));
+							b_seq = t_IdSeq;
 						});
 						
 						$('#txtLengthb_'+j).change(function() {
@@ -1835,7 +1840,7 @@
 											if (emp(t_pno))
 												t_pno='#non';
 											var t_where = t_odate+ ';'+t_custno+ ';'+t_pno;
-											q_func('qtxt.query.keyin_productno_xy2', 'cust_ucc_xy.txt,quatimport,' + t_where);
+											q_func('qtxt.query.keyin_pno_xy2', 'cust_ucc_xy.txt,quatimport,' + t_where);
 										}else {
 											alert(q_getMsg('msgCustEmp'));
 											$('#txtCustno').focus();
@@ -2779,7 +2784,8 @@
 						}
 						break;
 					case 'txtProductno_':
-						if(!emp($('#txtProductno_'+b_seq).val())){
+						var t_n=b_seq;
+						if(!emp($('#txtProductno_'+t_n).val())){
 							var t_grpno=''; //客戶集團編號
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('cust', t_where, 0, 0, 0, "getcustgrpno", r_accy, 1);
@@ -2793,23 +2799,23 @@
 							var as2 = _q_appendData("cust", "", true);
 							var isexists=false;
 							for ( i = 0; i < as2.length; i++) {
-								if($('#txtProductno_' + b_seq).val().substr(0,5)==as2[i].noa.substr(0,5)){
+								if($('#txtProductno_' + t_n).val().substr(0,5)==as2[i].noa.substr(0,5)){
 									isexists=true;
 								}
 							}
 							
-							if($('#txtProductno_' + b_seq).val().indexOf('-')>0){
-								if($('#txtProductno_' + b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
-								&&  $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno
+							if($('#txtProductno_' + t_n).val().indexOf('-')>0){
+								if($('#txtProductno_' + t_n).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
+								&&  $('#txtProductno_' + t_n).val().substr(0,5)!=t_grpno
 								&& !isexists	){
-									$('#btnMinus_'+b_seq).click();
+									$('#btnMinus_'+t_n).click();
 									break;
 								}
 							}
 														
 							var t_custno = trim($('#txtCustno').val());
 							var t_odate = trim($('#txtOdate').val());
-							var t_pno = trim($('#txtProductno_'+b_seq).val());
+							var t_pno = trim($('#txtProductno_'+t_n).val());
 							var t_where = '';
 							if (t_custno.length > 0 && t_pno.length>0) {
 								//104/09/10 直接匯入 要直接打數量
@@ -2821,12 +2827,12 @@
 									t_pno='#non';
 								
 								var t_where = t_odate+ ';'+t_custno+ ';'+t_pno;
-								q_func('qtxt.query.keyin_productno_xy', 'cust_ucc_xy.txt,quatimport,' + t_where);
+								q_func('qtxt.query.keyin_pno_xy_'+t_n, 'cust_ucc_xy.txt,quatimport,' + t_where);
 								
 							}else {
 								alert(q_getMsg('msgCustEmp'));
 								$('#txtCustno').focus();
-								$('#btnMinus_'+b_seq).click();
+								$('#btnMinus_'+t_n).click();
 								return;
 							}
 						}
@@ -2945,41 +2951,7 @@
 						AutoNo2();
 						bbsAssign();
 						break;
-					case 'qtxt.query.keyin_productno_xy':
-						var as = _q_appendData("tmp0", "", true, true);
-						
-						if(pno_keyin_apop){
-							break;
-						}
-						pno_keyin_apop=true;
-						
-						$('#btnMinus_'+b_seq).click();
-						if (as[0] != undefined) {
-							$('#txtProductno_'+b_seq).val(as[0].productno);
-							$('#txtProduct_'+b_seq).val(as[0].product);
-							$('#txtSpec_'+b_seq).val(as[0].spec);
-							$('#txtSizea_'+b_seq).val(as[0].sizea);
-							$('#txtDime_'+b_seq).val(as[0].dime);
-							$('#txtZinc_'+b_seq).val(as[0].ounit);
-							$('#txtUnit_'+b_seq).val(as[0].uunit);
-							$('#txtPrice_'+b_seq).val(as[0].price);
-							$('#txtHard_'+b_seq).val(as[0].unit);
-							$('#txtLengthc_'+b_seq).val(as[0].price);
-							//$('#txtLengthb_'+b_seq).val(as[0].mount);
-							//$('#txtMount_'+b_seq).val(as[0].mount);
-							$('#txtQuatno_'+b_seq).val(as[0].noa);
-							$('#txtNo3_'+b_seq).val(as[0].no3);
-							$('#txtClassa_'+b_seq).val(as[0].classa);
-							$('#txtClass_'+b_seq).val(as[0].class);
-							
-							combzincchange(b_seq);
-							unitchange(b_seq);
-						}
-						pricecolor();
-						HiddenTreat();
-						AutoNo2();
-						break;
-					case 'qtxt.query.keyin_productno_xy2':
+					case 'qtxt.query.keyin_pno_xy2':
 						var as = _q_appendData("tmp0", "", true, true);
 						if (as[0] != undefined) {
 							$('#txtHard_'+b_seq).val(as[0].unit);
@@ -3069,23 +3041,61 @@
 					case 'qtxt.query.post1':
 						var as = _q_appendData("tmp0", "", true, true);
 						var t_invono='';
-							if (as[0] != undefined) {
-								abbm[q_recno]['vccno'] = as[0].vccno;
-								$('#txtVccno').val(as[0].vccno);
-								
-								//vcc.post內容
-								if(!emp($('#txtVccno').val())){
-									q_func('vcc_post.post', r_accy + ',' + $('#txtVccno').val() + ',1');
-								}
+						if (as[0] != undefined) {
+							abbm[q_recno]['vccno'] = as[0].vccno;
+							$('#txtVccno').val(as[0].vccno);
+							
+							//vcc.post內容
+							if(!emp($('#txtVccno').val())){
+								q_func('vcc_post.post', r_accy + ',' + $('#txtVccno').val() + ',1');
 							}
-							if(q_cur==2 && !emp($('#txtVccno').val()))
-                        		alert('已更新出貨單!!');
-                        	else
-                        		alert('成功轉出出貨單!!');
+						}
+						if(q_cur==2 && !emp($('#txtVccno').val()))
+                        	alert('已更新出貨單!!');
+                        else
+                        	alert('成功轉出出貨單!!');
+                        $('#btnOrdetoVcc').removeAttr('disabled');
                         break;
 					default:
 						break;
 				}
+				
+				if(t_func.substr(0,24)=='qtxt.query.keyin_pno_xy_'){
+					//case 'qtxt.query.keyin_pno_xy':
+						var t_n=replaceAll(t_func,'qtxt.query.keyin_pno_xy_','')
+						var as = _q_appendData("tmp0", "", true, true);
+						
+						if(!pno_keyin_apop){
+							$('#btnMinus_'+t_n).click();
+							if (as[0] != undefined) {
+								$('#txtProductno_'+t_n).val(as[0].productno);
+								$('#txtProduct_'+t_n).val(as[0].product);
+								$('#txtSpec_'+t_n).val(as[0].spec);
+								$('#txtSizea_'+t_n).val(as[0].sizea);
+								$('#txtDime_'+t_n).val(as[0].dime);
+								$('#txtZinc_'+t_n).val(as[0].ounit);
+								$('#txtUnit_'+t_n).val(as[0].uunit);
+								$('#txtPrice_'+t_n).val(as[0].price);
+								$('#txtHard_'+t_n).val(as[0].unit);
+								$('#txtLengthc_'+t_n).val(as[0].price);
+								//$('#txtLengthb_'+t_n).val(as[0].mount);
+								//$('#txtMount_'+t_n).val(as[0].mount);
+								$('#txtQuatno_'+t_n).val(as[0].noa);
+								$('#txtNo3_'+t_n).val(as[0].no3);
+								$('#txtClassa_'+t_n).val(as[0].classa);
+								$('#txtClass_'+t_n).val(as[0].class);
+								
+								combzincchange(t_n);
+								unitchange(t_n);
+							}
+							pricecolor();
+							HiddenTreat();
+							AutoNo2();
+						}else{
+							pno_keyin_apop=true;
+						}
+				}
+				
 			}
 			
 			function ShowDownlbl() {				

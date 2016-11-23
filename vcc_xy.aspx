@@ -207,8 +207,10 @@
 				});
 				
 				$('#btnGenvcca').click(function() {
+					$('#btnGenvcca').attr('disabled', 'disabled');
 					if(dec($('#txtTotal').val())==0 || dec($('#txtMoney').val())==0){
 						alert('金額為零禁止開立發票');
+						$('#btnGenvcca').removeAttr('disabled');
 						return;
 					}
 					//105/08/12 強制鎖 只能開3聯發票
@@ -241,11 +243,13 @@
 					
 					if(t_p23==''){
 						alert('發票聯式未指定!!');
+						$('#btnGenvcca').removeAttr('disabled');
 						return;
 					}
 					
 					if((t_serial.indexOf('二聯')>-1 || t_p23=='2') && q_date()<'105/09/01'){
 						alert('請手開二聯式發票!!');
+						$('#btnGenvcca').removeAttr('disabled');
 						return;
 					}
 					
@@ -256,6 +260,7 @@
 					
 					if($('#cmbTaxtype').val()=='0' || $('#cmbTaxtype').val()==''){
 						alert('稅別禁止空白!!');
+						$('#btnGenvcca').removeAttr('disabled');
 						return;
 					}
 					
@@ -273,6 +278,7 @@
 						}else
 							alert('權限不足!!');
 					}
+					$('#btnGenvcca').removeAttr('disabled');
 				});
 				
 				$('#cmbTypea').change(function() {

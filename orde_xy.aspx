@@ -1103,17 +1103,6 @@
 						t_msg = "庫存量：" + stkmount;
 						q_msg($('#txtMount_' + b_seq), t_msg,10,5000);
 						break;
-					case 'source_stk':
-						var as = _q_appendData("view_vccs", "", true);
-						if (as[0] != undefined) {
-							if(dec(as[0].stkmount)>=$('#txtMount_'+b_seq).val())
-								$('#cmbSource_'+b_seq).val('2').change();
-							else
-								$('#cmbSource_'+b_seq).val('0').change();
-						}else{
-							$('#cmbSource_'+b_seq).val('0').change();
-						}
-						break;
 					case 'custaddr':
 						var as = _q_appendData("custaddr", "", true);
 						var t_item = " @ ";
@@ -1880,14 +1869,44 @@
 								t_IdSeq = -1;
 								q_bodyId($(this).attr('id'));
 								b_seq = t_IdSeq;
-								/*if (!emp($('#txtProductno_' + b_seq).val())) {
+								if (!emp($('#txtProductno_' + b_seq).val())) {
 									var t_custno=$('#txtCustno').val().substr(0,$('#txtCustno').val().indexOf('-'));
 									if(t_custno=='') 
 										t_custno=$('#txtCustno').val();
 									
 									var t_where = "where=^^ a.storeno2 like '"+t_custno +"%' and isnull(a.productno,'')='"+$('#txtProductno_' + b_seq).val()+"' ^^";
-									q_gt('vcc_xy_store2', t_where, 0, 0, 0, "source_stk", r_accy);
-								}*/
+									q_gt('vcc_xy_store2', t_where, 0, 0, 0, "source_stk", r_accy,1);
+									var as = _q_appendData("view_vccs", "", true);
+									if (as[0] != undefined) {
+										var t_mount=0;
+										var t_mount2=0;
+										var t_custno=$('#txtCustno').val().substr(0,$('#txtCustno').val().indexOf('-'));
+										for (var i = 0; i < as.length; i++) {
+											if(as[i].storeno2==$('#txtCustno').val()){//分店倉
+												t_mount=dec(as[i].stkmount);
+											}
+											if(as[i].storeno2==t_custno){ //總倉
+												t_mount2=dec(as[i].stkmount);
+											}
+										}
+										var t_msgs='';
+										if(t_mount!=0){
+											t_msgs='分店倉寄庫剩餘數量:'+t_mount;
+										}
+										if(t_mount2!=0){
+											t_msgs=t_msgs+(t_msgs.length>0?'<br>':'')+'總店倉寄庫剩餘數量:'+t_mount2;
+										}
+										
+										q_msg($('#txtMount_' + b_seq), t_msgs,100,15000);
+										
+										if((t_mount+t_mount2)>=$('#txtMount_'+b_seq).val())
+											$('#cmbSource_'+b_seq).val('2').change();
+										else
+											$('#cmbSource_'+b_seq).val('0').change();
+									}else{
+										$('#cmbSource_'+b_seq).val('0').change();
+									}
+								}
 								sum();
 								if(dec($('#txtMount_'+b_seq).val())>0 && dec($('#txtTotal_'+b_seq).val())<100 && ($('#cmbSource_'+b_seq).val()=='0' || $('#cmbSource_'+b_seq).val()=='1')){
 									alert('產品小計金額低於100或等於0，請確認輸入單價或單位是否正確!!')

@@ -257,6 +257,7 @@ update @tmp set inmount=case when inmount=0 then 1 else inmount end,xinmount=cas
 
 update @tmp set memo=case when unit!=xunit then 
 case when FLOOR(mount*inmount/xinmount)>0 then cast(FLOOR(mount*inmount/xinmount) as nvarchar(100))+xunit else '' end
++case when FLOOR(mount*inmount/xinmount)>0 and (mount-(FLOOR(mount*inmount/xinmount)*xinmount))>0 then '+' else '' end
 +case when (mount-(FLOOR(mount*inmount/xinmount)*xinmount))>0 then cast((mount-(FLOOR(mount*inmount/xinmount)*xinmount)) as nvarchar(100))+ unit else '' end
 else '' end
 

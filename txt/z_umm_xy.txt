@@ -858,7 +858,7 @@ begin
 		,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 		,case when isnull((select invocustno from custm where noa=a.custno),a.custno)!='' then isnull((select invocustno from custm where noa=a.custno),a.custno) else a.custno end
 		,case when isnull((select vcccustno from custm where noa=a.custno),a.custno)!='' then isnull((select vcccustno from custm where noa=a.custno),a.custno) else a.custno end
-		,c.paytype,isnull((select postmemo from custm where noa=a.custno),'')
+		,isnull(c.paytype,''),isnull((select postmemo from custm where noa=a.custno),'')
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
 	left join cust c on a.custno = c.noa
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) = @t_mon)) 
@@ -886,7 +886,7 @@ begin
 		,case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end
 		,case when isnull((select invocustno from custm where noa=a.custno),a.custno)!='' then isnull((select invocustno from custm where noa=a.custno),a.custno) else a.custno end
 		,case when isnull((select vcccustno from custm where noa=a.custno),a.custno)!='' then isnull((select vcccustno from custm where noa=a.custno),a.custno) else a.custno end
-		,c.paytype,isnull((select postmemo from custm where noa=a.custno),'')
+		,isnull(c.paytype,''),isnull((select postmemo from custm where noa=a.custno),'')
 	from view_vccs b left join view_vcc a on a.noa = b.noa 
 	left join cust c on  (case when isnull(a.custno2,'')!='' then a.custno2 else a.custno end) = c.noa
 	where (len(@t_mon)=0 or ((case when isnull(a.mon,'')='' then left(a.datea,6) else a.mon end) = @t_mon)) 

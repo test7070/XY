@@ -50,6 +50,8 @@
                         declare @t_storeno nvarchar(50)= @storeno
                         declare @t_datea nvarchar(50)= @datea
                         declare @t_ucceins nvarchar(50)= @ucceins
+                        
+                        declare @pdatea nvarchar(50)=dbo.q_cdn(@t_datea,-1)
 
                         declare @t_noa nvarchar(50)
                         declare @accy nvarchar(50)
@@ -126,7 +128,7 @@
 			
 			                        insert #bbs(noa,noq,productno,product,spec,style,mount,unit,price,total,memo,emount2,storeno)
 			                        select @t_noa,CAST(@noq as nvarchar(10)),a.noa,a.product,a.spec,a.style,@mount,a.unit,0,0,@memo,isnull(b.mount,0),@t_storeno
-			                        from ucc a outer apply (select top 1 mount from stkucc(@t_datea,@t_storeno,@productno))b
+			                        from ucc a outer apply (select top 1 mount from stkucc(@pdatea,@t_storeno,@productno))b
 			                        where a.noa=@productno
 			
 			                        set @str=SUBSTRING(@str,CHARINDEX(',',@str)+1,LEN(@str))

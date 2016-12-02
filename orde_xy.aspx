@@ -1331,6 +1331,7 @@
 							tr.innerHTML = "<td><input id='store2_txtProductno_"+store2_row+"' type='text' class='txt c1' value='"+as[i].productno+"' disabled='disabled'/></td>";
 							tr.innerHTML+="<td><input id='store2_txtProduct_"+store2_row+"' type='text' class='txt c1' value='"+as[i].product+"' disabled='disabled' /></td>";
 							tr.innerHTML+= "<td><input id='store2_txtSpec_"+store2_row+"' type='text' class='txt c1' value='"+as[i].spec+"' disabled='disabled'/></td>";
+							tr.innerHTML+="<td><input id='store2_txtStoreno_"+store2_row+"' type='text' class='txt c1' value='"+as[i].storeno2+"' disabled='disabled' /></td>";
 							tr.innerHTML+="<td><input id='store2_txtStore_"+store2_row+"' type='text' class='txt c1' value='"+as[i].store2+"' disabled='disabled' /></td>";
 							tr.innerHTML+="<td><input id='store2_txtMount_"+store2_row+"' type='text' class='txt c1 num' value='"+dec(as[i].stkmount)+"' disabled='disabled'/></td>";
 							
@@ -3427,19 +3428,20 @@
 			</table>
 		</div>
 		
-		<div id="div_store2" style="position:absolute; top:300px; left:400px; display:none; width:820px; background-color: #CDFFCE; border: 5px solid gray;">
+		<div id="div_store2" style="position:absolute; top:300px; left:400px; display:none; width:920px; background-color: #CDFFCE; border: 5px solid gray;">
 			<table id="table_store2" style="width:100%;" border="1" cellpadding='2'  cellspacing='0'>
 				<tr id='store2_top'>
 					<td style="background-color: #f8d463;width: 130px;" align="center">產品編號</td>
 					<td style="background-color: #f8d463;width: 150px;" align="center">產品名稱</td>
 					<td style="background-color: #f8d463;width: 200px;" align="center">規格</td>
+					<td style="background-color: #f8d463;width: 100px;" align="center">寄倉編號</td>
 					<td style="background-color: #f8d463;width: 100px;" align="center">寄庫倉庫</td>
 					<td style="background-color: #f8d463;width: 100px;" align="center">寄庫數量</td>
 					<td style="background-color: #f8d463;width: 100px;" align="center">總倉數量</td>
 					<td style="background-color: #f8d463;width: 40px;" align="center">庫存單位</td>
 				</tr>
 				<tr id='store2_close'>
-					<td align="center" colspan='7'>
+					<td align="center" colspan='8'>
 						<input id="btnClose_div_store2" type="button" value="關閉視窗">
 					</td>
 				</tr>

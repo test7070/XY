@@ -1733,7 +1733,7 @@ declare @noa nvarchar(100)=case when '#non'=[1] then '' else [1] end
 declare @upnoa nvarchar(100)=case when '#non'=[2] then '' else [2] end
 
 update upcust
-set memo=isnull((select isnull(a.product,'')+' '+isnull(a.spec,'')+' '+isnull(b.sales,'') from view_cub a left join cust b on a.custno=b.noa wehre a.noa=@noa),'')+'製令單【'+@noa+'】上傳',typea=''
+set memo=isnull((select isnull(a.product,'')+' '+isnull(a.spec,'')+' '+isnull(b.sales,'') from view_cub a left join cust b on a.custno=b.noa where a.noa=@noa),'')+'製令單【'+@noa+'】上傳',typea=''
 where noa=@upnoa
 
 update upcusts

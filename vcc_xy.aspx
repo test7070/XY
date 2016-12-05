@@ -473,6 +473,7 @@
 								if(!emp($('#txtStoreno2_'+i).val()) && emp($('#txtStore2_'+i).val())){
 									$('#txtStoreno2_'+i).change();
 								}
+								$('#cmbItemno_' + i).change();
 							}
 							
 							if (t_oredeno.length > 0) {							

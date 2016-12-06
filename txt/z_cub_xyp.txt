@@ -239,7 +239,7 @@ dbo.getComma(c1,[2]) c1,
 dbo.getComma(notv,[2]) notv,
 'cub_xy?noa=$noa' qhrefa,
 'orde_xy?noa=$ordeno' qhrefb,
-* from @result order by gno,case when @t_sorting='N' then datea else bdate end
+* from @result order by gno,case when @t_sorting='N' then datea when @t_sorting='M' then pno else bdate end
 ,noa
 ;
 ---------------------------------------------------------------------------------------------------------------------------------------------

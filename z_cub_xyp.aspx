@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" >
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title></title>
+		<title> </title>
 		<script src="../script/jquery.min.js" type="text/javascript"></script>
 		<script src='../script/qj2.js' type="text/javascript"></script>
 		<script src='qset.js' type="text/javascript"></script>
@@ -80,7 +80,7 @@
                     }, {//[20]
 						type : '5',
 						name : 'xsorting',
-                        value : 'Y@預交日,N@製令日'.split(',')
+                        value : 'Y@預交日,N@製令日,M@製成品'.split(',')
                     }]
                 });
                 

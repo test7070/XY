@@ -3202,7 +3202,7 @@
 							var t_f1=Math.floor(t_lengthb*t_m1/t_m2);
 							var t_c1=Math.ceil(t_lengthb*t_m1/t_m2);
 							
-							if(t_f1!=t_c1 && t_unit!='KG'){ //105/10/04 公斤排除
+							if(t_f1!=t_c1 && t_unit!='KG' && t_unit!='令'){ //105/10/04 公斤排除 //105/12/12 增加令
 								$('#txtZinc_'+i).val('');
 								$('#txtLengthb_'+i).val('');
 								$('#txtMount_'+i).val(0);
@@ -3211,7 +3211,7 @@
 								alert('數量錯誤，請確認單位是否正確!!');
 								return;
 							}	
-							if(t_unit!='KG'){
+							if(t_unit!='KG' && t_unit!='令'){
 								$('#txtMount_'+i).val(round(t_lengthb*t_m1/t_m2,0));
 							}else{
 								$('#txtMount_'+i).val(round(t_lengthb*t_m1/t_m2,2));

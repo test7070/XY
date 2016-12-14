@@ -1109,7 +1109,7 @@
 			var check_startdate=false,check_stock=false;
 			function btnOk() {
 				var t_err = q_chkEmpField([['txtNoa', q_getMsg('lblNoa')],['txtDatea', q_getMsg('lblDatea')], ['txtCustno', q_getMsg('lblCust')], ['txtCno', q_getMsg('lblAcomp')]]);
-				if (t_err.length > 0) {
+				if (t_err.length > 0 && r_rank<'9') {
 					alert(t_err);
 					return;
 				}

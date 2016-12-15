@@ -39,7 +39,8 @@
 					['txtSalesno', 'lblSales', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx'],
 					['txtCno', 'lblAcomp', 'acomp', 'noa,acomp', 'txtCno,txtAcomp', 'acomp_b.aspx'],
 					['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle', 'txtCustno,txtComp,txtNick,txtTel', 'cust_b.aspx'],
-					['ordb_txtTggno_', '', 'tgg', 'noa,comp', 'ordb_txtTggno_,ordb_txtTgg_', '']
+					['ordb_txtTggno_', '', 'tgg', 'noa,comp', 'ordb_txtTggno_,ordb_txtTgg_', ''],
+					['txtSize_', 'btnSize_', 'store', 'noa,store', 'txtSize_,txtUcolor_', 'store_b.aspx']
 			);
 			
 			$(document).ready(function() {
@@ -232,7 +233,7 @@
 						q_gt('custaddr', t_where, 0, 0, 0, "");
 					}
 				}).focusin(function() {
-					q_msg($(this),'請輸入客戶編號');
+					//q_msg($(this),'請輸入客戶編號');
 				});
 				
 				$('#txtCustorde').change(function() {
@@ -1437,6 +1438,14 @@
 							q_Seek_gtPost();
 						break;
 				}
+				if(t_name.substr(0,8)=='getStore'){
+					var n=t_name.substr(9);
+					var as = _q_appendData('store', '', true);
+					if (as[0] != undefined) {
+						$('#txtSize_'+n).val(as[0].noa);
+						$('#txtUcolor_'+n).val(as[0].store);
+					}
+				}
 			}
 
 			function btnQuat() {
@@ -1512,7 +1521,7 @@
 						t_sizea=round(t_sizea*t_m1/t_m3,1);
 						
 						if(t_sizea>dec($('#txtLengthb_'+k).val())){
-							t_err=t_err+$('#txtProductno_'+k).val()+"客單數量低於最低訂購量\n"
+							t_err=t_err+$('#txtProductno_'+k).val()+"客單數量低於最低訂購量\n";
 						}
 					}
 				}
@@ -1520,6 +1529,22 @@
 				if (t_err.length > 0) {
 					alert(t_err);
 					//return;
+				}
+				
+				//105/12/15寄庫沒有倉庫不能存檔
+				t_err = '';
+				for(var k=0;k<q_bbsCount;k++){
+					if(!emp($('#txtProductno_'+k).val()) && ($('#cmbSource_' + k).val()=='1' || $('#cmbSource_' + k).val()=='2') && emp($('#txtSize_'+k).val())){
+						t_err=t_err+$('#txtProductno_'+k).val();
+						if($('#cmbSource_' + k).val()=='1')
+							t_err=t_err+"寄庫倉空白\n";
+						else
+							t_err=t_err+"庫出倉空白\n";
+					}
+				}
+				if (t_err.length > 0) {
+					alert(t_err);
+					return;
 				}
 				
 				t_err = '';
@@ -1798,6 +1823,11 @@
 									$('#txtMemo_'+b_seq).val('');
 								}
 							}
+							if($('#cmbSource_' + b_seq).val()=='1' || $('#cmbSource_' + b_seq).val()=='2'){
+								//$('#txtSize_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
+								var t_where="where=^^noa like '"+$('#txtCustno').val().substr(0,5)+"%' ^^"
+								q_gt('store', t_where, 0, 0, 0, "getStore_"+b_seq);
+							}
 							
 							if($('#cmbSource_' + b_seq).val()!='0' && $('#cmbSource_' + b_seq).val()!='1'){
 								//105/01/08 寄庫、寄出... 備註 直接為 寄庫、寄出...X件 
@@ -1848,9 +1878,13 @@
 							}
 							
 							if((q_cur==1 || q_cur==2) && ($('#cmbSource_'+b_seq).val()=='3' || $('#cmbSource_'+b_seq).val()=='4' || $('#cmbSource_'+b_seq).val()=='5')){
-								$('#txtUnit_'+b_seq).removeAttr('disabled');
+								//105/12/15 調整
+								$('#txtUnit_'+b_seq).val($('#txtZinc_'+b_seq).val());
+								$('#txtMount_'+b_seq).val($('#txtLengthb_'+b_seq).val());
+								//$('#txtUnit_'+b_seq).removeAttr('disabled');
 							}else{
-								$('#txtUnit_'+b_seq).attr('disabled', 'disabled');
+								//$('#txtProductno_'+b_seq).change()
+								//$('#txtUnit_'+b_seq).attr('disabled', 'disabled');
 							}
 							
 							unitchange(b_seq);
@@ -3637,7 +3671,7 @@
 				</table>
 			</div>
 		</div>
-		<div class='dbbs' style="width: 2800px;">
+		<div class='dbbs' style="width: 2950px;">
 			<table id="tbbs" class='tbbs' border="1" cellpadding='2' cellspacing='1'>
 				<tr style='color:White; background:#003366;' >
 					<td align="center" style="width:40px;"><input class="btn" id="btnPlus" type="button" value='＋' style="font-weight: bold;" /></td>
@@ -3653,9 +3687,10 @@
 					<td align="center" style="width:85px;"><a id='lblLengthb_xy'>客單數量</a></td>
 					<td align="center" style="width:40px;"><a id='lblUnit_xy_s'>單位</a></td>
 					<td align="center" style="width:85px;"><a id='lblMount_xy'>訂貨數量</a></td>
-					<td align="center" style="width:60px;"><a >寄/出庫</a></td>
 					<td align="center" style="width:80px;"><a id='lblPrices'> </a></td>
 					<td align="center" style="width:100px;"><a id='lblTotal_s'> </a></td>
+					<td align="center" style="width:60px;"><a >寄/出庫</a></td>
+					<td align="center" style="width:150px;"><a >寄庫/出倉</a></td>
 					<td align="center" style="width:150px;"><a id='lblDateas'> </a></td>
 					<!--<td align="center" style="width:85px;" class="bonus"><a>獎金比例</a></td>-->
 					<td align="center" style="width:85px;"><a id='lblGemounts'> </a></td>
@@ -3703,9 +3738,14 @@
 					<td><input class="txt num c7 yellow" id="txtLengthb.*" type="text"/></td>
 					<td align="center"><input class="txt c7" id="txtUnit.*" type="text"/></td>
 					<td><input class="txt num c7" id="txtMount.*" type="text"/></td>
-					<td><select id="cmbSource.*" class="txt c1"> </select></td>
 					<td><input class="txt num c7" id="txtPrice.*" type="text" /></td>
 					<td><input class="txt num c7" id="txtTotal.*" type="text" /></td>
+					<td><select id="cmbSource.*" class="txt c1"> </select></td>
+					<td>
+						<input id="txtSize.*" type="text" class="txt c1 store2" style="width: 30%"/>
+						<input class="btn"  id="btnSize.*" type="button" value='.' style=" font-weight: bold;" />
+						<input id="txtUcolor.*" type="text" class="txt c1 store2" style="width: 50%"/>
+					</td>
 					<td>
 						<input class="txt c7 yellow" id="txtDatea.*" type="text" style="width: 58%;"/>
 						<select id="cmbIndate.*" class="txt c1" style="width: 38%;font-size: medium;"> </select>

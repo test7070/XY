@@ -466,8 +466,8 @@
 									b_ret[i].spec=b_ret[i].classa+' '+b_ret[i].spec;
 							}
 									
-							q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtStoreno,txtStore,txtStoreno2,txtStore2,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno', b_ret.length, b_ret
-							,'productno,product,spec,unit,storeno,store,storeno2,store2,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,no2,source', 'txtProductno,txtProduct,txtSpec');
+							q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtStoreno,txtStore,txtStoreno2,txtStore2,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno,txtStoreno2,txtStore', b_ret.length, b_ret
+							,'productno,product,spec,unit,storeno,store,storeno2,store2,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,no2,source,size,ucolor', 'txtProductno,txtProduct,txtSpec');
 							
 							for (var i = 0; i < q_bbsCount; i++) {
 								if(!emp($('#txtStoreno2_'+i).val()) && emp($('#txtStore2_'+i).val())){

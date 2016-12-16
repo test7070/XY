@@ -634,12 +634,12 @@
 					var t_err='';
 					for(var i=0;i<q_bbsCount;i++){
 						if($('#cmbScolor_'+i).val().indexOf('新版')>-1 || $('#cmbScolor_'+i).val().indexOf('改版')>-1){
-							t_newstyle++;
 							var t_where = " where=^^ ordeno='" + $('#txtNoa').val() + "' and no2='"+$('#txtNo2_'+i).val()+"' and isnull(enda,0)=1 and isnull(mount,0)>0 ^^";
 							q_gt('view_cub', t_where, 0, 0, 0, 'checkcubenda', r_accy, 1);
 							var as = _q_appendData("view_cub", "", true);
 							if (as[0] == undefined) {
 								t_err=t_err+($('#txtProduct_'+i).val()+' '+$('#txtProduct_'+i).val()+' 未入庫禁止轉出貨!!\n');
+								break;
 							}
 						}
 					}

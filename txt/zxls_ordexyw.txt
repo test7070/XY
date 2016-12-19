@@ -261,8 +261,9 @@ begin
 		,total=case when taxtype='1' then b.stotal+round(b.stotal*0.05,0) when taxtype in ('2','3','4','5') then b.stotal else 0 end
 		from #bbm a outer apply (select SUM(total)stotal from #bbs where noa=a.noa)b
 	
+		--105/12/19 低於700以下 交運方式=送達
 		update #bbm
-		set post2='235',addr2='中和市連城路222巷2弄2號1樓'
+		set post2='235',addr2='中和市連城路222巷2弄2號1樓',trantype='送達'
 		where money<=700
 		
 		--select * from @tmp

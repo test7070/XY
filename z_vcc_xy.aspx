@@ -76,6 +76,16 @@
                     }, {
                         type : '1', //[16][17]
                         name : 'xedate'
+                    }, {
+                        type : '8', //[18]
+                        name : 'xzero',
+                        value:'1@顯示庫存0'.split(',')
+                    }, {
+                        type : '2', //[19][20]
+                        name : 'xsales',
+                        dbf : 'sss',
+                        index : 'noa,namea',
+                        src : 'sss_b.aspx'
                     }]
                 });
                 q_popAssign();
@@ -93,6 +103,11 @@
 				
 				$('#txtDate1').val(q_date().substr(0,r_lenm)+'/01');
                 $('#txtDate2').val(q_cdn(q_cdn(q_date().substr(0,r_lenm)+'/01',35).substr(0,r_lenm)+'/01',-1));
+				
+				$('#Xzero').css('width','300px');
+				$('#Xzero').css('height','30px');
+                $('#chkXzero').css('margin-top','5px');
+                $('#Xzero .label').css('width','0px');
                 
             }
 

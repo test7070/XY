@@ -466,8 +466,8 @@
 									b_ret[i].spec=b_ret[i].classa+' '+b_ret[i].spec;
 							}
 									
-							q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtStoreno,txtStore,txtStoreno2,txtStore2,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno,txtStoreno2,txtStore', b_ret.length, b_ret
-							,'productno,product,spec,unit,storeno,store,storeno2,store2,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,no2,source,size,ucolor', 'txtProductno,txtProduct,txtSpec');
+							q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtStoreno,txtStore,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno,txtStoreno2,txtStore2', b_ret.length, b_ret
+							,'productno,product,spec,unit,storeno,store,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,no2,source,size,ucolor', 'txtProductno,txtProduct,txtSpec');
 							
 							for (var i = 0; i < q_bbsCount; i++) {
 								if(!emp($('#txtStoreno2_'+i).val()) && emp($('#txtStore2_'+i).val())){
@@ -1331,8 +1331,10 @@
 								$('#txtTranmoney3_'+b_seq).val(0);
 								$('#txtWidth_'+b_seq).val(0);
 								$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
-								if(emp($('#txtStoreno_'+b_seq).val()))
-									$('#txtStoreno_'+b_seq).val('A').change();
+								if(emp($('#txtStoreno_'+b_seq).val())){
+									$('#txtStoreno_'+b_seq).val('A');
+									$('#txtStore_'+b_seq).val('總倉庫');
+								}
 							}else if($('#cmbItemno_'+b_seq).val()=='2'){//庫出
 								$('#txtTranmoney3_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney2_'+b_seq).val(0);
@@ -1355,8 +1357,10 @@
 								$('#txtTranmoney2_'+b_seq).val(0);
 								$('#txtStoreno2_'+b_seq).val('');
 								$('#txtStore2_'+b_seq).val('');
-								if(emp($('#txtStoreno_'+b_seq).val()))
-									$('#txtStoreno_'+b_seq).val('A').change();
+								if(emp($('#txtStoreno_'+b_seq).val())){
+									$('#txtStoreno_'+b_seq).val('A');
+									$('#txtStore_'+b_seq).val('總倉庫');
+								}
 							}
 							sum();
 							

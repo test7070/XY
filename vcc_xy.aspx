@@ -470,9 +470,6 @@
 							,'productno,product,spec,unit,storeno,store,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,no2,source,size,ucolor', 'txtProductno,txtProduct,txtSpec');
 							
 							for (var i = 0; i < q_bbsCount; i++) {
-								if(!emp($('#txtStoreno2_'+i).val()) && emp($('#txtStore2_'+i).val())){
-									$('#txtStoreno2_'+i).change();
-								}
 								$('#cmbItemno_' + i).change();
 							}
 							
@@ -1134,6 +1131,22 @@
 					return;
 				}
 				
+				t_err='';
+				for (var i = 0; i < q_bbsCount; i++) {
+					if(!emp($('#txtProductno_'+i).val()) && ($('#cmbItemno_' + i).val()=='1' || $('#cmbItemno_' + i).val()=='2') && emp($('#txtStoreno2_'+i).val())){
+						t_err=t_err+$('#txtProductno_'+i).val();
+						if($('#cmbItemno_' + i).val()=='1')
+							t_err=t_err+"寄庫倉空白\n";
+						else
+							t_err=t_err+"庫出倉空白\n";
+					}
+				}
+				
+				if (t_err.length > 0) {
+					alert(t_err);
+					return;
+				}
+				
 				for (var i = 0; i < q_bbsCount; i++) {
 					if($('#cmbItemno_'+i).val()=='1'){//寄庫
 						$('#txtTranmoney2_'+i).val($('#txtDime_'+i).val());
@@ -1330,7 +1343,7 @@
 								$('#txtTranmoney2_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney3_'+b_seq).val(0);
 								$('#txtWidth_'+b_seq).val(0);
-								$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
+								//$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
 								if(emp($('#txtStoreno_'+b_seq).val())){
 									$('#txtStoreno_'+b_seq).val('A');
 									$('#txtStore_'+b_seq).val('總倉庫');
@@ -1340,7 +1353,7 @@
 								$('#txtTranmoney2_'+b_seq).val(0);
 								$('#txtWidth_'+b_seq).val(0);
 								$('#txtPrice_'+b_seq).val(0);
-								$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
+								//$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
 							}else if($('#cmbItemno_'+b_seq).val()=='3' || $('#cmbItemno_'+b_seq).val()=='4' || $('#cmbItemno_'+b_seq).val()=='5'){//公關品樣品補送
 								$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney3_'+b_seq).val(0);

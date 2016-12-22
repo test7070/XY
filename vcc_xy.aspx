@@ -88,6 +88,8 @@
 					//q_readonlys.push('txtMount');
 					q_readonlys.push('txtProductno');
 					q_readonlys.push('txtPrice');
+					q_readonlys.push('txtStoreno2');
+					//105/12/22寄庫倉禁止修改
 				}
 					
 				q_getFormat();
@@ -452,12 +454,12 @@
 									b_ret[i].mount=0;
 									b_ret[i].storeno='';
 									b_ret[i].store='';
-									b_ret[i].storeno2=b_ret[i].custno.substr(0,5);
-									b_ret[i].store2='';
+									//b_ret[i].storeno2=b_ret[i].custno.substr(0,5);
+									//b_ret[i].store2='';
 								}else if(b_ret[i].source=='1'){//寄庫
 									b_ret[i].tranmoney2=b_ret[i].mount;
-									b_ret[i].storeno2=b_ret[i].custno.substr(0,5);
-									b_ret[i].store2='';
+									//b_ret[i].storeno2=b_ret[i].custno.substr(0,5);
+									//b_ret[i].store2='';
 								}else{
 									b_ret[i].width=b_ret[i].mount;
 								}
@@ -1171,7 +1173,8 @@
 				sum();
 				
 				//104/02/26 判斷寄庫倉編號要與客戶編號相似
-				t_err='';
+				//105/12/22 不判斷
+				/*t_err='';
 				var t_custno=$('#txtCustno').val().substr(0,$('#txtCustno').val().indexOf('-'));
 				for (var i = 0; i < q_bbsCount; i++) {
 					if(!emp($('#txtProductno_'+i).val()) && !emp($('#txtStoreno2_'+i).val()) && $('#txtStoreno2_'+i).val().indexOf(t_custno)==-1 && (q_float('txtTranmoney2_'+i)!=0 || q_float('txtTranmoney3_'+i)!=0)){
@@ -1181,7 +1184,7 @@
 				if (t_err.length > 0) {
 					alert(t_err);
 					return;
-				}
+				}*/
 				
 				//判斷起算日,寫入帳款月份
 				//104/09/30 如果備註沒有*字就重算帳款月份
@@ -2402,9 +2405,9 @@
 						<input id="txtStore.*" type="text" class="txt c1" style="width: 50%"/>
 					</td>
 					<td class="store2">
-						<input id="txtStoreno2.*" type="text" class="txt c1 store2" style="width: 30%"/>
-						<input class="btn"  id="btnStoreno2.*" type="button" value='.' style=" font-weight: bold;" />
-						<input id="txtStore2.*" type="text" class="txt c1 store2" style="width: 50%"/>
+						<input id="txtStoreno2.*" type="text" class="txt c1 store2" style="width: 40%"/>
+						<input class="btn" id="btnStoreno2.*" type="button" value='.' style=" font-weight: bold;display: none;" />
+						<input id="txtStore2.*" type="text" class="txt c1 store2" style="width: 53%"/>
 					</td>
 					<td style="display: none;"><input id="txtTranmoney2.*" type="text" class="txt num c1"/></td>
 					<td style="display: none;"><input id="txtTranmoney3.*" type="text" class="txt num c1"/></td>

@@ -940,16 +940,28 @@
 					alert('製令單已付款禁止刪除!!');
 					return;
 				}
-
-                if (!confirm(mess_dele))
-                    return;
-                q_cur = 3;
-                
-				if($('#txtDatea').val()>='105/03/21')
-                	q_gt('view_rc2', "where=^^postname='" + $('#txtNoa').val() + "'^^", 0, 0, 0, "stpost_rc2_3");
-                else{
-                	_btnOk($('#txtNoa').val(), bbmKey[0], ( bbsHtm ? bbsKey[1] : ''), '', 3)
-                }
+				
+				//檢查是否有刪除權限
+				var pr_dele='false';
+				q_gt('authority', "where=^^ a.noa='"+q_name+"' and a.sssno='"+r_userno+"' ^^", 0, 0, 0, "isauthority",r_accy,1);
+				var as = _q_appendData("authority", "", true);
+				if(as[0]!=undefined){
+					pr_dele=as[0].pr_dele;
+				}
+				
+				if(pr_dele=='true' || r_rank>='8'){
+					if (!confirm(mess_dele))
+						return;
+					q_cur = 3;
+		                
+					if($('#txtDatea').val()>='105/03/21'){
+		            	q_gt('view_rc2', "where=^^postname='" + $('#txtNoa').val() + "'^^", 0, 0, 0, "stpost_rc2_3");
+		            }else{
+		            	_btnOk($('#txtNoa').val(), bbmKey[0], ( bbsHtm ? bbsKey[1] : ''), '', 3)
+					}
+				}else{
+	              	alert('無刪除權限!!');
+				}
 			}
 
 			function btnCancel() {

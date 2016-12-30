@@ -158,6 +158,7 @@ END
 		spec nvarchar(max),
 		engpro nvarchar(max),
 		style nvarchar(max),
+		cdate nvarchar(max),
 		unit nvarchar(max),
 		saleprice float,
 		custno nvarchar(max),
@@ -175,7 +176,7 @@ END
 	)
 
 	insert into #tmp
-	select 0,a.noa,a.product,a.spec,a.engpro,a.style,a.unit,a.saleprice,b.noa,b.nick
+	select 0,a.noa,a.product,a.spec,a.engpro,a.style,a.cdate,a.unit,a.saleprice,b.noa,b.nick
 	,'',null,null,null,null,null,null,null,null
 	from ucc a  
 	outer apply (select noa,comp,nick from cust where left(a.noa,5)=noa and charindex('-',a.noa)>0 ) b

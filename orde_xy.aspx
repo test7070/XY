@@ -3035,12 +3035,14 @@
 								product_in_quat=false;
 								for (var j = 0; j < as.length; j++) {
 									if(!emp($('#txtQuatno_'+i).val()) && !emp($('#txtNo3_'+i).val())){
-										if($('#txtQuatno_'+i).val()==as[j].noa && $('#txtNo3_'+i).val()==as[j].no3){
+										if($('#txtQuatno_'+i).val()==as[j].noa && $('#txtNo3_'+i).val()==as[j].no3 && as[j].productno==$('#txtProductno_'+i).val()){
 											product_in_quat=true;
 											if(dec($('#txtLengthc_'+i).val())< dec(as[j].price)){
 												error_productno+=$('#txtProductno_'+i).val()+' '+$('#txtProduct_'+i).val()+' 訂單單價小於報價單價!!\n'
 											}
 											break;
+										}else if ($('#txtQuatno_'+i).val()==as[j].noa && $('#txtNo3_'+i).val()==as[j].no3 && as[j].productno!=$('#txtProductno_'+i).val()){
+											error_productno+=$('#txtProductno_'+i).val()+' '+$('#txtProduct_'+i).val()+' 關聯報價單錯誤請重新輸入品項或匯入!!\n'
 										}
 									}else if(as[j].productno==$('#txtProductno_'+i).val()){
 										product_in_quat=true;

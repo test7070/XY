@@ -85,6 +85,12 @@
 						q_box("cub_xy_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'cub', "95%", "650px", $('#btnCub').val());
 					}
 				});
+				
+				$('#btnQrcode').click(function() {
+					if(!emp($('#txtNoa').val())){
+						window.open("./pdf_rc2qrcode_xy.aspx?noa="+$('#txtNoa').val()+"&tablea="+q_name+"&db="+q_db);
+					}
+				});
 			}
 
 			function q_boxClose(s2) {
@@ -315,8 +321,10 @@
 				_readonly(t_para, empty);
 				if(t_para){
 					$('#btnCub').attr('disabled', 'disabled');
+					$('#btnQrcode').removeAttr('disabled');
 				}else{
 					$('#btnCub').removeAttr('disabled');
+					$('#btnQrcode').attr('disabled', 'disabled');
 				}
 			}
 
@@ -547,6 +555,7 @@
 							<input id="txtStore" type="text" class="txt c3"/>
 						</td>
 						<td class='td5'> <input id="btnCub" type="button" value='製令單匯入'  style="float:right;"/></td>
+						<td class='td6'> <input id="btnQrcode" type="button" value='條碼下載'  style="float:right;"/></td>
 					</tr>
 					<!--<tr class="tr6">
 						<td class="td1"><span> </span><a id="lblCardeal" class="lbl btn"> </a></td>

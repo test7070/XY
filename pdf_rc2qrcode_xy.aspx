@@ -200,7 +200,7 @@
             doc1.Close();
             Response.ContentType = "application/octec-stream;";
             Response.AddHeader("Content-transfer-encoding", "binary");
-            Response.AddHeader("Content-Disposition", "attachment;filename=barcode96.pdf");
+            Response.AddHeader("Content-Disposition", "attachment;filename="+t_noa+".pdf");
             Response.BinaryWrite(stream.ToArray());
             Response.End();
         }

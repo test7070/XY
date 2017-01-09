@@ -94,6 +94,9 @@
 						t_where = " isnull(a.enda,0)!=1 and isnull(a.cancel,0)!=1";
 						t_where += " and not exists(select * from view_cub where ordeno=a.noa and no2=a.no2 and noa!='"+t_noa+"') ";//已匯入 105/05/03
 						t_where += " and left(a.productno,2)!='##' and left(a.custno,2)!='##' ";//非正式編號
+						//106/01/09庫出不顯示
+						t_where += " and a.source!='2' ";
+						
 						if (t_custno.length > 0) {
 							t_where += " and a.custno='"+t_custno+"'";
 							//只有印刷才會進來 印刷編號=客戶編號-流水號

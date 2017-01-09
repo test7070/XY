@@ -2019,7 +2019,7 @@
 							}
 						});
 						
-						$('#btnOrdemount_' + i).click(function() {
+						$('#btnOrdemount_' + j).click(function() {
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
@@ -3691,8 +3691,8 @@
 					<td align="center" style="width:85px;"><a id='lblMount_xy'>訂貨數量</a></td>
 					<td align="center" style="width:80px;"><a id='lblPrices'> </a></td>
 					<td align="center" style="width:100px;"><a id='lblTotal_s'> </a></td>
-					<td align="center" style="width:60px;"><a >寄/出庫</a></td>
-					<td align="center" style="width:150px;"><a >寄庫/出倉</a></td>
+					<td align="center" style="width:60px;"><a >寄庫／庫出</a></td>
+					<td align="center" style="width:150px;"><a >寄庫／庫出倉</a></td>
 					<td align="center" style="width:150px;"><a id='lblDateas'> </a></td>
 					<!--<td align="center" style="width:85px;" class="bonus"><a>獎金比例</a></td>-->
 					<td align="center" style="width:85px;"><a id='lblGemounts'> </a></td>

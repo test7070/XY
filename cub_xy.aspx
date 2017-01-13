@@ -143,6 +143,12 @@
 						q_box("upcust.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'upcust', "95%", "650px", $('#btnUpCust').val());
 					}
 				});
+				
+				$('#btnQrcode').click(function() {
+					if(!emp($('#txtNoa').val())){
+						window.open("./pdf_rc2qrcode_xy.aspx?noa="+$('#txtNoa').val()+"&tablea="+q_name+"&db="+q_db);
+					}
+				});
 			}
 
 			function q_gtPost(t_name) {
@@ -731,10 +737,12 @@
 					$('#btnUpdata').attr('disabled', 'disabled');
 					$('#btnOrdes').attr('disabled', 'disabled');
 					$("[name='checkCut']").attr('disabled', 'disabled');
+					$('#btnQrcode').removeAttr('disabled');
 				}else{
 					$('#btnUpdata').removeAttr('disabled');
 					$('#btnOrdes').removeAttr('disabled');
 					$("[name='checkCut']").removeAttr('disabled');
+					$('#btnQrcode').attr('disabled', 'disabled');
 				}
 			}
 
@@ -1296,6 +1304,8 @@
 						<td><input id="txtC1" type="text" class="txt num c1"/></td>
 						<td><span> </span><a id="lblNotv" class="lbl" >未交量</a></td>
 						<td><input id="txtNotv" type="text" class="txt num c1"/></td>
+						<td> </td>
+						<td> <input id="btnQrcode" type="button" value='條碼下載'  style="float:right;"/></td>
 					</tr>
 					<tr>
 						<td><span> </span><a id="lblMemo" class="lbl" > </a></td>

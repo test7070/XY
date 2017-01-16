@@ -322,6 +322,11 @@
 							}else{
 								$('#txtTggno_'+b_seq).val(b_ret[0].noa);
 								$('#txtTgg_'+b_seq).val(b_ret[0].nick);
+								if(b_ret[0].conn=='1'){
+									$('#chkSale_'+b_seq).prop('checked',true);
+								}else{
+									$('#chkSale_'+b_seq).prop('checked',false);
+								}
 							}
 						}
 						break;
@@ -375,11 +380,11 @@
 						$('#txtProcessno_2').val('SC01');
 						$('#txtProcess_2').val('生產');
 						if($('#cmbTypea').val()=='製造部'){
-							$('#txtTggno_0').val('YD02');
+							$('#txtTggno_0').val('YD02').change();
 							$('#txtTgg_0').val('有達實業有限公司');
-							$('#txtTggno_1').val('QD01');
+							$('#txtTggno_1').val('QD01').change();
 							$('#txtTgg_1').val('慶大企業行');
-							$('#txtTggno_2').val('YD02');
+							$('#txtTggno_2').val('YD02').change();
 							$('#txtTgg_2').val('有達實業有限公司');
 						}
 						if($('#cmbTypea').val()=='採購部'){
@@ -398,19 +403,19 @@
 						$('#txtProcessno_2').val('SC01');
 						$('#txtProcess_2').val('生產');
 						if($('#cmbTypea').val()=='製造部'){
-							$('#txtTggno_0').val('QD01');
+							$('#txtTggno_0').val('QD01').change();
 							$('#txtTgg_0').val('慶大企業行');
-							$('#txtTggno_1').val('YD02');
+							$('#txtTggno_1').val('YD02').change();
 							$('#txtTgg_1').val('有達實業有限公司');
-							$('#txtTggno_2').val('YD02');
+							$('#txtTggno_2').val('YD02').change();
 							$('#txtTgg_2').val('有達實業有限公司');
 						}
 						if($('#cmbTypea').val()=='採購部'){
-							$('#txtTggno_0').val(ztggno);
+							$('#txtTggno_0').val(ztggno).change();
 							$('#txtTgg_0').val(z_tgg);
-							$('#txtTggno_1').val(ztggno);
+							$('#txtTggno_1').val(ztggno).change();
 							$('#txtTgg_1').val(z_tgg);
-							$('#txtTggno_2').val(ztggno);
+							$('#txtTggno_2').val(ztggno).change();
 							$('#txtTgg_2').val(z_tgg);
 						}
 					}else if($('#textScolor').val().indexOf('新版')>-1 || $('#textScolor').val().indexOf('改版')>-1){
@@ -420,15 +425,15 @@
 						$('#txtProcessno_1').val('SC01');
 						$('#txtProcess_1').val('生產');
 						if($('#cmbTypea').val()=='製造部'){
-							$('#txtTggno_0').val('QD01');
+							$('#txtTggno_0').val('QD01').change();
 							$('#txtTgg_0').val('慶大企業行');
-							$('#txtTggno_1').val('YD02');
+							$('#txtTggno_1').val('YD02').change();
 							$('#txtTgg_1').val('有達實業有限公司');
 						}
 						if($('#cmbTypea').val()=='採購部'){
-							$('#txtTggno_0').val(ztggno);
+							$('#txtTggno_0').val(ztggno).change();
 							$('#txtTgg_0').val(z_tgg);
-							$('#txtTggno_1').val(ztggno);
+							$('#txtTggno_1').val(ztggno).change();
 							$('#txtTgg_1').val(z_tgg);
 						}
 					}
@@ -781,6 +786,21 @@
 							q_box("tgg_b.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where, 'bbs_tgg', "500px", "680px", "");
 						});
 						
+						$('#txtTggno_'+i).change(function() {
+							var t_n=$(this).attr('id').split('_')[1];
+							q_gt('tgg', "where=^^ noa='" + $('#txtTggno_'+t_n).val() + "' ^^", 0, 0, 0, "gettggs",r_accy,1);
+							var as = _q_appendData("tgg", "", true);
+							if(as[0]!=undefined){
+								$('#txtTggno_'+t_n).val(as[0].noa);
+								$('#txtTgg_'+t_n).val(as[0].nick);
+								if(as[0].conn=='1'){
+									$('#chkSale_'+t_n).prop('checked',true);
+								}else{
+									$('#chkSale_'+t_n).prop('checked',false);
+								}
+							}
+						});
+						
 						$('#chkCut_'+i).click(function() {
 							t_IdSeq = -1; 
 							q_bodyId($(this).attr('id'));
@@ -986,6 +1006,20 @@
 	        var orde_no2='',orde_pno='',orde_product='',orde_custno='',orde_comp='',orde_spec='',orde_pop=true;
 	        function q_popPost(s1) {
 			   	switch (s1) {
+			   		case 'txtTggno_':
+			   			var t_n=b_seq;
+						q_gt('tgg', "where=^^ noa='" + $('#txtTggno_'+t_n).val() + "' ^^", 0, 0, 0, "gettggs",r_accy,1);
+						var as = _q_appendData("tgg", "", true);
+						if(as[0]!=undefined){
+							$('#txtTggno_'+t_n).val(as[0].noa);
+							$('#txtTgg_'+t_n).val(as[0].nick);
+							if(as[0].conn=='1'){
+								$('#chkSale_'+t_n).prop('checked',true);
+							}else{
+								$('#chkSale_'+t_n).prop('checked',false);
+							}
+						}
+			   			break;
 			        /*case 'txtOrdeno':
 			        	if(orde_pop){
 			        		orde_no2=$('#txtNo2').val();

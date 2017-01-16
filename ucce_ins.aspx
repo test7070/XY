@@ -76,8 +76,10 @@
 	                        spec nvarchar(MAX),
 	                        style nvarchar(MAX),
 	                        unit nvarchar(MAX),
-	                        mount float,--實際數量
+	                        mount float,--實際數量-客戶計庫量
 	                        emount2 float,--帳面數量
+	                        tmount float,--客戶計庫量
+	                        dime float,--實際數量
 	                        price float,
 	                        total float,
 	                        memo nvarchar(MAX)
@@ -126,9 +128,10 @@
 				                        set @tmount=SUBSTRING(@tmount,CHARINDEX('^',@tmount)+1,LEN(@tmount))
 			                        end
 			
-			                        insert #bbs(noa,noq,productno,product,spec,style,mount,unit,price,total,memo,emount2,storeno)
-			                        select @t_noa,CAST(@noq as nvarchar(10)),a.noa,a.product,a.spec,a.style,@mount,a.unit,0,0,@memo,isnull(b.mount,0),@t_storeno
+			                        insert #bbs(noa,noq,productno,product,spec,style,mount,unit,price,total,memo,emount2,storeno,tmount,dime)
+			                        select @t_noa,CAST(@noq as nvarchar(10)),a.noa,a.product,a.spec,a.style,@mount-isnull(c.tmount,0),a.unit,0,0,@memo,isnull(b.mount,0),@t_storeno,isnull(c.tmount,0),@mount
 			                        from ucc a outer apply (select top 1 mount from stkucc(@pdatea,@t_storeno,@productno))b
+			                        outer apply (select SUM((case when typea='1' then 1 else -1 end)*(ISNULL(tranmoney2,0)-ISNULL(tranmoney3,0)))tmount from view_vccs where productno=@productno and datea<=@pdatea)c
 			                        where a.noa=@productno
 			
 			                        set @str=SUBSTRING(@str,CHARINDEX(',',@str)+1,LEN(@str))
@@ -147,8 +150,8 @@
 		                        EXEC('insert ucce'+@accy+'(noa,datea,kind,storeno,store)
 		                        select '''+@t_noa+''','''+@t_datea+''',''1'','''','''' ')
 		
-		                        EXEC('insert ucces'+@accy+'(noa,noq,storeno,store,productno,product,spec,style,unit,mount,emount2,price,total,memo,datea)
-		                        select noa,noq,storeno,store,productno,product,spec,style,unit,mount,emount2,price,total,memo,'''+@t_datea+''' from #bbs ')
+		                        EXEC('insert ucces'+@accy+'(noa,noq,storeno,store,productno,product,spec,style,unit,mount,emount2,price,total,memo,datea,dime,width)
+		                        select noa,noq,storeno,store,productno,product,spec,style,unit,mount,emount2,price,total,memo,'''+@t_datea+''',dime,tmount from #bbs ')
 		
 		                        set @t_err='盤點資料寫入成功'
 	                        end

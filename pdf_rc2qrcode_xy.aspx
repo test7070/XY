@@ -39,36 +39,50 @@
                 connSource.Open();
                 string queryString = "";
                 if(t_tablea=="rc2"){
-                	queryString = @"select b.comp,case when charindex('[',spec)>0 and charindex(']',spec)>0
-									then SUBSTRING(spec,charindex('[',spec)+1,charindex(']',spec)-charindex('[',spec)-1)
-									else '' end version
-									,b.productno,a.noa,b.product,b.spec
+                	queryString = @"select b.comp,case when charindex('[',c.spec)>0 and charindex(']',c.spec)>0
+									then SUBSTRING(c.spec,charindex('[',c.spec)+1,charindex(']',c.spec)-charindex('[',c.spec)-1)
+									else case when c.style='私-空白' then '空白' else c.style end end version
+									,b.productno,a.noa,c.product,REPLACE(c.spec,case when charindex('[',c.spec)>0 and charindex(']',c.spec)>0
+									then SUBSTRING(c.spec,charindex('[',c.spec),charindex(']',c.spec)-charindex('[',c.spec)+1)
+									else '' end,'') spec
 									from view_rc2 a left join view_rc2s b on a.noa=b.noa
-                                    where a.noa=@t_noa and exists(select * from ucc where noa=b.productno)
+									left join ucc c on b.productno=c.noa
+                                    where a.noa=@t_noa and c.noa is not null
                                     ";
 				}else if(t_tablea=="cub"){
-                	queryString = @"select a.comp,case when charindex('[',spec)>0 and charindex(']',spec)>0
-									then SUBSTRING(spec,charindex('[',spec)+1,charindex(']',spec)-charindex('[',spec)-1)
-									else '' end version
-									,a.productno,a.noa,a.product,a.spec
-									from view_cub a
-                                    where a.noa=@t_noa and exists(select * from ucc where noa=a.productno)
+                	queryString = @"select a.comp,case when charindex('[',b.spec)>0 and charindex(']',b.spec)>0
+									then SUBSTRING(b.spec,charindex('[',b.spec)+1,charindex(']',b.spec)-charindex('[',b.spec)-1)
+									else case when b.style='私-空白' then '空白' else b.style end end version
+									,a.productno,a.noa,b.product
+									,REPLACE(b.spec,case when charindex('[',b.spec)>0 and charindex(']',b.spec)>0
+									then SUBSTRING(b.spec,charindex('[',b.spec),charindex(']',b.spec)-charindex('[',b.spec)+1)
+									else '' end,'') spec
+									from view_cub a left join ucc b on a.productno=b.noa
+                                    where a.noa=@t_noa and b.noa is not null
                                     ";
 				}else if(t_tablea=="ina"){
-                	queryString = @"select b.namea,case when charindex('[',spec)>0 and charindex(']',spec)>0
-									then SUBSTRING(spec,charindex('[',spec)+1,charindex(']',spec)-charindex('[',spec)-1)
-									else '' end version
-									,b.productno,a.noa,b.product,b.spec
+                	queryString = @"select b.namea
+									,case when charindex('[',c.spec)>0 and charindex(']',c.spec)>0
+									then SUBSTRING(c.spec,charindex('[',c.spec)+1,charindex(']',c.spec)-charindex('[',c.spec)-1)
+									else case when c.style='私-空白' then '空白' else c.style end end version
+									,b.productno,a.noa,c.product
+									,REPLACE(c.spec,case when charindex('[',c.spec)>0 and charindex(']',c.spec)>0
+									then SUBSTRING(c.spec,charindex('[',c.spec),charindex(']',c.spec)-charindex('[',c.spec)+1)
+									else '' end,'') spec
 									from view_ina a left join view_inas b on a.noa=b.noa
-                                    where a.noa=@t_noa and exists(select * from ucc where noa=b.productno)
+									left join ucc c on b.productno=c.noa
+                                    where a.noa=@t_noa and c.noa is not null
                                     and isnull(b.rc2no,'')=''
                                     ";
 				}else{
 					queryString = @"select isnull(b.comp,'') comp
-									,case when charindex('[',spec)>0 and charindex(']',spec)>0
-									then SUBSTRING(spec,charindex('[',spec)+1,charindex(']',spec)-charindex('[',spec)-1)
-									else '' end version
-									,a.noa,a.noa,a.product,a.spec
+									,case when charindex('[',a.spec)>0 and charindex(']',a.spec)>0
+									then SUBSTRING(a.spec,charindex('[',a.spec)+1,charindex(']',a.spec)-charindex('[',a.spec)-1)
+									else case when a.style='私-空白' then '空白' else a.style end end version
+									,a.noa,a.noa,a.product
+									,REPLACE(a.spec,case when charindex('[',a.spec)>0 and charindex(']',a.spec)>0
+									then SUBSTRING(a.spec,charindex('[',a.spec),charindex(']',a.spec)-charindex('[',a.spec)+1)
+									else '' end,'') spec
 									from ucc a outer apply (select nick comp 
 									from cust where noa=LEFT(a.noa,5) and CHARINDEX('-',a.noa)>0)b
 									where a.noa like @t_noa+'%' or len(@t_noa)=0

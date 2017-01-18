@@ -350,8 +350,9 @@
 				if (isinvosystem)
 					$('.istax').hide();
 				
-				$('#lblDownvcc').click(function() {
-					$('#xdownload').attr('src','uploadXYvcc_download.aspx?FileName='+$('#txtZipcode').val()+'&TempName='+$('#txtZipcode').val());
+				$('#btnDownvcc').click(function() {
+					if(!emp($('#txtZipcode').val()))
+						$('#xdownload').attr('src','uploadXYvcc_download.aspx?FileName='+$('#txtZipcode').val()+'&TempName='+$('#txtZipcode').val());
 				});
 				
 				$('#lblIsvcce').click(function() {
@@ -1670,9 +1671,9 @@
 				}
 				
 				if($('#txtZipcode').val().length>0)
-					$('#lblDownvcc').show();
+					$('#btnDownvcc').removeAttr('disabled');
 				else
-					$('#lblDownvcc').hide();
+					$('#btnDownvcc').attr('disabled', 'disabled');
 			}
 			
 			function AutoNoq(){
@@ -1989,6 +1990,15 @@
 							break;
 						case '6': // 作廢-清空資料
 							t_money = 0, t_tax = 0, t_total = 0;
+							for (var j = 0; j < q_bbsCount; j++) {
+								$('#txtDime_'+j).val('');
+								$('#txtMount_'+j).val('');
+								$('#txtWidth_'+j).val('');
+								$('#txtTranmoney2_'+j).val('');
+								$('#txtTranmoney3_'+j).val('');
+								$('#txtPrice_'+j).val('');
+							}
+							sum();
 							break;
 						default:
 					}
@@ -2224,7 +2234,8 @@
 						<td style="width: 108px;"><input id="txtDatea" type="text"  class="txt c1"/></td>
 						<td style="width: 108px;">
 							<input id="txtZipcode" type="hidden" class="txt c1"/>
-							<a id="lblDownvcc" class='lbl btn'>下載簽收單 </a>
+							<input id="btnDownvcc" type="button" class="txt" value="下載簽收單"/>
+							<!--<a id="lblDownvcc" class='lbl btn'>下載簽收單 </a>-->
 						</td>
 						<td style="width: 108px;"><span> </span><a id='lblNoa' class="lbl"> </a></td>
 						<td style="width: 108px;"><input id="txtNoa" type="text" class="txt c1" /></td>

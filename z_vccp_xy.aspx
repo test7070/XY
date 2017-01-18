@@ -117,14 +117,15 @@
 				
 				$('#btnWebPrint2').click(function() {
 					if($('#q_report').data('info').radioIndex==0 || $('#q_report').data('info').radioIndex==1){//先判斷是否可列印
-						//20160115判斷隨貨發票是否存在 暫時拿掉
-						//q_gt('view_vcc', "where=^^ noa between '"+$('#txtXnoa1').val()+"' and '"+$('#txtXnoa2').val()+"' ^^", 0, 0, 0, "getcustno2");
+						//20160115 判斷隨貨發票是否存在 暫時拿掉
+						//20170118 功能重新開放
+						q_gt('view_vcc', "where=^^ noa between '"+$('#txtXnoa1').val()+"' and '"+$('#txtXnoa2').val()+"' ^^", 0, 0, 0, "getcustno2");
 						
 						//列印次數+1
-						var t_noa1=emp($('#txtXnoa1').val())?'#non':$('#txtXnoa1').val();
+						/*var t_noa1=emp($('#txtXnoa1').val())?'#non':$('#txtXnoa1').val();
 						var t_noa2=emp($('#txtXnoa2').val())?'#non':$('#txtXnoa2').val();
 						var t_where = t_noa1+ ';'+t_noa2;
-						q_func('qtxt.query.vccprintcount_xy', 'cust_ucc_xy.txt,vccprintcount,' + t_where);
+						q_func('qtxt.query.vccprintcount_xy', 'cust_ucc_xy.txt,vccprintcount,' + t_where);*/
 					}else{
 						$('#btnWebPrint').click();
 					}

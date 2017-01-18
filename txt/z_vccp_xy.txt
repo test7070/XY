@@ -406,7 +406,7 @@ a.*
 ,case when topage>1 then ' ('+cast(pageno as nvarchar(10))+'/'+cast(topage as nvarchar(10))+')' else '' end pagememo
 ,'&#9744'+'附採購單' chkordc
 --,'<img style="width:200px" src="http://chart.apis.google.com/chart?chbh=1,0,0&chs=300x35&cht=bvg&chco=000000&chds=0,1&chd=s:'+dbo.barcode39_chart(a.noa)+'"&chtt='+a.noa+'>' barcode
-,'<img width="50px" src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl='+upper(a.noa)+'&chld=H|0" style=" position: absolute'+char(59)+'">' barcode
+,'<img width="50px" src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl='+upper(a.noa)+(case when pageno>1 then '-'+cast(pageno as nvarchar(10)) else '' end)+'&chld=H|0" style=" position: absolute'+char(59)+'">' barcode
 from @tmp a
 left join view_vcc b on a.noa=b.noa
 --left join ucc c on a.productno=c.noa

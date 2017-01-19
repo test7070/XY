@@ -494,6 +494,10 @@
 							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno,txtStoreno,txtStore,txtStoreno2,txtStore2', b_ret.length, b_ret
 							, 'productno,product,spec,unit,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,noq,itemno,storeno,store,storeno2,store2', 'txtProductno,txtProduct,txtSpec');
 							
+							//取得退貨單地址
+							var t_where = "where=^^ noa='"+b_ret[0].noa+"' ^^";
+							q_gt('view_vcc', t_where, 0, 0, 0, "getbvcc", r_accy);
+							
 						}
 						break;
 					case q_name + '_s':
@@ -515,6 +519,16 @@
 			function q_gtPost(t_name) {
 				var as;
 				switch (t_name) {
+					case 'getbvcc':
+						var as = _q_appendData("view_vcc", "", true);
+						if (as[0] != undefined) {
+							$('#txtPost').val(as[0].post);
+							$('#txtAddr').val(as[0].addr);
+							$('#txtPost2').val(as[0].post2);
+							$('#txtAddr2').val(as[0].addr2);
+							$('#cmbTaxtype').val(as[0].taxtype);
+						}
+						break;
 					case 'custm':
 						var as = _q_appendData("custm", "", true);
 						//105/08/01 改抓發票客戶的資料

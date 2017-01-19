@@ -178,7 +178,7 @@
 				}
 			}
 			
-            var invono="",vcctype="",isprint=false;;
+            var invono="",vcctype="",isprint=false,custorde='';
             function q_gtPost(t_name) {
 				switch (t_name) {
 					case 'getcustno2':
@@ -187,13 +187,17 @@
 							invono=as[0].invono;
 							vcctype=as[0].typea;
 							q_gt('custm', "where=^^ noa = '"+as[0].custno+"' ^^", 0, 0, 0, "getinvomemo2");	
+						}else{
+							alert("出貨單不存在 !!");
 						}
 						break;
 					case 'getinvomemo2':
 						var as = _q_appendData("custm", "", true);
 						if(as[0] != undefined){
 							if(invono.length==0 && vcctype=='1' && as[0].invomemo=='隨貨' && dec(as[0].total)>0 ){
-								alert("請輸入發票號後再列印 !!");
+								alert("請輸入發票號碼後再列印 !!");
+							}else if (as[0].isfranchisestore=='true' && vcctype=='1' && dec(as[0].total)>0){
+								q_gt('view_orde', "where=^^ noa in (select ordeno from view_vccs where noa='"+as[0].noa+"') ^^", 0, 0, 0, "getCustorde2");
 							}else{
 								//列印次數+1
 								var t_noa1=emp($('#txtXnoa1').val())?'#non':$('#txtXnoa1').val();
@@ -201,6 +205,24 @@
 								var t_where = t_noa1+ ';'+t_noa2;
 								q_func('qtxt.query.vccprintcount_xy', 'cust_ucc_xy.txt,vccprintcount,' + t_where);
 							}
+						}else{
+							alert("客戶資料不存在 !!");
+						}
+						break;
+					case 'getCustorde2':
+						var as = _q_appendData("view_orde", "", true);
+						if(as[0] != undefined){
+							if (as[0].custorde.length==0){
+								alert("請輸入客單編號後再列印 !!");
+							}else{
+								//列印次數+1
+								var t_noa1=emp($('#txtXnoa1').val())?'#non':$('#txtXnoa1').val();
+								var t_noa2=emp($('#txtXnoa2').val())?'#non':$('#txtXnoa2').val();
+								var t_where = t_noa1+ ';'+t_noa2;
+								q_func('qtxt.query.vccprintcount_xy', 'cust_ucc_xy.txt,vccprintcount,' + t_where);
+							}
+						}else{
+							alert("訂單資料不存在 !!");
 						}
 						break;
 					case 'getcustno':

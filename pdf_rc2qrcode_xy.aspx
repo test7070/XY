@@ -74,12 +74,95 @@
                                     where a.noa=@t_noa and c.noa is not null
                                     and isnull(b.rc2no,'')=''
                                     ";
+				}else if(t_tablea=="stkucc"){ //庫存表
+                	queryString = @"declare @t_date nvarchar(MAX)
+									set @t_date=dbo.AD2ChineseEraName(CONVERT (VARCHAR(10), GETDATE(),20 ))
+									
+									declare @tmp table(
+										pno nvarchar(100),
+										product nvarchar(100),
+										spec nvarchar(100),
+										mount float,
+										unit nvarchar(10),
+										inmount float,
+										bunit  nvarchar(10),
+										binmount float,
+										page float
+									)
+									insert @tmp(pno,product,spec,unit,mount)
+									select xa.productno,xb.product,xb.spec,xb.unit,xa.mount+xa.stk from (
+										select productno,SUM(mount)mount,SUM(stk)stk from (
+											select productno,round(SUM(tranmoney2-tranmoney3),2) mount,0 stk from view_vccs a
+											where tranmoney2!=0 or tranmoney3!=0
+											and (datea<=@t_date)
+											group by productno
+											having round(SUM(tranmoney2-tranmoney3),2)!=0
+											union all
+											select productno,0,sum(mount) from stkucc(@t_date,'','') a
+											where exists (select * from ucc where noa=a.productno)
+											group by productno
+										)tmp group by productno
+									)xa 
+									left join ucc xb on xa.productno=xb.noa
+									where (xa.mount+xa.stk)!=0
+									order by productno
+									
+									update a set bunit=b.pack,binmount=b.inmount,inmount=c.inmount
+									from @tmp a outer apply (select top 1 * from pack2s where noa=a.pno order by inmount desc,noq) b
+									outer apply (select top 1 * from pack2s where noa=a.pno and pack=a.unit) c
+									
+									update @tmp set page=case when mount*(inmount/binmount)<0 then 1 else CEILING(mount*(inmount/binmount)) end
+									
+									declare @t_pno nvarchar(MAX)
+									declare @t_page int
+									
+									declare @tmpa table(
+										comp nvarchar(MAX),
+										version nvarchar(MAX),
+										productno nvarchar(MAX),
+										noa nvarchar(MAX),
+										product nvarchar(MAX),
+										spec nvarchar(MAX)
+									)
+									
+									declare cursor_table cursor for
+									select pno,page from @tmp pno
+									open cursor_table
+									fetch next from cursor_table
+									into @t_pno,@t_page
+									while(@@FETCH_STATUS <> -1)
+									begin		
+										while(@t_page>0)
+										begin
+											insert @tmpa
+											select isnull(b.comp,'') comp
+											,case when charindex('[',a.spec)>0 and charindex(']',a.spec)>0
+											then SUBSTRING(a.spec,charindex('[',a.spec)+1,charindex(']',a.spec)-charindex('[',a.spec)-1)
+											else case when a.style='私-空白' then '空白' else a.style end end version
+											,a.noa,a.noa,a.product
+											,REPLACE(a.spec,case when charindex('[',a.spec)>0 and charindex(']',a.spec)>0
+											then SUBSTRING(a.spec,charindex('[',a.spec),charindex(']',a.spec)-charindex('[',a.spec)+1)
+											else '' end,'') spec
+											from ucc a outer apply (select nick comp 
+											from cust where noa=LEFT(a.noa,5) and CHARINDEX('-',a.noa)>0)b
+											where a.noa=@t_pno
+											
+											set @t_page=@t_page-1
+										end
+										fetch next from cursor_table
+										into @t_pno,@t_page
+									end
+									close cursor_table
+									deallocate cursor_table
+									
+									select * from @tmpa order by productno
+                                    ";
 				}else{
 					queryString = @"select isnull(b.comp,'') comp
 									,case when charindex('[',a.spec)>0 and charindex(']',a.spec)>0
 									then SUBSTRING(a.spec,charindex('[',a.spec)+1,charindex(']',a.spec)-charindex('[',a.spec)-1)
 									else case when a.style='私-空白' then '空白' else a.style end end version
-									,a.noa,a.noa,a.product
+									,a.noa productno,a.noa,a.product
 									,REPLACE(a.spec,case when charindex('[',a.spec)>0 and charindex(']',a.spec)>0
 									then SUBSTRING(a.spec,charindex('[',a.spec),charindex(']',a.spec)-charindex('[',a.spec)+1)
 									else '' end,'') spec

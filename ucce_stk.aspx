@@ -50,13 +50,15 @@
 
                         select a.noa productno,a.product,a.spec,a.style
                         ,case when exists (select * from pack2s where noa=a.noa and pack=a.unit)
-                        then stuff(isnull((select ','+pack from pack2s where noa=a.noa order by inmount desc FOR XML PATH('')),''),1,1,'')
-                        else a.unit end unit
-                        ,case when a.unit=isnull(c.pack,'') or c.noa is null or d.noa is null then CAST(isnull(b.mount,0) as nvarchar(100))+a.unit
-                        else case when FLOOR(isnull(b.mount,0)*isnull(d.inmount,1)/isnull(c.inmount,1))>0 then cast(FLOOR(isnull(b.mount,0)*isnull(d.inmount,1)/isnull(c.inmount,1)) as nvarchar(100))+c.pack else '' end
-                        +case when (isnull(b.mount,0)-(FLOOR(isnull(b.mount,0)*isnull(d.inmount,1)/isnull(c.inmount,1))*isnull(c.inmount,1)))>0 then cast((isnull(b.mount,0)-(FLOOR(isnull(b.mount,0)*isnull(d.inmount,1)/isnull(c.inmount,1))*isnull(c.inmount,1))) as nvarchar(100))+ a.unit else '' end
+                        then stuff(isnull((select ','+pack+'@'+case when pack=a.unit then CAST(round(isnull(b.mount,0)+isnull(bx.mount,0),2)  as nvarchar(300)) else '0' end from pack2s where noa=a.noa order by inmount desc FOR XML PATH('')),''),1,1,'')
+                        else a.unit+'@'+CAST(round(isnull(b.mount,0)+isnull(bx.mount,0),2)  as nvarchar(300)) end unit
+                        ,case when a.unit=isnull(c.pack,'') or c.noa is null or d.noa is null then CAST(round(isnull(b.mount,0)+isnull(bx.mount,0),2) as nvarchar(100))+a.unit
+                        else case when FLOOR(round(isnull(b.mount,0)+isnull(bx.mount,0),2)*isnull(d.inmount,1)/isnull(c.inmount,1))>0 then cast(FLOOR(round(isnull(b.mount,0)+isnull(bx.mount,0),2)*isnull(d.inmount,1)/isnull(c.inmount,1)) as nvarchar(100))+c.pack else '' end
+                        +case when (round(isnull(b.mount,0)+isnull(bx.mount,0),2)-(FLOOR(round(isnull(b.mount,0)+isnull(bx.mount,0),2)*isnull(d.inmount,1)/isnull(c.inmount,1))*isnull(c.inmount,1)))>0 then cast((round(isnull(b.mount,0)+isnull(bx.mount,0),2)-(FLOOR(round(isnull(b.mount,0)+isnull(bx.mount,0),2)*isnull(d.inmount,1)/isnull(c.inmount,1))*isnull(c.inmount,1))) as nvarchar(100))+ a.unit else '' end
                         end stk from ucc a 
                         outer apply (select mount from stkucc(@datea,@storeno,@productno)) b
+                        outer apply (select round(SUM(tranmoney2-tranmoney3),2) mount from view_vccs
+						where (datea<=@datea) and productno=a.noa and (tranmoney2!=0 or tranmoney3!=0))bx
                         outer apply (select top 1 * from pack2s where noa=a.noa order by inmount desc )c
                         outer apply (select top 1 * from pack2s where noa=a.noa and pack=a.unit order by inmount desc )d
                         where a.noa=@productno

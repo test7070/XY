@@ -1143,7 +1143,7 @@
 						t_err=t_err+(t_err.length>0?'\n':'')+$('#txtProduct_'+i).val()+'數量為0，請確認出貨、寄庫、庫出數量!!';
 					}
 				}
-				if (t_err.length > 0) {
+				if (t_err.length > 0 && $('#cmbTaxtype').val()!='6') {
 					alert(t_err);
 					return;
 				}
@@ -2011,8 +2011,8 @@
 								$('#txtTranmoney2_'+j).val('');
 								$('#txtTranmoney3_'+j).val('');
 								$('#txtPrice_'+j).val('');
+								$('#txtTotal_'+j).val('');
 							}
-							sum();
 							break;
 						default:
 					}

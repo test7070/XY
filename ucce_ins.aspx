@@ -49,7 +49,8 @@
                         declare @t_namea nvarchar(50)= @namea
                         declare @t_storeno nvarchar(50)= @storeno
                         declare @t_datea nvarchar(50)= @datea
-                        declare @t_ucceins nvarchar(50)= @ucceins
+                        declare @t_ucceins nvarchar(MAX)= @ucceins
+                        declare @t_fdate nvarchar(50)= CONVERT (VARCHAR(20), GETDATE(),20 )
                         
                         declare @pdatea nvarchar(50)=dbo.q_cdn(@t_datea,-1)
 
@@ -147,8 +148,8 @@
 
 	                        if((select count(*) from #bbs)>0)
 	                        begin
-		                        EXEC('insert ucce'+@accy+'(noa,datea,kind,storeno,store)
-		                        select '''+@t_noa+''','''+@t_datea+''',''1'','''','''' ')
+		                        EXEC('insert ucce'+@accy+'(noa,datea,kind,storeno,store,memo,worker)
+		                        select '''+@t_noa+''','''+@t_datea+''',''1'','''','''','''+@t_namea+' '+@t_fdate+'''+'' 由盤點APP產生'','''+@t_namea+''' ')
 		
 		                        EXEC('insert ucces'+@accy+'(noa,noq,storeno,store,productno,product,spec,style,unit,mount,emount2,price,total,memo,datea,dime,width)
 		                        select noa,noq,storeno,store,productno,product,spec,style,unit,mount,emount2,price,total,memo,'''+@t_datea+''',dime,tmount from #bbs ')

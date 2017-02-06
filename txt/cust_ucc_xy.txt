@@ -555,10 +555,10 @@ begin
 		end
 	end
 	
-	if(@p23!='2' and @p23!='3')
-	begin
-		set @t_err='客戶發票聯式未選擇!!'
-	end
+	--if(@p23!='2' and @p23!='3')
+	--begin
+	--	set @t_err='客戶發票聯式未選擇!!'
+	--end
 
 	if(len(@invono)=0)--無發票號碼
 	begin

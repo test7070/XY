@@ -1645,11 +1645,34 @@
 					var s2 = xmlString.split(';');
 					abbm[q_recno]['accno'] = s2[0];
 				}
-				
+									
 				//105/11/07 1張發票號碼才更新
-				if(q_cur==2 && $('#txtInvono').val().length==10){//修改後重新產生 避免發票資料不對應
-					stpostvcca=true;
-					q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0'+ ';' + encodeURI(r_userno));
+				if(q_cur==2 && $('#txtInvono').val().length==10){//修改後重新產生 避免發票資料不對應 
+					//1060206 若 發票已開立 但開立方式 變動 與 聯式 變動 不處理
+					var t_custno=$('#txtCustno').val(),t_serial='';
+					var t_p23='';
+					var t_where = " where=^^ noa='" + t_custno + "'^^";
+					q_gt('custm', t_where, 0, 0, 0, 'getinvocustnoGenvcca', r_accy,1);
+					var as = _q_appendData("custm", "", true);
+					if (as[0] != undefined) {
+						if(as[0].invocustno.length>0 && t_custno!=as[0].invocustno){
+							t_custno=as[0].invocustno;
+						}
+					}
+						
+					var t_where = " where=^^ noa='" + t_custno + "'^^";
+					q_gt('custm', t_where, 0, 0, 0, 'getinvomemoGenvcca', r_accy,1);
+					var as = _q_appendData("custm", "", true);
+					if (as[0] != undefined) {
+						t_p23=as[0].p23;
+					}
+					
+					if(!($('#cmbTypea').val()!='1' || $('#cmbStype').val()=='3' || $('#cmbTranstyle').val()!='隨貨') || t_p23 ==''){
+						stpostvcca=true;
+						q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0'+ ';' + encodeURI(r_userno));
+					}else{
+						alert('變更的出貨單不符合開立發票條件，故不變動發票內容!!');
+					}
 				}
 			}
 

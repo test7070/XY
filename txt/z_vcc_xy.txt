@@ -183,6 +183,7 @@ select * from (
 )tmp 
 order by storeno,productno,datea,custno,typea
 
+--106/02/08 依日期排序 不再按照客戶和寄庫方式調整
 if(@t_last='0')
 begin
 	insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,mount,stkmount,ostkmount)
@@ -190,8 +191,13 @@ begin
 	from #tmpa where datea<@t_bdate
 	group by storeno,productno
 	
+	--insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,noq,mount,stkmount,ostkmount)
+	--select '0',idno,ROW_NUMBER() over (partition by storeno,productno order by storeno,productno,typea,custno,datea,vccno,noq)
+	--,accy,datea,case when typea='1' then '寄庫' else '庫出' end,storeno,stores,custno,comp,productno,products,vccno,noq,mount,0,0
+	--from #tmpa where datea between @t_bdate and @t_edate
+	
 	insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,noq,mount,stkmount,ostkmount)
-	select '0',idno,ROW_NUMBER() over (partition by storeno,productno order by storeno,productno,typea,custno,datea,vccno,noq)
+	select '0',idno,ROW_NUMBER() over (partition by storeno,productno order by storeno,productno,datea,vccno,noq)
 	,accy,datea,case when typea='1' then '寄庫' else '庫出' end,storeno,stores,custno,comp,productno,products,vccno,noq,mount,0,0
 	from #tmpa where datea between @t_bdate and @t_edate
 end
@@ -203,8 +209,14 @@ begin
 	outer apply (select top 1 idno from #tmpa where typea='1' and storeno=a.storeno and productno=a.productno order by idno desc)b
 	group by a.storeno,a.productno,b.idno
 		
+	--insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,noq,mount,stkmount,ostkmount)
+	--select '0',a.idno,ROW_NUMBER() over (partition by storeno,productno order by storeno,productno,typea,custno,datea,vccno,noq)
+	--,accy,datea,case when typea='1' then '寄庫' else '庫出' end,storeno,stores,custno,comp,productno,products,vccno,noq,mount,0,0
+	--from #tmpa a outer apply (select top 1 xidno from #tmp where storeno=a.storeno and productno=a.productno and typea='期初')b
+	--where a.idno>b.xidno
+	
 	insert #tmp (gno,xidno,idno,accy,datea,typea,storeno,stores,custno,comp,productno,products,vccno,noq,mount,stkmount,ostkmount)
-	select '0',a.idno,ROW_NUMBER() over (partition by storeno,productno order by storeno,productno,typea,custno,datea,vccno,noq)
+	select '0',a.idno,ROW_NUMBER() over (partition by storeno,productno order by storeno,productno,datea,vccno,noq)
 	,accy,datea,case when typea='1' then '寄庫' else '庫出' end,storeno,stores,custno,comp,productno,products,vccno,noq,mount,0,0
 	from #tmpa a outer apply (select top 1 xidno from #tmp where storeno=a.storeno and productno=a.productno and typea='期初')b
 	where a.idno>b.xidno
@@ -267,9 +279,10 @@ group by storeno,productno having SUM(mount)=0 and SUM(stkmount)=0 and count(*)=
 
 if((select COUNT(*) from #tmp)>0)
 begin
-	insert #tmp (gno,storeno,stores,productno,products,typea,custno,comp,idno,datea,mount,ostkmount)
-	select '1',storeno,MAX(stores),productno,MAX(products),typea,custno,MAX(comp),MAX(idno),CHAR(255),SUM(mount),MAX(ostkmount) from #tmp 
-	where idno!=0 group by storeno,productno,custno,typea
+	--106/02/08 依日期排序 不再按照客戶和寄庫方式調整
+	--insert #tmp (gno,storeno,stores,productno,products,typea,custno,comp,idno,datea,mount,ostkmount)
+	--select '1',storeno,MAX(stores),productno,MAX(products),typea,custno,MAX(comp),MAX(idno),CHAR(255),SUM(mount),MAX(ostkmount) from #tmp 
+	--where idno!=0 group by storeno,productno,custno,typea
 	
 	insert #tmp (gno,storeno,stores,productno,products,typea,custno,datea,idno,ostkmount)
 	select '2',storeno,MAX(stores),productno,MAX(products),CHAR(255),CHAR(255),CHAR(255),MAX(idno)+1,MAX(ostkmount) from #tmp 

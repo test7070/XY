@@ -84,6 +84,7 @@
 				t_width=$('#cmbWidth').val();//驗收
 				t_cardealno = $('#txtCardealno').val();
 				t_trantype = $('#cmbTrantype').val();
+				t_paytype = $('#txtPaytype').val();
 				
 				var t_where = " 1=1 "
 				+ q_sqlPara2("typea", t_typea)
@@ -133,7 +134,9 @@
                 	t_where += " and noa in (select ordeno from view_vcces where width=1) ";
                 if(t_width=='N')
                 	t_where += " and noa in (select ordeno from view_vcces where width=0 and charindex('不',class)==0) ";
-
+				
+				if(t_paytype=='N')
+                	t_where += " and charindex('"+t_paytype+"',paytype)>0 ";	
                 	
 				t_where = ' where=^^ ' + t_where + ' ^^ ';
 				return t_where;
@@ -164,34 +167,26 @@
 		<div style="width:95%; text-align:center;padding:15px;" >
 			<table id="seek" border="1" cellpadding="3" cellspacing="2" style="width:100%;">
 				<tr class='seek_tr'>
-					<td style="width: 30%;"><a id='lblTypea'> </a></td>
-					<td style="width: 70%;"><select id="cmbTypea"> </select></td>
+					<td style="width: 15%;"><a id='lblTypea'> </a></td>
+					<td style="width: 35%;"><select id="cmbTypea"> </select></td>
+					<td style="width: 15%;"><a id='lblAcomp'> </a></td>
+					<td style="width: 35%;"><select id="cmbCno"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
-					<td style="width: 30%;"><a id='lblAcomp'> </a></td>
-					<td style="width: 70%;"><select id="cmbCno"> </select></td>
+					<td><a id='lblPart'> </a></td>
+					<td><select id="cmbPart"> </select></td>
+					<td><a id='lblPart2'> </a></td>
+					<td><select id="cmbPart2"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
-					<td style="width: 30%;"><a id='lblPart'> </a></td>
-					<td style="width: 70%;"><select id="cmbPart"> </select></td>
-				</tr>
-				<tr class='seek_tr'>
-					<td style="width: 30%;"><a id='lblPart2'> </a></td>
-					<td style="width: 70%;"><select id="cmbPart2"> </select></td>
-				</tr>
-				<tr class='seek_tr'>
-					<td style="width: 30%;"><a id='lblStatus'> </a></td>
-					<td style="width: 70%;"><select id="cmbStatus"> </select></td>
-				</tr>
-				<tr class='seek_tr'>
-	                <td class='seek'  style="width:20%;"><a id='lblStype'> </a></td>
+					<td><a id='lblStatus'> </a></td>
+					<td><select id="cmbStatus"> </select></td>
+					<td><a id='lblStype'> </a></td>
 	                <td><select id="cmbStype" class="txt c1" style="font-size:medium;"> </select></td>
-	             </tr>
+				</tr>
 				<tr class='seek_tr'>
 					<td><a id='lblNoa'> </a></td>
 					<td><input id="txtNoa" type="text"/></td>
-				</tr>
-				<tr class='seek_tr'>
 					<td><a id='lblDatea'> </a></td>
 					<td>
 						<input id="txtBdate" type="text" style="width:40%; float:left;" />
@@ -200,53 +195,46 @@
 					</td>
 				</tr>
 				<tr class='seek_tr'>
-					<td><a id='lblMon'> </a></td>
-					<td><input id="txtMon" type="text" style="width:40%;"/></td>
-				</tr>
-				<tr class='seek_tr'>
 					<td><a id='lblCustno'> </a></td>
 					<td><input id="txtCustno" type="text"/></td>
-				</tr>
-				<tr class='seek_tr'>
 					<td><a id='lblSalesno'> </a></td>
 					<td><input id="txtSalesno" type="text"/></td>
 				</tr>
 				<tr class='seek_tr'>
+					<td><a id='lblMon'> </a></td>
+					<td><input id="txtMon" type="text" style="width:40%;"/></td>
 					<td><a id='lblInvono'> </a></td>
 					<td><input id="txtInvono" type="text"/></td>
 				</tr>
 				<tr class='seek_tr'>
+					<td><a id='lblOrdeno'> </a></td>
+					<td><input id="txtOrdeno" type="text"/></td>
 					<td><a id='lblAccno'> </a></td>
 					<td><input id="txtAccno" type="text"/></td>
 				</tr>
 				<tr class='seek_tr'>
-					<td><a id='lblOrdeno'> </a></td>
-					<td><input id="txtOrdeno" type="text"/></td>
+					<td><a>簽收 </a></td>
+					<td><select id="cmbDime"> </select></td>
+					<td><a>簽收上傳</a></td>
+					<td><select id="cmbZipcode"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
-					<td style="width: 30%;"><a>交運方式 </a></td>
-					<td style="width: 70%;"><select id="cmbTrantype"> </select></td>
+					<td><a>交運方式 </a></td>
+					<td><select id="cmbTrantype"> </select></td>
+					<td><a>驗收</a></td>
+					<td><select id="cmbWidth"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td><a id='lblCardealno'>車行</a></td>
 					<td><input id="txtCardealno" type="text"/></td>
+					<td><a id='lblPaytype'>收款方式</a></td>
+					<td><input id="txtPaytype" type="text"/></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td><a id='lblMemo'>備註 </a></td>
-					<td><input id="txtMemo" type="text"/></td>
+					<td colspan="3"><input id="txtMemo" type="text"/></td>
 				</tr>
-				<tr class='seek_tr'>
-					<td style="width: 30%;"><a>簽收 </a></td>
-					<td style="width: 70%;"><select id="cmbDime"> </select></td>
-				</tr>
-				<tr class='seek_tr'>
-					<td style="width: 30%;"><a>簽收上傳</a></td>
-					<td style="width: 70%;"><select id="cmbZipcode"> </select></td>
-				</tr>
-				<tr class='seek_tr'>
-					<td style="width: 30%;"><a>驗收</a></td>
-					<td style="width: 70%;"><select id="cmbWidth"> </select></td>
-				</tr>
+				
 			</table>
 			<!--#include file="../inc/seek_ctrl.inc"-->
 		</div>

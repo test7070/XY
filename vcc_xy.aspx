@@ -159,6 +159,8 @@
 							//105/08/08
 							t_where = "isnull(a.enda,0)!=1 and isnull(a.cancel,0)!=1 and a.productno!='' and (a.mount-isnull(b.vccdime,0))>0"
 							t_where += " and exists (select * from view_orde where noa=a.noa and len(isnull(apv,''))>0 )";
+							//106/02/09
+							t_where += " and a.indate!='等待'"
 							if (t_custno.length>0)
 								t_where += " and (a.custno='"+t_custno+"')";
 							if (!emp($('#txtOrdeno').val()))
@@ -1269,7 +1271,7 @@
 			function _btnSeek() {
 				if (q_cur > 0 && q_cur < 4)// 1-3
 					return;
-				q_box('vcc_xy_s.aspx', q_name + '_s', "520px", "850px", q_getMsg("popSeek"));
+				q_box('vcc_xy_s.aspx', q_name + '_s', "720px", "540px", q_getMsg("popSeek"));
 			}
 
 			function combPay_chg() {

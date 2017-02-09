@@ -160,10 +160,16 @@
 				q_cmbParse("cmbScolor",',新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣','s');
 				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@換貨','s');
 				q_cmbParse("cmbConform", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
-				q_cmbParse("cmbIndate", '當天@當天,之前@之前','s');
+				q_cmbParse("cmbIndate", '當天@當天,之前@之前,等待@等待','s');
 
 				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");
+				
+				$('#cmbTrantype').change(function() {
+					if((q_cur==1 || q_cur==2) && $('#cmbTrantype').val()=='廠商代送' && $('#txtMemo').val().substr(0,1)!='#'){
+						$('#txtMemo').val('#'+$('#txtMemo').val());
+					}
+				});
 				
 				$('#txtXydatea').change(function() {
 					if((q_cur==1 || q_cur==2) && xy_datea!=$('#txtXydatea').val()){
@@ -606,17 +612,32 @@
 				
 				$('#btnOrdetoVcc').click(function() {
 					$('#btnOrdetoVcc').attr('disabled', 'disabled');
+					
+					if(emp($('#txtAddr2').val())){
+						alert("指送地址空白禁止轉出貨單!!");
+						return;
+					}
+					
 					//20160113 多預交日不轉單，或單一預交日
 					var t_datea=$('#txtDatea_0').val();
 					var date_rep=false;
+					var date_wait=false;
 					for(var i=0;i<q_bbsCount;i++){
 						if(t_datea!=$('#txtDatea_'+i).val()){
 							date_rep=true;
 							break;
 						}
+						if($('#cmbIndate_'+i).val()=='等待'){
+							date_wait=true;
+							break;
+						}
 					}
 					if(date_rep){
 						alert("多預交日禁止轉出貨單!!");
+						return;
+					}
+					if(date_wait){
+						alert("明細內含有等待，禁止轉出貨單!!");
 						return;
 					}
 					
@@ -1681,6 +1702,10 @@
 				if(as[0].isfranchisestore=='true' && emp($('#txtCustorde').val())){
 					alert('客戶需附採購單，請填寫客單編號!!');
 					return;
+				}
+				
+				if($('#cmbTrantype').val()=='廠商代送' && $('#txtMemo').val().substr(0,1)!='#'){
+					$('#txtMemo').val('#'+$('#txtMemo').val());
 				}
 				
 				//1030419 當專案沒有勾 BBM的取消和結案被打勾BBS也要寫入

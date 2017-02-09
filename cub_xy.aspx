@@ -661,6 +661,14 @@
 				}
 				
 				sum();
+				
+				for (var i = 0; i < q_bbtCount; i++) {
+					if(!emp($('#txtProductno__'+i).val()) && emp($('#txtStoreno__'+i).val())){
+						$('#txtStoreno__'+i).val('A');
+						$('#txtStore__'+i).val('總倉庫');
+					}
+				}
+				
 				if(q_cur==1)
 					$('#txtWorker').val(r_name);
 				else

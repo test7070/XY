@@ -231,7 +231,7 @@ declare @mount float
 declare @typea nvarchar(MAX)
 declare @stkmount float
 declare cursor_table cursor for
-select xidno,storeno,productno,typea,mount from #tmp where gno='0' order by storeno,productno,gno,idno
+select xidno,storeno,productno,typea,mount from #tmp where gno='0' order by storeno,productno,gno,xidno
 open cursor_table
 fetch next from cursor_table
 into @idno,@storeno,@productno,@typea,@mount
@@ -301,7 +301,7 @@ b.unit,
 a.*
 from #tmp a 
 left join view_ucaucc b on a.productno=b.noa
-order by a.storeno,a.productno,a.idno,a.gno
+order by a.storeno,a.productno,a.gno,a.xidno
 
 IF OBJECT_ID('tempdb..#tmp')is not null
 BEGIN

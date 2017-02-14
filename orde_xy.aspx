@@ -1627,7 +1627,7 @@
 					}
 				}
 				
-				var t_err = '';
+				var t_err = '',t_count=0;
 				for(var k=0;k<q_bbsCount;k++){
 					if(dec($('#txtMount_'+k).val())==0 && !isvcc){
 						$('#btnMinus_'+k).click();
@@ -1652,11 +1652,18 @@
 							t_err=t_err+$('#txtProductno_'+k).val()+"客單數量低於最低訂購量\n";
 						}
 					}
+					if(!emp($('#txtProductno_'+k).val()) || !emp($('#txtProduct_'+k).val()) || !emp($('#txtSpec_'+k).val()) || dec($('#txtTotal'+k).val())>0)
+						t_count++;
 				}
 				
 				if (t_err.length > 0) {
 					alert(t_err);
 					//return;
+				}
+				
+				if (t_count = 0) {
+					alert('表身禁止空白!!')
+					return;
 				}
 				
 				//105/12/15寄庫沒有倉庫不能存檔

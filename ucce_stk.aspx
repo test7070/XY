@@ -48,7 +48,7 @@
 
                     string queryString = @"
 
-                        select a.noa productno,a.product,a.spec,a.style
+                        select a.noa productno,a.product,a.spec,a.style+case when len(isnull(a.engpro,''))>0 then ' 製造規格:'+a.engpro else '' end style
                         ,case when exists (select * from pack2s where noa=a.noa and pack=a.unit)
 						then stuff(isnull((select ','+pack+'@'+case when pack=a.unit then CAST(cast(round(isnull(b.mount,0)+isnull(bx.mount,0),2) as int) as nvarchar(100)) else '0' end from pack2s where noa=a.noa order by inmount desc FOR XML PATH('')),''),1,1,'')
 						else a.unit+'@'+CAST(cast(round(isnull(b.mount,0)+isnull(bx.mount,0),2) as int) as nvarchar(100)) end unit

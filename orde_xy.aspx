@@ -701,7 +701,7 @@
 					var t_stkerr='';
 					var t_pno='',t_pno2='';
 					for(var i=0;i<q_bbsCount;i++){
-						if(!emp($('#txtProductno_'+i).val())){
+						if(!emp($('#txtProductno_'+i).val()) && $('#txtProduct_'+i).val()!='費用'){
 							if($('#cmbSource_'+i).val()=='2'){
 								t_pno2=t_pno2+(t_pno2.length>0?'###':'')+$('#txtProductno_'+i).val()+'@'+$('#txtSize_'+i).val();
 							}else{

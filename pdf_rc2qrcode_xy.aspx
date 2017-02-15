@@ -47,7 +47,7 @@
 									else '' end,'') spec
 									from view_rc2 a left join view_rc2s b on a.noa=b.noa
 									left join ucc c on b.productno=c.noa
-									left join cust d on left(b.custno,5)=d.noa
+									left join cust d on left(b.productno,5)=d.noa
                                     where a.noa=@t_noa and c.noa is not null
                                     ";
 				}else if(t_tablea=="cub"){
@@ -59,7 +59,7 @@
 									then SUBSTRING(b.spec,charindex('[',b.spec),charindex(']',b.spec)-charindex('[',b.spec)+1)
 									else '' end,'') spec
 									from view_cub a left join ucc b on a.productno=b.noa
-									left join cust d on left(a.custno,5)=d.noa
+									left join cust d on left(a.productno,5)=d.noa
                                     where a.noa=@t_noa and b.noa is not null
                                     ";
 				}else if(t_tablea=="ina"){
@@ -73,7 +73,7 @@
 									else '' end,'') spec
 									from view_ina a left join view_inas b on a.noa=b.noa
 									left join ucc c on b.productno=c.noa
-									left join cust d on left(b.sssno,5)=d.noa
+									left join cust d on left(b.productno,5)=d.noa
                                     where a.noa=@t_noa and c.noa is not null
                                     and isnull(b.rc2no,'')=''
                                     ";

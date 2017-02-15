@@ -160,7 +160,7 @@
 					
 					cb.SetLineWidth(1);
 					cb.MoveTo(t_c+60, t_c);
-                    cb.LineTo(t_c+60, t_h-t_c);
+                    cb.LineTo(t_c+60, t_h-t_c-60);
                     cb.Stroke();
                     //106/02/15 新格式
                     //cb.MoveTo(t_c+110, t_h-t_c);

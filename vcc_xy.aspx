@@ -1392,7 +1392,7 @@
 				//106/02/13 判斷庫存是否足夠 //02/14 交運方式=直寄 不判斷//02/15 寄庫不處理
 				var t_stkerr='';
 				var t_pno='',t_pno2='';
-				if($('#cmbTrantype').val()!='直寄'){
+				if($('#cmbTrantype').val()!='直寄' && r_rank<9){
 					for(var i=0;i<q_bbsCount;i++){
 						if(!emp($('#txtProductno_'+i).val()) && $('#txtProduct_'+i).val()!='費用' && dec($('#txtDime_'+i).val())!=0 && $('#cmbItemno_'+i).val()!='1'){
 							if($('#cmbItemno_'+i).val()=='2'){

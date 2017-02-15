@@ -1389,12 +1389,12 @@
 					alert('訂金金額大於出貨金額!!');
 				}
 				
-				//106/02/13 判斷庫存是否足夠 //02/14 交運方式=直寄 不判斷
+				//106/02/13 判斷庫存是否足夠 //02/14 交運方式=直寄 不判斷//02/15 寄庫不處理
 				var t_stkerr='';
 				var t_pno='',t_pno2='';
 				if($('#cmbTrantype').val()!='直寄'){
 					for(var i=0;i<q_bbsCount;i++){
-						if(!emp($('#txtProductno_'+i).val()) && $('#txtProduct_'+i).val()!='費用' && dec($('#txtDime_'+i).val())!=0){
+						if(!emp($('#txtProductno_'+i).val()) && $('#txtProduct_'+i).val()!='費用' && dec($('#txtDime_'+i).val())!=0 && $('#cmbItemno_'+i).val()!='1'){
 							if($('#cmbItemno_'+i).val()=='2'){
 								t_pno2=t_pno2+(t_pno2.length>0?'###':'')+$('#txtProductno_'+i).val()+'@'+$('#txtStoreno2_'+i).val();
 							}else{
@@ -1406,7 +1406,7 @@
 						q_func('qtxt.query.chkstk', 'cust_ucc_xy.txt,chkstk,' + encodeURI($('#txtNoa').val()) + ';' + encodeURI(t_pno)+ ';' + encodeURI(t_pno2)+ ';' + encodeURI(q_date()),r_accy,1);
 						var as = _q_appendData("tmp0", "", true, true);
 						for(var i=0;i<q_bbsCount;i++){
-							if(!emp($('#txtProductno_'+i).val()) && $('#txtProduct_'+i).val()!='費用' && dec($('#txtDime_'+i).val())!=0){
+							if(!emp($('#txtProductno_'+i).val()) && $('#txtProduct_'+i).val()!='費用' && dec($('#txtDime_'+i).val())!=0 && $('#cmbItemno_'+i).val()!='1'){
 								for(var j=0;j<as.length;j++){
 									if($('#cmbItemno_'+i).val()=='2'){//庫出
 										if($('#txtProductno_'+i).val()==as[j].productno && as[j].typea=='2'

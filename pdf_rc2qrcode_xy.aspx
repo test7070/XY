@@ -162,43 +162,45 @@
 					cb.MoveTo(t_c+60, t_c);
                     cb.LineTo(t_c+60, t_h-t_c);
                     cb.Stroke();
-                    cb.MoveTo(t_c+110, t_h-t_c);
-                    cb.LineTo(t_c+110, t_h-t_c-60);
-                    cb.Stroke();
+                    //106/02/15 新格式
+                    //cb.MoveTo(t_c+110, t_h-t_c);
+                    //cb.LineTo(t_c+110, t_h-t_c-60);
+                    //cb.Stroke();
                     
-                    cb.MoveTo(t_c+60, t_h-t_c-30);
-                    cb.LineTo(t_w-t_c, t_h-t_c-30);
-                    cb.Stroke();
+                    //cb.MoveTo(t_c+60, t_h-t_c-30);
+                    //cb.LineTo(t_w-t_c, t_h-t_c-30);
+                    //cb.Stroke();
                     cb.MoveTo(t_c, t_h-t_c-60);
                     cb.LineTo(t_w-t_c, t_h-t_c-60);
                     cb.Stroke();
-                    cb.MoveTo(t_c, t_h-t_c-82);
+                    cb.MoveTo(t_c + 60, t_h-t_c-82);
                     cb.LineTo(t_w-t_c, t_h-t_c-82);
                     cb.Stroke();
-                    cb.MoveTo(t_c, t_h-t_c-104);
+                    cb.MoveTo(t_c + 60, t_h-t_c-104);
                     cb.LineTo(t_w-t_c, t_h-t_c-104);
                     cb.Stroke();
 					
                     //TEXT
                     cb.SetColorFill(iTextSharp.text.BaseColor.BLACK);
                     cb.BeginText();
+                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "客　戶", t_c+60+3, t_h-t_c-30+10, 0);
+                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "版　別", t_c+60+3, t_h-t_c-60+10, 0);
+                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "料/單號", t_c+5, t_h-t_c-82+5, 0);
+                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品　名", t_c+8, t_h-t_c-104+5, 0);
+                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "規　格", t_c+8, t_c+9, 0);
+                    
+                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).comp, t_c+110+3, t_h-t_c-30+10, 0);
+                    
+                    cb.SetFontAndSize(bfChinese, 54);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).comp, t_c  + 2, t_h - t_c - 63 + 10, 0);
+                    
+                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).version, t_c+110+3, t_h-t_c-60+10, 0);
+                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).productno, t_c+60+3, t_h-t_c-82+5, 0);
+                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).product, t_c+60+3, t_h-t_c-104+5, 0);
+                    
                     cb.SetFontAndSize(bfChinese, 14);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "客　戶", t_c+60+3, t_h-t_c-30+10, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "版　別", t_c+60+3, t_h-t_c-60+10, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "料/單號", t_c+5, t_h-t_c-82+5, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "品　名", t_c+8, t_h-t_c-104+5, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, "規　格", t_c+8, t_c+9, 0);
-                    
-                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).comp, 10, 28, 0);
-                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).version, 10, 28, 0);
-                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).productno, 10, 28, 0);
-                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).product, 10, 28, 0);
-                    //cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).spec, 10, 28, 0);
-                    
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).comp, t_c+110+3, t_h-t_c-30+10, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).version, t_c+110+3, t_h-t_c-60+10, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).productno, t_c+60+3, t_h-t_c-82+5, 0);
-                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).product, t_c+60+3, t_h-t_c-104+5, 0);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).productno, t_c + 60 + 3, t_h - t_c - 82 + 5, 0);
+                    cb.ShowTextAligned(iTextSharp.text.pdf.PdfContentByte.ALIGN_LEFT, ((Para)barcode[i]).product + "(" + ((Para)barcode[i]).version + ")", t_c + 60 + 3, t_h - t_c - 104 + 5, 0);
                     
                     var t_spec=((Para)barcode[i]).spec;
                     
@@ -229,7 +231,8 @@
 					System.IO.MemoryStream ms = new System.IO.MemoryStream(bytes);
                     iTextSharp.text.Image img = iTextSharp.text.Image.GetInstance(ms.ToArray());
                     img.ScalePercent(54f);
-                    img.SetAbsolutePosition(t_c+2, t_h-t_c-58);
+                    //img.SetAbsolutePosition(t_c+2, t_h-t_c-58);
+                    img.SetAbsolutePosition(t_c + 2, t_h - t_c - 120);
                     doc1.Add(img);
                 }
             }

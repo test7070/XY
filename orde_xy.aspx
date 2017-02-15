@@ -706,12 +706,12 @@
 					}
 					x_ordevccumm=false;
 					
-					//106/02/13 判斷庫存是否足夠 //02/14 交運方式=直寄 不判斷
+					//106/02/13 判斷庫存是否足夠 //02/14 交運方式=直寄 不判斷//02/15 寄庫不處理
 					var t_stkerr='';
 					var t_pno='',t_pno2='';
 					if($('#cmbTrantype').val()!='直寄'){
 						for(var i=0;i<q_bbsCount;i++){
-							if(!emp($('#txtProductno_'+i).val()) && $('#txtProduct_'+i).val()!='費用' && dec($('#txtMount_'+i).val())!=0){
+							if(!emp($('#txtProductno_'+i).val()) && $('#txtProduct_'+i).val()!='費用' && dec($('#txtMount_'+i).val())!=0 && $('#cmbSource_'+i).val()!='1'){
 								if($('#cmbSource_'+i).val()=='2'){
 									t_pno2=t_pno2+(t_pno2.length>0?'###':'')+$('#txtProductno_'+i).val()+'@'+$('#txtSize_'+i).val();
 								}else{
@@ -723,7 +723,7 @@
 							q_func('qtxt.query.chkstk', 'cust_ucc_xy.txt,chkstk,' + encodeURI($('#txtNoa').val()) + ';' + encodeURI(t_pno)+ ';' + encodeURI(t_pno2)+ ';' + encodeURI(q_date()),r_accy,1);
 							var as = _q_appendData("tmp0", "", true, true);
 							for(var i=0;i<q_bbsCount;i++){
-								if(!emp($('#txtProductno_'+i).val()) && $('#txtProduct_'+i).val()!='費用' && dec($('#txtMount_'+i).val())!=0){
+								if(!emp($('#txtProductno_'+i).val()) && $('#txtProduct_'+i).val()!='費用' && dec($('#txtMount_'+i).val())!=0 && $('#cmbSource_'+i).val()!='1'){
 									for(var j=0;j<as.length;j++){
 										if($('#cmbSource_'+i).val()=='2'){//庫出
 											if($('#txtProductno_'+i).val()==as[j].productno && as[j].typea=='2'
@@ -1972,7 +1972,7 @@
 									$('#txtMemo_'+b_seq).val('');
 								}
 							}
-							if($('#cmbSource_' + b_seq).val()=='1' || $('#cmbSource_' + b_seq).val()=='2'){
+							if(($('#cmbSource_' + b_seq).val()=='1' || $('#cmbSource_' + b_seq).val()=='2') && emp($('#txtSize_'+b_seq).val())){
 								//$('#txtSize_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
 								//var t_where="where=^^noa like '"+$('#txtCustno').val().substr(0,5)+"%' ^^";
 								//106/02/09 預設寄庫倉庫＝出貨分店倉、總店、集團、它分店倉

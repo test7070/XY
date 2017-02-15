@@ -3386,13 +3386,13 @@
 						}
 						if(smount<dec($('#txtMount_'+t_n).val())){
 							alert('請先新增寄庫!!');
-							$('#cmbSource_'+t_n).val('0');
-							$('#cmbSource_'+t_n).change();
+							//$('#cmbSource_'+t_n).val('0');
+							//$('#cmbSource_'+t_n).change();
 						}
 					}else{
 						alert('請先新增寄庫!!');
-						$('#cmbSource_'+t_n).val('0');
-						$('#cmbSource_'+t_n).change();
+						//$('#cmbSource_'+t_n).val('0');
+						//$('#cmbSource_'+t_n).change();
 					}
 					Unlock();
 				}

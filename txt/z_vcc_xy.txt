@@ -72,15 +72,15 @@ outer apply (select sum(notv)mount from view_ordcs where productno=a.productno a
 update @tmp
 set total=stkmount+amount+ordcmount+cubmount
 
-insert @tmp (gno,storeno)
-select '1',storeno from @tmp group by storeno
+--insert @tmp (gno,storeno)
+--select '1',storeno from @tmp group by storeno
 	
 select 
-dbo.getComma(a.stkmount,[2]) stkmount,
-dbo.getComma(a.amount,[2]) amount,
-dbo.getComma(a.ordcmount,[2]) ordcmount,
-dbo.getComma(a.cubmount,[2]) cubmount,
-dbo.getComma(a.total,[2]) total,
+dbo.getComma(a.stkmount,-1) stkmount,
+dbo.getComma(a.amount,-1) amount,
+dbo.getComma(a.ordcmount,-1) ordcmount,
+dbo.getComma(a.cubmount,-1) cubmount,
+dbo.getComma(a.total,-1) total,
 a.*
 from @tmp a
 order by a.storeno,a.gno,a.productno

@@ -2213,7 +2213,17 @@
 							}
 						});
 						
-						$('#combClassa_' + j).focusout(function() {
+						$('#combClassa_' + j).change(function() {
+							t_IdSeq = -1;
+							q_bodyId($(this).attr('id'));
+							b_seq = t_IdSeq;
+							if(q_cur==1 || q_cur==2){
+								$('#txtClassa_'+b_seq).val($('#combClassa_'+b_seq).val());
+							}
+						});
+						
+						$('#combClassa_' + j).bind('contextmenu',function(e) {
+							e.preventDefault();
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;

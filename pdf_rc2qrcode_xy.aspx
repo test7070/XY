@@ -75,7 +75,7 @@
 									left join ucc c on b.productno=c.noa
 									left join cust d on left(b.productno,5)=d.noa
                                     where a.noa=@t_noa and c.noa is not null
-                                    and isnull(b.rc2no,'')=''
+                                    
                                     ";
 				}else{
 					queryString = @"select isnull(b.comp,'') comp

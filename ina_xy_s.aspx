@@ -15,7 +15,8 @@
 				['txtTggno', 'lblTgg', 'tgg', 'noa,comp', 'txtTggno,txtComp', 'tgg_b.aspx'],
 				['txtStoreno', 'btnStoreno', 'store', 'noa,store', 'txtStoreno,txtStore', 'store_b.aspx'],
 				['txtCustno', '', 'cust', 'noa,comp,nick', 'txtCustno,txtCust', 'cust_b.aspx'],
-				['txtProductno', '', 'ucc', 'noa,product', 'txtProductno,txtProduct', 'ucaucc_b.aspx']
+				['txtProductno', '', 'ucc', 'noa,product', 'txtProductno,txtProduct', 'ucaucc_b.aspx'],
+				['txtWorker', '', 'sss', 'namea,noa', 'txtWorker', 'sss_b.aspx']
 			);
 
             $(document).ready(function() {
@@ -49,6 +50,7 @@
                 t_productno = $('#txtProductno').val();
                 t_custno = $('#txtCustno').val();
                 t_cubno = $('#txtCubno').val();
+                t_worker = $('#txtWorker').val();
 
                 t_bdate = t_bdate.length > 0 && t_bdate.indexOf("_") > -1 ? t_bdate.substr(0, t_bdate.indexOf("_")) : t_bdate;
                 /// 100.  .
@@ -62,6 +64,7 @@
                 //+ q_sqlPara2("comp", t_comp) 
                 + q_sqlPara2("storeno", t_storeno) 
                 //+ q_sqlPara2("store", t_store)
+                + q_sqlPara2("worker", t_worker) 
                 ;
                 
                 if(t_productno.length>0){
@@ -133,6 +136,10 @@
 				<tr class='seek_tr'>
 					<td class='seek' style="width:20%;"><a id='lblCubno'>製令單號</a></td>
 					<td><input class="txt" id="txtCubno" type="text" style="width:215px; font-size:medium;" /></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek' style="width:20%;"><a id='lblWorker'>製單人</a></td>
+					<td><input class="txt" id="txtWorker" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 			</table>
 			<!--#include file="../inc/seek_ctrl.inc"-->

@@ -130,9 +130,10 @@
 			                        end
 			
 			                        insert #bbs(noa,noq,productno,product,spec,style,mount,unit,price,total,memo,emount2,storeno,tmount,dime)
-			                        select @t_noa,CAST(@noq as nvarchar(10)),a.noa,a.product,a.spec,a.style,@mount-isnull(c.tmount,0),a.unit,0,0,@memo,isnull(b.mount,0),@t_storeno,isnull(c.tmount,0),@mount
+			                        select @t_noa,CAST(@noq as nvarchar(10)),a.noa,a.product,a.spec,a.style,@mount-isnull(c.tmount,0),a.unit,0,0,'盤點數量:'+@memo+case when d.noa is not null then ',客戶名稱:'+d.nick else '' end ,isnull(b.mount,0),@t_storeno,isnull(c.tmount,0),@mount
 			                        from ucc a outer apply (select top 1 mount from stkucc(@pdatea,@t_storeno,@productno))b
 			                        outer apply (select SUM((case when typea='1' then 1 else -1 end)*(ISNULL(tranmoney2,0)-ISNULL(tranmoney3,0)))tmount from view_vccs where productno=@productno and datea<=@pdatea)c
+			                        outer apply (select top 1 noa,nick from cust where noa=left(a.noa,5) and charindex('-',a.noa)>0)d
 			                        where a.noa=@productno
 			
 			                        set @str=SUBSTRING(@str,CHARINDEX(',',@str)+1,LEN(@str))

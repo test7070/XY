@@ -1,0 +1,34 @@
+z_uccep_xy1:--z_uccep_xy1
+declare @t_bstoreno nvarchar(50)
+declare @t_estoreno nvarchar(50)
+declare @t_bproductno nvarchar(50)
+declare @t_eproductno nvarchar(50)
+declare @t_typea nvarchar(50)
+declare @t_groupa nvarchar(50)
+declare @t_btggno nvarchar(50)
+declare @t_etggno nvarchar(50)
+declare @t_xedate nvarchar(50)
+declare @t_zero nvarchar(50)
+declare @t_uccno nvarchar(MAX)
+declare @t_product nvarchar(MAX)
+declare @t_style nvarchar(MAX)
+declare @t_spec nvarchar(MAX)
+
+set @t_bproductno = case when '#non' = [2] then '' else [2] end
+set @t_eproductno = case when '#non' = [3] then CHAR(255) else [3] end
+set @t_bstoreno = case when '#non' = [4] then '' else [4] end
+set @t_estoreno = case when '#non' = [5] then CHAR(255) else [5] end
+set @t_typea = case when '#non' = [6] then '' else [6] end
+set @t_groupa = case when '#non' = [7] then '' else [7] end
+set @t_btggno = case when '#non' = [8] then '' else [8] end
+set @t_etggno = case when '#non' = [9] then char(255) else [9] end
+set @t_xedate = case when '#non' = [10] then '' else [10] end
+set @t_zero = case when '#non' = [11] then '' else [11] end
+set @t_uccno = case when '#non' = [12] then '' else [12] end
+set @t_product = case when '#non' = [13] then '' else [13] end
+set @t_style = case when '#non' = [14] then '' else [14] end
+set @t_spec = case when '#non' = [15] then '' else [15] end
+
+--************************************************************************
+
+;

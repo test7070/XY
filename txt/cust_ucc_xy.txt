@@ -1834,7 +1834,7 @@ declare @rank int=5
 
 --預設寄庫倉庫＝出貨分店倉1、總店2、集團3、它分店倉4
 declare cursor_table cursor for
-select noa from store where noa=LEFT(@t_custno,5)
+select noa from store where noa like LEFT(@t_custno,5)+'%'
 or ((select count(*) from cust where noa=@t_custno and isnull(grpno,'')!='')>0 
 and noa like (select top 1 grpno from cust where noa=@t_custno)+'%')
 open cursor_table

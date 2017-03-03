@@ -154,6 +154,12 @@ from @tmp a left join ucc b on a.pno=b.noa
 left join store c on a.storeno=c.noa
 left join cust d on left(pno,5)=d.noa and CHARINDEX('-',pno)>0
 
-select * from @tmp
-order by pno;
-;
+select 
+dbo.getComma(smount,-1)smount
+,dbo.getComma(vmount,-1)vmount
+,dbo.getComma(emount,-1)emount
+,dbo.getComma(case when ucce is null then null else mount end,-1)mount
+,dbo.getComma(dmount,-1)dmount
+,dbo.getComma(safem,-1)safem
+,*
+ from @tmp order by pno;

@@ -30,5 +30,130 @@ set @t_style = case when '#non' = [14] then '' else [14] end
 set @t_spec = case when '#non' = [15] then '' else [15] end
 
 --************************************************************************
+declare @t_pedate nvarchar(50)=dbo.q_cdn(@t_xedate,-1)
 
+declare @stmp table(
+	pno nvarchar(50),
+	storeno nvarchar(100),
+	smount float ----倉庫總量
+)
+
+insert @stmp(pno,storeno,smount)
+select productno,storeno,mount
+from stkucc(@t_pedate,'','') a 
+where exists (select * from ucc where noa=a.productno)
+and productno between @t_bproductno and @t_eproductno
+and (len(@t_uccno)=0 or '.'+@t_uccno+'.' like '%.'+productno+'.%')
+
+declare @vtmp table(
+	pno nvarchar(50),
+	storeno nvarchar(100),
+	vmount float ----客倉總量
+)
+insert @vtmp(pno,storeno,vmount)
+select productno,storeno2,round(SUM(case when a.typea='1' then 1 else -1 end *(tranmoney2-tranmoney3)),2) mount
+from view_vccs a
+where (itemno='1' or itemno='2') and (tranmoney2!=0 or tranmoney3!=0) and datea<=@t_pedate
+and productno between @t_bproductno and @t_eproductno
+and (len(@t_uccno)=0 or '.'+@t_uccno+'.' like '%.'+productno+'.%')
+group by productno,storeno2
+having round(SUM(case when a.typea='1' then 1 else -1 end *(tranmoney2-tranmoney3)),2)!=0
+
+declare @utmp table(
+	pno nvarchar(50),
+	storeno nvarchar(100),
+	emount float, ----ucce帳面總量
+	mount float, ----盤點量
+	amount float ----app盤點量
+)
+insert @utmp(pno,storeno,emount,mount,amount)
+select b.productno,b.storeno,sum(b.emount2),sum(b.mount),SUM(dime)
+from view_ucce a left join view_ucces b on a.noa=b.noa
+where a.datea=@t_xedate
+and productno between @t_bproductno and @t_eproductno
+and (len(@t_uccno)=0 or '.'+@t_uccno+'.' like '%.'+productno+'.%')
+group by b.productno,b.storeno
+
+declare @tmp table(
+	gno nvarchar(1),
+	pno nvarchar(50),
+	product nvarchar(255),
+	custno nvarchar(50),
+	comp nvarchar(100),
+	style nvarchar(100),
+	spec nvarchar(MAX),
+	storeno nvarchar(100),
+	store nvarchar(100),
+	tggno nvarchar(50),
+	tgg nvarchar(200),
+	smount float, ----倉庫總量
+	vmount float, ----客倉總量
+	emount float, ----帳面總量(倉庫總量+客倉總量)
+	mount float, ----盤點量(app盤點量)
+	dmount float, ----盤差量
+	safem float, ----安全存量
+	img nvarchar(max),
+	ucce nvarchar(50)
+)
+
+--插入庫存量
+insert @tmp(gno,pno,storeno,smount,emount)
+select '9',pno,storeno,smount,smount from @stmp
+
+--插入客倉
+insert @tmp(gno,pno,storeno,vmount,emount)
+select '9',pno,'A',sum(vmount),sum(vmount) from @vtmp group by pno
+
+--插入帳面和盤點量
+insert @tmp(gno,pno,storeno,emount,mount,ucce)
+select '9',pno,storeno,0,round(amount,2),'V' from @utmp
+
+insert @tmp(gno,pno,storeno,smount,vmount,emount,mount,dmount,ucce)
+select '1',a.pno,a.storeno,isnull(SUM(a.smount),0),isnull(SUM(a.vmount),0),isnull(SUM(a.emount),0)
+,isnull(SUM(a.mount),0),isnull(SUM(a.emount),0)-isnull(SUM(a.mount),0),MAX(a.ucce)
+from @tmp a left join ucc b on a.pno=b.noa where gno='9' 
+and a.storeno between @t_bstoreno and @t_estoreno
+and (len(@t_typea)=0 or b.typea=@t_typea)
+and (len(@t_groupa)=0 or b.groupano=@t_groupa)
+and isnull(b.tggno,'') between @t_btggno and @t_etggno
+and (len(@t_style)=0 or b.style=@t_style)
+and (len(@t_product)=0 or b.product like '%'+@t_product+'%')
+and (len(@t_spec)=0 or b.spec like '%'+@t_spec+'%')
+group by a.pno,a.storeno
+
+if(@t_zero='1')
+begin
+	insert @tmp(gno,pno,storeno,smount,vmount,emount,mount,dmount)
+	select '1',noa,'A',0,0,0,0,0 from ucc a
+	where noa between @t_bproductno and @t_eproductno
+	and not exists (select * from @tmp where pno=a.noa)
+	and (len(@t_typea)=0 or typea=@t_typea)
+	and (len(@t_groupa)=0 or groupano=@t_groupa)
+	and isnull(tggno,'') between @t_btggno and @t_etggno
+	and (len(@t_uccno)=0 or '.'+@t_uccno+'.' like '%.'+noa+'.%')
+	and (len(@t_style)=0 or style=@t_style)
+	and (len(@t_product)=0 or product like '%'+@t_product+'%')
+	and (len(@t_spec)=0 or spec like '%'+@t_spec+'%')
+end
+
+delete @tmp where gno='9'
+
+update a
+set gno='0' 
+,product=b.product
+,style=b.style
+,spec=b.spec
+,safem=isnull(b.safemount,0)
+,store=c.store
+,custno=isnull(d.noa,'')
+,comp=isnull(d.nick,'')
+,img='<img width="50px" src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl='+upper(a.pno)+'&chld=H|0">'
+,tggno=isnull(b.tggno,'')
+,tgg=isnull(b.tgg,'')
+from @tmp a left join ucc b on a.pno=b.noa
+left join store c on a.storeno=c.noa
+left join cust d on left(pno,5)=d.noa and CHARINDEX('-',pno)>0
+
+select * from @tmp
+order by pno;
 ;

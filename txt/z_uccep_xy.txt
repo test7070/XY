@@ -86,6 +86,7 @@ declare @tmp table(
 	store nvarchar(100),
 	tggno nvarchar(50),
 	tgg nvarchar(200),
+	unit nvarchar(50),
 	smount float, ----倉庫總量
 	vmount float, ----客倉總量
 	emount float, ----帳面總量(倉庫總量+客倉總量)
@@ -150,6 +151,7 @@ set gno='0'
 ,img='<img width="50px" src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl='+upper(a.pno)+'&chld=H|0">'
 ,tggno=isnull(b.tggno,'')
 ,tgg=isnull(b.tgg,'')
+,unit=isnull(b.unit,'')
 from @tmp a left join ucc b on a.pno=b.noa
 left join store c on a.storeno=c.noa
 left join cust d on left(pno,5)=d.noa and CHARINDEX('-',pno)>0

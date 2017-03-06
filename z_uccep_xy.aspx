@@ -30,51 +30,63 @@
 						type : '0',
 						name : 'accy',
 						value : r_accy //[1]
+                    },{
+						type : '0',
+						name : 'rank',
+						value : r_rank //[2]
+                    },{
+						type : '0',
+						name : 'userno',
+						value : r_userno //[3]
+                    },{
+						type : '0',
+						name : 'namea',
+						value : r_name //[4]
                     }, {
-						type : '2', //[2][3]
+						type : '2', //[5][6]
 						name : 'xproductno',
 						dbf : 'ucc',
 						index : 'noa,product',
 						src : 'ucc_b.aspx'
 					},{
-						type : '2', //[4] [5]
+						type : '2', //[7] [8]
 						name : 'xstoreno',
 						dbf : 'store',
 						index : 'noa,store',
 						src : 'store_b.aspx'
 					}, {
 						type : '5',
-						name : 'xucctype', //[6]
+						name : 'xucctype', //[9]
 						value : [q_getPara('report.all')].concat(q_getPara('ucc.typea').split(','))
 					}, {
-						type : '5', //[7]
+						type : '5', //[10]
 						name : 'xgroupano',
 						value : uccgaItem.split(',')
 					}, {
-						type : '2', //[8][9]
+						type : '2', //[11][12]
 						name : 'xtgg',
 						dbf : 'tgg',
 						index : 'noa,comp',
 						src : 'tgg_b.aspx'
 					}, {
 						type : '6',
-						name : 'xedate' //[10]
+						name : 'xedate' //[13]
 					}, {
 						type : '8',
-						name : 'xallucc',//[11]
+						name : 'xallucc',//[14]
 						value : '1@顯示零庫存產品'.split(',')
 					}, {
-                        type : '6', //[12]
+                        type : '6', //[15]
                         name : 'xucc'
                     }, {
-                        type : '6', //[13]
+                        type : '6', //[16]
                         name : 'xproduct'
                     }, {
-                        type : '5', //[14]
+                        type : '5', //[17]
                         name : 'xstyle',
                         value : [q_getPara('report.all')].concat('便品,空白,公版,加工,印刷,私-空白,新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣'.split(','))
                     }, {
-                        type : '6', //[15]
+                        type : '6', //[18]
                         name : 'xspec'
                     }]
 				});

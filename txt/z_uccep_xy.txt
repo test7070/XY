@@ -14,8 +14,10 @@ declare @t_product nvarchar(MAX)
 declare @t_style nvarchar(MAX)
 declare @t_spec nvarchar(MAX)
 declare @t_rank nvarchar(50)
+declare @t_userno nvarchar(50)
 
 set @t_rank = '[2]'
+set @t_userno = '[3]'
 set @t_bproductno = case when '#non' = [5] then '' else [5] end
 set @t_eproductno = case when '#non' = [6] then CHAR(255) else [6] end
 set @t_bstoreno = case when '#non' = [7] then '' else [7] end
@@ -166,7 +168,7 @@ update a
 set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
 from (select *,ROW_NUMBER()over (order by pno)rr from @tmp) a
 
-if(@t_rank>5)
+if(UPPER(left(@t_userno,1))!='M')
 begin
 	insert @tmp(gno,page,recno)
 	select '1',page,MIN(recno)-1 from @tmp where gno='0' group by page

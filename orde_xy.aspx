@@ -1534,7 +1534,7 @@
 							q_Seek_gtPost();
 						break;
 				}
-				if(t_name.substr(0,9)=='getStore_'){
+				/*if(t_name.substr(0,9)=='getStore_'){
 					var n=t_name.substr(9);
 					var as = _q_appendData('store', '', true);
 					//106/02/09 預設寄庫倉庫＝出貨分店倉1、總店2、集團3、它分店倉4
@@ -1570,7 +1570,8 @@
 						$('#txtSize_'+n).val(t_storeno);
 						$('#txtUcolor_'+n).val(t_store);
 					}
-				}else if (t_name.substr(0,13)=='keyin_pno_xy_'){
+				}else */
+				if (t_name.substr(0,13)=='keyin_pno_xy_'){
 					var n=t_name.substr(13);
 					var as = _q_appendData("view_quats", "", true);
 					if (as[0] != undefined) {
@@ -1987,7 +1988,42 @@
 								var t_where="noa like '"+$('#txtCustno').val().substr(0,5)+"%'";
 								t_where=t_where+" or ((select count(*) from cust where noa='"+$('#txtCustno').val()+"' and isnull(grpno,'')!='')>0 and noa like (select top 1 grpno from cust where noa='"+$('#txtCustno').val()+"')+'%')";
 								t_where="where=^^"+t_where+"^^";
-								q_gt('store', t_where, 0, 0, 0, "getStore_"+b_seq);
+								q_gt('store', t_where, 0, 0, 0, "getStore_"+b_seq,r_accy,1);
+								var n=b_seq;
+								var as = _q_appendData('store', '', true);
+								//106/02/09 預設寄庫倉庫＝出貨分店倉1、總店2、集團3、它分店倉4
+								var t_storeno='',t_store='',t_rank=5;
+								for (var i = 0; i < as.length; i++) {
+									//出貨分店倉
+									if($('#txtCustno').val()==as[i].noa){
+										t_storeno=as[i].noa;
+										t_store=as[i].store;
+										break;	
+									}
+									//總店
+									if($('#txtCustno').val().substr(0,5)==as[i].noa && t_rank>2){
+										t_storeno=as[i].noa;
+										t_store=as[i].store;
+										t_rank=2;
+									}
+									//集團
+									if($('#txtCustno').val().substr(0,5)!=as[i].noa.substr(0,5) && t_rank>3){
+										t_storeno=as[i].noa;
+										t_store=as[i].store;
+										t_rank=3;
+									}
+									//它分店倉 只會取第一個其他分店
+									if($('#txtCustno').val().substr(0,5)==as[i].noa.substr(0,5) && t_rank>4){
+										t_storeno=as[i].noa;
+										t_store=as[i].store;
+										t_rank=4;
+									}
+								}
+								
+								if (t_storeno.length>0) {
+									$('#txtSize_'+n).val(t_storeno);
+									$('#txtUcolor_'+n).val(t_store);
+								}
 							}
 							
 							if($('#cmbSource_' + b_seq).val()!='0' && $('#cmbSource_' + b_seq).val()!='1'){

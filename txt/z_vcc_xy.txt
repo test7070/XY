@@ -1,4 +1,4 @@
-z_vcc_xy1:--z_vcc_xy1
+﻿z_vcc_xy1:--z_vcc_xy1
 declare @t_bcust nvarchar(50) 
 declare @t_ecust nvarchar(50) 
 declare @t_bucc nvarchar(50) 
@@ -297,7 +297,7 @@ dbo.getComma(a.stkmount,-1) stkmount,
 dbo.getComma(a.ostkmount,-1) ostkmount,
 'vcc_xy?noa=$vccno?'+a.accy qhref,
 case when @t_last=0 then '日期區間：'+@t_bdate+'~'+@t_edate else '' end dmemo ,
-b.unit,
+b.unit,b.spec,
 a.*
 from #tmp a 
 left join view_ucaucc b on a.productno=b.noa

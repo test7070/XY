@@ -277,6 +277,11 @@ delete a from #tmp a
 where exists (select storeno,productno from #tmp 
 group by storeno,productno having SUM(mount)=0 and SUM(stkmount)=0 and count(*)=1 and storeno=a.storeno and productno=a.productno )
 
+--保留有期初--期間內沒有寄出庫
+update a
+set idno=1
+from #tmp a where idno=0 and not exists (select * from #tmp where idno!=0 and productno=a.productno and storeno=a.storeno)
+
 if((select COUNT(*) from #tmp)>0)
 begin
 	--106/02/08 依日期排序 不再按照客戶和寄庫方式調整

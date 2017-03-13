@@ -88,7 +88,11 @@
                     }, {
                         type : '6', //[18]
                         name : 'xspec'
-                    }]
+                    }, {
+						type : '8',
+						name : 'xnoqrcode',//[19]
+						value : '1@不顯示QRCODE'.split(',')
+					}]
 				});
 				q_popAssign();
 				q_getFormat();
@@ -112,6 +116,9 @@
 				$('#lblXucc').click(function(e) {
                 	q_box("ucc_b2.aspx?;;;;", 'ucc', "40%", "620px", q_getMsg("popUcc"));
                 });
+                
+                $('#Xnoqrcode').css('width','300px').css('height','30px');
+				$('#Xnoqrcode .label').css('width','0px');
 			}
 
 			function q_boxClose(s2) {

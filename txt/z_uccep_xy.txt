@@ -15,6 +15,7 @@ declare @t_style nvarchar(MAX)
 declare @t_spec nvarchar(MAX)
 declare @t_rank nvarchar(50)
 declare @t_userno nvarchar(50)
+declare @t_noqrcode nvarchar(50)
 
 set @t_rank = '[2]'
 set @t_userno = '[3]'
@@ -32,6 +33,7 @@ set @t_uccno = case when '#non' = [15] then '' else [15] end
 set @t_product = case when '#non' = [16] then '' else [16] end
 set @t_style = case when '#non' = [17] then '' else [17] end
 set @t_spec = case when '#non' = [18] then '' else [18] end
+set @t_noqrcode = case when '#non' = [19] then '0' else [19] end
 
 --************************************************************************
 declare @t_pedate nvarchar(50)=dbo.q_cdn(@t_xedate,-1)
@@ -154,7 +156,7 @@ set gno='0'
 ,store=c.store
 ,custno=isnull(d.noa,'')
 ,comp=isnull(d.nick,'')
-,img='<img width="50px" src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl='+upper(a.pno)+'&chld=H|0">'
+,img=case when @t_noqrcode='1' then '' else '<img width="50px" src="https://chart.googleapis.com/chart?chs=50x50&cht=qr&chl='+upper(a.pno)+'&chld=H|0">' end
 ,tggno=isnull(b.tggno,'')
 ,tgg=isnull(b.tgg,'')
 ,unit=isnull(b.unit,'')
@@ -163,7 +165,7 @@ left join store c on a.storeno=c.noa
 left join cust d on left(pno,5)=d.noa and CHARINDEX('-',pno)>0
 
 --分頁
-declare @t_pageline int=12
+declare @t_pageline int=case when @t_noqrcode='1' then 32 else 12 end
 update a
 set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
 from (select *,ROW_NUMBER()over (order by pno)rr from @tmp) a

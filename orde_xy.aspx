@@ -688,13 +688,14 @@
 							q_gt('view_cub', t_where, 0, 0, 0, 'checkcubenda', r_accy, 1);
 							var as = _q_appendData("view_cub", "", true);
 							if (as[0] == undefined) {
-								t_err=t_err+($('#txtProduct_'+i).val()+' '+$('#txtProduct_'+i).val()+' 未入庫禁止轉出貨!!\n');
+								t_err=t_err+($('#txtProductno_'+i).val()+' '+$('#txtProduct_'+i).val()+' 【'+$('#cmbScolor_'+i).val()+'】 未製令入庫禁止轉出貨!!\n');
 								break;
 							}
 						}
 					}
 					if(t_err.length>0){
 						alert(t_err);
+						$('#btnOrdetoVcc').removeAttr('disabled');
 						return;
 					}
 					

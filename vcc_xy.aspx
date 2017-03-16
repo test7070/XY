@@ -529,8 +529,10 @@
 					case 'ordes_xy':
 						if (q_cur > 0 && q_cur < 4) {
 							b_ret = getb_ret();
-							if (!b_ret || b_ret.length == 0)
+							if (!b_ret || b_ret.length == 0){
+								b_pop = '';
 								return;
+							}
 							
 							var t_oredeno = b_ret[0].noa;
 							var t_datea = b_ret[0].datea;
@@ -594,8 +596,10 @@
 					case 'vccs_xy':
 						if (q_cur > 0 && q_cur < 4) {
 							b_ret = getb_ret();
-							if (!b_ret || b_ret.length == 0)
+							if (!b_ret || b_ret.length == 0){
+								b_pop = '';
 								return;
+							}
 							
 							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtUnit,txtDime,txtMount,txtWidth,txtTranmoney2,txtTranmoney3,txtPrice,txtMemo,txtOrdeno,txtNo2,cmbItemno,txtStoreno,txtStore,txtStoreno2,txtStore2', b_ret.length, b_ret
 							, 'productno,product,spec,unit,dime,mount,width,tranmoney2,tranmoney3,price,memo,noa,noq,itemno,storeno,store,storeno2,store2', 'txtProductno,txtProduct,txtSpec');

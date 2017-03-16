@@ -1800,7 +1800,7 @@
 				
 				//105/04/25  判斷 客戶主檔 有運費單價  並 判斷訂單是有運費 沒有給提示
 				//106/02/08 判斷 客戶主檔 是否需附附採購單
-				var isfranchisestore=false;
+				var isfranchisestore='false';
 				var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 				q_gt('custm', t_where, 0, 0, 0, "getcustmtranprice",r_accy,1);
 				var as = _q_appendData("custm", "", true);
@@ -1823,7 +1823,7 @@
 					isfranchisestore=as[0].isfranchisestore;
 				}
 				
-				if(as[0].isfranchisestore=='true' && emp($('#txtCustorde').val())){
+				if(isfranchisestore=='true' && emp($('#txtCustorde').val())){
 					alert('客戶需附採購單，請填寫客單編號!!');
 					return;
 				}

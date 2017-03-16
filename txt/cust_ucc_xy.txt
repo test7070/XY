@@ -1941,7 +1941,13 @@ begin
 	update @tmp
 	set total=mount+othmount+stkmount	
 end
-select * from @tmp
+select 
+gno,storeno2,store2,productno,product,spec,style,unit
+,dbo.getComma(mount,-1)mount
+,dbo.getComma(othmount,-1)othmount
+,dbo.getComma(stkmount,-1)stkmount
+,dbo.getComma(total,-1)total
+from @tmp
 ;
 -------------------------------------------------------------------------------------------------------
 chkstk:--chkstk --讀取庫存資料

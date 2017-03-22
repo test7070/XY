@@ -48,7 +48,7 @@
                         declare @t_userno nvarchar(50)= @userno
                         declare @t_namea nvarchar(50)= @namea
                         declare @t_storeno nvarchar(50)= @storeno
-                        declare @t_datea nvarchar(50)= @datea
+                        declare @t_datea nvarchar(50)= dbo.q_cdn(@datea,1)
                         declare @t_ucceins nvarchar(MAX)= @ucceins
                         declare @t_fdate nvarchar(50)= CONVERT (VARCHAR(20), GETDATE(),20 )
                         

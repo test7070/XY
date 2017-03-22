@@ -306,7 +306,8 @@ b.unit,b.spec,
 a.*
 from #tmp a 
 left join view_ucaucc b on a.productno=b.noa
-order by a.storeno,a.productno,a.gno,a.xidno
+order by case when (select count(*) from #tmp where (typea='寄庫' or typea='庫出') and storeno=a.storeno and productno=a.productno)>0 then 0 else 1 end
+,a.storeno,a.productno,a.gno,a.xidno
 
 IF OBJECT_ID('tempdb..#tmp')is not null
 BEGIN

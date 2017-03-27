@@ -31,13 +31,16 @@ create table #bbs(
 
 declare @tmp table(
 	productno nvarchar(50),
+	storeno nvarchar(50),
 	mount float
 )
 
 declare @tmpxls table(
 	productno nvarchar(50),
 	unit nvarchar(50),
-	mount float
+	mount float,
+	storeno nvarchar(50),
+	worker nvarchar(50)
 )
 
 declare @t_update nvarchar(50) = CONVERT (VARCHAR(20), GETDATE(),20 )
@@ -46,12 +49,16 @@ declare @pdatea nvarchar(50)=dbo.q_cdn(@t_datea,-1)
 declare @noq nvarchar(50)
 
 insert @tmp
-select product,mount from stkucc(@pdatea,'A','')
+select product,storeno,mount from stkucc(@pdatea,'','')
 
 insert @tmpxls
-select a.a,a.f,cast(a.g as float)
+select a.a,a.f,cast(a.g as float),a.h,a.i
 from ztmpxls a left join ucc b on a.a=b.noa
 where isnull(a,'')!='' and b.noa is not null
+
+declare @t_namea2 nvarchar(MAX)
+set @t_namea2=isnull((select top 1 worker from @tmpxls a where isnull(a.worker,'')!='' and exists (select * from sss where noa=a.worker)),'')
+set @t_namea2=isnull((select namea from sss where noa=@t_namea2 ),'')
 
 declare @t_noa nvarchar(50)
 declare @accy nvarchar(50)
@@ -63,12 +70,12 @@ insert #bbs(noa,noq,productno,product,spec,style,mount,unit,price,total,memo,emo
 select @t_noa,ROW_NUMBER() over (order by b.noa)
 ,b.noa,b.product,b.spec,b.style,a.mount-isnull(c.tmount,0),b.unit,0,0,'盤點數量:'+cast(a.mount as nvarchar)+a.unit
 +case when d.noa is not null then ',客戶名稱:'+d.nick else '' end 
-,isnull(e.mount,0),'A',isnull(c.tmount,0),a.mount
+,isnull(e.mount,0),a.storeno,isnull(c.tmount,0),a.mount
 from @tmpxls a
 left join ucc b on a.productno=b.noa
 outer apply (select SUM((case when typea='1' then 1 else -1 end)*(ISNULL(tranmoney2,0)-ISNULL(tranmoney3,0)))tmount from view_vccs where productno=a.productno and datea<=@pdatea)c
 outer apply (select top 1 noa,nick from cust where noa=left(b.noa,5) and charindex('-',b.noa)>0)d
-outer apply (select * from @tmp where productno=a.productno) e
+outer apply (select * from @tmp where productno=a.productno and storeno=a.storeno) e
 where isnull(a.productno,'')!='' and b.noa is not null
 
 set @noq=isnull((select MAX(noq) from #bbs),'000')
@@ -80,8 +87,8 @@ from #bbs a left join store b on a.storeno=b.noa
 
 if((select count(*) from #bbs)>0)
 begin
-	EXEC('insert ucce'+@accy+'(noa,datea,kind,storeno,store,memo,worker)
-		select '''+@t_noa+''','''+@t_datea+''',''1'','''','''','''+@t_namea+' '+@t_update+'''+'' 由盤點XLS產生'','''+@t_namea+''' ')
+	EXEC('insert ucce'+@accy+'(noa,datea,kind,storeno,store,memo,worker,worker2)
+		select '''+@t_noa+''','''+@t_datea+''',''1'','''','''','''+@t_namea+' '+@t_update+'''+'' 由盤點XLS產生,盤點人:'+@t_namea2+' '','''+@t_namea+''','''+@t_namea2+''' ')
 	EXEC('insert ucces'+@accy+'(noa,noq,storeno,store,productno,product,spec,style,unit,mount,emount2,price,total,memo,datea,dime,width)
 		select noa,noq,storeno,store,productno,product,spec,style,unit,mount,emount2,price,total,memo,'''+@t_datea+''',dime,tmount from #bbs ')
 end

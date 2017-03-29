@@ -109,7 +109,7 @@
                 $('#chkXzero').css('margin-top','5px');
                 $('#Xzero .label').css('width','0px');
                 
-                if(window.parent.q_name=='z_uccep_xy'){
+                if(window.parent.q_name=='z_uccep_xy' || window.parent.q_name=='z_ucc'){
                 	if (q_getHref()[1] != undefined) {
                 		$('#txtUcc1a').val(q_getHref()[1]);
                 		$('#txtUcc2a').val(q_getHref()[1]);

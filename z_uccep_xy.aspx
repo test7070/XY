@@ -92,6 +92,29 @@
 						type : '8',
 						name : 'xnoqrcode',//[19]
 						value : '1@不顯示QRCODE'.split(',')
+					}, {
+						type : '2', //[20][21]
+						name : 'xcust',
+						dbf : 'cust',
+						index : 'noa,comp',
+						src : 'cust_b.aspx'
+					}, {
+						type : '6',
+						name : 'xbdate' //[22]
+					}, {
+						type : '5',
+						name : 'xorder', //[23]
+						value : 'product@品名＋版別＋規格,num@交易次數,money@交易金額'.split(',')
+					}, {
+                        type : '1', //[24][25]
+                        name : 'xdatea'
+                    }, {
+                        type : '6', //[26]
+                        name : 'xnoa'
+                    },{
+						type : '0',//[27]
+						name : 'isspec',
+						value : q_getPara('sys.isspec')
 					}]
 				});
 				q_popAssign();
@@ -119,6 +142,20 @@
                 
                 $('#Xnoqrcode').css('width','300px').css('height','30px');
 				$('#Xnoqrcode .label').css('width','0px');
+				
+				$('#txtXbdate').mask(r_picd);
+				$('#txtXbdate').datepicker();
+				
+				$('#Xorder select').css('width','150px')
+				
+				$('#txtXdatea1').mask(r_picd);
+				$('#txtXdatea1').datepicker();
+				$('#txtXdatea2').mask(r_picd);
+				$('#txtXdatea2').datepicker();
+				
+				if (q_getId()[3] != undefined) {
+                    $('#txtXnoa').val(q_getId()[3].replace('noa=', ''));
+                }
 			}
 
 			function q_boxClose(s2) {

@@ -35,7 +35,21 @@ set @t_style = case when '#non' = [17] then '' else [17] end
 set @t_spec = case when '#non' = [18] then '' else [18] end
 set @t_noqrcode = case when '#non' = [19] then '0' else [19] end
 
+declare @t_bcustno nvarchar(50)
+declare @t_ecustno nvarchar(50)
+declare @t_xbdate nvarchar(50)
+declare @t_xorder nvarchar(50)
+set @t_bcustno = case when '#non' = [20] then '' else [20] end
+set @t_ecustno = case when '#non' = [21] then char(255) else [21] end
+set @t_xbdate = case when '#non' = [22] then '' else [22] end
+set @t_xorder = case when '#non' = [23] then '' else [23] end
+
 --************************************************************************
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	drop table #tmp
+END
+
 declare @t_pedate nvarchar(50)=dbo.q_cdn(@t_xedate,-1)
 
 declare @stmp table(
@@ -80,7 +94,7 @@ and productno between @t_bproductno and @t_eproductno
 and (len(@t_uccno)=0 or '.'+@t_uccno+'.' like '%.'+productno+'.%')
 group by b.productno,b.storeno
 
-declare @tmp table(
+create table #tmp(
 	gno nvarchar(1),
 	page int,
 	recno int,
@@ -102,25 +116,27 @@ declare @tmp table(
 	dmount float, ----盤差量
 	safem float, ----安全存量
 	img nvarchar(max),
-	ucce nvarchar(50)
+	ucce nvarchar(50),
+	ordernum float, --排序用
+	ordermoney float --排序用
 )
 
 --插入庫存量
-insert @tmp(gno,pno,storeno,smount,emount)
+insert #tmp(gno,pno,storeno,smount,emount)
 select '9',pno,storeno,smount,smount from @stmp
 
 --插入客倉
-insert @tmp(gno,pno,storeno,vmount,emount)
+insert #tmp(gno,pno,storeno,vmount,emount)
 select '9',pno,'A',sum(vmount),sum(vmount) from @vtmp group by pno
 
 --插入帳面和盤點量
-insert @tmp(gno,pno,storeno,emount,mount,ucce)
+insert #tmp(gno,pno,storeno,emount,mount,ucce)
 select '9',pno,storeno,0,round(amount,2),'V' from @utmp
 
-insert @tmp(gno,pno,storeno,smount,vmount,emount,mount,dmount,ucce)
+insert #tmp(gno,pno,storeno,smount,vmount,emount,mount,dmount,ucce)
 select '1',a.pno,a.storeno,isnull(SUM(a.smount),0),isnull(SUM(a.vmount),0),isnull(SUM(a.emount),0)
 ,isnull(SUM(a.mount),0),isnull(SUM(a.emount),0)-isnull(SUM(a.mount),0),MAX(a.ucce)
-from @tmp a left join ucc b on a.pno=b.noa where gno='9' 
+from #tmp a left join ucc b on a.pno=b.noa where gno='9' 
 and a.storeno between @t_bstoreno and @t_estoreno
 and (len(@t_typea)=0 or b.typea=@t_typea)
 and (len(@t_groupa)=0 or b.groupano=@t_groupa)
@@ -132,10 +148,10 @@ group by a.pno,a.storeno
 
 if(@t_zero='1')
 begin
-	insert @tmp(gno,pno,storeno,smount,vmount,emount,mount,dmount)
+	insert #tmp(gno,pno,storeno,smount,vmount,emount,mount,dmount)
 	select '1',noa,'A',0,0,0,0,0 from ucc a
 	where noa between @t_bproductno and @t_eproductno
-	and not exists (select * from @tmp where pno=a.noa)
+	and not exists (select * from #tmp where pno=a.noa)
 	and (len(@t_typea)=0 or typea=@t_typea)
 	and (len(@t_groupa)=0 or groupano=@t_groupa)
 	and isnull(tggno,'') between @t_btggno and @t_etggno
@@ -145,7 +161,7 @@ begin
 	and (len(@t_spec)=0 or spec like '%'+@t_spec+'%')
 end
 
-delete @tmp where gno='9'
+delete #tmp where gno='9'
 
 update a
 set gno='0' 
@@ -160,31 +176,80 @@ set gno='0'
 ,tggno=isnull(b.tggno,'')
 ,tgg=isnull(b.tgg,'')
 ,unit=isnull(b.unit,'')
-from @tmp a left join ucc b on a.pno=b.noa
+from #tmp a left join ucc b on a.pno=b.noa
 left join store c on a.storeno=c.noa
 left join cust d on left(pno,5)=d.noa and CHARINDEX('-',pno)>0
 
+delete #tmp where custno not between @t_bcustno and @t_ecustno
+
+if(@t_xbdate!='')
+begin
+	delete a from #tmp a 
+	where not exists (select * from view_vccs where datea>=@t_xbdate and productno=a.pno)
+	and not exists (select * from view_rc2s where datea>=@t_xbdate and productno=a.pno)
+	and not exists (select * from view_inas where datea>=@t_xbdate and productno=a.pno)
+	and not exists (select * from view_gets where datea>=@t_xbdate and productno=a.pno)
+end
+
 --分頁
 declare @t_pageline int=case when @t_noqrcode='1' then 32 else 12 end
-update a
-set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
-from (select *,ROW_NUMBER()over (order by pno)rr from @tmp) a
 
-if(UPPER(left(@t_userno,1))!='M')
+if(@t_xorder='product')
 begin
-	insert @tmp(gno,page,recno)
-	select '1',page,MIN(recno)-1 from @tmp where gno='0' group by page
-	insert @tmp(gno,page,recno)
-	select '3',page,MAX(recno)+1 from @tmp where gno='0' group by page
-	update @tmp set gno='2' where gno='0'
+	update a
+	set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
+	from (select *,ROW_NUMBER()over (order by product,style,spec)rr from #tmp) a
+end
+else if(@t_xorder='num')
+begin
+	update a
+	set ordernum=isnull(v.num,0)+isnull(r.num,0)+isnull(i.num,0)+isnull(g.num,0)
+	from #tmp a
+	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_vccs where productno=a.pno and datea>=@t_xbdate) v
+	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_rc2s where productno=a.pno and datea>=@t_xbdate) r
+	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_inas where productno=a.pno and datea>=@t_xbdate) i
+	outer apply (select count(*) num,SUM(mount)mount,0 money from view_gets where productno=a.pno and datea>=@t_xbdate) g
+
+	update a
+	set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
+	from (select *,ROW_NUMBER()over (order by ordernum)rr from #tmp) a
+end
+else if(@t_xorder='money')
+begin
+	update a
+	set ordermoney=isnull(v.money,0)+isnull(r.money,0)+isnull(i.money,0)+isnull(g.money,0)
+	from #tmp a
+	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_vccs where productno=a.pno and datea>=@t_xbdate) v
+	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_rc2s where productno=a.pno and datea>=@t_xbdate) r
+	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_inas where productno=a.pno and datea>=@t_xbdate) i
+	outer apply (select count(*) num,SUM(mount)mount,0 money from view_gets where productno=a.pno and datea>=@t_xbdate) g
+
+	update a
+	set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
+	from (select *,ROW_NUMBER()over (order by ordermoney)rr from #tmp) a
 end
 else
 begin
-	insert @tmp(gno,page,recno)
-	select '4',page,MIN(recno)-1 from @tmp where gno='0' group by page
-	insert @tmp(gno,page,recno)
-	select '6',page,MAX(recno)+1 from @tmp where gno='0' group by page
-	update @tmp set gno='5' where gno='0'
+	update a
+	set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
+	from (select *,ROW_NUMBER()over (order by pno)rr from #tmp) a
+end
+
+if(UPPER(left(@t_userno,1))!='M')
+begin
+	insert #tmp(gno,page,recno)
+	select '1',page,MIN(recno)-1 from #tmp where gno='0' group by page
+	insert #tmp(gno,page,recno)
+	select '3',page,MAX(recno)+1 from #tmp where gno='0' group by page
+	update #tmp set gno='2' where gno='0'
+end
+else
+begin
+	insert #tmp(gno,page,recno)
+	select '4',page,MIN(recno)-1 from #tmp where gno='0' group by page
+	insert #tmp(gno,page,recno)
+	select '6',page,MAX(recno)+1 from #tmp where gno='0' group by page
+	update #tmp set gno='5' where gno='0'
 end
 
 select 
@@ -195,4 +260,74 @@ dbo.getComma(smount,-1)smount
 ,dbo.getComma(dmount,-1)dmount
 ,dbo.getComma(safem,-1)safem
 ,*
- from @tmp order by page,gno,recno;
+,'z_ucc?pno=\'''+pno+'\'' and edate=\'''+@t_xedate+'\'' and smount=$smount' ghref
+,'z_vcc_xy?pno=\'''+pno+'\'' and edate=\'''+@t_xedate+'\'' and vmount=$vmount' ghrefb
+from #tmp order by page,gno,recno
+ 
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	drop table #tmp
+END
+ 
+;
+------------------------------------------------------------------------------------------------------------
+z_uccep_xy2:--z_uccep_xy2 ref z_uccep1 公版
+declare @t_bdate nvarchar(10)
+declare @t_edate nvarchar(10)
+declare @t_bstoreno nvarchar(30)
+declare @t_estoreno nvarchar(30)
+declare @t_bproductno nvarchar(30)
+declare @t_eproductno nvarchar(30)
+declare @t_noa nvarchar(30)
+declare @t_isspec nvarchar(30)
+set @t_bdate = case when '#non' = [24] then '' else [24] end
+set @t_edate = case when '#non' = [25] then CHAR(255) else [25] end
+set @t_bstoreno = case when '#non' = [7] then '' else [7] end
+set @t_estoreno = case when '#non' = [8] then CHAR(255) else [8] end
+set @t_bproductno = case when '#non' = [5] then '' else [5] end
+set @t_eproductno = case when '#non' = [6] then CHAR(255) else [6] end
+set @t_noa=case when '#non' = [26] then '' else [26] end
+set @t_isspec=case when '#non' = '[27]' then '0' else '[27]' end
+--************************************************************************
+declare @tmp table(
+	gno nvarchar(1),
+	datea nvarchar(10),
+	noa nvarchar(30),
+	store nvarchar(30),
+	uno nvarchar(50),
+	productno nvarchar(30),
+	products nvarchar(MAX),
+	emount2 float, ----帳面數量
+	amount float, -----盤點數量
+	diff float,
+	price float,
+	dmoney float,
+	memo nvarchar(max)
+)
+insert into @tmp
+	select
+		'0',a.datea,a.noa,b.store,b.uno,b.productno,b.product+case when @t_isspec='1' then ' '+b.spec else '' end
+		,b.emount2,b.mount
+		,isnull(b.emount2,0)-isnull(b.mount,0),b.price,(isnull(b.emount2,0)-isnull(b.mount,0))*b.price
+		,b.memo
+	from view_ucce a
+	left join view_ucces b on a.noa = b.noa
+	--outer apply (select top 1 price from view_costs where productno=b.productno and mon<=left(a.datea,6) order by mon)c
+	where (a.datea between @t_bdate and @t_edate) and
+			 (b.storeno between @t_bstoreno and @t_estoreno) and
+			 (b.productno between @t_bproductno and @t_eproductno) and
+			 (len(@t_noa)=0 or a.noa=@t_noa)
+			 
+insert into @tmp(gno,noa,emount2,amount,diff,dmoney)
+select '1',noa,sum(emount2),sum(amount),sum(diff),sum(dmoney)
+from @tmp group by noa
+
+select
+	gno,datea,noa,store,uno,productno,products
+	,dbo.getComma(emount2,-1)emount2
+	,dbo.getComma(amount,-1)amount
+	,dbo.getComma(diff,-1)diff
+	,dbo.getComma(price,-1) price
+	,dbo.getComma(dmoney,-1)dmoney
+	,dbo.charbr(memo,22) memo
+from @tmp order by noa,gno;

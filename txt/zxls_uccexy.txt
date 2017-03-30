@@ -52,9 +52,9 @@ insert @tmp
 select product,storeno,mount from stkucc(@pdatea,'','')
 
 insert @tmpxls
-select a.a,a.f,cast(a.g as float),a.h,a.i
+select a.a,a.f,cast(replace(a.g,' ','') as float),a.h,a.i
 from ztmpxls a left join ucc b on a.a=b.noa
-where isnull(a,'')!='' and b.noa is not null
+where isnull(a,'')!='' and b.noa is not null-- and a.g like '%[0-9]%'
 
 declare @t_namea2 nvarchar(MAX)
 set @t_namea2=isnull((select top 1 worker from @tmpxls a where isnull(a.worker,'')!='' and exists (select * from sss where noa=a.worker)),'')

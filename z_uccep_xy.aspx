@@ -104,7 +104,7 @@
 					}, {
 						type : '5',
 						name : 'xorder', //[23]
-						value : 'product@品名＋版別＋規格,num@交易次數,money@交易金額'.split(',')
+						value : 'product@品名＋版別＋規格,num@交易次數,money@交易金額,mount@盤點量'.split(',')
 					}, {
                         type : '1', //[24][25]
                         name : 'xdatea'

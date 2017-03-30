@@ -212,7 +212,7 @@ begin
 
 	update a
 	set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
-	from (select *,ROW_NUMBER()over (order by ordernum)rr from #tmp) a
+	from (select *,ROW_NUMBER()over (order by ordernum,pno)rr from #tmp) a
 end
 else if(@t_xorder='money')
 begin
@@ -226,7 +226,14 @@ begin
 
 	update a
 	set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
-	from (select *,ROW_NUMBER()over (order by ordermoney)rr from #tmp) a
+	from (select *,ROW_NUMBER()over (order by ordermoney,pno)rr from #tmp) a
+end
+else if(@t_xorder='mount')
+begin
+	
+	update a
+	set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
+	from (select *,ROW_NUMBER()over (order by mount,pno)rr from #tmp) a
 end
 else
 begin

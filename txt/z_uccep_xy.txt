@@ -117,6 +117,7 @@ create table #tmp(
 	safem float, ----安全存量
 	img nvarchar(max),
 	ucce nvarchar(50),
+	vccstk float,
 	ordernum float, --排序用
 	ordermoney float --排序用
 )
@@ -176,6 +177,7 @@ set gno='0'
 ,tggno=isnull(b.tggno,'')
 ,tgg=isnull(b.tgg,'')
 ,unit=isnull(b.unit,'')
+,vccstk=isnull((select count(*) from view_vccs where (itemno='1' or itemno='2') and productno=a.pno),'')
 from #tmp a left join ucc b on a.pno=b.noa
 left join store c on a.storeno=c.noa
 left join cust d on left(pno,5)=d.noa and CHARINDEX('-',pno)>0
@@ -261,7 +263,7 @@ end
 
 select 
 dbo.getComma(smount,-1)smount
-,dbo.getComma(vmount,-1)vmount
+,dbo.getComma(case when vccstk=0 then null else vmount end,-1)vmount
 ,dbo.getComma(emount,-1)emount
 ,dbo.getComma(case when ucce is null then null else mount end,-1)mount
 ,dbo.getComma(dmount,-1)dmount

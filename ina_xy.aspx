@@ -109,6 +109,17 @@
 							
 							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtRc2no,txtProductno,txtProduct,txtSpec,txtUnit,txtMount,txtPrice,txtTotal,txtMemo,txtSssno,txtNamea'
 							, b_ret.length, b_ret, 'noa,productno,product,spec,unit,notv,price,total,memo,custno,comp', 'txtProductno');
+							
+							//106/03/30
+							//廠商＝製令單的最後一道製程的廠商
+							//訂單號碼＝製令單上的訂單號碼
+							if (b_ret[0] != undefined) {
+								var t_where = "where=^^ noa=N'" + b_ret[0].noa + "' ^^";
+								q_gt('view_cub', t_where, 0, 0, 0, "getcub");
+								
+								var t_where = "where=^^ noa=N'" + b_ret[0].noa + "' and isnull(tggno,'')!='' and noq=isnull((select MAX(noq) from view_cubs where noa=N'" + b_ret[0].noa + "' and isnull(tggno,'')!=''),'') ^^";
+								q_gt('view_cubs', t_where, 0, 0, 0, "getcubs");
+							}
 						}
 						break;
 					case q_name + '_s':
@@ -132,7 +143,19 @@
 			var thisCarSpecno = '';
 			function q_gtPost(t_name) {
 				switch (t_name) {
-					
+					case 'getcub':
+						var as = _q_appendData("view_cub", "", true);
+						if (as[0] != undefined) {
+							$('#txtOrdeno').val(as[0].ordeno);
+						}
+						break;
+					case 'getcubs':
+						var as = _q_appendData("view_cubs", "", true);
+						if (as[0] != undefined) {
+							$('#txtTggno').val(as[0].tggno);
+							$('#txtComp').val(as[0].tgg);
+						}
+						break;
 					case q_name:
 						if (q_cur == 4)
 							q_Seek_gtPost();
@@ -191,7 +214,7 @@
 			function _btnSeek() {
 				if (q_cur > 0 && q_cur < 4)// 1-3
 					return;
-				q_box('ina_xy_s.aspx', q_name + '_s', "500px", "450px", q_getMsg("popSeek"));
+				q_box('ina_xy_s.aspx', q_name + '_s', "500px", "490px", q_getMsg("popSeek"));
 			}
 
 			function bbsAssign() {

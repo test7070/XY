@@ -51,6 +51,7 @@
                 t_custno = $('#txtCustno').val();
                 t_cubno = $('#txtCubno').val();
                 t_worker = $('#txtWorker').val();
+                t_ordeno = $('#txtOrdeno').val();
 
                 t_bdate = t_bdate.length > 0 && t_bdate.indexOf("_") > -1 ? t_bdate.substr(0, t_bdate.indexOf("_")) : t_bdate;
                 /// 100.  .
@@ -65,6 +66,7 @@
                 + q_sqlPara2("storeno", t_storeno) 
                 //+ q_sqlPara2("store", t_store)
                 + q_sqlPara2("worker", t_worker) 
+                + q_sqlPara2("ordeno", t_ordeno) 
                 ;
                 
                 if(t_productno.length>0){
@@ -136,6 +138,10 @@
 				<tr class='seek_tr'>
 					<td class='seek' style="width:20%;"><a id='lblCubno'>製令單號</a></td>
 					<td><input class="txt" id="txtCubno" type="text" style="width:215px; font-size:medium;" /></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek' style="width:20%;"><a id='lblOrdeno'>訂單號碼</a></td>
+					<td><input class="txt" id="txtOrdeno" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td class='seek' style="width:20%;"><a id='lblWorker'>製單人</a></td>

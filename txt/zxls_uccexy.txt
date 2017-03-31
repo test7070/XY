@@ -40,25 +40,34 @@ declare @tmpxls table(
 	unit nvarchar(50),
 	mount float,
 	storeno nvarchar(50),
-	worker nvarchar(50)
+	worker nvarchar(50),
+	uccedate nvarchar(50),
+	noa nvarchar(MAX)
 )
 
-declare @t_update nvarchar(50) = CONVERT (VARCHAR(20), GETDATE(),20 )
-declare @t_datea nvarchar(50) = dbo.AD2ChineseEraName(CONVERT (VARCHAR(10), GETDATE(),20 ))
-declare @pdatea nvarchar(50)=dbo.q_cdn(@t_datea,-1)
-declare @noq nvarchar(50)
-
-insert @tmp
-select product,storeno,mount from stkucc(@pdatea,'','')
-
 insert @tmpxls
-select a.a,a.f,cast(replace(a.g,' ','') as float),a.h,a.i
+select a.a,a.f,cast(replace(a.g,' ','') as float),a.h,a.i,a.j,a.noa
 from ztmpxls a left join ucc b on a.a=b.noa
 where isnull(a,'')!='' and b.noa is not null-- and a.g like '%[0-9]%'
 
 declare @t_namea2 nvarchar(MAX)
 set @t_namea2=isnull((select top 1 worker from @tmpxls a where isnull(a.worker,'')!='' and exists (select * from sss where noa=a.worker)),'')
 set @t_namea2=isnull((select namea from sss where noa=@t_namea2 ),'')
+
+declare @t_uccedate nvarchar(MAX)
+set @t_uccedate=isnull((select top 1 uccedate from @tmpxls a where isnull(a.uccedate,'')!='' ),'')
+
+declare @t_update nvarchar(50) = CONVERT (VARCHAR(20), GETDATE(),20 )
+declare @t_datea nvarchar(50) = dbo.AD2ChineseEraName(CONVERT (VARCHAR(10), GETDATE(),20 ))
+
+if(@t_uccedate!='' and LEN(@t_uccedate)=9 and @t_uccedate like '[0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9]')
+	set @t_datea=@t_uccedate
+
+declare @pdatea nvarchar(50)=dbo.q_cdn(@t_datea,-1)
+declare @noq nvarchar(50)
+
+insert @tmp
+select product,storeno,mount from stkucc(@pdatea,'','')
 
 declare @t_noa nvarchar(50)
 declare @accy nvarchar(50)

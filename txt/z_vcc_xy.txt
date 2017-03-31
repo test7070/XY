@@ -297,7 +297,7 @@ begin
 end
 
 select 
-dbo.getComma(a.mount,-1) mount,
+dbo.getComma(case when a.gno='0' and a.typea='庫出' then -1 else 1 end *a.mount,-1) mount,
 dbo.getComma(a.stkmount,-1) stkmount,
 dbo.getComma(a.ostkmount,-1) ostkmount,
 'vcc_xy?noa=$vccno?'+a.accy qhref,

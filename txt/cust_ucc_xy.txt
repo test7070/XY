@@ -1813,7 +1813,7 @@ begin
 end
 
 update a
-set smount=b.mount,stkmemo=case when isnull(a.notv,0)-a.dcmount-a.cmount-b.mount>0 then case when len(towork)>0 then +'需'+towork else '庫存不足' end else '' end
+set smount=isnull(b.mount,0),stkmemo=case when isnull(a.notv,0)-a.dcmount-a.cmount-isnull(b.mount,0)>0 then case when len(towork)>0 then +'需'+towork else '庫存不足' end else '' end
 from @tmp a left join @stkmount b on a.productno=b.productno
 
 select noa,no2,productno,products,unit

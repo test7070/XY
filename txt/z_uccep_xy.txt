@@ -196,6 +196,15 @@ end
 --分頁
 declare @t_pageline int=case when @t_noqrcode='1' then 32 else 12 end
 
+update a
+set ordernum=isnull(v.num,0)+isnull(r.num,0)+isnull(i.num,0)+isnull(g.num,0)
+,ordermoney=isnull(v.money,0)+isnull(r.money,0)+isnull(i.money,0)+isnull(g.money,0)
+from #tmp a
+outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_vccs where productno=a.pno and datea>=@t_xbdate) v
+outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_rc2s where productno=a.pno and datea>=@t_xbdate) r
+outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_inas where productno=a.pno and datea>=@t_xbdate) i
+outer apply (select count(*) num,SUM(mount)mount,0 money from view_gets where productno=a.pno and datea>=@t_xbdate) g
+
 if(@t_xorder='product')
 begin
 	update a
@@ -204,14 +213,6 @@ begin
 end
 else if(@t_xorder='num')
 begin
-	update a
-	set ordernum=isnull(v.num,0)+isnull(r.num,0)+isnull(i.num,0)+isnull(g.num,0)
-	from #tmp a
-	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_vccs where productno=a.pno and datea>=@t_xbdate) v
-	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_rc2s where productno=a.pno and datea>=@t_xbdate) r
-	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_inas where productno=a.pno and datea>=@t_xbdate) i
-	outer apply (select count(*) num,SUM(mount)mount,0 money from view_gets where productno=a.pno and datea>=@t_xbdate) g
-
 	update a
 	set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
 	from (select *,ROW_NUMBER()over (order by ordernum,pno)rr from #tmp) a

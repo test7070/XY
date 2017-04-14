@@ -540,11 +540,15 @@
 							//105/01/04 出貨日根據訂單的預交日 //0106 當預交日小於出貨日不變動//01/12 有日期表示優先出貨
 							if(t_datea.length>0 && t_datea>=$('#txtDatea').val()){
 								$('#txtDatea').val(t_datea);
-								$('#txtMemo').val('優先'+$('#txtMemo').val());
 							}else if(t_datea.length>0 && t_datea<=$('#txtDatea').val()){ //1050701
 								$('#txtDatea').val(q_date());
-								$('#txtMemo').val('優先'+$('#txtMemo').val());
 							}
+							if(t_datea.length>0 && b_ret[0].indate=='當天'){
+								$('#txtMemo').val('優先 '+$('#txtMemo').val());
+							}else if (t_datea.length>0 && b_ret[0].indate=='之前'){
+								$('#txtMemo').val(t_datea+b_ret[0].indate+' '+$('#txtMemo').val());
+							}
+							
 							//105/08/24 月份清空 避免換客戶導致帳款月份錯誤
 							$('#txtMon').val('');
 							
@@ -1577,6 +1581,10 @@
 								$('#txtWidth_'+b_seq).val(0);
 								$('#txtPrice_'+b_seq).val(0);
 								//$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
+								if(emp($('#txtStoreno_'+b_seq).val())){ //106/04/13 預設 讓追蹤表排在一起
+									$('#txtStoreno_'+b_seq).val('A');
+									$('#txtStore_'+b_seq).val('總倉庫');
+								}
 							}else if($('#cmbItemno_'+b_seq).val()=='3' || $('#cmbItemno_'+b_seq).val()=='4' || $('#cmbItemno_'+b_seq).val()=='5'){//公關品樣品補送
 								$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
 								$('#txtTranmoney3_'+b_seq).val(0);

@@ -220,14 +220,6 @@ end
 else if(@t_xorder='money')
 begin
 	update a
-	set ordermoney=isnull(v.money,0)+isnull(r.money,0)+isnull(i.money,0)+isnull(g.money,0)
-	from #tmp a
-	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_vccs where productno=a.pno and datea>=@t_xbdate) v
-	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_rc2s where productno=a.pno and datea>=@t_xbdate) r
-	outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_inas where productno=a.pno and datea>=@t_xbdate) i
-	outer apply (select count(*) num,SUM(mount)mount,0 money from view_gets where productno=a.pno and datea>=@t_xbdate) g
-
-	update a
 	set recno=rr,page=ceiling(cast(rr as float)/cast(@t_pageline as float))
 	from (select *,ROW_NUMBER()over (order by ordermoney,pno)rr from #tmp) a
 end

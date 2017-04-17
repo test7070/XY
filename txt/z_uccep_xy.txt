@@ -184,13 +184,14 @@ left join cust d on left(pno,5)=d.noa and CHARINDEX('-',pno)>0
 
 delete #tmp where custno not between @t_bcustno and @t_ecustno
 
+--106/04/17 起算日~運算日前一天
 if(@t_xbdate!='')
 begin
 	delete a from #tmp a 
-	where not exists (select * from view_vccs where datea>=@t_xbdate and productno=a.pno)
-	and not exists (select * from view_rc2s where datea>=@t_xbdate and productno=a.pno)
-	and not exists (select * from view_inas where datea>=@t_xbdate and productno=a.pno)
-	and not exists (select * from view_gets where datea>=@t_xbdate and productno=a.pno)
+	where not exists (select * from view_vccs where datea>=@t_xbdate and datea<@t_xedate and productno=a.pno)
+	and not exists (select * from view_rc2s where datea>=@t_xbdate and datea<@t_xedate and productno=a.pno)
+	and not exists (select * from view_inas where datea>=@t_xbdate and datea<@t_xedate and productno=a.pno)
+	and not exists (select * from view_gets where datea>=@t_xbdate and datea<@t_xedate and productno=a.pno)
 end
 
 --分頁
@@ -200,10 +201,10 @@ update a
 set ordernum=isnull(v.num,0)+isnull(r.num,0)+isnull(i.num,0)+isnull(g.num,0)
 ,ordermoney=isnull(v.money,0)+isnull(r.money,0)+isnull(i.money,0)+isnull(g.money,0)
 from #tmp a
-outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_vccs where productno=a.pno and datea>=@t_xbdate) v
-outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_rc2s where productno=a.pno and datea>=@t_xbdate) r
-outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_inas where productno=a.pno and datea>=@t_xbdate) i
-outer apply (select count(*) num,SUM(mount)mount,0 money from view_gets where productno=a.pno and datea>=@t_xbdate) g
+outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_vccs where productno=a.pno and datea>=@t_xbdate and datea<@t_xedate) v
+outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_rc2s where productno=a.pno and datea>=@t_xbdate and datea<@t_xedate) r
+outer apply (select count(*) num,SUM(mount)mount,SUM(total)money from view_inas where productno=a.pno and datea>=@t_xbdate and datea<@t_xedate) i
+outer apply (select count(*) num,SUM(mount)mount,0 money from view_gets where productno=a.pno and datea>=@t_xbdate and datea<@t_xedate) g
 
 if(@t_xorder='product')
 begin

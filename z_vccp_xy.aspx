@@ -67,7 +67,7 @@
 						type : '2',
 						name : 'xproduct', //[6][7]
 						dbf : 'ucc',
-						index : 'noa,product',
+						index : 'noa,product,spec',
 						src : 'ucc_b.aspx'
 					}, {
 						type : '2',

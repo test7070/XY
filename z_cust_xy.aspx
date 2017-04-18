@@ -102,7 +102,7 @@
                         type : '2',
                         name : 'xuccno',
                         dbf : 'ucc',
-                        index : 'noa,product',
+                        index : 'noa,product,spec',
                         src : 'ucc_b.aspx'
                     }, {/*5-[24]*/
                         type : '6',

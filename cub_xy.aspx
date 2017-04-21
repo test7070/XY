@@ -665,7 +665,7 @@
 				for (var i = 0; i < q_bbtCount; i++) {
 					if(!emp($('#txtProductno__'+i).val()) && emp($('#txtStoreno__'+i).val())){
 						$('#txtStoreno__'+i).val('A');
-						$('#txtStore__'+i).val('總倉庫');
+						$('#txtStore__'+i).val('工廠倉');
 					}
 				}
 				

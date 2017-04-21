@@ -559,7 +559,7 @@
 								b_ret[i].width=0;
 								b_ret[i].dime=q_sub(dec(b_ret[i].mount),dec(b_ret[i].vccdime));
 								b_ret[i].storeno='A';
-								b_ret[i].store='總倉庫';
+								b_ret[i].store='工廠倉';
 								b_ret[i].storeno2='';
 								b_ret[i].store2='';
 								if(b_ret[i].source=='2'){//庫出
@@ -1573,7 +1573,7 @@
 								//$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
 								if(emp($('#txtStoreno_'+b_seq).val())){
 									$('#txtStoreno_'+b_seq).val('A');
-									$('#txtStore_'+b_seq).val('總倉庫');
+									$('#txtStore_'+b_seq).val('工廠倉');
 								}
 							}else if($('#cmbItemno_'+b_seq).val()=='2'){//庫出
 								$('#txtTranmoney3_'+b_seq).val($('#txtDime_'+b_seq).val());
@@ -1583,7 +1583,7 @@
 								//$('#txtStoreno2_'+b_seq).val($('#txtCustno').val().substr(0,5)).change();
 								if(emp($('#txtStoreno_'+b_seq).val())){ //106/04/13 預設 讓追蹤表排在一起
 									$('#txtStoreno_'+b_seq).val('A');
-									$('#txtStore_'+b_seq).val('總倉庫');
+									$('#txtStore_'+b_seq).val('工廠倉');
 								}
 							}else if($('#cmbItemno_'+b_seq).val()=='3' || $('#cmbItemno_'+b_seq).val()=='4' || $('#cmbItemno_'+b_seq).val()=='5'){//公關品樣品補送
 								$('#txtWidth_'+b_seq).val($('#txtDime_'+b_seq).val());
@@ -1603,7 +1603,7 @@
 								$('#txtStore2_'+b_seq).val('');
 								if(emp($('#txtStoreno_'+b_seq).val())){
 									$('#txtStoreno_'+b_seq).val('A');
-									$('#txtStore_'+b_seq).val('總倉庫');
+									$('#txtStore_'+b_seq).val('工廠倉');
 								}
 							}
 							sum();
@@ -2013,7 +2013,8 @@
 					if($('#txtInvono').val().length>0 && $('#cmbTranstyle').val()!='' && r_rank<5){
 						for (var i=0;i<fbbm.length;i++){
 							//105/08/19 排除帳款月份(備註) 交運方式 PS 稅別絕對不能開放修改
-							if(fbbm[i]!='txtMemo' && fbbm[i]!='txtMon' && fbbm[i]!='cmbTrantype')
+							//106/04/21 開放日期可以修改//為盤點使用
+							if(fbbm[i]!='txtMemo' && fbbm[i]!='txtDatea' && fbbm[i]!='txtMon' && fbbm[i]!='cmbTrantype')
 								$('#'+fbbm[i]).attr('disabled', 'disabled');
 						}
 						$('#combPay').attr('disabled', 'disabled');

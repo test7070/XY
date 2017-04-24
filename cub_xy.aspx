@@ -667,6 +667,7 @@
 						$('#txtStoreno__'+i).val('A');
 						$('#txtStore__'+i).val('工廠倉');
 					}
+					$('#txtGmount__'+i).val($('#txtMount__'+i).val());
 				}
 				
 				if(q_cur==1)
@@ -703,6 +704,7 @@
 					return;
 				}
 				q_nowf();
+				as['datea'] = abbm2['datea'];
 				return true;
 			}
 
@@ -1455,7 +1457,9 @@
 					<td><input id="txtProduct..*" type="text" class="txt c1"/></td>
 					<td><input id="txtSpec..*" type="text" class="txt c1"/></td>
 					<td><input id="txtUnit..*" type="text" class="txt c1"/></td>
-					<td><input id="txtMount..*" type="text" class="txt c1 num"/></td>
+					<td><input id="txtMount..*" type="text" class="txt c1 num"/>
+						<input id="txtGmount..*" type="hidden" class="txt c1 num"/>
+					</td>
 					<td>
 						<input id="txtStoreno..*" type="text" class="txt c1" style="width: 30%"/>
 						<input class="btn"  id="btnStoreno..*" type="button" value='.' style=" font-weight: bold;" />

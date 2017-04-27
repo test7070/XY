@@ -1481,7 +1481,7 @@
 			function _btnSeek() {
 				if (q_cur > 0 && q_cur < 4)// 1-3
 					return;
-				q_box('vcc_xy_s.aspx', q_name + '_s', "720px", "540px", q_getMsg("popSeek"));
+				q_box('vcc_xy_s.aspx', q_name + '_s', "720px", "570px", q_getMsg("popSeek"));
 			}
 
 			function combPay_chg() {

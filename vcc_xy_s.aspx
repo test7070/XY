@@ -38,6 +38,8 @@
 				q_cmbParse("cmbZipcode", "@全部,Y@已上傳簽收,N@未上傳簽收");
 				q_cmbParse("cmbWidth", "@全部,Y@已驗收,N@未驗收");
 				q_cmbParse("cmbTrantype",  '@全部,'+q_getPara('sys.tran'));
+				
+				q_cmbParse("cmbVcceenda", "@全部,Y@已送貨,N@未送貨"); //106/04/27 已送貨
 				$('#txtNoa').focus();
 			}
 			function q_gtPost(t_name) {
@@ -85,6 +87,7 @@
 				t_cardealno = $('#txtCardealno').val();
 				t_trantype = $('#cmbTrantype').val();
 				t_paytype = $('#txtPaytype').val();
+				t_vcceenda = $('#cmbVcceenda').val();
 				
 				var t_where = " 1=1 "
 				+ q_sqlPara2("typea", t_typea)
@@ -116,6 +119,12 @@
                 	
 				if(t_ordeno.length>0)
                 	t_where += " and (noa in (select noa from view_vccs where ordeno='"+t_ordeno+"') or noa in (select noa from view_vcc where ordeno='"+t_ordeno+"'))";
+                
+                //送貨
+                if(t_vcceenda=='Y')
+                	t_where += " and noa in (select ordeno from view_vcces where enda=1) ";
+                if(t_vcceenda=='N')
+                	t_where += " and noa in (select ordeno from view_vcces where enda=0) ";
                 
                 //簽收
                 if(t_dime=='Y')
@@ -211,6 +220,12 @@
 					<td><input id="txtOrdeno" type="text"/></td>
 					<td><a id='lblAccno'> </a></td>
 					<td><input id="txtAccno" type="text"/></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td><a>送貨</a></td>
+					<td><select id="cmbVcceenda"> </select></td>
+					<td> </td>
+					<td> </td>
 				</tr>
 				<tr class='seek_tr'>
 					<td><a>簽收 </a></td>

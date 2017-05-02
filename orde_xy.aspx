@@ -2077,7 +2077,7 @@
 							
 							if((q_cur==1 || q_cur==2) && ($('#cmbSource_'+b_seq).val()=='3' || $('#cmbSource_'+b_seq).val()=='4' || $('#cmbSource_'+b_seq).val()=='5')){
 								//105/12/15 調整
-								$('#txtUnit_'+b_seq).val($('#txtZinc_'+b_seq).val());
+								//$('#txtUnit_'+b_seq).val($('#txtZinc_'+b_seq).val());
 								$('#txtMount_'+b_seq).val($('#txtLengthb_'+b_seq).val());
 								//$('#txtUnit_'+b_seq).removeAttr('disabled');
 							}else{

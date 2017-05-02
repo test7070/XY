@@ -576,6 +576,9 @@
 									b_ret[i].tranmoney2=b_ret[i].mount;
 									//b_ret[i].storeno2=b_ret[i].custno.substr(0,5);
 									//b_ret[i].store2='';
+								}else if(b_ret[i].source=='2' || b_ret[i].source=='4'|| b_ret[i].source=='5'){
+									b_ret[i].storeno='HHC';
+									b_ret[i].store='換貨倉';
 								}else{
 									b_ret[i].width=b_ret[i].mount;
 								}

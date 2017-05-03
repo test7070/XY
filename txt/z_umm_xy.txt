@@ -311,7 +311,8 @@ replace(addr,'~#$',char(39)) addr,
 @nowdate qtoday,
 noa xnoa,noq xnoq,
 'vcc_xy?noa=$noa?'+raccy ghref,
-* ,(select top 1 case when postmemo='不寄單' or postmemo='抵貨款' then postmemo else '' end from custm where noa=a.custno) postmemo
+* --,(select top 1 case when postmemo='不寄單' or postmemo='抵貨款' then postmemo else '' end from custm where noa=a.custno) postmemo
+,(select top 1 postmemo from custm where noa=a.custno) postmemo
 from @result a order by custno,page,idno,gno,datea,xnoa,xnoq
 ;
 
@@ -660,7 +661,8 @@ replace(addr,'~#$',char(39)) addr,
 @nowdate qtoday,
 noa xnoa,noq xnoq,
 case when gno='8' and len(noa)>0 and isnull(imoney,0)>0 then 'vcca?custno=\'''+custno+'\'' and '+CAST(imoney as nvarchar(100))+'=$imoney' else '' end ghref,
-* from #result order by salesno,xcustno,page,idno,right('0'+gno,2),datea,xnoa,xnoq
+*,(select top 1 postmemo from custm where noa=a.xcustno) ppostmemo 
+from #result a order by salesno,xcustno,page,idno,right('0'+gno,2),datea,xnoa,xnoq
 
 IF OBJECT_ID('tempdb..#result')is not null
 BEGIN

@@ -2079,7 +2079,7 @@
 								//105/12/15 調整
 								//$('#txtUnit_'+b_seq).val($('#txtZinc_'+b_seq).val());
 								$('#txtMount_'+b_seq).val($('#txtLengthb_'+b_seq).val());
-								//$('#txtUnit_'+b_seq).removeAttr('disabled');
+								$('#txtUnit_'+b_seq).removeAttr('disabled');
 							}else{
 								//$('#txtProductno_'+b_seq).change()
 								//$('#txtUnit_'+b_seq).attr('disabled', 'disabled');

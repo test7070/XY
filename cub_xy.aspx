@@ -476,7 +476,9 @@
 						var ast = _q_appendData("view_cubt", "", true);
 						if (ast[0] != undefined) {
 							for (var i = 0; i < ast.length; i++) {
-								ast[i].mount=round(q_mul(dec(ast[i].mount),t_per),dec(q_getPara('vcc.mountPrecision')));
+								//106/05/12 數量都不帶入
+								ast[i].mount=0;
+								//ast[i].mount=round(q_mul(dec(ast[i].mount),t_per),dec(q_getPara('vcc.mountPrecision')));
 							}
 							q_gridAddRow(bbtHtm, 'tbbt', 'txtProductno,txtProduct,txtSpec,txtUnit,txtMount,txtStoreno,txtStore,txtMemo', ast.length, ast
 							,'productno,product,spec,unit,mount,storeno,store,memo'

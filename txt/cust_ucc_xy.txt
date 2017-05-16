@@ -1390,7 +1390,7 @@ insert @tmp
 select a.noa,b.no3,a.custno,a.datea,a.odate 
 ,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit
 ,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'')
-,isnull((select top 1 unit from view_ordes where productno=b.productno and custno=@custno order by odate desc,noa desc),b.unit)
+,isnull((select top 1 zinc from view_ordes where productno=b.productno and custno=@custno order by odate desc,noa desc),b.unit)
 ,b.price,b.mount,b.total,b.memo
 from view_quat a left join view_quats b on a.noa=b.noa
 where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 and isnull(a.custno,'')!=''

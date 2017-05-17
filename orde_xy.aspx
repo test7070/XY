@@ -3355,7 +3355,7 @@
 							tr.innerHTML+="<td><input id='store2_txtMount_"+store2_row+"' type='text' class='txt c1 num' value='"+dec(as[i].mount)+"' disabled='disabled'/></td>";
 							tr.innerHTML+="<td><input id='store2_txtOthmount_"+store2_row+"' type='text' class='txt c1 num' value='"+dec(as[i].othmount)+"' disabled='disabled'/></td>";
 							tr.innerHTML+="<td><input id='store2_txtStkmount_"+store2_row+"' type='text' class='txt c1 num' value='"+dec(as[i].stkmount)+"' disabled='disabled'/></td>";
-							tr.innerHTML+="<td><input id='store2_txtUnit_"+store2_row+"' type='text' class='txt c1' value='"+as[0].unit+"' disabled='disabled'/></td>";
+							tr.innerHTML+="<td><input id='store2_txtUnit_"+store2_row+"' type='text' class='txt c1' value='"+as[i].unit+"' disabled='disabled'/></td>";
 							tr.innerHTML+="<td><input id='store2_txtTotal_"+store2_row+"' type='text' class='txt c1 num' value='"+dec(as[i].total)+"' disabled='disabled'/></td>";
 							
 							var tmp = document.getElementById("store2_close");

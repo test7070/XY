@@ -91,7 +91,9 @@
 							ext = file.name.substring(extindex,file.name.length);
 						}
 						$('#txtConn_acomp').val(file.name);
-						$('#txtConn_cust').val(guid()+Date.now()+ext);
+						//$('#txtConn_cust').val(guid()+Date.now()+ext);
+						//106/05/22 不再使用亂數編碼
+						$('#txtConn_cust').val(file.name);
 						
 						fr = new FileReader();
 						fr.fileName = $('#txtConn_cust').val();

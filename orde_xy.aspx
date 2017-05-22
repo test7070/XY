@@ -314,7 +314,9 @@
 							ext = file.name.substring(extindex,file.name.length);
 						}
 						$('#txtGdate').val(file.name);
-						$('#txtGtime').val(guid()+Date.now()+ext);
+						//$('#txtGtime').val(guid()+Date.now()+ext);
+						//106/05/22 不再使用亂數編碼
+						$('#txtGtime').val(file.name);
 						
 						fr = new FileReader();
 						fr.fileName = $('#txtGtime').val();

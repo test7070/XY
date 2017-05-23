@@ -1300,14 +1300,14 @@ begin
 	select ua.custno,'',uc.salesno,SUM(ub.money),'1' 
 	from umm ua left join umms ub on ua.noa=ub.noa 
 	left join cust uc on ua.custno=uc.noa
-	where left(ua.datea,6)=@t_mon and ub.acc1 not in ('6015.','4202.','6020.','4201.','5021.','6014.','8046.','6023.')
+	where left(ua.datea,6)=@t_mon and ub.acc1 not in ('6206.','4104.','6211.','4102.','5201.','6205.','8111.','6214.')
 	group by ua.custno,uc.salesno
 	
 	insert #tmpb
 	select ua.custno,'',uc.salesno,SUM(ub.money),'2' 
 	from umm ua left join umms ub on ua.noa=ub.noa 
 	left join cust uc on ua.custno=uc.noa
-	where left(ua.datea,6)=@t_mon and ub.acc1 in ('6015.','4202.','6020.','4201.','5021.','6014.','8046.','6023.')
+	where left(ua.datea,6)=@t_mon and ub.acc1 in ('6206.','4104.','6211.','4102.','5201.','6205.','8111.','6214.')
 	group by ua.custno,uc.salesno
 	
 	insert #tmpb
@@ -1402,7 +1402,7 @@ begin
 	from umm ua left join umms ub on ua.noa=ub.noa 
 	left join cust uc on ua.custno=uc.noa
 	left join custm ud on ua.custno=ud.noa
-	where left(ua.datea,6)=@t_mon and ub.acc1 not in ('6015.','4202.','6020.','4201.','5021.','6014.','8046.','6023.')
+	where left(ua.datea,6)=@t_mon and ub.acc1 not in ('6206.','4104.','6211.','4102.','5201.','6205.','8111.','6214.')
 	group by ua.custno,(case when isnull(ud.invocustno,'')!='' then ud.invocustno else ua.custno end),uc.salesno
 	
 	insert #tmpb
@@ -1411,7 +1411,7 @@ begin
 	from umm ua left join umms ub on ua.noa=ub.noa 
 	left join cust uc on ua.custno=uc.noa
 	left join custm ud on ua.custno=ud.noa
-	where left(ua.datea,6)=@t_mon and ub.acc1 in ('6015.','4202.','6020.','4201.','5021.','6014.','8046.','6023.')
+	where left(ua.datea,6)=@t_mon and ub.acc1 in ('6206.','4104.','6211.','4102.','5201.','6205.','8111.','6214.')
 	group by ua.custno,(case when isnull(ud.invocustno,'')!='' then ud.invocustno else ua.custno end),uc.salesno
 	
 	insert #tmpb
@@ -1775,8 +1775,8 @@ order by salesno,custno,mon,case when isnull(a.custno2,'')!='' then a.custno2 el
 
 insert #tmp(gno,salesno,custno,mon,umoney,dis,custno2)
 select '2',c.salesno,a.custno,@t_xmon
-,sum(case when b.acc1 not in ('6015.','4202.','6020.','4201.','5021.','6014.','8046.','6023.') then money else 0 end)
-,sum(case when b.acc1 in ('6015.','4202.','6020.','4201.','5021.','6014.','8046.','6023.') then money else 0 end)
+,sum(case when b.acc1 not in ('6206.','4104.','6211.','4102.','5201.','6205.','8111.','6214.') then money else 0 end)
+,sum(case when b.acc1 in ('6206.','4104.','6211.','4102.','5201.','6205.','8111.','6214.') then money else 0 end)
 ,a.custno
 from umm a left join umms b on a.noa=b.noa
 left join cust c on a.custno=c.noa

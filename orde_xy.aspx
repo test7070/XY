@@ -2755,6 +2755,7 @@
 					q_func('qtxt.query.ordecheckstk', 'cust_ucc_xy.txt,ordecheckstk,' + t_para);
 				}
 				$('#combXyindate').val('');
+				$('#btnUpload').val('');
 			}
 
 			function readonly(t_para, empty) {
@@ -2822,6 +2823,7 @@
                     $('#btnApv').attr('disabled', 'disabled');
                 else
                     $('#btnApv').removeAttr('disabled');
+                $('#btnUpload').val('');
 			}
 			
 			function AutoNo2(){

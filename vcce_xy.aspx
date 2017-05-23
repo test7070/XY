@@ -23,7 +23,7 @@
 			q_tables = 's';
 			var q_name = "vcce";
 			var q_readonly = ['txtNoa', 'txtWorker', 'txtWorker2', 'txtComp', 'txtAcomp', 'txtSales','txtDriver','txtCardeal','txtWeight','txtTotal'];
-			var q_readonlys = ['txtCustno','txtComp','txtOdate','txtAdjweight','txtEcount'];
+			var q_readonlys = ['txtCustno','txtComp','txtOdate','txtAdjweight','txtEcount','textOdate'];
 			var bbmNum = [['txtWeight', 15, 0, 1],['txtTotal', 15, 0, 1]];
 			var bbsNum = [['txtAdjcount', 10, 0, 1], ['txtAdjweight', 10, 0, 1], ['txtEcount', 10, 0, 1]];
 			var bbmMask = [];
@@ -184,7 +184,7 @@
                             	b_ret[i].checkseq= maxnoq
                             }*/
 							
-							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount,txtSize,txtClass', b_ret.length, b_ret, 'noa,custno,nick,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
+							ret = q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,textOdate,txtAdjweight,txtEcount,txtSize,txtClass', b_ret.length, b_ret, 'noa,custno,nick,datea,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
 						}
 						sum();
 						break;
@@ -248,7 +248,7 @@
 								}
 								as_vcc[i].unpay=q_sub(dec(as_vcc[i].total),dec(as_vcc[i].weight));
                             }
-							q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,txtAdjweight,txtEcount,txtSize,txtClass', as_vcc.length, as_vcc, 'noa,custno,nick,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
+							q_gridAddRow(bbsHtm, 'tbbs', 'txtOrdeno,txtCustno,txtComp,txtOdate,textOdate,txtAdjweight,txtEcount,txtSize,txtClass', as_vcc.length, as_vcc, 'noa,custno,nick,datea,datea,total,unpay,paytype,checkmemo', 'txtOrdeno');
 						}else{
 							alert('出貨單已派車或無出貨資料!!');
 						}
@@ -345,6 +345,7 @@
 										$('#txtCustno_'+b_seq).val(as[0].tggno);
 										$('#txtComp_'+b_seq).val(as[0].tgg);
 										$('#txtOdate_'+b_seq).val(as[0].datea);
+										$('#textOdate_'+b_seq).val(as[0].datea);
 										$('#txtAdjweight_'+b_seq).val(0);
 										$('#txtEcount_'+b_seq).val(0);
 										$('#txtSize_'+b_seq).val('');
@@ -362,6 +363,7 @@
 										$('#txtCustno_'+b_seq).val(as[0].custno);
 										$('#txtComp_'+b_seq).val(as[0].comp);
 										$('#txtOdate_'+b_seq).val(as[0].datea);
+										$('#textOdate_'+b_seq).val(as[0].datea);
 										$('#txtAdjweight_'+b_seq).val(0);
 										$('#txtEcount_'+b_seq).val(0);
 										$('#txtSize_'+b_seq).val('');
@@ -383,6 +385,7 @@
 										$('#txtCustno_'+b_seq).val(as[0].custno);
 										$('#txtComp_'+b_seq).val(as[0].nick);
 										$('#txtOdate_'+b_seq).val(as[0].datea);
+										$('#textOdate_'+b_seq).val(as[0].datea);
 										if(as[i].typea=='2'){
 											as[0].total=-1*dec(as[0].total);
 										}
@@ -535,8 +538,30 @@
 			function refresh(recno) {
 				_refresh(recno);
 				change_check();
+				getvccdate();
 			}
 			
+			function getvccdate() {
+				var t_where = "1=0";
+				for (var j = 0; j < q_bbsCount; j++) {
+					if(!emp($('#txtOrdeno_'+j).val())){
+						t_where=t_where+" or noa='"+$('#txtOrdeno_'+j).val()+"'";
+					}
+				}
+				t_where="where=^^"+t_where+"^^";
+				q_gt('view_vcc', t_where, 0, 0, 0, "getvcc", r_accy,1);
+				var as = _q_appendData("view_vcc", "", true);
+				for (var j = 0; j < q_bbsCount; j++) {
+					if(!emp($('#txtOrdeno_'+j).val())){
+						for (var i = 0; i < as.length; i++) {
+							if($('#txtOrdeno_'+j).val()==as[i].noa){
+								$('#textOdate_'+j).val(as[i].datea);
+								break;
+							}
+						}
+					}
+				}
+			}
 
 			function readonly(t_para, empty) {
 				_readonly(t_para, empty);
@@ -988,7 +1013,10 @@
 						<td><input class="txt c1" id="txtCustno.*" type="text" /></td>
 						<td><input class="txt c1" id="txtComp.*" type="text" /></td>
 						<td><input class="txt c1" id="txtOrdeno.*" type="text" /></td>
-						<td><input class="txt c1" id="txtOdate.*" type="text" /></td>
+						<td>
+							<input class="txt c1" id="textOdate.*" type="text" />
+							<input class="txt c1" id="txtOdate.*" type="hidden" />
+						</td>
 						<td><input class="txt num c1" id="txtAdjweight.*" type="text"/></td>
 						<td><input class="txt num c1" id="txtEcount.*" type="text"/></td>
 						<td align="center"><input id="chkEnda.*" type="checkbox"/></td>

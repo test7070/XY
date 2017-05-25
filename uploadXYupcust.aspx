@@ -80,7 +80,7 @@
 	            byte[] formData = Request.BinaryRead(formSize);
 	            byte[] bCrLf = { 0xd, 0xa };// \r\n
 	
-	            string savepath = "C:\\inetpub\\wwwroot\\doc\\cust\\";
+	            string savepath = "F:\\doc\\cust\\";
 	
 	            string[] s2 = HttpContext.Current.Request.Path.Split('/');
 	            if (s2.Length < 2)

@@ -618,6 +618,7 @@ declare @tmp table(
 	mount float,
 	price float,
 	total float,
+	memo nvarchar(max),
 	taxtype1 nvarchar(50),
 	taxtype2 nvarchar(50),
 	taxtype3 nvarchar(50),
@@ -639,7 +640,7 @@ declare @tmp table(
 	,isnull((select top 1 salesno from view_vcc where noa=dbo.split(a.vccno,',',0)),''),''
 	--,stuff(isnull((select ','+ordeno from view_vccs where a.vccno like '%'+noa+'%' group by ordeno FOR XML PATH('') ),''),1,1,'')
 	,case when [type]='P' then trdno else '' end
-	,b.productno,b.product,b.unit,b.mount,b.price,b.money,
+	,b.productno,b.product,b.unit,b.mount,b.price,b.money,b.memo,
 	case when a.taxtype='1' or a.taxtype='3' then '&#10004' else null end,
 	case when a.taxtype='2' then '&#10004' else null end,
 	case when a.taxtype='4' then '&#10004' else null end,
@@ -706,7 +707,7 @@ begin
 			begin
 				insert into @tmp
 					select 
-						'1',0,0,datea,noa,noq,buyer,serial,invoaddr,chkno,vccno,salesno,ordbno,ordeno,productno,@string,unit,mount,price,total,
+						'1',0,0,datea,noa,noq,buyer,serial,invoaddr,chkno,vccno,salesno,ordbno,ordeno,productno,@string,unit,mount,price,total,memo,
 						taxtype1,taxtype2,taxtype3,totpmoney,taxmoney,totmoney,
 						money1,money2,money3,money4,money5,money6,money7,money8
 					from @tmp where idno=@idno					
@@ -858,7 +859,7 @@ select
 	a.ordeno,
 	dbo.getcomma(a.mount,-1)mount,--105/07/13做以下格式調整
 	dbo.getcomma(a.price,-1)price,
-	dbo.getcomma(a.total,0)total,a.taxtype1,a.taxtype2,a.taxtype3,
+	dbo.getcomma(a.total,0)total,a.memo,a.taxtype1,a.taxtype2,a.taxtype3,
 	dbo.getcomma(a.totmoney,0)totmoney,
 	dbo.getcomma(a.taxmoney,0)taxmoney,
 	dbo.getcomma(a.totmoney,0)totmoney,

@@ -78,7 +78,7 @@
 				q_cmbParse("cmbVccmemo", '@,須@須,不須@不須');
 				q_cmbParse("cmbCheckmemo", '@,須@須,不須@不須');
 				q_cmbParse("cmbInvomemo", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
-				q_cmbParse("cmbPostmemo", '@,不寄單@不寄單,郵寄@郵寄,附回郵@附回郵,雙掛號@雙掛號,抵貨款@抵貨款,僅回郵@僅回郵,親送單@親送單');
+				q_cmbParse("cmbPostmemo", '@,不寄單@不寄單,郵寄@郵寄,附回郵@附回郵,雙掛號@雙掛號,抵貨款@抵貨款,僅回郵@僅回郵,親送單@親送單,傳真@傳真,電郵@電郵');
 				
 				$('#lblIsfranchisestore').text('附採購單');
 			}

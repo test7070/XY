@@ -2642,8 +2642,16 @@
 				if(r_rank<"8" && q_cur==2){
 					q_gt('view_cub', "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "istocub",r_accy,1);
 					var as = _q_appendData("view_cub", "", true);
-					if(as[0]!=undefined){
-						alert('訂單【'+$('#txtNoa').val()+'】已轉製令單!!');
+					
+					q_gt('view_ordbs', "where=^^ ordeno='" + $('#txtNoa').val() + "' ^^", 0, 0, 0, "istoordb",r_accy,1);
+					var as2 = _q_appendData("view_ordbs", "", true);
+					
+					if(as[0]!=undefined || as2[0]!=undefined){
+						if(as[0]!=undefined){
+							alert('訂單【'+$('#txtNoa').val()+'】已轉製令單【'+as[0].noa+'】!!');
+						}else if(as2[0]!=undefined){
+							alert('訂單【'+$('#txtNoa').val()+'】已轉請購單【'+as2[0].noa+'】!!');
+						}
 						$('#btnPlus').attr('disabled', 'disabled');
 						for (var j = 0; j < q_bbsCount; j++) {
 							$('#btnMinus_'+j).attr('disabled', 'disabled');

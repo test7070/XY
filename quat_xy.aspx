@@ -387,6 +387,7 @@
 							$('#txtUnit_'+b_seq).val(b_ret[0].unit);
 							$('#txtSpec_'+b_seq).val(b_ret[0].spec);
 							$('#txtClassa_'+b_seq).val(b_ret[0].style);
+							getUnit(b_seq);
 						}
 						break;
 					case q_name + '_s':

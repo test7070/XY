@@ -59,7 +59,7 @@
                 	$('#textTypea_'+j).attr('disabled', 'disabled');
 		            $('#textTypea_'+j).css('background', t_background2);
 		            
-		            if(!($('#txtPaytype_'+j).val().indexOf('收現')>-1 || $('#txtPaytype_'+j).val().indexOf('貨到現金')>-1)){
+		            if(!($('#txtPaytype_'+j).val()=='貨到收現 ' || $('#txtPaytype_'+j).val()=='貨運代收')){
 		            	$('#txtTotal_'+j).val(0);
 		            }
                 }

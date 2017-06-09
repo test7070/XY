@@ -19,7 +19,7 @@
 				['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,custno,comp', 'txtOrdeno,txtNo2', ''],
 				['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,invoicetitle,serial', 'txtCustno,txtComp', 'cust_b.aspx'],
 				['txtTggno', 'lblTgg', 'tgg', 'noa,comp,nick', 'txtTggno,txtTgg', 'tgg_b.aspx'],
-				['txtProductno', 'lblProduct', 'ucc', 'noa,product', 'txtProductno,txtProduct', 'ucc_b.aspx']
+				['txtProductno', 'lblProduct', 'ucc', 'noa,product,spec,style', 'txtProductno,txtProduct', 'ucc_b.aspx']
 			);
 			$(document).ready(function() {
 				main();

@@ -239,9 +239,10 @@
 							$('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val('AUTO');
 						alert('非總店與相關分店!!');
 					}
-					/*for(var j=0 ;j<q_bbsCount;j++){
+					//106/06/19 功能重新開放
+					for(var j=0 ;j<q_bbsCount;j++){
 						$('#btnMinus_'+j).click();
-					}*/
+					}
 					
 					if (!emp($('#txtCustno').val())) {
 						var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
@@ -3059,9 +3060,11 @@
 									$('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val('AUTO');
 								alert('非總店與相關分店!!');
 							}
-							/*for(var j=0 ;j<q_bbsCount;j++){
+							
+							//106/06/19 功能重新開放
+							for(var j=0 ;j<q_bbsCount;j++){
 								$('#btnMinus_'+j).click();
-							}*/
+							}
 							
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('custaddr', t_where, 0, 0, 0, "");

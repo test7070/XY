@@ -3485,7 +3485,7 @@
 					if(i=='ALL'){
 						var t_where = "1=0";
 						for (var j = 0; j < q_bbsCount; j++) {
-							$('#combZinc_'+i).text('');
+							$('#combZinc_'+j).text('');
 							if(!emp($('#txtProductno_'+j).val())){
 								t_where=t_where+" or noa='"+$('#txtProductno_'+j).val()+"'";
 							}

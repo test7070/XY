@@ -206,7 +206,7 @@
 								q_func('qtxt.query.vccprintcount_xy', 'cust_ucc_xy.txt,vccprintcount,' + t_where);
 							}
 						}else{
-							alert("客戶資料不存在 !!");
+							alert("客戶主檔【其他設定】未設定!!");
 						}
 						break;
 					case 'getCustorde2':

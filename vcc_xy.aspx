@@ -712,7 +712,11 @@
 								z_msg='已收款：'+FormatNumber(t_tpaysale)+'，收款單號【'+z_msg.substr(0,z_msg.length-1)+ '】。 '
 							}
 						}else{
-							z_msg='未收款。'
+							if($('#txtTotal').val()=='0'){
+								z_msg='無須收款。'
+							}else{
+								z_msg='未收款。'
+							}
 						}
 						$('#textStatus').val(z_msg);
 						break;
@@ -1625,6 +1629,8 @@
 							var as = _q_appendData("pack2s", "", true);
 											
 							for(var i=0 ; i<as.length;i++){
+								//if(t_max_inmout<dec(as[i].inmount)){
+								//106/08/09 調整 取最大單位 可以抓中單位 根據目前訂單最大數量取最大可換算單位
 								if(t_max_inmout<dec(as[i].inmount)){
 									t_max_unit=as[i].pack;
 									t_max_inmout=dec(as[i].inmount);

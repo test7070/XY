@@ -233,21 +233,7 @@
 				});
 
 				$('#txtCustno').change(function() {
-					if(copycustno!='' && copycustno.substr(0,5)!=$('#txtCustno').val().substr(0,5)){
-						curData.paste();
-						if(q_cur==1)
-							$('#txt' + bbmKey[0].substr(0, 1).toUpperCase() + bbmKey[0].substr(1)).val('AUTO');
-						alert('非總店與相關分店!!');
-					}
-					//106/06/19 功能重新開放
-					for(var j=0 ;j<q_bbsCount;j++){
-						$('#btnMinus_'+j).click();
-					}
 					
-					if (!emp($('#txtCustno').val())) {
-						var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
-						q_gt('custaddr', t_where, 0, 0, 0, "");
-					}
 				}).focusin(function() {
 					//q_msg($(this),'請輸入客戶編號');
 				});
@@ -1963,7 +1949,9 @@
 							var t_mount=dec($('#txtMount_'+b_seq).val());
 											
 							$("#combZinc_"+b_seq).children().each(function(){
-								if(t_max_inmout<dec($(this).val())){
+								//if(t_max_inmout<dec($(this).val())){
+								//106/08/09 調整 取最大單位 可以抓中單位 根據目前訂單最大數量取最大可換算單位
+								if(t_max_inmout<dec($(this).val()) && t_mount>=dec($(this).val())){
 									t_max_unit=$(this).text()
 									t_max_inmout=dec($(this).val());
 								}
@@ -2628,6 +2616,7 @@
 				}
 					
 				_btnModi();
+				modi_chgcust_count=0;
 				$('#combXyindate').val('');
 				combzincchange('ALL');
 				for (var i = 0; i < q_bbsCount; i++) {
@@ -3054,7 +3043,8 @@
 				pricecolor();
 				HiddenTreat();
 			}
-
+			
+			var modi_chgcust_count=0;
 			function q_popPost(s1) {
 				switch (s1) {
 					case 'txtCustno':
@@ -3067,8 +3057,19 @@
 							}
 							
 							//106/06/19 功能重新開放
-							for(var j=0 ;j<q_bbsCount;j++){
-								$('#btnMinus_'+j).click();
+							//106/08/09 修改狀態 同總店 不刪除 給提示
+							var t_minusbbs=true;
+							if(q_cur==2 && abbm[q_recno] != undefined && modi_chgcust_count==0){
+								if(abbm[q_recno].custno.substr(0,5)==$('#txtCustno').val().substr(0,5)){
+									t_minusbbs=false;
+									alert('請確認報價明細是否正確!!');
+									modi_chgcust_count=1;
+								}
+							}
+							if(t_minusbbs){
+								for(var j=0 ;j<q_bbsCount;j++){
+									$('#btnMinus_'+j).click();
+								}
 							}
 							
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";

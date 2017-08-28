@@ -1,0 +1,234 @@
+﻿z_cust_xy01:--z_cust_xy01
+	SET QUOTED_IDENTIFIER OFF
+	declare @cmd nvarchar(max)
+	declare @t_accy nvarchar(max) = '[1]'
+	declare @t_namea nvarchar(max) = '[2]'
+	declare @t_bcustno nvarchar(20) = case when '#non'=[3] then '' else [3] end
+	declare @t_ecustno nvarchar(20) = case when '#non'=[4] then CHAR(255) else [4] end
+	declare @t_bsales nvarchar(20) = case when '#non'=[5] then '' else [5] end
+	declare @t_esales nvarchar(20) = case when '#non'=[6] then CHAR(255) else [6] end
+	declare @t_bcust2 nvarchar(20) = case when '#non'=[7] then '' else [7] end
+	declare @t_ecust2 nvarchar(20) = case when '#non'=[8] then CHAR(255) else [8] end
+	declare @t_bgrpno nvarchar(20) = case when '#non'=[9] then '' else [9] end
+	declare @t_egrpno nvarchar(20) = case when '#non'=[10] then CHAR(255) else [10] end
+	declare @t_status nvarchar(max) = case when '#non'=[11] then '' else [11] end
+	declare @t_startdate nvarchar(max) = case when '#non'=[12] then '' else [12] end
+	declare @t_invo nvarchar(max) = case when '#non'=[13] then '' else [13] end
+	declare @t_paytype nvarchar(max) = case when '#non'=[14] then '' else [14] end
+	declare @t_post nvarchar(max) = case when '#non'=[15] then '' else [15] end
+	declare @t_trantype nvarchar(max) = case when '#non'=[16] then '' else [16] end
+	declare @t_showprice nvarchar(max) = case when '#non'=[17] then '' else [17] end
+	declare @t_cobtype nvarchar(max) = case when '#non'=[18] then '' else [18] end
+	declare @t_order nvarchar(max) = case when '#non'=[19] then 'noa' else [19] end
+	declare @t_addr nvarchar(max) = case when '#non'=[20] then '' else [20] end
+	declare @s_status nvarchar(max) = '[21]'
+	---------------------------------------------------------------------------------------
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	set @cmd = 'drop table #tmp'
+	EXECUTE sp_executesql @cmd
+END
+
+	create table #tmp(
+		recno int,
+		noa nvarchar(max),
+		comp nvarchar(max),
+		nick nvarchar(max),
+		typea nvarchar(max),
+		serial nvarchar(max),
+		tel nvarchar(max),
+		fax nvarchar(max),
+		mobile nvarchar(max),
+		zip_comp nvarchar(max),
+		addr_comp nvarchar(max),
+		zip_home nvarchar(max),
+		addr_home nvarchar(max),
+		paytype nvarchar(max),
+		trantype nvarchar(max),
+		conn nvarchar(max),
+		boss nvarchar(max),
+		sales nvarchar(max),
+		startdate nvarchar(max),
+		getdate nvarchar(max),
+		invoicetitle nvarchar(max),
+		memo nvarchar(max),
+		checkmemo nvarchar(max),
+		vccmemo nvarchar(max),
+		taxtype nvarchar(max),
+		invomemo nvarchar(max),
+		postmemo nvarchar(max),
+		tranprice nvarchar(max),
+		showprice nvarchar(max),
+		cobtype nvarchar(max),
+		status nvarchar(max),
+		grpno nvarchar(max),
+		grpname nvarchar(max),
+		custno2 nvarchar(max),
+		cust2 nvarchar(max),
+		
+		invocustno nvarchar(max),
+		invocusts nvarchar(max),
+		vcccustno nvarchar(max),
+		vcccusts nvarchar(max),
+	)
+
+	insert into #tmp
+	select 0,a.noa
+	,replace(a.comp,'~#$',char(39)),replace(a.nick,'~#$',char(39))
+	,(select top 1 namea from custtype where a.typea=noa)
+	,a.serial,a.tel,a.fax,a.mobile,a.zip_comp,a.addr_comp,a.zip_home,a.addr_home,a.paytype,a.trantype,replace(b.conn,'~#$',char(39)) 
+	,a.boss,a.sales,a.startdate,a.[getdate],a.invoicetitle,REPLACE(a.memo,'chr(10)','<BR>') 
+	,b.checkmemo,b.vccmemo,b.taxtype	,b.invomemo,b.postmemo,b.tranprice
+	,case when isnull(b.notprice,0)=0 then 'Y' else 'N' end,b.p23
+	,isnull((select top 1 item from dbo.fnSplit(@s_status) where n=a.status),'')
+	,a.grpno,a.grpname,a.custno2,a.cust2
+	,b.invocustno,isnull((select nick from cust where noa=b.invocustno),'')
+	,b.vcccustno,isnull((select nick from cust where noa=b.vcccustno),'')
+	from cust a left join custm b on a.noa=b.noa 
+	where (a.noa between @t_bcustno and @t_ecustno) 
+	and (isnull(a.salesno,'') between @t_bsales and @t_esales) 
+	and (isnull(a.custno2,'') between @t_bcust2 and @t_ecust2) 
+	and (len(@t_status)=0 or isnull(a.status,'')=@t_status) 
+	and (len(@t_startdate)=0 or isnull(a.startdate,'')=@t_startdate) 
+	and (len(@t_invo)=0 or @t_invo='空值' or isnull(b.invomemo,'')=@t_invo) 
+	and (len(@t_paytype)=0 or @t_paytype='空值' or charindex(isnull(@t_paytype,''),a.paytype)>0) 
+	and (len(@t_post)=0 or @t_post='空值' or isnull(b.postmemo,'')=@t_post) 
+	and (len(@t_trantype)=0 or @t_trantype='空值' or isnull(a.trantype,'')=@t_trantype) 
+	and (len(@t_showprice)=0 or case when isnull(b.notprice,0)=0 then 'Y' else 'N' end=@t_showprice) 
+	and (len(@t_cobtype)=0 or @t_cobtype='空值' or isnull(b.p23,'')=@t_cobtype) 
+	and isnull(a.grpno,'') between @t_bgrpno and @t_egrpno 
+	and (len(@t_addr)=0 or charindex(@t_addr,a.addr_home)>0) 
+	
+	if(@t_invo='空值')
+		delete #tmp where isnull(invomemo,'')!=''
+	if(@t_paytype='空值')
+		delete #tmp where isnull(paytype,'')!=''
+	if(@t_post='空值')
+		delete #tmp where isnull(postmemo,'')!=''
+	if(@t_trantype='空值')
+		delete #tmp where isnull(trantype,'')!=''
+	if(@t_cobtype='空值')
+		delete #tmp where isnull(cobtype,'')!=''
+	
+	EXEC("update a set recno=RowNum
+	from (select recno,ROW_NUMBER()over (order by "+@t_order+",noa)RowNum from #tmp)a")
+
+	select '1' gno 
+	,recno rr 
+	,@t_namea ww 
+	,zip_comp zc 
+	,addr_comp ac 
+	,zip_home zh
+	,addr_home ah
+	,*,'cust?noa=$noa	' ghref
+	from #tmp order by rr
+	
+	
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	set @cmd = 'drop table #tmp'
+	EXECUTE sp_executesql @cmd
+END
+	;
+-------------------------------------------------------------------------------------------------------------------------------------------
+z_cust_xy02:--z_cust_xy02
+	SET QUOTED_IDENTIFIER OFF
+	declare @cmd nvarchar(max)
+	declare @t_accy nvarchar(max) = '[1]'
+	declare @t_namea nvarchar(max) = '[2]'
+	declare @t_bpno nvarchar(50) = case when '#non'=[22] then '' else [22] end
+	declare @t_epno nvarchar(50) = case when '#non'=[23] then CHAR(255) else [23] end
+	declare @t_product nvarchar(max) = case when '#non'=[24] then '' else [24] end
+	declare @t_ucctypea nvarchar(max) = case when '#non'=[25] then '' else [25] end
+	declare @t_groupa nvarchar(max) = case when '#non'=[26] then '' else [26] end
+	declare @t_order nvarchar(max) = case when '#non'=[27] then 'noa' else [27] end
+	declare @t_bdate nvarchar(max) = case when '#non'=[28] then '' else [28] end
+	declare @t_edate nvarchar(max) = case when '#non'=[29] then CHAR(255) else [29] end
+	---------------------------------------------------------------------------------------
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	set @cmd = 'drop table #tmp'
+	EXECUTE sp_executesql @cmd
+END
+
+	create table #tmp(
+		recno int,
+		noa nvarchar(max),
+		product nvarchar(max),
+		spec nvarchar(max),
+		engpro nvarchar(max),
+		style nvarchar(max),
+		cdate nvarchar(max),
+		unit nvarchar(max),
+		saleprice float,
+		custno nvarchar(max),
+		comp nvarchar(max),
+		kdate nvarchar(20),
+		
+		u1 nvarchar(20),
+		u2 nvarchar(20),
+		u3 nvarchar(20),
+		u4 nvarchar(20),
+		um1 float,
+		um2 float,
+		um3 float,
+		um4 float
+	)
+
+	insert into #tmp
+	select 0,a.noa,a.product,a.spec,a.engpro,a.style,a.cdate,a.unit,a.saleprice,b.noa,b.nick
+	,'',null,null,null,null,null,null,null,null
+	from ucc a  
+	outer apply (select noa,comp,nick from cust where left(a.noa,5)=noa and charindex('-',a.noa)>0 ) b
+	where (a.noa between @t_bpno and @t_epno) 
+	and (len(@t_product)=0 or charindex(isnull(@t_product,''),a.product)>0)
+	and (len(@t_ucctypea)=0 or isnull(a.typea,'')=@t_ucctypea)
+	and (len(@t_groupa)=0 or isnull(a.groupano,'')=@t_groupa)
+	
+	update a
+	set u1=case when b.rr=1 then b.pack else u1 end,um1=case when b.rr=1 then b.inmount else um1 end
+	from #tmp a outer apply(select noa,pack,inmount,ROW_NUMBER()over (partition by noa order by noa,inmount)rr from pack2s where noa=a.noa) b 
+	where rr=1
+	
+	update a
+	set u2=case when b.rr=2 then b.pack else u2 end,um2=case when b.rr=2 then b.inmount else um2 end
+	from #tmp a outer apply(select noa,pack,inmount,ROW_NUMBER()over (partition by noa order by noa,inmount)rr from pack2s where noa=a.noa) b 
+	where rr=2
+	
+	update a
+	set u3=case when b.rr=3 then b.pack else u3 end,um3=case when b.rr=3 then b.inmount else um3 end
+	from #tmp a outer apply(select noa,pack,inmount,ROW_NUMBER()over (partition by noa order by noa,inmount)rr from pack2s where noa=a.noa) b 
+	where rr=3
+	
+	update a
+	set u4=case when b.rr=4 then b.pack else u4 end,um4=case when b.rr=4 then b.inmount else um4 end
+	from #tmp a outer apply(select noa,pack,inmount,ROW_NUMBER()over (partition by noa order by noa,inmount)rr from pack2s where noa=a.noa) b 
+	where rr=4
+	
+	update a
+	set kdate =isnull((select top 1 datea+' '+timea from drun where noa=a.noa and action='Insert' and (tablea='ucc' or tablea='uca') order by datea desc,timea desc),'')
+	from #tmp a
+	
+	update #tmp
+	set kdate=dbo.AD2ChineseEraName(left(kdate,10))+RIGHT(kdate,6)
+	where kdate!=''
+	
+	delete #tmp where kdate not between @t_bdate and @t_edate
+	
+	EXEC("update a set recno=RowNum
+	from (select recno,ROW_NUMBER()over (order by "+@t_order+",noa)RowNum from #tmp)a")
+
+	select '0' gno 
+	,recno rr 
+	,@t_namea ww 
+	,*
+	from #tmp order by rr
+	
+	
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	set @cmd = 'drop table #tmp'
+	EXECUTE sp_executesql @cmd
+END
+	;
+-------------------------------------------------------------------------------------------------------------------------------------------

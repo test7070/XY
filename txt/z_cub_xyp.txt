@@ -1,0 +1,700 @@
+﻿z_cub_xyp_bk1:--z_cub_xyp_bk1
+	declare @t_accy nvarchar(max)
+	declare @t_bxnoa nvarchar(50)
+	declare @t_exnoa nvarchar(50)
+	
+	set @t_accy = '[1]'
+	set @t_bxnoa = case when '#non'=[6] then '' else [6] end
+	set @t_exnoa = case when '#non'=[7] then CHAR(255) else [7] end
+	
+	---------------------------------------------------------------------------------------
+	declare @result table(
+		gno nvarchar(1),
+		noa nvarchar(50),
+		noq nvarchar(50),
+		datea nvarchar(10),
+		bdate nvarchar(10),
+		ordeno nvarchar(50),
+		custno nvarchar(100),
+		comp nvarchar(100),
+		pno nvarchar(50),
+		product nvarchar(150),
+		spec nvarchar(MAX),
+		amemo nvarchar(MAX),
+		amount float,
+		unit nvarchar(100),
+		tggno nvarchar(100),
+		tggs nvarchar(100),
+		processno nvarchar(100),
+		processs nvarchar(100),
+		mount float,
+		need nvarchar(MAX),
+		bmemo nvarchar(MAX),
+		uno nvarchar(50),
+		ucc nvarchar(150)
+	)
+	
+	insert into @result
+	select '0'gno,a.noa,b.noq,a.datea,a.bdate,a.ordeno+case when len(a.no2)>0 then '_'+a.no2 else '' end,a.custno,a.comp
+	,a.productno,a.product,a.spec,a.memo,a.mount,a.unit
+	,b.tggno,b.tgg,b.processno,b.process,b.mount,b.need,b.memo,'',''
+	from view_cub a left join view_cubs b on a.noa=b.noa
+	where a.noa between @t_bxnoa and @t_exnoa
+	
+	insert into @result
+	select '2' gno,a.noa,b.noq,a.bdate,a.datea,a.ordeno+case when len(a.no2)>0 then '_'+a.no2 else '' end,a.custno,a.comp,a.productno,a.product,a.spec,a.memo,a.mount,a.unit
+	,'','','','',b.mount,'',b.memo,b.productno,b.product
+	from view_cub a left join view_cubt b on a.noa=b.noa
+	where a.noa between @t_bxnoa and @t_exnoa and b.noa!=''
+	
+	insert into @result (gno,noa)
+	select '1',noa from @result where gno='2' group by noa
+	
+	select 
+	dbo.getComma(mount,[2]) mount,
+	dbo.getComma(amount,[2]) amount,*
+	from @result order by noa,gno,noq;
+--*******************************************************************************************************
+z_cub_xyp1:--z_cub_xyp1
+	declare @t_accy nvarchar(max)
+	declare @t_bxnoa nvarchar(50)
+	declare @t_exnoa nvarchar(50)
+	declare @t_pageline int = 8   --------一頁幾行
+
+	set @t_accy = '[1]'
+	set @t_bxnoa = case when '#non'=[6] then '' else [6] end
+	set @t_exnoa = case when '#non'=[7] then CHAR(255) else [7] end
+
+	---------------------------------------------------------------------------------------
+	declare @result table(
+		gno nvarchar(1),
+		recno int,
+		pageno int,
+		topage int,
+		noa nvarchar(50),
+		noq nvarchar(50),
+		datea nvarchar(10),
+		bdate nvarchar(10),
+		ordeno nvarchar(50),
+		custno nvarchar(100),
+		comp nvarchar(100),
+		pno nvarchar(50),
+		product nvarchar(150),
+		spec nvarchar(MAX),
+		scolor nvarchar(MAX),
+		amemo nvarchar(MAX),
+		amount float,
+		aunit nvarchar(100),
+		tggno nvarchar(100),
+		tggs nvarchar(100),
+		processno nvarchar(100),
+		processs nvarchar(100),
+		mount float,
+		unit  nvarchar(100),
+		need nvarchar(MAX),
+		bmemo nvarchar(MAX),
+		uno nvarchar(50),
+		ucc nvarchar(150)
+	)
+	
+	insert into @result
+	select '0',ROW_NUMBER()over(partition by a.noa order by a.noa,b.noq),0,0,a.noa,b.noq,a.datea,a.bdate,a.ordeno+case when len(a.no2)>0 then '_'+a.no2 else '' end
+	,a.custno,isnull((select nick from cust where noa=a.custno),'')
+	,a.productno,a.product,a.spec
+	,isnull((select scolor from view_ordes where noa=a.ordeno and no2=a.no2),'')
+	,a.memo,a.mount,a.unit
+	,b.tggno,isnull((select nick from tgg where noa=b.tggno),'')
+	,b.processno,b.process,b.mount,b.unit,b.need,b.memo,'',''
+	from view_cub a left join view_cubs b on a.noa=b.noa
+	where a.noa between @t_bxnoa and @t_exnoa
+	
+	declare @t_noa nvarchar(50)
+	declare @count int
+	declare @t_count int
+	
+	declare cursor_table cursor for
+	select noa,count(*) from @result group by noa
+	open cursor_table
+	fetch next from cursor_table
+	into @t_noa,@count
+	while(@@FETCH_STATUS <> -1)
+	begin
+			--新增空白欄
+			select @t_count=@t_pageline-(@count%@t_pageline)
+			while(@t_count>0)
+			begin
+				insert @result(gno,recno,noa)
+				select '0',@t_count+(@count % @t_pageline)+(FLOOR(cast(@count as float)/cast(@t_pageline as float))*@t_pageline),@t_noa
+				set @t_count=@t_count-1
+			end
+			
+			--新增 表頭與表尾
+			set @t_count=ceiling(cast(@count as float)/cast(@t_pageline as float))
+			while(@t_count>0)
+			begin
+				insert @result(gno,recno,pageno,noa,comp,ordeno,product,amount,aunit,bdate,spec,scolor,amemo)
+				select top 1 '1',((@t_count-1)*@t_pageline),@t_count,@t_noa,comp,ordeno,product,amount,aunit,bdate,spec,scolor,amemo
+				from @result where noa=@t_noa and datea!=''
+				
+				insert @result(gno,noa,recno,pageno)
+				select top 1 '2',@t_noa,((@t_count)*@t_pageline),@t_count
+				from @result where noa=@t_noa and datea!=''
+				group by noa
+						
+				set @t_count=@t_count-1
+			end
+			
+			fetch next from cursor_table
+			into @t_noa,@count
+			
+	end
+	close cursor_table
+	deallocate cursor_table
+	
+	update @result
+	set pageno=ceiling(cast(recno as float)/cast(@t_pageline as float))
+	where gno='0'
+		
+	select 
+	dbo.getComma(mount,[2]) mount,
+	dbo.getComma(amount,[2]) amount,
+	'<img width="50px" src="http://59.125.143.171/images/logo1_xy.png">' logo1
+	,dbo.AD2ChineseEraName(CONVERT (VARCHAR(10), GETDATE(),20 )) pdate
+	,*
+	from @result order by noa,pageno,recno,gno;
+--*******************************************************************************************************
+z_cub_xyp2:--z_cub_xyp2
+declare @t_bdate nvarchar(30)
+declare @t_edate nvarchar(30)
+declare @t_bfdate nvarchar(30)
+declare @t_efdate nvarchar(30)
+declare @t_bpno nvarchar(30)
+declare @t_epno nvarchar(30)
+declare @t_btgg nvarchar(30)
+declare @t_etgg nvarchar(30)
+declare @t_typea nvarchar(30)
+declare @t_enda nvarchar(30)
+declare @t_sorting nvarchar(30)
+
+set @t_bdate =case when '#non'=[8] then '' else [8] end
+set @t_edate =case when '#non'=[9] then char(255) else [9] end
+set @t_bfdate =case when '#non'=[10] then '' else [10] end
+set @t_efdate =case when '#non'=[11] then char(255) else [11] end
+set @t_bpno = case when '#non'=[12] then '' else [12] end
+set @t_epno = case when '#non'=[13] then char(255) else [13] end
+set @t_btgg = case when '#non'=[14] then '' else [14] end
+set @t_etgg = case when '#non'=[15] then char(255) else [15] end
+set @t_typea = case when '#non'=[18] then '' else [18] end
+set @t_enda = case when '#non'=[19] then '' else [19] end
+set @t_sorting = case when '#non'=[20] then '' else [20] end
+---------------------------------------------------------------------------------------
+declare @result table(
+	gno nvarchar(10),
+	bdate nvarchar(30),
+	datea nvarchar(30),
+	pno nvarchar(30),
+	pdt nvarchar(max),
+	spec nvarchar(max),
+	scolor nvarchar(max),
+	unit nvarchar(20),
+	mount float,
+	c1 float,
+	notv float,
+	tggno nvarchar(30),
+	tggs nvarchar(max),
+	custno nvarchar(30),
+	comp nvarchar(max),
+	noa nvarchar(max),
+	ordeno nvarchar(max),
+	no2 nvarchar(max),
+	enda bit
+)
+insert @result
+select '0',a.bdate,a.datea,a.productno,a.product,a.spec
+		,isnull((select scolor from view_ordes where noa=a.ordeno and no2=a.no2),'')
+		,a.unit,a.mount,a.c1,a.notv
+		,b.tggno,isnull((select nick from tgg where noa=b.tggno),'')
+		,a.custno,isnull((select nick from cust where noa=a.custno),'')
+		,a.noa,a.ordeno,a.no2,isnull(a.enda,0)
+from view_cub a  outer apply (select top 1 * from view_cubs where noa=a.noa order by noq desc)b
+where a.bdate between @t_bdate and @t_edate 
+and a.productno between @t_bpno and @t_epno
+and isnull(b.tggno,'') between @t_btgg and @t_etgg
+and (len(@t_typea)=0 or a.typea=@t_typea)
+
+if(@t_enda='Y')
+	delete @result where enda=0
+
+if(@t_enda='N')
+	delete @result where enda=1
+
+if((select count(*) from @result)>0)
+begin
+	insert @result (gno,mount,c1,notv) 
+	select '1',sum(mount),sum(c1),sum(notv) from @result 
+end
+
+select dbo.getComma(mount,[2]) mount,
+dbo.getComma(c1,[2]) c1,
+dbo.getComma(notv,[2]) notv,
+'cub_xy?noa=$noa' qhrefa,
+'orde_xy?noa=$ordeno' qhrefb,
+* from @result order by gno,case when @t_sorting='N' then datea when @t_sorting='M' then pno else bdate end
+,noa
+;
+---------------------------------------------------------------------------------------------------------------------------------------------
+z_cub_xyp3:--z_cub_xyp3 
+	SET QUOTED_IDENTIFIER OFF 
+	declare @cmd nvarchar(max) 
+	
+	declare @t_btggno nvarchar(20) 
+	declare @t_etggno nvarchar(20) 
+	declare @t_bmon nvarchar(10) 
+	declare @t_emon nvarchar(10) 
+	
+	set @t_btggno = case when '#non' = [14] then '' else [14] end
+	set @t_etggno = case when '#non' = [15] then CHAR(255) else [15] end
+	set @t_bmon = case when '#non' = [16] then '' else [16] end
+	set @t_emon = case when '#non' = [17] then CHAR(255) else [17] end
+	---------------------------------------------------------------------------------
+	declare @tmp1 table(
+		tggno nvarchar(20),
+		mon nvarchar(10),
+		[money] float,
+		bkmoney float,
+		tax float
+	)
+	insert into @tmp1(tggno,mon,[money],bkmoney,tax)
+	select a.tggno,a.mon
+	,SUM(case when a.typea='1' then ISNULL(a.money,0) else 0 end)
+	,SUM(case when a.typea!='1' then ISNULL(a.money,0) else 0 end)
+	,SUM(case when a.typea='1' then ISNULL(a.tax,0) else -ISNULL(a.tax,0) end)
+	from view_rc2 a left join view_cub b on a.postname=b.noa
+	where a.postname!='' and isnull(b.noa,'')!='' 
+	and	(a.tggno between @t_btggno and @t_etggno) 
+	and a.mon <= @t_emon
+	group by a.tggno,a.mon
+	
+	
+	declare @tmp3 table(
+		tggno nvarchar(20),
+		mon nvarchar(10),
+		paysale float 
+	)
+	
+	insert into @tmp3(tggno,mon,paysale)
+	select a.tggno,a.paymon,SUM(ISNULL(a.paysale,0))
+	from pays a	left join pay b on a.noa=b.noa 
+	left join view_rc2 c on c.noa=a.rc2no
+	left join view_cub d on c.postname=d.noa
+	where c.postname!='' and isnull(b.noa,'')!='' and ISNULL(a.paysale,0)!=0
+	and a.paymon <= @t_emon and	(c.tggno between @t_btggno and @t_etggno) 
+	group by a.tggno,a.paymon
+	
+	--------------------------------------------------------------------------------------------------
+	declare @tmp table(
+		tggno nvarchar(20),
+		[money] float,
+		bkmoney float,
+		tax float,
+		total float,
+		payed float,
+		unpay float,
+		tot float
+	)
+	insert into @tmp(tggno,[money],bkmoney,tax)
+	select tggno,SUM(ISNULL([money],0)),SUM(ISNULL([bkmoney],0)),SUM(ISNULL([tax],0))
+	from @tmp1
+	where mon between @t_bmon and @t_emon
+	group by tggno
+	--------------------------------------------------------------------------------------- 
+	update @tmp set total = ISNULL([money],0)-ISNULL(bkmoney,0)+ISNULL(tax,0)
+	
+	----------------------------------------------------------------------------------------
+	update @tmp set payed=isnull(a.payed,0) + isnull(b.paysale,0)
+	from @tmp a
+	right join @tmp3 b on a.tggno=b.tggno and b.mon between @t_bmon and @t_emon
+	
+	insert into @tmp(tggno,[money],bkmoney,tax,total, payed)
+	select tggno,0,0,0,0,paysale
+	from @tmp3 a
+	where not exists(select * from @tmp where tggno=a.tggno)
+	and a.mon between @t_bmon and @t_emon
+	------------------------------------------------------------------------------------------
+	--unpay
+	update @tmp set unpay = ISNULL(a.unpay,0)+ISNULL(b.unpay,0)
+	from @tmp a
+	right join (select tggno,SUM(ISNULL([money],0)-ISNULL(bkmoney,0)+isnull(tax,0)) unpay
+		from @tmp1
+		where mon<@t_bmon
+		group by tggno) b on a.tggno=b.tggno 
+	
+	insert into @tmp(tggno,[money],bkmoney,tax,total,payed,unpay)
+	select a.tggno,0,0,0,0,0,a.unpay
+	from (select tggno ,SUM(ISNULL([money],0)-ISNULL(bkmoney,0)+isnull(tax,0)) unpay
+		from @tmp1
+		where mon<@t_bmon
+		group by tggno) a
+	where not exists(select * from @tmp where tggno=a.tggno )
+	and ISNULL(a.unpay,0)!=0
+	
+	update @tmp set unpay = ISNULL(a.unpay,0)-ISNULL(b.paysale,0)
+	from @tmp a
+	right join (select tggno ,sum(isnull(paysale,0)) paysale
+		from @tmp3
+		where mon<@t_bmon
+		group by tggno) b on a.tggno=b.tggno 
+	
+	insert into @tmp(tggno,[money],bkmoney,tax,total,payed,unpay)
+	select a.tggno,0,0,0,0,0,-a.paysale
+	from (select tggno ,sum(isnull(paysale,0)) paysale
+		from @tmp3
+		where mon<@t_bmon
+		group by tggno) a
+	where not exists(select * from @tmp where tggno=a.tggno )
+	and ISNULL(a.paysale,0)!=0
+	------------------------------------------------------------------------------------------
+	update @tmp set tot = ISNULL([money],0)-ISNULL(bkmoney,0)+ISNULL(tax,0)-ISNULL(payed,0)+ISNULL(unpay,0)
+	
+	declare @linecount int --每頁行數
+	declare @endcount int --總計行數
+	set @linecount = 30
+	set @endcount = 7
+	
+	declare @tggno nvarchar(20)
+	declare @money float
+	declare @bkmoney float
+	declare @tax float
+	declare @total float
+	declare @payed float
+	declare @unpay float
+	declare @tot float
+	declare @nn int
+	declare @mm int
+	declare @totpage int
+	
+	declare @result table(
+		gno nvarchar(10),
+		pno int,
+		totpage int,
+		tggno nvarchar(20),
+		[money] float,
+		bkmoney float,
+		tax float,
+		total float,
+		payed float,
+		unpay float,
+		tot float,
+		
+		nn int,--出貨單張數
+		
+		typea nvarchar(10),
+		datea nvarchar(10),
+		rc2no nvarchar(20),
+		productno nvarchar(20),
+		product nvarchar(50),
+		spec nvarchar(max),
+		unit nvarchar(20),
+		mount float,
+		price float,
+		moneys float,
+		memo nvarchar(max)
+	)
+	
+	declare cursor_table cursor for
+	select tggno,[money],bkmoney,tax,total,payed,unpay,tot from @tmp
+	open cursor_table
+	fetch next from cursor_table
+	into @tggno,@money,@bkmoney,@tax,@total,@payed,@unpay,@tot
+	while(@@FETCH_STATUS <> -1)
+	begin
+		if exists(select top 1 * from @tmp1 where tggno=@tggno and mon between @t_bmon and @t_emon)
+		
+		begin
+			insert into @result(gno,pno,tggno,typea,datea,rc2no,productno,product,spec,unit,mount,price,moneys)
+			select '1','1',@tggno
+			,case when a.typea='1' then '進' else '退' end
+			,a.datea,a.noa,b.productno,b.product,b.spec
+			,b.unit,b.mount,b.price,b.total
+			from view_rc2 a
+			left join view_rc2s b on a.noa=b.noa
+			left join view_cub c on a.postname=c.noa
+			where a.postname!='' and isnull(c.noa,'')!='' and
+			(a.tggno=@tggno) and (a.mon between @t_bmon and @t_emon)
+			order by a.datea,a.noa,b.noq
+			
+			insert into @result(gno,pno,tggno
+				,typea,datea,rc2no,productno,product,unit,mount,price,moneys)
+			select '2','3',@tggno
+			,'稅',a.datea,a.noa,'','稅額','',null,null,tax
+			from view_rc2 a left join view_cub c on a.postname=c.noa
+			where a.postname!='' and isnull(c.noa,'')!='' and a.tggno=@tggno 
+			and mon between @t_bmon and @t_emon
+			and isnull(tax,0)!=0
+		end
+		
+		select @mm = COUNT(1) from @result where tggno=@tggno
+		if @mm>0 or @money!=0 or @bkmoney !=0 or @tax !=0 or @payed !=0 or @unpay!=0 or @tot!=0
+		begin
+			if(@mm+@endcount)%@linecount != 0
+			begin
+				insert into @result(gno,pno,tggno,memo)
+				select '3','4',@tggno,'---以下空白---'
+				set @mm = @mm + 1
+				while @linecount-@mm%@linecount!=@endcount
+				begin
+					insert into @result(gno,pno,tggno)
+					select '4','5',@tggno
+					set @mm = @mm + 1
+				end
+			end
+			
+			insert into @result(gno,pno,tggno,[money],bkmoney,tax,total,payed,unpay,tot)
+			select '5','6',@tggno,@money,@bkmoney,@tax,@total,@payed,@unpay,@tot
+			insert into @result(gno,pno,tggno,[money],bkmoney,tax,total,payed,unpay,tot)
+			select '6','7',@tggno,@money,@bkmoney,@tax,@total,@payed,@unpay,@tot
+			insert into @result(gno,pno,tggno,[money],bkmoney,tax,total,payed,unpay,tot)
+			select '7','8',@tggno,@money,@bkmoney,@tax,@total,@payed,@unpay,@tot
+			insert into @result(gno,pno,tggno,[money],bkmoney,tax,total,payed,unpay,tot)
+			select '8','9',@tggno,@money,@bkmoney,@tax,@total,@payed,@unpay,@tot
+			insert into @result(gno,pno,tggno,[money],bkmoney,tax,total,payed,unpay,tot)
+			select '9','10',@tggno,@money,@bkmoney,@tax,@total,@payed,@unpay,@tot
+			insert into @result(gno,pno,tggno,[money],bkmoney,tax,total,payed,unpay,tot)
+			select '10','11',@tggno,@money,@bkmoney,@tax,@total,@payed,@unpay,@tot
+			insert into @result(gno,pno,tggno,[money],bkmoney,tax,total,payed,unpay,tot)
+			select '11','12',@tggno,@money,@bkmoney,@tax,@total,@payed,@unpay,@tot
+			
+			select @nn = count(1) from (select rc2no from @result where tggno=@tggno and (gno='1' or gno='2') group by rc2no)a
+			select @totpage = COUNT(1) from @result where tggno=@tggno 
+			update @result set nn = ISNULL(@nn,0),totpage = @totpage/@linecount where tggno=@tggno
+		end
+		fetch next from cursor_table
+		into @tggno,@money,@bkmoney,@tax,@total,@payed,@unpay,@tot
+	end
+	close cursor_table
+	deallocate cursor_table
+	
+	select 
+	(ROW_NUMBER()over(partition by a.tggno order by pno)-1)/@linecount+1 pp
+	,a.totpage qq
+	,a.datea dd
+	,a.typea tt
+	,a.unit 
+	,dbo.getComma(a.mount,[2]) mount
+	,dbo.getComma(a.price,[4]) price
+	,dbo.getComma(a.moneys,0) total
+	,b.comp comp
+	,b.nick nick
+	,b.addr_comp addr
+	,dbo.getComma(a.money,0) money
+	,dbo.getComma(a.bkmoney,0) bkmoney
+	,dbo.getComma(a.tax,0) tax
+	,dbo.getComma(a.total,0) total
+	,dbo.getComma(a.payed,0) payed
+	,dbo.getComma(a.unpay,0) unpay
+	,dbo.getComma(a.tot,0) tot
+	,case when @t_bmon=@t_emon then @t_bmon else @t_bmon+'~'+@t_emon end mon
+	,b.tel,b.fax
+	,'rc2?noa=$rc2no' ghref
+	,a.*
+	from @result a
+	left join tgg b on a.tggno=b.noa
+	order by a.tggno,case when len(isnull(a.rc2no,''))=0 then 2 else 1 end,isnull(a.rc2no,''),a.pno;
+
+-------------------------------------------------------------------------------------------------------------------------------------
+z_cub_xyp4:--z_cub_xyp4 
+	SET QUOTED_IDENTIFIER OFF 
+	declare @cmd nvarchar(max) 
+	
+	declare @t_btggno nvarchar(20) 
+	declare @t_etggno nvarchar(20) 
+	declare @t_bmon nvarchar(10) 
+	declare @t_emon nvarchar(10) 
+	
+	set @t_btggno = case when '#non' = [14] then '' else [14] end
+	set @t_etggno = case when '#non' = [15] then CHAR(255) else [15] end
+	set @t_bmon = case when '#non' = [16] then '' else [16] end
+	set @t_emon = case when '#non' = [17] then CHAR(255) else [17] end
+	---------------------------------------------------------------------------------
+	IF OBJECT_ID('tempdb..#tmp1')is not null
+	BEGIN
+		set @cmd = 'drop table #tmp1'
+		EXECUTE sp_executesql @cmd
+	END
+	IF OBJECT_ID('tempdb..#tmp3')is not null
+	BEGIN
+		set @cmd = 'drop table #tmp3'
+		EXECUTE sp_executesql @cmd
+	END
+	IF OBJECT_ID('tempdb..#tmp4')is not null
+	BEGIN
+		set @cmd = 'drop table #tmp4'
+		EXECUTE sp_executesql @cmd
+	END
+	IF OBJECT_ID('tempdb..#tmp5')is not null
+	BEGIN
+		set @cmd = 'drop table #tmp5'
+		EXECUTE sp_executesql @cmd
+	END
+
+	create table #tmp1(
+		tggno nvarchar(20),
+		mon nvarchar(10),--帳款月份	
+		[money] decimal(25, 0),
+		tax decimal(25, 0),
+		total decimal(25, 0)
+	)
+
+	create table #tmp3(
+		tggno nvarchar(20),
+		mon nvarchar(20),--帳款月份
+		paysale decimal(25, 0)
+	)
+	
+	create table #tmp4(
+		tggno nvarchar(20),
+		mon nvarchar(10),
+		[money] decimal(25, 0),
+		tax decimal(25, 0),
+		paysale decimal(25, 0),
+		unpay decimal(25, 0)
+	)
+	
+	create table #tmp5(
+		gno nvarchar(10),
+		tggno nvarchar(20),
+		memo nvarchar(max),
+		
+		[money] decimal(25, 0),
+		pay decimal(25, 0),
+		unpay decimal(25, 0)
+	)
+	
+	insert into #tmp1(tggno,mon,[money],tax,total)
+	select a.tggno,mon
+	,SUM(case when a.typea='1' then ISNULL(a.[money],0) else -ISNULL(a.[money],0) end)
+	,SUM(case when a.typea='1' then ISNULL(a.[tax],0) else -ISNULL(a.[tax],0) end)
+	,SUM(case when a.typea='1' then ISNULL(a.[total],0) else -ISNULL(a.[total],0) end)
+	from view_rc2 a left join view_cub b on a.postname=b.noa
+	where a.postname!='' and isnull(b.noa,'')!='' 
+	and a.tggno between @t_btggno and @t_etggno
+	and a.mon<=@t_emon 
+	group by a.tggno,a.mon
+	
+	insert into #tmp3(tggno,mon,paysale)
+	select case when isnull(a.tggno,'')!='' then a.tggno 
+		when isnull(c.noa,'')!='' and ISNULL(c.tggno,'')!='' then c.tggno
+		else b.tggno end
+	,case when isnull(a.paymon,'')!='' then a.paymon else isnull(c.mon,'') end
+	,SUM(ISNULL(a.paysale,0))
+	from pays a
+	left join pay b on a.noa=b.noa
+	left join view_rc2 c on a.rc2no=c.noa
+	left join view_cub d on c.postname=d.noa
+	where c.postname!='' and isnull(d.noa,'')!=''
+	and ISNULL(a.paysale,0)!=0
+	and case when isnull(a.paymon,'')!='' then a.paymon else isnull(c.mon,'') end <= @t_emon 
+	group by case when isnull(a.tggno,'')!='' then a.tggno 
+		when isnull(c.noa,'')!='' and ISNULL(c.tggno,'')!='' then c.tggno
+		else b.tggno end
+	,case when isnull(a.paymon,'')!='' then a.paymon else isnull(c.mon,'') end
+
+	---------------------------------------------------------------------------------------
+	insert into #tmp4(tggno,mon,[money],tax)
+	select tggno,mon,[money],tax from #tmp1
+	---------------------------------------------------------------------------------------
+	update #tmp4 set paysale=ISNULL(b.paysale,0)
+	from #tmp4 a
+	left join #tmp3 b on a.tggno=b.tggno and a.mon=b.mon
+	
+	insert into #tmp4(tggno,mon,[money],tax,paysale)
+	select tggno,mon,0,0,paysale from #tmp3 a
+	where not exists(select * from #tmp4 where tggno=a.tggno and mon=a.mon)
+	---------------------------------------------------------------------------------------
+	update #tmp4 set unpay = ISNULL(money,0)+ISNULL(tax,0)-ISNULL(paysale,0)
+	---------------------------------------------------------------------------------------
+	declare @tggno nvarchar(20)
+	declare @cno nvarchar(20)
+	declare @mon nvarchar(10)
+	declare @money decimal(25, 0)
+	declare @tax decimal(25, 0)
+	declare @pay decimal(25, 0)
+	declare @unpay decimal(25, 0)
+	
+	declare cursor_table cursor for
+	select tggno from #tmp4 group by tggno
+	open cursor_table
+	fetch next from cursor_table
+	into @tggno
+	while(@@FETCH_STATUS <> -1)
+	begin
+		set @cmd = ''
+		declare cursor_table2 cursor for
+		select mon,unpay from #tmp4 
+		where tggno=@tggno and unpay !=0 and mon<@t_bmon 
+		order by mon
+		open cursor_table2
+		fetch next from cursor_table2
+		into @mon,@unpay
+		while(@@FETCH_STATUS <> -1)
+		begin
+			set @cmd = @cmd + case when LEN(@cmd)>0 then ', ' else '' end 
+				+case when len(@mon)>0 then @mon else '無帳款月份'end
+				+'：'+dbo.getComma(@unpay,0)
+		
+			fetch next from cursor_table2
+			into @mon,@unpay
+		end
+		close cursor_table2
+		deallocate cursor_table2
+		
+		select @money=0,@tax=0,@pay=0,@unpay=0
+		select @money=SUM(ISNULL([money],0)),@tax=SUM(ISNULL([tax],0)),@pay=SUM(ISNULL([paysale],0)) from #tmp4 where tggno=@tggno and mon between @t_bmon and @t_emon
+		select @unpay=SUM(ISNULL([unpay],0)) from #tmp4 where tggno=@tggno
+		
+		insert into #tmp5(gno,tggno,memo,[money],pay,unpay)values('1',@tggno,@cmd,@money+@tax,@pay,@unpay)
+	
+		fetch next from cursor_table
+		into @tggno
+	end
+	close cursor_table
+	deallocate cursor_table
+	
+	delete #tmp5 where not(tggno between @t_btggno and @t_etggno)
+	
+	if((select count(*) from #tmp5)>0)
+	begin
+		insert into #tmp5(gno,[money],pay,unpay)
+		select '2',SUM(ISNULL([money],0)),SUM(ISNULL(pay,0)),SUM(ISNULL(unpay,0)) from #tmp5
+	end
+	
+	select a.*,b.nick
+	,reverse(substring(reverse(convert(nvarchar(15),CONVERT(money,[money]),1)),4,12)) aa1
+	,reverse(substring(reverse(convert(nvarchar(15),CONVERT(money,[pay]),1)),4,12)) aa2
+	,reverse(substring(reverse(convert(nvarchar(15),CONVERT(money,[unpay]),1)),4,12)) aa3
+	from #tmp5 a
+	left join tgg b on a.tggno=b.noa
+	order by gno,isnull(tggno,char(255))
+	
+	IF OBJECT_ID('tempdb..#tmp1')is not null
+	BEGIN
+		set @cmd = 'drop table #tmp1'
+		EXECUTE sp_executesql @cmd
+	END
+	IF OBJECT_ID('tempdb..#tmp3')is not null
+	BEGIN
+		set @cmd = 'drop table #tmp3'
+		EXECUTE sp_executesql @cmd
+	END
+	IF OBJECT_ID('tempdb..#tmp4')is not null
+	BEGIN
+		set @cmd = 'drop table #tmp4'
+		EXECUTE sp_executesql @cmd
+	END
+	IF OBJECT_ID('tempdb..#tmp5')is not null
+	BEGIN
+		set @cmd = 'drop table #tmp5'
+		EXECUTE sp_executesql @cmd
+	END
+
+	;

@@ -1,0 +1,299 @@
+﻿zxls_ordexyw:--zxls_ordexyw
+SET QUOTED_IDENTIFIER OFF
+IF OBJECT_ID('tempdb..#bbm')is not null
+BEGIN
+   drop table #bbm
+END
+
+IF OBJECT_ID('tempdb..#bbs')is not null
+BEGIN
+   drop table #bbs
+END
+
+declare @t_odate nvarchar(30)=dbo.AD2ChineseEraName((select b from ztmpxls where charindex('採購日',a)>0))
+declare @t_datea nvarchar(30)=dbo.AD2ChineseEraName((select h from ztmpxls where charindex('預計送貨日',e)>0))
+declare @t_orde nvarchar(50)=(select b from ztmpxls where charindex('單號',a)>0)
+declare @accy nvarchar(50)=left(@t_odate,3) 
+
+--select a,b,c,d,e,f,g,h,i,noa from ztmpxls where a!='' 
+--and replace(a,' ','')!='項數' and replace(a,' ','')!='各店金額' and replace(a,' ','')!='總計金額(未稅)'
+--and cast(noa as int)>5
+--order by noa
+
+declare @a nvarchar(MAX),@b nvarchar(MAX),@c nvarchar(MAX),@d nvarchar(MAX)
+,@e nvarchar(MAX),@f nvarchar(MAX),@g nvarchar(MAX),@h nvarchar(MAX),@i nvarchar(MAX)
+,@te nvarchar(MAX),@tf nvarchar(MAX),@tg nvarchar(MAX),@th nvarchar(MAX),@ti nvarchar(MAX)
+
+declare @custno1 nvarchar(MAX),@custno2 nvarchar(MAX),@custno3 nvarchar(MAX),@custno4 nvarchar(MAX),@custno5 nvarchar(MAX)
+
+if(@t_odate!='')
+begin
+	declare @tmp table(
+		custno nvarchar(100),
+		comp nvarchar(100),
+		productno nvarchar(100),
+		product nvarchar(100),
+		unit nvarchar(100),
+		price float,
+		mount float,
+		total float
+	)
+
+	declare cursor_table cursor for 
+	select a,b,c,d,e,f,g,h,i from ztmpxls where a!='' 
+	and replace(a,' ','')!='項數' and replace(a,' ','')!='各店金額' and replace(a,' ','')!='總計金額(未稅)' and cast(noa as int)>5
+	order by noa
+	open cursor_table 
+	fetch next from cursor_table 
+	into @a,@b,@c,@d,@e,@f,@g,@h,@i
+	while(@@FETCH_STATUS <> -1) 
+	begin 
+		--設定客戶
+		if(@a='品號')
+		begin
+			set @te=@e
+			set @tf=@f
+			set @tg=@g
+			set @th=@h
+			set @ti=@i
+			set @custno1=isnull((select top 1 noa from cust where boss=@e),'')
+			set @custno2=isnull((select top 1 noa from cust where boss=@f),'')
+			set @custno3=isnull((select top 1 noa from cust where boss=@g),'')
+			set @custno4=isnull((select top 1 noa from cust where boss=@h),'')
+			set @custno5=isnull((select top 1 noa from cust where boss=@i),'')
+			--select @custno1,@custno2,@custno3,@custno4,@custno5
+		end
+		else
+		begin
+			if(@custno1!='' and @e!='0' and @e!='')
+			begin
+				insert @tmp (custno,comp,productno,product,unit,price,mount)
+				select @custno1,@te,@a,@b,@d,cast(@c as float),cast(@e as float)
+			end
+			if(@custno2!='' and @f!='0' and @f!='')
+			begin
+				insert @tmp (custno,comp,productno,product,unit,price,mount)
+				select @custno2,@tf,@a,@b,@d,cast(@c as float),cast(@f as float)
+			end
+			if(@custno3!='' and @g!='0' and @g!='')
+			begin
+				insert @tmp (custno,comp,productno,product,unit,price,mount)
+				select @custno3,@tg,@a,@b,@d,cast(@c as float),cast(@g as float)
+			end
+			if(@custno4!='' and @h!='0' and @h!='')
+			begin
+				insert @tmp (custno,comp,productno,product,unit,price,mount)
+				select @custno4,@th,@a,@b,@d,cast(@c as float),cast(@h as float)
+			end
+			if(@custno5!='' and @i!='0' and @i!='')
+			begin
+				insert @tmp (custno,comp,productno,product,unit,price,mount)
+				select @custno5,@ti,@a,@b,@d,cast(@c as float),cast(@i as float)
+			end
+		end
+		fetch next from cursor_table 
+		into @a,@b,@c,@d,@e,@f,@g,@h,@i
+	end 
+	close cursor_table 
+	deallocate cursor_table
+
+	update @tmp set total=round(price*mount,0)
+	
+	if((select count(*) from @tmp a 
+	outer apply (select top 1 * from ucccust where productno=a.productno and (custno='WC002' or custno=left(a.custno,len(custno))))b
+	where not exists (select * from pack2s where noa=b.noa and pack=a.unit)
+	or b.noa is null)>0)
+	begin
+		select '客戶編號'custno,'客戶名稱' comp,'客戶產品編號'cpno,'產品編號'pno,'產品名稱'product,'單位'unit,'錯誤訊息' err
+		union all
+		select a.custno,a.comp,a.productno,b.noa,a.product,a.unit
+		,case when b.noa is null then '客戶產品編號不在產品主檔內' else '客單單位不存在單位換算內' end from @tmp a  
+		outer apply (select top 1 * from ucccust where productno=a.productno and (custno='WC002' or custno=left(a.custno,len(custno))))b
+		where not exists (select * from pack2s where noa=b.noa and pack=a.unit)
+		
+	end
+	else
+	begin
+	
+		create table #bbs(
+			noa nvarchar(100),
+			no2 nvarchar(10),
+			productno nvarchar(100),
+			product nvarchar(100),
+			spec nvarchar(100),
+			classa nvarchar(100),--便/印
+			size nvarchar(100),--包裝方式
+			dime float, --色數
+			source nvarchar(10),--寄/出庫 0
+			unit nvarchar(100),
+			price float,
+			mount float,
+			total float,
+			custno nvarchar(50),
+			comp nvarchar(50),
+			odate nvarchar(10),
+			datea nvarchar(10),
+			memo nvarchar(100),
+			enda bit,
+			cancel bit,
+			quatno nvarchar(50),
+			no3 nvarchar(10),
+			c1 float,
+			notv float,
+			zinc nvarchar(10),--客單單位
+			lengthb float,--客單數量
+			hard nvarchar(10),--報價單位
+			lengthc float--報價單價
+			
+		)
+		--105/10/03 單位和單價 一律抓報價單的資料
+		--,c.noa,d.product,d.spec,d.style,'',0,'0',a.unit,a.price,a.mount,a.total,'',0,0,0,a.mount
+		--105/12/14 如果上傳單位在單位換算內直接使用
+		--如果上傳金額!=產生的訂單金額 則顯示訊息 
+		--105/12/15備註顯示幾件幾個 抓最上面的換算(有達 用件 瓦城用箱 換算數量一樣  抓件)
+		--105/12/16上傳單位不再單位換算內 不上傳
+		
+		insert #bbs(custno,comp,odate,datea
+		,productno,product,spec,classa,size,dime,source,unit,price,mount,total,memo,enda,cancel,c1,notv,quatno,no3
+		,zinc,lengthb,hard,lengthc)
+		select a.custno,left(b.comp,50),@t_odate,@t_datea
+		,c.noa,d.product,d.spec,d.style,'',0,'0'
+		--,isnull(e.unit,d.unit),isnull(e.price,0),a.mount,round(a.mount*isnull(e.price,0),0),'',0,0,0,a.mount
+		,d.unit,isnull(e.price,0),a.mount,round(a.mount*isnull(e.price,0),0),'',0,0,0,a.mount
+		,isnull(e.noa,''),isnull(e.no3,'')
+		--,isnull(e.unit,d.unit)
+		,case when exists (select * from pack2s where noa=c.noa and pack=a.unit) then a.unit else isnull(e.unit,d.unit) end
+		,a.mount,isnull(e.unit,''),isnull(e.price,0)
+		from @tmp a left join cust b on a.custno=b.noa
+		outer apply (select top 1 * from ucccust where productno=a.productno and (custno='WC002' or custno=left(a.custno,len(custno))))c
+		left join ucc d on c.noa=d.noa
+		outer apply (select top 1 * from view_quats where productno=c.noa and (custno='WC002' or custno=left(a.custno,len(custno))) and datea>=@t_odate order by odate desc)e
+		
+		update a
+		set mount=case when isnull(c.m2,0)!=0 then
+		case when ceiling(lengthb*isnull(b.m1,0)/c.m2)!=floor(lengthb*isnull(b.m1,0)/c.m2) and UPPER(unit)!='KG' then 0 else 
+		case when UPPER(unit)='KG' then round(lengthb*isnull(b.m1,0)/c.m2,2) else round(lengthb*isnull(b.m1,0)/c.m2,0) end end else 0 end
+		,price=case when isnull(d.m3,0)!=0 then round(lengthc*isnull(c.m2,0)/d.m3,4) else 0 end
+		from #bbs a
+		outer apply (select inmount m1 from pack2s where noa=a.productno and pack=a.zinc)b
+		outer apply (select inmount m2 from pack2s where noa=a.productno and pack=a.unit)c
+		outer apply (select inmount m3 from pack2s where noa=a.productno and pack=a.hard)d
+		
+		update a
+		set memo=case when a.unit=c.pack then '' else case when FLOOR(a.mount*b.m1/c.m2)>0 then CAST(FLOOR(a.mount*b.m1/c.m2) as nvarchar(100))+c.pack else '' end
+		+case when a.mount-(FLOOR(a.mount*b.m1/c.m2)*c.m2)>0 then  CAST(a.mount-(FLOOR(a.mount*b.m1/c.m2)*c.m2) as nvarchar(100))+a.unit else '' end end
+		from #bbs a	outer apply (select inmount m1 from pack2s where noa=a.productno and pack=a.unit)b
+		outer apply (select top 1 inmount m2,pack from pack2s where noa=a.productno order by inmount desc,noq)c
+		
+		update a
+		set total=round(mount*price,0),notv=mount
+		from #bbs a
+		
+		create table #bbm(
+			noa nvarchar(50),
+			odate nvarchar(10),
+			datea nvarchar(10),
+			stype nvarchar(10),
+			cno nvarchar(10),
+			acomp nvarchar(100),
+			custno nvarchar(100),
+			comp nvarchar(100),
+			nick nvarchar(100),
+			paytype nvarchar(100),
+			tel nvarchar(100),
+			fax nvarchar(100),
+			post nvarchar(100),
+			addr nvarchar(MAX),
+			post2 nvarchar(100),
+			addr2 nvarchar(MAX),
+			ordbno nvarchar(50),
+			ordcno nvarchar(50),
+			trantype nvarchar(50),
+			salesno nvarchar(50),
+			sales nvarchar(50),
+			custorde nvarchar(100),
+			money float,
+			tax float,
+			taxtype nvarchar(50),
+			total float,
+			coin nvarchar(50),
+			floata float,
+			totalus float,
+			vccno nvarchar(50),
+			worker nvarchar(50),
+			worker2 nvarchar(50),
+			weight float,
+			apv nvarchar(50),
+			memo nvarchar(50),
+			isproj bit,
+			enda bit,
+			cancel bit,
+			conform nvarchar(20)
+		)
+	
+		declare @onoq int =cast(isnull(right((select top 1 noa from view_orde where noa like 'E'+REPLACE(@t_odate,'/','')+'%' order by noa desc),3),'000') as int)
+		
+		if(@onoq<cast(isnull(right((select top 1 noa from dno where tablea='orde' and noa like 'E'+REPLACE(@t_odate,'/','')+'%' order by noa desc),3),'000') as int))
+			set @onoq=cast(isnull(right((select top 1 noa from dno where tablea='orde' and noa like 'E'+REPLACE(@t_odate,'/','')+'%' order by noa desc),3),'000') as int)
+		
+		--106/03/17 瓦城訂單自動核可
+		
+		insert #bbm(noa,odate,datea,stype,cno,acomp,custno,comp,nick,paytype,tel,fax,post,addr,post2,addr2
+		,ordbno,ordcno,trantype,salesno,sales,custorde,money,tax,taxtype,total,coin,floata,totalus,vccno,worker,worker2
+		,weight,apv,memo,isproj,enda,cancel,conform)
+		select 'E'+REPLACE(@t_odate,'/','')+right('000'+cast(ROW_NUMBER()over (order by a.custno)+@onoq as nvarchar(10)),3)
+		,@t_odate,@t_datea,'1',b.noa,b.acomp,a.custno,c.comp,c.nick,c.paytype,c.tel,c.fax
+		,c.zip_comp,c.addr_comp,c.zip_home,c.addr_home,'','',c.trantype,c.salesno,c.sales,@t_orde
+		,0,0,case when d.taxtype='應稅' then '1' when d.taxtype='作廢' then '6' when d.taxtype='零稅率' then '2'
+		when d.taxtype='內含' then '3' when d.taxtype='免稅' then '4' when d.taxtype='自訂' then '5' else '' end,0
+		,'',0,0,'','瓦城泰統採購單','',0,'自動核可','',1,0,0,d.invomemo
+		from (select custno from #bbs group by custno) a
+		outer apply (select top 1 * from acomp order by noa)b
+		left join cust c on a.custno=c.noa
+		left join custm d on a.custno=d.noa
+	
+		update a set noa=b.noa from #bbs a left join #bbm b on a.custno=b.custno
+	
+		update a set no2=right('000'+cast(xno2 as nvarchar(10)),3)
+		from (select ROW_NUMBER() over (partition by noa order by productno) xno2,no2 from #bbs )a 
+	
+		update a
+		set money=case when taxtype in ('1','2','4','5') then b.stotal when taxtype='3' then b.stotal-round(b.stotal/1.05*0.05,0)else 0 end
+		,tax=case when taxtype='1' then round(b.stotal*0.05,0) when taxtype='3' then round(b.stotal/1.05*0.05,0) else 0 end
+		,total=case when taxtype='1' then b.stotal+round(b.stotal*0.05,0) when taxtype in ('2','3','4','5') then b.stotal else 0 end
+		from #bbm a outer apply (select SUM(total)stotal from #bbs where noa=a.noa)b
+	
+		--105/12/19 低於700以下 交運方式=送達
+		update #bbm
+		set post2='235',addr2='中和市連城路222巷2弄2號1樓',trantype='送達'
+		where money<=700
+		
+		--select * from @tmp
+		exec("
+		insert orde"+@accy+"(noa,odate,datea,stype,cno,acomp,custno,comp,nick,paytype,tel,fax,post,addr,post2,addr2
+		,ordbno,ordcno,trantype,salesno,sales,custorde,money,tax,taxtype,total,coin,floata,totalus,vccno,worker,worker2
+		,weight,apv,memo,isproj,enda,cancel,conform)
+		select noa,odate,'' datea,stype,cno,acomp,custno,comp,nick,paytype,tel,fax,post,addr,post2,addr2
+		,ordbno,ordcno,trantype,salesno,sales,custorde,money,tax,taxtype,total,coin,floata,totalus,vccno,worker,worker2
+		,weight,apv,memo,isproj,enda,cancel,conform from #bbm order by noa
+		")
+		--105/04/18預交日不寫入
+		exec("
+		insert ordes"+@accy+"(noa,no2,productno,product,spec,classa,size,dime,source,unit,price
+		,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc)
+		select noa,no2,productno,product,spec,classa,size,dime,source,unit,price
+		,mount,total,custno,comp,odate,'' datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc from #bbs order by noa,no2
+		")
+	end
+end
+
+IF OBJECT_ID('tempdb..#bbm')is not null
+BEGIN
+   drop table #bbm
+END
+
+IF OBJECT_ID('tempdb..#bbs')is not null
+BEGIN
+   drop table #bbs
+END
+;

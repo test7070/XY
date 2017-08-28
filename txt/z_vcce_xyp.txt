@@ -1,0 +1,571 @@
+﻿z_vcce_xyp1:--z_vcce_xyp1
+declare @t_bdate nvarchar(20)
+declare @t_edate nvarchar(20)
+declare @t_bcust nvarchar(20)
+declare @t_ecust nvarchar(20)
+declare @t_bdriver nvarchar(20)
+declare @t_edriver nvarchar(20)
+declare @t_carno nvarchar(20)
+declare @t_cardeal nvarchar(20)
+
+set @t_bdate = case when '#non' = [2] then '' else [2] end
+set @t_edate = case when '#non' = [3] then CHAR(255) else [3] end
+set @t_bcust = case when '#non' = [4] then '' else [4] end
+set @t_ecust = case when '#non' = [5] then CHAR(255) else [5] end
+set @t_bdriver = case when '#non' = [6] then '' else [6] end
+set @t_edriver = case when '#non' = [7] then CHAR(255) else [7] end
+set @t_carno = case when '#non' = [8] then '' else [8] end
+set @t_cardeal = case when '#non' = [9] then '' else [9] end
+--------------------------------------------------------------------------------------------------------------
+declare @tmp table(
+	gno nvarchar(1),
+	page int,
+	recno int,
+	datea nvarchar(20),
+	noa nvarchar(30),
+	noq nvarchar(20),
+	carno nvarchar(20),
+	driverno nvarchar(50),
+	driver nvarchar(100),
+	salesno nvarchar(50),
+	sales nvarchar(100),
+	custno nvarchar(50),
+	comp nvarchar(100),
+	vccnoa nvarchar(50),
+	vccnoq nvarchar(50),
+	vdate nvarchar(20),
+	productno nvarchar(100),
+	product nvarchar(MAX),
+	spec nvarchar(MAX),
+	unit nvarchar(50),
+	mount float,
+	vtotal float,--收現金額 --依據未收金額去判斷是否要收費
+	ecount float,--未收金額 前端會依據出貨單的付款條件是否是收現和貨到現金判斷是否有金額
+	ewidth float,
+	memo nvarchar(MAX)
+)
+
+insert @tmp 
+select '0' gno,0,ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,a.noa,b.noq,b.ordeno,c.noq) recno
+,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver,a.salesno,a.sales
+,b.custno,d.nick,b.ordeno,c.noq,b.odate,c.productno,c.product,c.spec,c.unit
+,(case when c.typea='2' then -1 else 1 end)*c.dime
+,case when b.ecount!=0 then (case when c.typea='2' then -1 else 1 end)*c.total else 0 end vtotal,b.ecount,b.width,b.memo
+from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
+left join cust d on b.custno=d.noa
+where a.datea between @t_bdate and @t_edate 
+and isnull(b.custno,'') between @t_bcust and @t_ecust
+and a.driverno between @t_bdriver and @t_edriver
+and (len(@t_carno)=0 or a.carno=@t_carno) 
+and (len(@t_cardeal)=0 or a.cardealno=@t_cardeal)
+and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
+and c.noa is not null
+
+insert @tmp 
+select '0' gno,0,ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,a.noa,b.noq,b.ordeno,c.noq) recno
+,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver,a.salesno,a.sales
+,b.custno,b.comp,b.ordeno,c.noq,b.odate,c.productno,c.product,c.spec,c.unit
+,c.mount
+,0 vtotal,b.ecount,b.width,b.memo
+from view_vcce a left join view_vcces b on a.noa=b.noa left join view_cngs c on b.ordeno=c.noa
+where a.datea between @t_bdate and @t_edate 
+and isnull(b.custno,'') between @t_bcust and @t_ecust
+and a.driverno between @t_bdriver and @t_edriver
+and (len(@t_carno)=0 or a.carno=@t_carno) 
+and (len(@t_cardeal)=0 or a.cardealno=@t_cardeal)
+and isnull(c.mount,0)>0
+and c.noa is not null
+
+insert @tmp 
+select '0' gno,0,ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,a.noa,b.noq,b.ordeno,c.noq) recno
+,a.datea,a.noa,b.noq,a.carno,a.driverno,a.driver,a.salesno,a.sales
+,b.custno,b.comp,b.ordeno,c.noq,b.odate,c.productno,c.product,c.spec,c.unit
+,c.mount
+,0 vtotal,b.ecount,b.width,b.memo
+from view_vcce a left join view_vcces b on a.noa=b.noa left join view_gets c on b.ordeno=c.noa
+where a.datea between @t_bdate and @t_edate 
+and isnull(b.custno,'') between @t_bcust and @t_ecust
+and a.driverno between @t_bdriver and @t_edriver
+and (len(@t_carno)=0 or a.carno=@t_carno) 
+and (len(@t_cardeal)=0 or a.cardealno=@t_cardeal)
+and isnull(c.mount,0)>0
+and c.noa is not null
+
+update a
+set recno=rr
+from (select recno,ROW_NUMBER () over (partition by datea,driverno order by datea,driverno,noa,noq,vccnoa,vccnoq) rr from @tmp) a
+
+update a
+set ecount=case when rr>1 then 0 else ecount end,comp=case when rr>1 then '' else comp end
+,memo=case when rr>1 then memo else memo+(case when len(memo)>0 then '<BR>' else '' end)+case when len(vccnoa)>0 then vccnoa else '' end end
+from (select *,ROW_NUMBER() over (partition by vccnoa order by vccnoa,vccnoq)rr from @tmp) a
+
+insert @tmp (gno,datea,driverno,recno,ecount,product)
+select '0' gno,datea,driverno,MAX(recno)+1,sum(ecount),'總計收現金額'
+from @tmp where gno='0' group by datea,driverno
+
+declare @datea nvarchar(50)
+declare @driverno nvarchar(50)
+declare @count int
+declare @t_count int
+declare @t_pageline int = 25
+
+if((select count(*) from @tmp)>0)
+begin
+	--增加空白欄
+	declare cursor_table cursor for
+	select datea,driverno,count(*) from @tmp group by datea,driverno
+	open cursor_table
+	fetch next from cursor_table
+	into @datea,@driverno,@count
+	while(@@FETCH_STATUS <> -1)
+	begin
+		
+		select @t_count=@t_pageline-(@count % @t_pageline)
+		while(@t_count>0 and @count % @t_pageline!=0)
+		begin
+			insert @tmp(gno,recno,datea,driverno)
+			select '0',@t_count+(@count % @t_pageline)+(FLOOR(cast(@count as float)/cast(@t_pageline as float))*@t_pageline)
+			,@datea,@driverno
+			set @t_count=@t_count-1
+		end
+	
+		fetch next from cursor_table
+		into @datea,@driverno,@count
+	end
+	close cursor_table
+	deallocate cursor_table
+	
+	update @tmp set page=CEILING(cast(recno as float)/ @t_pageline)
+	
+	insert @tmp (gno,datea,driverno,page)
+	select '1' gno,datea,driverno,page from @tmp where gno='0' group by datea,driverno,page
+	
+	--insert @tmp (gno,datea,driverno,page,lengthb,lengthc,mount,vtotal,ecount)
+	--select '2' gno,datea,driverno,MAX(page),sum(lengthb),sum(lengthc),sum(mount),sum(vtotal),sum(ecount) 
+	--from @tmp where gno='0' group by datea,driverno
+end
+
+select 
+dbo.getComma(mount,-1) mount,
+dbo.getComma(case when vtotal=0 then null else vtotal end,-1) vtotal,
+dbo.getComma(case when ecount=0 then null else ecount end,-1) ecount,
+case when ewidth>0 then 'V' else '' end width,
+* 
+from @tmp order by datea,driverno,page,case when gno='2' then '1' when gno='1' then '2' else gno end,recno;
+--**************************************************************************************************************
+z_vcce_xyp2:--z_vcce_xyp2
+declare @t_bdate nvarchar(20)
+declare @t_edate nvarchar(20)
+declare @t_bcust nvarchar(20)
+declare @t_ecust nvarchar(20)
+declare @t_bdriver nvarchar(20)
+declare @t_edriver nvarchar(20)
+declare @t_carno nvarchar(20)
+declare @t_cardeal nvarchar(20)
+
+set @t_bdate = case when '#non' = [2] then '' else [2] end
+set @t_edate = case when '#non' = [3] then CHAR(255) else [3] end
+set @t_bcust = case when '#non' = [4] then '' else [4] end
+set @t_ecust = case when '#non' = [5] then CHAR(255) else [5] end
+set @t_bdriver = case when '#non' = [6] then '' else [6] end
+set @t_edriver = case when '#non' = [7] then CHAR(255) else [7] end
+set @t_carno = case when '#non' = [8] then '' else [8] end
+set @t_cardeal = case when '#non' = [9] then '' else [9] end
+
+declare @pagelien nvarchar(20)=40
+-------------------------------------------------------------------------------------------------------------- 
+declare @tmp table(
+	gno nvarchar(10),
+	recno int,
+	recno2 int,
+	datea nvarchar(20),
+	carno nvarchar(20),
+	driverno nvarchar(50),
+	driver nvarchar(100),
+	custno nvarchar(50),
+	comp nvarchar(100),
+	productno nvarchar(100),
+	product nvarchar(MAX),
+	style nvarchar(20),
+	spec nvarchar(MAX),
+	unit nvarchar(20),
+	mount float,
+	mpage float,
+	page float,
+	xunit nvarchar(20),
+	inmount float,
+	xinmount float,
+	memo nvarchar(MAX)
+)
+
+
+insert @tmp 
+select '0',ROW_NUMBER() over (partition by datea,driverno order by datea,driverno,style,product,spec) recno,1 recno2
+,datea,MAX(carno),driverno,MAX(driver),custno,'' comp,productno,product,style,dbo.charbr(spec,35),unit,SUM(mount),0,0,'',1,1,''
+from (
+	select a.datea,a.carno,a.driverno,a.driver
+	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end custno,'' comp
+	,c.productno,c.product,d.style,d.spec,c.unit,(case when c.typea='2' then -1 else 1 end)*c.dime mount
+	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
+	left join view_ucaucc d on c.productno=d.noa
+	where a.datea between @t_bdate and @t_edate 
+	and isnull(b.custno,'') between @t_bcust and @t_ecust
+	and a.driverno between @t_bdriver and @t_edriver
+	and (len(@t_carno)=0 or a.carno=@t_carno) and c.typea='1'
+	and (len(@t_cardeal)=0 or a.cardealno=@t_cardeal)
+	and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
+	and c.noa is not null
+		
+	union all
+	select a.datea,a.carno,a.driverno,a.driver
+	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,''
+	,c.productno,c.product,d.style,d.spec,c.unit,c.mount
+	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_cngs c on b.ordeno=c.noa
+	left join view_ucaucc d on c.productno=d.noa
+	where a.datea between @t_bdate and @t_edate 
+	and isnull(b.custno,'') between @t_bcust and @t_ecust
+	and a.driverno between @t_bdriver and @t_edriver
+	and (len(@t_carno)=0 or a.carno=@t_carno)
+	and (len(@t_cardeal)=0 or a.cardealno=@t_cardeal)
+	and isnull(c.mount,0)>0
+	and c.noa is not null
+	
+	union all
+	select a.datea,a.carno,a.driverno,a.driver
+	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,''
+	,c.productno,c.product,d.style,d.spec,c.unit,c.mount
+	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_gets c on b.ordeno=c.noa
+	left join view_ucaucc d on c.productno=d.noa
+	where a.datea between @t_bdate and @t_edate 
+	and isnull(b.custno,'') between @t_bcust and @t_ecust
+	and a.driverno between @t_bdriver and @t_edriver
+	and (len(@t_carno)=0 or a.carno=@t_carno)
+	and (len(@t_cardeal)=0 or a.cardealno=@t_cardeal)
+	and isnull(c.mount,0)>0
+	and c.noa is not null
+)tmp group by datea,driverno,custno,productno,product,style,spec,unit
+
+update a
+set xunit=isnull(b.pack,'')
+,inmount=isnull(c.inmount,1),xinmount=isnull(b.inmount,1)
+from @tmp a 
+outer apply (select top 1 * from pack2s where noa=a.productno order by inmount desc )b
+outer apply (select top 1 * from pack2s where noa=a.productno and pack=a.unit )c
+
+update @tmp set inmount=case when inmount=0 then 1 else inmount end,xinmount=case when xinmount=0 then 1 else xinmount end
+
+update @tmp set memo=case when unit!=xunit then 
+case when FLOOR(mount*inmount/xinmount)>0 then cast(FLOOR(mount*inmount/xinmount) as nvarchar(100))+xunit else '' end
++case when FLOOR(mount*inmount/xinmount)>0 and (mount-(FLOOR(mount*inmount/xinmount)*xinmount))>0 then '+' else '' end
++case when (mount-(FLOOR(mount*inmount/xinmount)*xinmount))>0 then cast((mount-(FLOOR(mount*inmount/xinmount)*xinmount)) as nvarchar(100))+ unit else '' end
+else '' end
+
+declare @recno nvarchar(50)
+declare @recno2 nvarchar(50)
+declare @datea nvarchar(20)
+declare @driverno nvarchar(50)
+declare @prodspec nvarchar(MAX)
+
+--分行
+declare cursor_table cursor for
+select datea,driverno,recno,recno2,spec from @tmp order by recno,recno2
+open cursor_table
+fetch next from cursor_table
+into @datea,@driverno,@recno,@recno2,@prodspec
+while(@@FETCH_STATUS <> -1)
+begin
+	if (CHARINDEX('<BR>',@prodspec)>0)
+	begin
+		update @tmp
+		set spec=SUBSTRING(@prodspec,0,CHARINDEX('<BR>',@prodspec))
+		where datea=@datea and driverno=@driverno and recno=@recno and recno2=@recno2
+		
+		set @prodspec=SUBSTRING(@prodspec,CHARINDEX('<BR>',@prodspec)+4,LEN(@prodspec))
+	
+		insert @tmp(gno,recno,recno2,datea,carno,driverno,driver,custno,comp,productno,product,spec,style,unit,mount)
+			
+		select '0',@recno,@recno2+1,datea,carno,driverno,driver,custno,comp,productno,product,@prodspec,style,null,null
+		from @tmp where datea=@datea and driverno=@driverno and recno=@recno and recno2=@recno2
+	end
+
+	fetch next from cursor_table
+	into @datea,@driverno,@recno,@recno2,@prodspec
+end
+close cursor_table
+deallocate cursor_table
+
+--更新順序
+update a
+set recno=rr
+from (select recno,ROW_NUMBER()over(partition by datea,driverno order by datea,driverno,style,product,productno,recno2)rr from @tmp) a
+
+declare @count int
+declare @t_count int
+if((select count(*) from @tmp)>0)
+begin
+	--增加空白欄
+	declare cursor_table cursor for
+	select datea,driverno,count(*) from @tmp group by datea,driverno
+	open cursor_table
+	fetch next from cursor_table
+	into @datea,@driverno,@count
+	while(@@FETCH_STATUS <> -1)
+	begin
+	
+		select @t_count=@pagelien-(@count % @pagelien)
+		while(@t_count>0 and @count % @pagelien!=0)
+		begin
+			insert @tmp(gno,recno,datea,driverno)
+			select '0',@t_count+(@count % @pagelien)+(FLOOR(cast(@count as float)/cast(@pagelien as float))*@pagelien)
+			,@datea,@driverno
+			set @t_count=@t_count-1
+		end
+	
+		fetch next from cursor_table
+		into @datea,@driverno,@count
+	end
+	close cursor_table
+	deallocate cursor_table
+end
+
+update a
+set comp=case when recno2>1 then '' else isnull((select top 1 nick from cust where noa=a.custno),'') end
+from @tmp a where custno!=''
+
+update a
+set page=ceiling(cast(recno as float)/@pagelien)
+from @tmp a 
+
+update a
+set mpage=(select MAX(page) from @tmp where datea=a.datea and driverno=a.driverno)
+from @tmp a 
+
+select
+dbo.getComma(mount,-1) mount,
+* 
+from @tmp order by datea,driverno,gno,recno;
+
+--**************************************************************************************************************
+z_vcce_xyp2bk:--z_vcce_xyp2bk
+declare @t_bdate nvarchar(20)
+declare @t_edate nvarchar(20)
+declare @t_bcust nvarchar(20)
+declare @t_ecust nvarchar(20)
+declare @t_bdriver nvarchar(20)
+declare @t_edriver nvarchar(20)
+declare @t_carno nvarchar(20)
+
+set @t_bdate = case when '#non' = [2] then '' else [2] end
+set @t_edate = case when '#non' = [3] then CHAR(255) else [3] end
+set @t_bcust = case when '#non' = [4] then '' else [4] end
+set @t_ecust = case when '#non' = [5] then CHAR(255) else [5] end
+set @t_bdriver = case when '#non' = [6] then '' else [6] end
+set @t_edriver = case when '#non' = [7] then CHAR(255) else [7] end
+set @t_carno = case when '#non' = [8] then '' else [8] end
+
+declare @pagelien nvarchar(20)=25
+-------------------------------------------------------------------------------------------------------------- 
+
+declare @tmp table(
+	recno int,
+	recno2 int,
+	datea nvarchar(20),
+	carno nvarchar(20),
+	driverno nvarchar(50),
+	driver nvarchar(100),
+	custno nvarchar(50),
+	comp nvarchar(100),
+	productno nvarchar(100),
+	product nvarchar(MAX),
+	spec nvarchar(MAX),
+	unit nvarchar(50),
+	mount float,
+	prodspec nvarchar(MAX)
+)
+
+declare @tmpa table(
+	gno nvarchar(10),
+	page int,
+	mpage int,
+	datea nvarchar(20),
+	carno nvarchar(20),
+	driverno nvarchar(50),
+	driver nvarchar(100),
+	
+	rr1 int,
+	custno1 nvarchar(50),
+	comp1 nvarchar(100),
+	productno1 nvarchar(100),
+	product1 nvarchar(MAX),
+	spec1 nvarchar(MAX),
+	prodspec1 nvarchar(100),
+	unit1 nvarchar(50),
+	mount1 float,
+	
+	rr2 int,
+	custno2 nvarchar(50),
+	comp2 nvarchar(100),
+	productno2 nvarchar(100),
+	product2 nvarchar(MAX),
+	spec2 nvarchar(MAX),
+	prodspec2 nvarchar(100),
+	unit2 nvarchar(50),
+	mount2 float
+)
+
+--insert @tmp 
+--select ROW_NUMBER() over (partition by a.datea,a.driverno order by a.datea,a.driverno,c.product,c.spec) recno,1 recno2
+--,a.datea,MAX(a.carno),a.driverno,MAX(a.driver)
+--,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,'',c.productno,c.product,c.spec,c.unit
+--,SUM(c.dime)
+--,dbo.charbr(c.product+' '+c.spec,25)
+--from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
+--where a.datea between @t_bdate and @t_edate 
+--and isnull(b.custno,'') between @t_bcust and @t_ecust
+--and a.driverno between @t_bdriver and @t_edriver
+--and (len(@t_carno)=0 or a.carno=@t_carno) and c.typea='1'
+--and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
+--and c.noa is not null
+--group by a.datea,a.driverno,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,c.productno,c.product,c.spec,c.unit
+
+insert @tmp 
+select ROW_NUMBER() over (partition by datea,driverno order by datea,driverno,product,spec) recno,1 recno2
+,datea,MAX(carno),driverno,MAX(driver),custno,'' comp,productno,product,spec,unit,SUM(mount)
+,dbo.charbr(product+' '+spec,25)
+from (
+	select a.datea,a.carno,a.driverno,a.driver
+	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end custno,'' comp,c.productno,c.product,c.spec,c.unit
+	,c.dime mount
+	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
+	where a.datea between @t_bdate and @t_edate 
+	and isnull(b.custno,'') between @t_bcust and @t_ecust
+	and a.driverno between @t_bdriver and @t_edriver
+	and (len(@t_carno)=0 or a.carno=@t_carno) and c.typea='1'
+	and (isnull(c.mount,0)-isnull(c.tranmoney2,0)>0 or isnull(c.tranmoney3,0)>0)
+	and c.noa is not null
+		
+	union all
+	select a.datea,a.carno,a.driverno,a.driver
+	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,'',c.productno,c.product,c.spec,c.unit
+	,c.mount
+	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_cngs c on b.ordeno=c.noa
+	where a.datea between @t_bdate and @t_edate 
+	and isnull(b.custno,'') between @t_bcust and @t_ecust
+	and a.driverno between @t_bdriver and @t_edriver
+	and (len(@t_carno)=0 or a.carno=@t_carno)
+	and isnull(c.mount,0)>0
+	and c.noa is not null
+	
+	union all
+	select a.datea,a.carno,a.driverno,a.driver
+	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,'',c.productno,c.product,c.spec,c.unit
+	,c.mount
+	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_gets c on b.ordeno=c.noa
+	where a.datea between @t_bdate and @t_edate 
+	and isnull(b.custno,'') between @t_bcust and @t_ecust
+	and a.driverno between @t_bdriver and @t_edriver
+	and (len(@t_carno)=0 or a.carno=@t_carno)
+	and isnull(c.mount,0)>0
+	and c.noa is not null
+)tmp group by datea,driverno,custno,productno,product,spec,unit
+
+declare @recno nvarchar(50)
+declare @recno2 nvarchar(50)
+declare @datea nvarchar(20)
+declare @driverno nvarchar(50)
+declare @prodspec nvarchar(MAX)
+
+--分行
+declare cursor_table cursor for
+select datea,driverno,recno,recno2,prodspec from @tmp order by recno,recno2
+open cursor_table
+fetch next from cursor_table
+into @datea,@driverno,@recno,@recno2,@prodspec
+while(@@FETCH_STATUS <> -1)
+begin
+	if (CHARINDEX('<BR>',@prodspec)>0)
+	begin
+		update @tmp
+		set prodspec=SUBSTRING(@prodspec,0,CHARINDEX('<BR>',@prodspec))
+		where datea=@datea and driverno=@driverno and recno=@recno and recno2=@recno2
+		
+		set @prodspec=SUBSTRING(@prodspec,CHARINDEX('<BR>',@prodspec)+4,LEN(@prodspec))
+	
+		insert @tmp(recno,recno2,datea,carno,driverno,driver,custno,comp,productno,product,spec,unit,mount,prodspec)
+			
+		select @recno,@recno2+1,datea,carno,driverno,driver,custno,comp,productno,product,spec,null,null,@prodspec
+		from @tmp where datea=@datea and driverno=@driverno and recno=@recno and recno2=@recno2
+	end
+
+	fetch next from cursor_table
+	into @datea,@driverno,@recno,@recno2,@prodspec
+end
+close cursor_table
+deallocate cursor_table
+
+--更新順序
+update a
+set recno=rr
+from (select recno,ROW_NUMBER()over(partition by datea,driverno order by datea,driverno,product,spec,recno2)rr from @tmp) a
+
+declare @count int
+declare @t_count int
+if((select count(*) from @tmp)>0)
+begin
+	--增加空白欄
+	declare cursor_table cursor for
+	select datea,driverno,count(*) from @tmp group by datea,driverno
+	open cursor_table
+	fetch next from cursor_table
+	into @datea,@driverno,@count
+	while(@@FETCH_STATUS <> -1)
+	begin
+	
+		select @t_count=@pagelien-(@count % @pagelien)
+		while(@t_count>0 and @count % @pagelien!=0)
+		begin
+			insert @tmp(recno,datea,driverno)
+			select @t_count+(@count % @pagelien)+(FLOOR(cast(@count as float)/cast(@pagelien as float))*@pagelien)
+			,@datea,@driverno
+			set @t_count=@t_count-1
+		end
+	
+		fetch next from cursor_table
+		into @datea,@driverno,@count
+	end
+	close cursor_table
+	deallocate cursor_table
+end
+
+update a
+set comp=case when recno2>1 then '' else isnull((select top 1 nick from cust where noa=a.custno),'') end
+from @tmp a where custno!=''
+
+insert @tmpa
+select '0'gno,CEILING(cast(a.recno as float)/(@pagelien*2)),0 mpage,a.datea,a.carno,a.driverno,a.driver
+,a.recno,a.custno,a.comp,a.productno,a.product,a.spec,a.prodspec,a.unit,a.mount
+,a.recno+@pagelien,b.custno,b.comp,b.productno,b.product,b.spec,b.prodspec,b.unit,b.mount
+from @tmp a
+left join @tmp b on a.datea=b.datea and a.carno=b.carno and a.driverno=b.driverno and a.recno+@pagelien=b.recno
+where a.recno % (@pagelien*2)<=(@pagelien) and a.recno % (@pagelien*2)!=0
+group by a.datea,a.carno,a.driverno,a.driver
+,a.recno,a.custno,a.comp,a.productno,a.product,a.spec,a.prodspec,a.unit,a.mount
+,b.recno,b.custno,b.comp,b.productno,b.product,b.spec,b.prodspec,b.unit,b.mount
+
+update a
+set mpage=(select MAX(page) from @tmpa where datea=a.datea and driverno=a.driverno)
+from @tmpa a
+
+if((select count(*) from @tmpa)>0)
+begin
+	insert @tmpa (gno,datea,driverno,page,mpage)
+	select '1' gno,datea,driverno,page,mpage from @tmpa where gno='0' group by datea,driverno,page,mpage
+end
+
+select
+dbo.getComma(mount1,-1) mount1,
+dbo.getComma(mount2,-1) mount2,
+* 
+from @tmpa order by datea,driverno,page,gno,rr1;
+--**************************************************************************************************************

@@ -38,7 +38,7 @@
 					['txtProductno_', '', 'ucaucc', 'noa,product,unit,spec,style', 'txtProductno_,txtProduct_,txtUnit_,txtSpec_,txtClassa_', 'ucaucc_b.aspx'],
 					['txtSalesno', 'lblSales', 'sss', 'noa,namea', 'txtSalesno,txtSales', 'sss_b.aspx'],
 					['txtCno', 'lblAcomp', 'acomp', 'noa,acomp', 'txtCno,txtAcomp', 'acomp_b.aspx'],
-					['txtCustno', 'lblCust', 'cust', 'noa,nick,nick,tel,invoicetitle,serial', 'txtCustno,txtComp,txtNick,txtTel', 'cust_b.aspx'],
+					['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,tel,invoicetitle,serial', 'txtCustno,txtComp,txtNick,txtTel', 'cust_b.aspx'],
 					['ordb_txtTggno_', '', 'tgg', 'noa,comp', 'ordb_txtTggno_,ordb_txtTgg_', ''],
 					['txtSize_', 'btnSize_', 'store', 'noa,store', 'txtSize_,txtUcolor_', 'store_b.aspx']
 			);

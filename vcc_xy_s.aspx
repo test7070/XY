@@ -8,6 +8,10 @@
 		<script src='../script/qj_mess.js' type="text/javascript"> </script>
 		<script src='../script/mask.js' type="text/javascript"> </script>
         <link href="../qbox.css" rel="stylesheet" type="text/css" />
+        <link href="css/jquery/themes/redmond/jquery.ui.all.css" rel="stylesheet" type="text/css" />
+		<script src="css/jquery/ui/jquery.ui.core.js"> </script>
+		<script src="css/jquery/ui/jquery.ui.widget.js"> </script>
+		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"> </script>
 		<script type="text/javascript">
 			var q_name = "vcc_s";
             aPop = new Array( ['txtCustno', '', 'cust', 'noa,comp,nick,invoicetitle,serial', 'txtCustno', '']
@@ -29,6 +33,9 @@
 
 				bbmMask = [['txtMon', r_picm],['txtBdate', r_picd],['txtEdate', r_picd]];
 				q_mask(bbmMask);
+				$('#txtBdate').datepicker();
+                $('#txtEdate').datepicker();
+				
 				q_gt('acomp', '', 0, 0, 0, "");
 				q_gt('part', '', 0, 0, 0, "");
 				q_cmbParse("cmbTypea", "@全部,1@出,2@退");
@@ -40,7 +47,16 @@
 				q_cmbParse("cmbTrantype",  '@全部,'+q_getPara('sys.tran'));
 				
 				q_cmbParse("cmbVcceenda", "@全部,Y@已送貨,N@未送貨"); //106/04/27 已送貨
+				
+				//106/09/28 加
+				q_cmbParse("cmbTaxtype",  '@全部,'+q_getPara('sys.taxtype'));
+				q_cmbParse("combPay",  q_getPara('vcc.paytype'));
+				
 				$('#txtNoa').focus();
+				
+				$('#combPay').change(function() {
+					$('#txtPaytype').val($('#combPay').val());
+				});
 			}
 			function q_gtPost(t_name) {
                 switch (t_name) {
@@ -88,6 +104,7 @@
 				t_trantype = $('#cmbTrantype').val();
 				t_paytype = $('#txtPaytype').val();
 				t_vcceenda = $('#cmbVcceenda').val();
+				t_taxtype = $('#cmbTaxtype').val();
 				
 				var t_where = " 1=1 "
 				+ q_sqlPara2("typea", t_typea)
@@ -101,7 +118,8 @@
 				+ q_sqlPara2("accno", t_accno)
 				+ q_sqlPara2("custno", t_custno)
 				+ q_sqlPara2("trantype", t_trantype)
-				+ q_sqlPara2("cardealno", t_cardealno);
+				+ q_sqlPara2("cardealno", t_cardealno)
+				+ q_sqlPara2("taxtype", t_taxtype);
 				
 				if(t_invono.length>0)
 					t_where += " and charindex('"+t_invono+"',invono)>0 ";	
@@ -144,7 +162,7 @@
                 if(t_width=='N')
                 	t_where += " and noa in (select ordeno from view_vcces where width=0 and charindex('不',class)==0) ";
 				
-				if(t_paytype=='N')
+				if(t_paytype.length>0)
                 	t_where += " and charindex('"+t_paytype+"',paytype)>0 ";	
                 	
 				t_where = ' where=^^ ' + t_where + ' ^^ ';
@@ -224,8 +242,8 @@
 				<tr class='seek_tr'>
 					<td><a>送貨</a></td>
 					<td><select id="cmbVcceenda"> </select></td>
-					<td> </td>
-					<td> </td>
+					<td><a>稅別</a></td>
+					<td><select id="cmbTaxtype"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td><a>簽收 </a></td>
@@ -243,7 +261,10 @@
 					<td><a id='lblCardealno'>車行</a></td>
 					<td><input id="txtCardealno" type="text"/></td>
 					<td><a id='lblPaytype'>收款方式</a></td>
-					<td><input id="txtPaytype" type="text"/></td>
+					<td>
+						<select id="combPay" style="width: 20px;"> </select>
+						<input id="txtPaytype" type="text" style="width:80%;"/>
+					</td>
 				</tr>
 				<tr class='seek_tr'>
 					<td><a id='lblMemo'>備註 </a></td>

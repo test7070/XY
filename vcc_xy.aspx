@@ -1627,16 +1627,23 @@
 							var t_where = "where=^^noa='"+$('#txtProductno_'+b_seq).val()+"'^^";
 							q_gt('pack2s', t_where, 0, 0, 0, "getpack2s", r_accy, 1);
 							var as = _q_appendData("pack2s", "", true);
+							
+							for(var i=0 ; i<as.length;i++){
+								if(t_unit==as[i].pack){
+									t_inmount=dec(as[i].inmount);
+								}
+							}
+							
+							if(t_inmount>0){
+								t_mount=q_mul(t_mount,t_inmount);
+							}
 											
 							for(var i=0 ; i<as.length;i++){
 								//if(t_max_inmout<dec(as[i].inmount)){
 								//106/08/09 調整 取最大單位 可以抓中單位 根據目前訂單最大數量取最大可換算單位
-								if(t_max_inmout<dec(as[i].inmount)){
+								if(t_max_inmout<dec(as[i].inmount) && t_mount>=dec(as[i].inmount)){
 									t_max_unit=as[i].pack;
 									t_max_inmout=dec(as[i].inmount);
-								}
-								if(t_unit==as[i].pack){
-									t_inmount=dec(as[i].inmount);
 								}
 							}
 							if(t_max_inmout==0){

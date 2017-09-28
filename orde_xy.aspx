@@ -1947,7 +1947,17 @@
 							var t_unit=$('#txtUnit_'+b_seq).val();
 							var t_inmount=0;
 							var t_mount=dec($('#txtMount_'+b_seq).val());
-											
+							
+							$("#combZinc_"+b_seq).children().each(function(){
+								if(t_unit==$(this).text()){
+									t_inmount=dec($(this).val());
+								}
+							});
+							
+							if(t_inmount>0){
+								t_mount=q_mul(t_mount,t_inmount);
+							}
+									
 							$("#combZinc_"+b_seq).children().each(function(){
 								//if(t_max_inmout<dec($(this).val())){
 								//106/08/09 調整 取最大單位 可以抓中單位 根據目前訂單最大數量取最大可換算單位
@@ -1955,10 +1965,8 @@
 									t_max_unit=$(this).text()
 									t_max_inmout=dec($(this).val());
 								}
-								if(t_unit==$(this).text()){
-									t_inmount=dec($(this).val());
-								}
 							});
+							
 							if(t_max_inmout==0){
 								t_max_inmout=1;
 								t_max_unit=t_unit;
@@ -3537,13 +3545,13 @@
 						
 						$("#combZinc_"+i).children().each(function(){
 							if($('#txtZinc_'+i).val()==$(this).text()){
-								t_m1=$(this).val();
+								t_m1=dec($(this).val());
 							}
 							if($('#txtUnit_'+i).val()==$(this).text()){
-								t_m2=$(this).val();
+								t_m2=dec($(this).val());
 							}
 							if($('#txtHard_'+i).val()==$(this).text()){
-								t_m3=$(this).val();
+								t_m3=dec($(this).val());
 							}
 						});
 						

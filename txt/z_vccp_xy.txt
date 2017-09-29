@@ -738,6 +738,11 @@ fetch next from cursor_table
 into @idno,@noa,@noq,@productno
 while(@@FETCH_STATUS <> -1)
 begin
+	if(@lastnoa!=@noa)
+	begin
+		set @pageno_int = 0
+	end
+	
 	if((@recCount > @pageline) or (@noa != @lastnoa))
 	begin
 		set @recCount = 1
@@ -851,7 +856,7 @@ insert into @tmp(gno,noa,datea,pageno,pageorder,buyer,serial,invoaddr,chkno,vccn
 ------------插入頁首<<End>>-------------
 update @tmp set products=REPLACE(REPLACE(products,'<','&#60'),'>','&#62') where products like '%<[A-Z]>%' or products like '%<[A-Z][A-Z]>%'
 select
-	a.gno,a.pageno,a.pageorder,a.datea,
+	a.gno,a.pageno,b.maxpageno,a.pageorder,a.datea,
 	left(a.datea,3) da1,
 	substring(a.datea,5,2) da2,
 	right(a.datea,2) da3,
@@ -870,8 +875,9 @@ select
 	a.money5 m5,
 	a.money6 m6,
 	a.money7 m7,
-	a.money8 m8
-from @tmp a
+	a.money8 m8,
+	'頁數：'+CAST(a.pageno as nvarchar(10))+'/'+CAST(b.maxpageno as nvarchar(10)) pagememo
+from @tmp a outer apply (select MAX(pageno)maxpageno from @tmp where noa=a.noa)b
 order by a.noa,a.pageno,a.pageorder,a.productno,a.noq,a.gno;
 --------------------------------------------------------------------------------------------------------------------------------
 z_vccp_xy5:--z_vccp_xy5

@@ -1001,8 +1001,9 @@ begin
 		from cust a 
 		outer apply(select top 1 * from cust where serial=a.serial order by noa)b
 		outer apply(select top 1 * from custm where noa=a.noa )c
-		where exists (select * from #result where serial=a.serial ) 
-		and not exists (select * from #result where xcustno=a.noa)
+		where exists (select * from #result where serial=a.serial 
+		and salesno=a.salesno and custno2=a.custno2 and icustno=c.invocustno and vcustno=c.vcccustno and paytype=a.paytype
+		) and not exists (select * from #result where xcustno=a.noa)
 	end
 	else
 	begin
@@ -1018,8 +1019,9 @@ begin
 		from cust a 
 		outer apply(select * from cust where noa=(case when isnull(a.custno2,'')!='' then a.custno2 else a.noa end))b
 		outer apply(select top 1 * from custm where noa=a.noa )c
-		where exists (select * from #result where custno=a.custno2 ) 
-		and not exists (select * from #result where xcustno=a.noa)
+		where exists (select * from #result where custno=a.custno2 
+		and salesno=a.salesno and custno2=a.custno2 and icustno=c.invocustno and vcustno=c.vcccustno and paytype=a.paytype
+		) and not exists (select * from #result where xcustno=a.noa)
 	end
 end
 

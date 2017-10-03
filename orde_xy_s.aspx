@@ -43,7 +43,7 @@
                 q_cmbParse("cmbEnda", '@全部,Y@Y,N@N');
                 q_cmbParse("cmbCancel", '@全部,Y@Y,N@N');
 
-                $('#txtBdate').focus();
+                $('#txtCustno').focus();
             }
 
             function q_seekStr() {///  搜尋按下時，執行

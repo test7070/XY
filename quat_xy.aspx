@@ -1213,8 +1213,10 @@
 				$('#txtAcomp').val(z_acomp);
 				
 				//預設帶操作者
-				$('#txtSalesno').val(r_userno);
-				$('#txtSales').val(r_name);
+				if (!$('#checkCopy').is(':checked')){
+					$('#txtSalesno').val(r_userno);
+					$('#txtSales').val(r_name);
+				}
 
 				var t_where = "where=^^ 1=0 ^^";
 				q_gt('custaddr', t_where, 0, 0, 0, "");

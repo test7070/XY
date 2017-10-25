@@ -100,9 +100,11 @@ set ecount=case when rr>1 then 0 else ecount end,comp=case when rr>1 then '' els
 ,memo=case when rr>1 then memo else memo+(case when len(memo)>0 then '<BR>' else '' end)+case when len(vccnoa)>0 then vccnoa else '' end end
 from (select *,ROW_NUMBER() over (partition by vccnoa order by vccnoa,vccnoq)rr from @tmp) a
 
-insert @tmp (gno,datea,driverno,recno,ecount,product)
-select '0' gno,datea,driverno,MAX(recno)+1,sum(ecount),'總計收現金額'
-from @tmp where gno='0' group by datea,driverno
+insert @tmp (gno,datea,driverno,recno,ecount,product,memo)
+select '0' gno,datea,driverno,MAX(recno)+1,sum(ecount),'總計收現金額','共'+cast(
+(select count(*) from (select vccnoa from @tmp where datea=a.datea and driverno=a.driverno group by vccnoa)xtmp)
+as nvarchar(10))+'張'
+from @tmp a where gno='0' group by datea,driverno
 
 declare @datea nvarchar(50)
 declare @driverno nvarchar(50)
@@ -179,6 +181,7 @@ declare @tmp table(
 	gno nvarchar(10),
 	recno int,
 	recno2 int,
+	noa nvarchar(20),
 	datea nvarchar(20),
 	carno nvarchar(20),
 	driverno nvarchar(50),
@@ -202,9 +205,9 @@ declare @tmp table(
 
 insert @tmp 
 select '0',ROW_NUMBER() over (partition by datea,driverno order by datea,driverno,style,product,spec) recno,1 recno2
-,datea,MAX(carno),driverno,MAX(driver),custno,'' comp,productno,product,style,dbo.charbr(spec,35),unit,SUM(mount),0,0,'',1,1,''
+,noa,datea,MAX(carno),driverno,MAX(driver),custno,'' comp,productno,product,style,dbo.charbr(spec,35),unit,SUM(mount),0,0,'',1,1,''
 from (
-	select a.datea,a.carno,a.driverno,a.driver
+	select a.noa,a.datea,a.carno,a.driverno,a.driver
 	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end custno,'' comp
 	,c.productno,c.product,d.style,d.spec,c.unit,(case when c.typea='2' then -1 else 1 end)*c.dime mount
 	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_vccs c on b.ordeno=c.noa
@@ -218,7 +221,7 @@ from (
 	and c.noa is not null
 		
 	union all
-	select a.datea,a.carno,a.driverno,a.driver
+	select a.noa,a.datea,a.carno,a.driverno,a.driver
 	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,''
 	,c.productno,c.product,d.style,d.spec,c.unit,c.mount
 	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_cngs c on b.ordeno=c.noa
@@ -232,7 +235,7 @@ from (
 	and c.noa is not null
 	
 	union all
-	select a.datea,a.carno,a.driverno,a.driver
+	select a.noa,a.datea,a.carno,a.driverno,a.driver
 	,case when charindex('-',c.productno)>0 then left(b.custno,5) else '' end,''
 	,c.productno,c.product,d.style,d.spec,c.unit,c.mount
 	from view_vcce a left join view_vcces b on a.noa=b.noa left join view_gets c on b.ordeno=c.noa
@@ -244,7 +247,7 @@ from (
 	and (len(@t_cardeal)=0 or a.cardealno=@t_cardeal)
 	and isnull(c.mount,0)>0
 	and c.noa is not null
-)tmp group by datea,driverno,custno,productno,product,style,spec,unit
+)tmp group by noa,datea,driverno,custno,productno,product,style,spec,unit
 
 update a
 set xunit=isnull(b.pack,'')
@@ -263,34 +266,35 @@ else '' end
 
 declare @recno nvarchar(50)
 declare @recno2 nvarchar(50)
+declare @noa nvarchar(20)
 declare @datea nvarchar(20)
 declare @driverno nvarchar(50)
 declare @prodspec nvarchar(MAX)
 
 --分行
 declare cursor_table cursor for
-select datea,driverno,recno,recno2,spec from @tmp order by recno,recno2
+select noa,datea,driverno,recno,recno2,spec from @tmp order by recno,recno2
 open cursor_table
 fetch next from cursor_table
-into @datea,@driverno,@recno,@recno2,@prodspec
+into @noa,@datea,@driverno,@recno,@recno2,@prodspec
 while(@@FETCH_STATUS <> -1)
 begin
 	if (CHARINDEX('<BR>',@prodspec)>0)
 	begin
 		update @tmp
 		set spec=SUBSTRING(@prodspec,0,CHARINDEX('<BR>',@prodspec))
-		where datea=@datea and driverno=@driverno and recno=@recno and recno2=@recno2
+		where noa=@noa and datea=@datea and driverno=@driverno and recno=@recno and recno2=@recno2
 		
 		set @prodspec=SUBSTRING(@prodspec,CHARINDEX('<BR>',@prodspec)+4,LEN(@prodspec))
 	
-		insert @tmp(gno,recno,recno2,datea,carno,driverno,driver,custno,comp,productno,product,spec,style,unit,mount)
+		insert @tmp(gno,recno,recno2,noa,datea,carno,driverno,driver,custno,comp,productno,product,spec,style,unit,mount)
 			
-		select '0',@recno,@recno2+1,datea,carno,driverno,driver,custno,comp,productno,product,@prodspec,style,null,null
-		from @tmp where datea=@datea and driverno=@driverno and recno=@recno and recno2=@recno2
+		select '0',@recno,@recno2+1,noa,datea,carno,driverno,driver,custno,comp,productno,product,@prodspec,style,null,null
+		from @tmp where noa=@noa and datea=@datea and driverno=@driverno and recno=@recno and recno2=@recno2
 	end
 
 	fetch next from cursor_table
-	into @datea,@driverno,@recno,@recno2,@prodspec
+	into @noa,@datea,@driverno,@recno,@recno2,@prodspec
 end
 close cursor_table
 deallocate cursor_table
@@ -298,7 +302,7 @@ deallocate cursor_table
 --更新順序
 update a
 set recno=rr
-from (select recno,ROW_NUMBER()over(partition by datea,driverno order by datea,driverno,style,product,productno,recno2)rr from @tmp) a
+from (select recno,ROW_NUMBER()over(partition by noa,datea,driverno order by noa,datea,driverno,style,product,productno,recno2)rr from @tmp) a
 
 declare @count int
 declare @t_count int
@@ -306,24 +310,24 @@ if((select count(*) from @tmp)>0)
 begin
 	--增加空白欄
 	declare cursor_table cursor for
-	select datea,driverno,count(*) from @tmp group by datea,driverno
+	select noa,datea,driverno,count(*) from @tmp group by noa,datea,driverno
 	open cursor_table
 	fetch next from cursor_table
-	into @datea,@driverno,@count
+	into @noa,@datea,@driverno,@count
 	while(@@FETCH_STATUS <> -1)
 	begin
 	
 		select @t_count=@pagelien-(@count % @pagelien)
 		while(@t_count>0 and @count % @pagelien!=0)
 		begin
-			insert @tmp(gno,recno,datea,driverno)
+			insert @tmp(gno,recno,noa,datea,driverno)
 			select '0',@t_count+(@count % @pagelien)+(FLOOR(cast(@count as float)/cast(@pagelien as float))*@pagelien)
-			,@datea,@driverno
+			,@noa,@datea,@driverno
 			set @t_count=@t_count-1
 		end
 	
 		fetch next from cursor_table
-		into @datea,@driverno,@count
+		into @noa,@datea,@driverno,@count
 	end
 	close cursor_table
 	deallocate cursor_table
@@ -338,13 +342,13 @@ set page=ceiling(cast(recno as float)/@pagelien)
 from @tmp a 
 
 update a
-set mpage=(select MAX(page) from @tmp where datea=a.datea and driverno=a.driverno)
+set mpage=(select MAX(page) from @tmp where noa=a.noa and datea=a.datea and driverno=a.driverno)
 from @tmp a 
 
 select
 dbo.getComma(mount,-1) mount,
 * 
-from @tmp order by datea,driverno,gno,recno;
+from @tmp order by datea,driverno,noa,gno,recno;
 
 --**************************************************************************************************************
 z_vcce_xyp2bk:--z_vcce_xyp2bk

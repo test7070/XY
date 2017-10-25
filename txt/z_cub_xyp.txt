@@ -59,7 +59,7 @@ z_cub_xyp1:--z_cub_xyp1
 	declare @t_accy nvarchar(max)
 	declare @t_bxnoa nvarchar(50)
 	declare @t_exnoa nvarchar(50)
-	declare @t_pageline int = 8   --------一頁幾行
+	declare @t_pageline int = 12   --------一頁幾行
 
 	set @t_accy = '[1]'
 	set @t_bxnoa = case when '#non'=[6] then '' else [6] end
@@ -122,12 +122,15 @@ z_cub_xyp1:--z_cub_xyp1
 	while(@@FETCH_STATUS <> -1)
 	begin
 			--新增空白欄
-			select @t_count=@t_pageline-(@count%@t_pageline)
-			while(@t_count>0)
+			if(@count%@t_pageline>0)
 			begin
-				insert @result(gno,recno,noa)
-				select '0',@t_count+(@count % @t_pageline)+(FLOOR(cast(@count as float)/cast(@t_pageline as float))*@t_pageline),@t_noa
-				set @t_count=@t_count-1
+				select @t_count=@t_pageline-(@count%@t_pageline)
+				while(@t_count>0)
+				begin
+					insert @result(gno,recno,noa)
+					select '0',@t_count+(@count % @t_pageline)+(FLOOR(cast(@count as float)/cast(@t_pageline as float))*@t_pageline),@t_noa
+					set @t_count=@t_count-1
+				end
 			end
 			
 			--新增 表頭與表尾
@@ -158,8 +161,8 @@ z_cub_xyp1:--z_cub_xyp1
 	where gno='0'
 		
 	select 
-	dbo.getComma(mount,[2]) mount,
-	dbo.getComma(amount,[2]) amount,
+	dbo.getComma(mount,-1) mount,
+	dbo.getComma(amount,-1) amount,
 	'<img width="50px" src="http://59.125.143.171/images/logo1_xy.png">' logo1
 	,dbo.AD2ChineseEraName(CONVERT (VARCHAR(10), GETDATE(),20 )) pdate
 	,*

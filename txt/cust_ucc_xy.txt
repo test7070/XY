@@ -1465,6 +1465,17 @@ and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from
 and isnull(b.ordeweight,0)=0 and isnull(b.enda,0)=0 and isnull(a.chka2,0)=0 and isnull(a.enda,0)=0
 order by a.datea,b.productno
 
+--106/10/30 更新客戶品名
+update a
+set product=case when isnull(b.product,'')='' then a.product else isnull(b.product,'') end
+from @tmp a outer apply (select top 1 product from ucccust where noa=a.productno and custno=a.custno and product!='' order by noq desc)b
+
+--106/10/30品名+客戶最新產品編號 目前只有CR002長航
+update a
+set product=a.product+isnull(b.productno,'')
+from @tmp a outer apply (select top 1 productno from ucccust where noa=a.productno and custno=a.custno and productno!='' order by noq desc)b
+where custno='CR002'
+
 select * from @tmpa
 union all
 select * from @tmp a

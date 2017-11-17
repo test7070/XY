@@ -102,7 +102,7 @@ from (select *,ROW_NUMBER() over (partition by vccnoa order by vccnoa,vccnoq)rr 
 
 insert @tmp (gno,datea,driverno,noa,recno,ecount,product,memo)
 select '0' gno,datea,driverno,noa,MAX(recno)+1,sum(ecount),'總計收現金額','共'+cast(
-(select count(*) from (select vccnoa from @tmp where datea=a.datea and driverno=a.driverno group by vccnoa)xtmp)
+(select count(*) from (select vccnoa from @tmp where datea=a.datea and driverno=a.driverno and noa=a.noa group by vccnoa)xtmp)
 as nvarchar(10))+'張'
 from @tmp a where gno='0' group by datea,driverno,noa
 

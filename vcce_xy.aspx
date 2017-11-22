@@ -165,11 +165,11 @@
                                 if(b_ret[i]!=undefined){
                                 	if((b_ret[i].paytype.indexOf('貨到收現')>-1 || b_ret[i].paytype.indexOf('貨運代收')>-1)){
                                 		if(!(b_ret[i].paytype=='貨到收現' || b_ret[i].paytype=='貨運代收')){
-                                			t_ptotal=b_ret[i].paytype.substr(5,b_ret[i].paytype.length);
+                                			var t_ptotal=b_ret[i].paytype.substr(5,b_ret[i].paytype.length);
                                 			t_ptotal=parseFloat(t_ptotal);
-                                		}
-                                		if(t_ptotal!=undefined){
-                                			b_ret[i].total=t_ptotal;
+                                			if(t_ptotal!=undefined){
+	                                			b_ret[i].total=t_ptotal;
+	                                		}
                                 		}
                                 	}
                                 	

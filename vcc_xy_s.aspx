@@ -142,7 +142,7 @@
                 if(t_vcceenda=='Y')
                 	t_where += " and noa in (select ordeno from view_vcces where enda=1) ";
                 if(t_vcceenda=='N')
-                	t_where += " and noa in (select ordeno from view_vcces where enda=0) ";
+                	t_where += " and (noa in (select ordeno from view_vcces where enda=0) or noa not in (select ordeno from view_vcces)) ";
                 
                 //簽收
                 if(t_dime=='Y')

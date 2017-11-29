@@ -42,24 +42,31 @@
                 	queryString = @"select isnull(d.nick,'')comp,case when charindex('[',c.spec)>0 and charindex(']',c.spec)>0
 									then SUBSTRING(c.spec,charindex('[',c.spec)+1,charindex(']',c.spec)-charindex('[',c.spec)-1)
 									else case when c.style='私-空白' then '空白' else c.style end end version
-									,b.productno,a.noa,c.product,REPLACE(c.spec,case when charindex('[',c.spec)>0 and charindex(']',c.spec)>0
+									,b.productno,a.noa
+									,case when isnull(xb.product,'')='' then c.product else isnull(xb.product,'') end+case when isnull(d.noa,'')='CR002' then +isnull(xc.productno,'') else '' end product
+									,REPLACE(c.spec,case when charindex('[',c.spec)>0 and charindex(']',c.spec)>0
 									then SUBSTRING(c.spec,charindex('[',c.spec),charindex(']',c.spec)-charindex('[',c.spec)+1)
 									else '' end,'') spec
 									from view_rc2 a left join view_rc2s b on a.noa=b.noa
 									left join ucc c on b.productno=c.noa
 									left join cust d on left(b.productno,5)=d.noa
+									outer apply (select top 1 product from ucccust where noa=b.productno and custno=d.noa and product!='' order by noq desc)xb
+									outer apply (select top 1 productno from ucccust where noa=b.productno and custno=d.noa and productno!='' order by noq desc)xc
                                     where a.noa=@t_noa and c.noa is not null
                                     ";
 				}else if(t_tablea=="cub"){
                 	queryString = @"select isnull(d.nick,'')comp,case when charindex('[',b.spec)>0 and charindex(']',b.spec)>0
 									then SUBSTRING(b.spec,charindex('[',b.spec)+1,charindex(']',b.spec)-charindex('[',b.spec)-1)
 									else case when b.style='私-空白' then '空白' else b.style end end version
-									,a.productno,a.noa,b.product
+									,a.productno,a.noa
+									,case when isnull(xb.product,'')='' then b.product else isnull(xb.product,'') end+case when isnull(d.noa,'')='CR002' then +isnull(xc.productno,'') else '' end product
 									,REPLACE(b.spec,case when charindex('[',b.spec)>0 and charindex(']',b.spec)>0
 									then SUBSTRING(b.spec,charindex('[',b.spec),charindex(']',b.spec)-charindex('[',b.spec)+1)
 									else '' end,'') spec
 									from view_cub a left join ucc b on a.productno=b.noa
 									left join cust d on left(a.productno,5)=d.noa
+									outer apply (select top 1 product from ucccust where noa=a.productno and custno=d.noa and product!='' order by noq desc)xb
+									outer apply (select top 1 productno from ucccust where noa=a.productno and custno=d.noa and productno!='' order by noq desc)xc
                                     where a.noa=@t_noa and b.noa is not null
                                     ";
 				}else if(t_tablea=="ina"){
@@ -67,27 +74,32 @@
 									,case when charindex('[',c.spec)>0 and charindex(']',c.spec)>0
 									then SUBSTRING(c.spec,charindex('[',c.spec)+1,charindex(']',c.spec)-charindex('[',c.spec)-1)
 									else case when c.style='私-空白' then '空白' else c.style end end version
-									,b.productno,a.noa,c.product
+									,b.productno,a.noa
+									,case when isnull(xb.product,'')='' then c.product else isnull(xb.product,'') end+case when isnull(d.noa,'')='CR002' then +isnull(xc.productno,'') else '' end product
 									,REPLACE(c.spec,case when charindex('[',c.spec)>0 and charindex(']',c.spec)>0
 									then SUBSTRING(c.spec,charindex('[',c.spec),charindex(']',c.spec)-charindex('[',c.spec)+1)
 									else '' end,'') spec
 									from view_ina a left join view_inas b on a.noa=b.noa
 									left join ucc c on b.productno=c.noa
 									left join cust d on left(b.productno,5)=d.noa
+									outer apply (select top 1 product from ucccust where noa=b.productno and custno=d.noa and product!='' order by noq desc)xb
+									outer apply (select top 1 productno from ucccust where noa=b.productno and custno=d.noa and productno!='' order by noq desc)xc
                                     where a.noa=@t_noa and c.noa is not null
-                                    
                                     ";
 				}else{
 					queryString = @"select isnull(b.comp,'') comp
 									,case when charindex('[',a.spec)>0 and charindex(']',a.spec)>0
 									then SUBSTRING(a.spec,charindex('[',a.spec)+1,charindex(']',a.spec)-charindex('[',a.spec)-1)
 									else case when a.style='私-空白' then '空白' else a.style end end version
-									,a.noa productno,a.noa,a.product
+									,a.noa productno,a.noa
+									,case when isnull(xb.product,'')='' then a.product else isnull(xb.product,'') end+case when isnull(b.noa,'')='CR002' then +isnull(xc.productno,'') else '' end product
 									,REPLACE(a.spec,case when charindex('[',a.spec)>0 and charindex(']',a.spec)>0
 									then SUBSTRING(a.spec,charindex('[',a.spec),charindex(']',a.spec)-charindex('[',a.spec)+1)
 									else '' end,'') spec
-									from ucc a outer apply (select nick comp 
+									from ucc a outer apply (select noa ,nick comp 
 									from cust where noa=LEFT(a.noa,5) and CHARINDEX('-',a.noa)>0)b
+									outer apply (select top 1 product from ucccust where noa=a.noa and custno=b.noa and product!='' order by noq desc)xb
+									outer apply (select top 1 productno from ucccust where noa=a.noa and custno=b.noa and productno!='' order by noq desc)xc
 									where a.noa like @t_noa+'%' or len(@t_noa)=0
                                     ";
 				}

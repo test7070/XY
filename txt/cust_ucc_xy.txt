@@ -971,7 +971,8 @@ begin
 	select '','',a.cno,a.custno,@nowdate,b.productno,b.product,b.unit
 	,SUM(case when b.typea='1' then 1 else -1 end*b.mount)
 	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
-	,SUM(case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
+	,SUM(case when b.typea='1' then 1 else -1 end*
+	case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
 	,'','',case when a.taxtype='3' then '1' else a.taxtype end
 	from #tvcc a left join view_vccs b on a.vccno=b.noa
 	where isnull(b.total,0)>0
@@ -1011,7 +1012,8 @@ begin
 	select '','',a.cno,a.custno,@nowdate,b.productno,b.product,b.unit
 	,SUM(case when b.typea='1' then 1 else -1 end*b.mount)
 	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
-	,SUM(case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
+	,SUM(case when b.typea='1' then 1 else -1 end*
+	case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
 	,'',a.custorde,case when taxtype='3' then '1' else taxtype end
 	from #tvcc a left join view_vccs b on a.vccno=b.noa
 	where a.ordeno=b.ordeno and isnull(b.total,0)>0

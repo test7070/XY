@@ -51,12 +51,12 @@
                 $('#txtXdate2').mask(r_picd);
                 $('#txtXdate2').datepicker();
                 
-                $('#Showmemo').css('width','300px');
-                $('#chkShowmemo').css('width','220px');
-                $('#chkShowmemo span').css('width','180px');
-                $('#Showlogo2').css('width','300px');
-                $('#chkShowlogo2').css('width','220px');
-                $('#chkShowlogo2 span').css('width','180px');
+                //$('#Showmemo').css('width','300px');
+                //$('#chkShowmemo').css('width','220px');
+                //$('#chkShowmemo span').css('width','180px');
+                //$('#Showlogo2').css('width','300px');
+                //$('#chkShowlogo2').css('width','220px');
+                //$('#chkShowlogo2 span').css('width','180px');
                 
                 var t_key = q_getHref();
                 if(t_key[1] != undefined)

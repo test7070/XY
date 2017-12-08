@@ -1052,7 +1052,7 @@
 			        	}
 			        	break;*/
 					case 'txtProductno':
-						if(!emp($('#txtProductno').val()) && $('#txtProductno').val().indexOf('-')>0){
+						if(!emp($('#txtProductno').val()) && $('#txtProductno').val().indexOf('-')>0 && emp($('#txtOrdeno').val())){//106/12/08 訂單號碼空白才變更客戶編號
 							var t_custno=$('#txtProductno').val().substr(0,5);
 							q_gt('cust', "where=^^noa='" + t_custno + "'^^", 0, 0, 0, "getcust",r_accy,1);
 							var as = _q_appendData("cust", "", true);

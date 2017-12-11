@@ -64,7 +64,7 @@
 									then SUBSTRING(b.spec,charindex('[',b.spec),charindex(']',b.spec)-charindex('[',b.spec)+1)
 									else '' end,'') spec
 									from view_cub a left join ucc b on a.productno=b.noa
-									left join cust d on left(a.productno,5)=d.noa
+									left join cust d on case when charindex('-',a.productno)>0 then left(a.productno,5) else a.custno end=d.noa
 									outer apply (select top 1 product from ucccust where noa=a.productno and custno=d.noa and product!='' order by noq desc)xb
 									outer apply (select top 1 productno from ucccust where noa=a.productno and custno=d.noa and productno!='' order by noq desc)xc
                                     where a.noa=@t_noa and b.noa is not null

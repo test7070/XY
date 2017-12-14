@@ -1633,6 +1633,7 @@
 					}
 					
 					var t_sizea=dec($('#txtSizea_'+k).val());
+					var t_lengthb=dec($('#txtLengthb_'+k).val());
 					var t_m1=0;
 					var t_m3=0;
 					
@@ -1645,9 +1646,11 @@
 								t_m3=$(this).val();
 							}
 						});
-						t_sizea=round(t_sizea*t_m1/t_m3,1);
+						//t_sizea=round(t_sizea*t_m1/t_m3,1);
+						t_sizea=round(t_sizea*t_m3,1);
+						t_lengthb=round(t_sizea*t_m1,1);
 						
-						if(t_sizea>dec($('#txtLengthb_'+k).val())){
+						if(t_sizea>t_lengthb){
 							t_err=t_err+$('#txtProductno_'+k).val()+"客單數量低於最低訂購量\n";
 						}
 					}

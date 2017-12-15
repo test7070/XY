@@ -21,7 +21,7 @@
 			var decbbs = ['price', 'weight', 'mount', 'total', 'dime', 'width', 'lengthb', 'c1', 'notv', 'theory'];
 			var decbbm = ['money', 'tax', 'total', 'weight', 'floata', 'mount', 'price', 'totalus'];
 			var q_readonly = ['txtNoa','txtWorker', 'txtCno', 'txtAcomp', 'txtSales', 'txtWorker2','txtMoney','txtTotal','txtTotalus','txtComp','txtConn'];
-			var q_readonlys = ['txtTotal','txtAdd1','txtUnit','txtSizea'];
+			var q_readonlys = ['txtTotal','txtAdd1','txtUnit'];
 			var bbmNum = [];
 			var bbsNum = [];
 			var bbmMask = [];
@@ -593,6 +593,17 @@
 				if(t_repeat){
 					alert('項次重複!!');
 					return;
+				}
+				
+				//106/12/15單價0給提示
+				var t_price0='';
+				for (var i = 0; i < q_bbsCount; i++) {
+					if(!emp($('#txtProductno_'+i).val()) && dec($('#txtPrice_'+i).val())==0){
+						t_price0=t_price0+(t_price0.length>0?'\n':'')+$('#txtProductno_'+i).val()+' 單價為零，請確認是否正確!!';
+					}
+				}
+				if(t_price0.length>0){
+					alert(t_price0);
 				}
 				
 				//1030419 當專案沒有勾 BBM的取消和結案被打勾BBS也要寫入

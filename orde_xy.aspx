@@ -3253,8 +3253,20 @@
 							t_n=q_bbsCount;
 						}
 						
-						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtSizea,txtDime,txtZinc,txtUnit,txtPrice,txtHard,txtLengthc,txtQuatno,txtNo3,txtClassa,txtClass'
-						, as.length, as, 'productno,product,spec,sizea,dime,ounit,uunit,price,unit,price,noa,no3,classa,class', 'txtProductno,txtProduct,txtSpec');
+						//106/12/15訂單 新版 提示(依據有沒有出過貨)
+						var tpscolor='';
+						for(var i = 0; i < as.length; i++){
+							if(as[i].scolor=='新版'){
+								tpscolor=tpscolor+as[i].productno+' 未出過貨，請確認是否為【新版】!!\n';
+							}
+						}
+						
+						q_gridAddRow(bbsHtm, 'tbbs', 'txtProductno,txtProduct,txtSpec,txtSizea,txtDime,txtZinc,txtUnit,txtPrice,txtHard,txtLengthc,txtQuatno,txtNo3,txtClassa,txtClass,cmbScolor'
+						, as.length, as, 'productno,product,spec,sizea,dime,ounit,uunit,price,unit,price,noa,no3,classa,class,scolor', 'txtProductno,txtProduct,txtSpec');
+						
+						if(tpscolor.length>0){
+							alert(tpscolor);
+						}
 						
 						combzincchange('ALL');
 						for (var i = 0; i < q_bbsCount; i++) {

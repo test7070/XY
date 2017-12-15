@@ -1648,7 +1648,7 @@
 						});
 						//t_sizea=round(t_sizea*t_m1/t_m3,1);
 						t_sizea=round(t_sizea*t_m3,1);
-						t_lengthb=round(t_sizea*t_m1,1);
+						t_lengthb=round(t_lengthb*t_m1,1);
 						
 						if(t_sizea>t_lengthb){
 							t_err=t_err+$('#txtProductno_'+k).val()+"客單數量低於最低訂購量\n";

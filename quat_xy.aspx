@@ -21,7 +21,7 @@
 			var decbbs = ['price', 'weight', 'mount', 'total', 'dime', 'width', 'lengthb', 'c1', 'notv', 'theory'];
 			var decbbm = ['money', 'tax', 'total', 'weight', 'floata', 'mount', 'price', 'totalus'];
 			var q_readonly = ['txtNoa','txtWorker', 'txtCno', 'txtAcomp', 'txtSales', 'txtWorker2','txtMoney','txtTotal','txtTotalus','txtComp','txtConn'];
-			var q_readonlys = ['txtTotal','txtAdd1','txtUnit'];
+			var q_readonlys = ['txtTotal','txtAdd1','txtUnit','txtSizea'];
 			var bbmNum = [];
 			var bbsNum = [];
 			var bbmMask = [];

@@ -2034,8 +2034,8 @@
 						for (var i=0;i<fbbm.length;i++){
 							//105/08/19 排除帳款月份(備註) 交運方式 PS 稅別絕對不能開放修改
 							//106/04/21 開放日期可以修改//為盤點使用
-							//106/11/06 M02開放可改營業稅別
-							if(r_userno.toUpperCase()=='M02'){
+							//106/11/06 M02開放可改營業稅別 //106/12/22 開放M20
+							if(r_userno.toUpperCase()=='M02' || r_userno.toUpperCase()=='M20'){
 								if(fbbm[i]!='txtMemo' && fbbm[i]!='txtDatea' && fbbm[i]!='txtMon' && fbbm[i]!='cmbTrantype' && fbbm[i]!='cmbTaxtype')
 									$('#'+fbbm[i]).attr('disabled', 'disabled');
 							}else{

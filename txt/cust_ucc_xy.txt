@@ -1478,13 +1478,14 @@ set product=a.product+isnull(b.productno,'')
 from @tmp a outer apply (select top 1 productno from ucccust where noa=a.productno and custno=a.custno and productno!='' order by noq desc)b
 where custno='CR002'
 
-select xtmp.*,case when xb.xcount=0 and CHARINDEX('-',productno)>0 then '新版' else '' end scolor
+select xtmp.*,case when xb.xcount=0 and xc.xcount=0 and CHARINDEX('-',productno)>0 then '新版' else '' end scolor
 from (
 	select * from @tmpa
 	union all
 	select * from @tmp a
 	where not exists (select* from @tmpa where productno=a.productno)
 )xtmp outer apply (select count(*) xcount from view_vccs where productno=xtmp.productno)xb
+outer apply (select count(*) xcount from view_cub where productno=xtmp.productno)xc
 order by noa,no3
 ;
 ---------------------------------------------------------------------------------------------------------------------------------

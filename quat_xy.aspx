@@ -821,8 +821,8 @@
 									}
 								}
 								//非該客戶的印品
-								if ($('#txtProductno_'+b_seq).val().substr(0,5)!=$('#txtCustno').val().substr(0,5)
-									&& $('#txtProductno_' + b_seq).val().substr(0,5)!=t_grpno.substr(0,5)
+								if ($('#txtProductno_'+b_seq).val().substr(0,5).toUpperCase()!=$('#txtCustno').val().substr(0,5).toUpperCase()
+									&& $('#txtProductno_' + b_seq).val().substr(0,5).toUpperCase()!=t_grpno.substr(0,5).toUpperCase()
 									&& !isexists ){
 									$('#txtProductno_'+b_seq).val('');
 								}

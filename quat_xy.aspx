@@ -1200,6 +1200,16 @@
 			}
 
 			function btnIns() {
+				//106/12/26 重新抓取
+				q_gt('acomp', "where=^^(dbname='"+t_db+"' or not exists (select * from acomp where dbname='"+t_db+"')) ^^ stop=1", 0, 0, 0, "cno_acomp",r_accy,1);
+				var as = _q_appendData("acomp", "", true);
+				if (as[0] != undefined) {
+					z_cno = as[0].noa;
+					z_acomp = as[0].acomp;
+					z_nick = as[0].nick;
+				}
+				break;
+				
 				var t_bbscounts=q_bbsCount;
 				if ($('#checkCopy').is(':checked'))
 					curData.copy();

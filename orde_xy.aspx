@@ -2591,7 +2591,6 @@
 					z_acomp = as[0].acomp;
 					z_nick = as[0].nick;
 				}
-				break;
 				
 				var t_bbscounts=q_bbsCount;
 				if ($('#checkCopy').is(':checked')){

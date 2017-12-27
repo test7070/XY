@@ -1,0 +1,2045 @@
+﻿tmp_cust_ucc:--tmp_cust_ucc --建立暫存的客戶資料 與 產品(便品) --已不用
+SET QUOTED_IDENTIFIER OFF
+declare @noa nvarchar(MAX) = [1]
+declare @worker nvarchar(MAX) = [2]
+declare @year nvarchar(MAX) = [3]
+
+declare @newcustno nvarchar(MAX)=isnull((select custno from view_quat where noa=@noa),'')
+declare @accy nvarchar(MAX)=isnull((select accy from view_quat where noa=@noa),@year)
+
+if(@newcustno='')
+	set @newcustno='##'+right('000'+cast(cast(isnull((select right(MAX(noa),3) from cust where LEFT(noa,2)='##'),'000') as int)+1 as nvarchar(10)),3)
+
+insert cust(noa,comp,nick,paytype,tel,fax,zip_comp,addr_comp,zip_home,addr_home,trantype,salesno,sales)
+select @newcustno,comp,comp,paytype,tel,fax
+,post,addr,post,addr,trantype,salesno,sales
+from view_quat where noa=@noa and custno=''
+
+--更新報價單客戶
+exec("update quat"+@accy+" set custno='"+@newcustno+"' where noa='"+@noa+"'")
+
+declare @t_noa nvarchar(MAX)
+declare @t_no3 nvarchar(MAX)
+declare @product nvarchar(MAX)
+declare @spec nvarchar(MAX)
+declare @unit nvarchar(MAX)
+declare @classa nvarchar(MAX)
+declare @newpno nvarchar(MAX)
+
+declare cursor_table cursor for 
+select noa,no3,product,spec,unit,classa from view_quats where noa=@noa and productno=''
+open cursor_table 
+fetch next from cursor_table 
+into @t_noa,@t_no3,@product,@spec,@unit,@classa
+while(@@FETCH_STATUS <> -1) 
+begin 
+	if(@classa='印' or @classa='客')
+	begin
+		set @newpno=@newcustno+'-'+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,len(@newcustno))=@newcustno and len(noa)>5),'000'),3) as int)+1 as nvarchar(10)),3)
+	end
+	else--便品
+	begin
+		set @newpno='##'+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,2)='##' and len(noa)=5 ),'000'),3) as int)+1 as nvarchar(10)),3)
+	end
+	
+	insert ucc(noa,product,spec,unit,typea)
+	select @newpno,@product,@spec+' '+@classa,@unit,'1'
+	
+	--更新報價單產品編號
+	exec("update quats"+@accy+" set productno='"+@newpno+"',custno='"+@newcustno+"' 
+	where noa='"+@t_noa+"' and no3='"+@t_no3+"'")
+	
+	fetch next from cursor_table 
+	into @t_noa,@t_no3,@product,@spec,@unit,@classa
+end 
+close cursor_table 
+deallocate cursor_table 
+;
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+change_tmpcustno:--change_tmpcustno --更換客戶編號 --已不用
+SET QUOTED_IDENTIFIER OFF
+declare @tmp_custno nvarchar(MAX) = [1]
+declare @chg_custno nvarchar(MAX) = [2]
+
+--更新cust 編號
+update cust set noa=@chg_custno where noa=@tmp_custno
+--更新聯絡人編號
+update conn set noa=@chg_custno where noa=@tmp_custno
+--更新稅務資料
+update custm set noa=@chg_custno where noa=@tmp_custno
+update custms set noa=@chg_custno where noa=@tmp_custno
+
+--更新印刷品編號
+update ucc set noa=REPLACE(noa,@tmp_custno,@chg_custno) 
+where left(noa,len(@tmp_custno))=@tmp_custno and len(noa)>5
+--更新替代品
+update ucctd set noa=REPLACE(noa,@tmp_custno,@chg_custno) 
+where left(noa,len(@tmp_custno))=@tmp_custno and len(noa)>5
+--更新客戶
+update ucccust set noa=REPLACE(noa,@tmp_custno,@chg_custno) 
+where left(noa,len(@tmp_custno))=@tmp_custno and len(noa)>5
+--更新供應商
+update ucccust set productno=REPLACE(noa,@tmp_custno,@chg_custno) 
+where left(noa,len(@tmp_custno))=@tmp_custno and len(noa)>5
+
+--更新報價
+declare @t_noa nvarchar(MAX)
+declare @t_accy nvarchar(MAX)
+declare cursor_table cursor for 
+select accy,noa from view_quat where custno=@tmp_custno
+open cursor_table 
+fetch next from cursor_table 
+into @t_accy,@t_noa
+while(@@FETCH_STATUS <> -1) 
+begin 
+	exec("update a
+	set custno='"+@chg_custno+"'
+	,comp=b.comp
+	,nick=b.nick
+	,paytype=b.paytype
+	,tel=b.tel,fax=b.fax
+	,post=b.zip_comp,addr=b.addr_comp,trantype=b.trantype,salesno=b.salesno,sales=b.sales
+	from quat"+@t_accy+" a
+	outer apply (select * from cust where noa='"+@chg_custno+"') b
+	where a.noa='"+@t_noa+"' and a.custno='"+@tmp_custno+"'")
+	
+	exec("update quats"+@t_accy+" 
+	set custno='"+@chg_custno+"'
+	where noa='"+@t_noa+"' and custno='"+@tmp_custno+"'")
+	
+	exec("update quats"+@t_accy+" 
+	set productno=REPLACE(productno,'"+@tmp_custno+"','"+@chg_custno+"')
+	where left(productno,len('"+@tmp_custno+"'))='"+@tmp_custno+"' and len(productno)>5 and noa='"+@t_noa+"'")
+	
+	exec("update a 
+	set product=b.product,spec=b.spec
+	from quats"+@t_accy+" a outer apply (select * from ucc where noa=a.productno) b
+	where len(a.productno)>5 and a.noa='"+@t_noa+"'")
+	
+	fetch next from cursor_table 
+	into @t_accy,@t_noa
+end 
+close cursor_table 
+deallocate cursor_table 
+
+--更新訂單
+declare cursor_table cursor for 
+select accy,noa from view_orde where custno=@tmp_custno
+open cursor_table 
+fetch next from cursor_table 
+into @t_accy,@t_noa
+while(@@FETCH_STATUS <> -1) 
+begin 
+	exec("update a 
+	set custno='"+@chg_custno+"'
+	,comp=b.comp	,nick=b.nick,paytype=b.paytype
+	,tel=b.tel,fax=b.fax,post=b.zip_comp,addr=b.addr_comp,trantype=b.trantype,salesno=b.salesno,sales=b.sales
+	from orde"+@t_accy+" a	outer apply (select * from cust where noa='"+@chg_custno+"') b
+	where a.noa='"+@t_noa+"' and a.custno='"+@tmp_custno+"'")
+	
+	exec("update ordes"+@t_accy+" 
+	set custno='"+@chg_custno+"'
+	where noa='"+@t_noa+"' and custno='"+@tmp_custno+"'")
+	
+	exec("update ordes"+@t_accy+" 
+	set productno=REPLACE(productno,'"+@tmp_custno+"','"+@chg_custno+"')
+	where left(productno,len('"+@tmp_custno+"'))='"+@tmp_custno+"' and len(productno)>5 and noa='"+@t_noa+"'")
+	
+	exec("update a 
+	set product=b.product,spec=b.spec
+	from ordes"+@t_accy+" a outer apply (select * from ucc where noa=a.productno) b
+	where len(a.productno)>5 and a.noa='"+@t_noa+"'")
+	
+	fetch next from cursor_table 
+	into @t_accy,@t_noa
+end 
+close cursor_table 
+deallocate cursor_table 
+;
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+change_tmpuccno:--change_tmpuccno --更換產品編號 --已不用
+SET QUOTED_IDENTIFIER OFF
+declare @tmp_uccno nvarchar(MAX) = [1]
+declare @chg_uccno nvarchar(MAX) = [2]
+
+--更新ucc 編號
+update ucc set noa=@chg_uccno where noa=@tmp_uccno
+--更新替代品
+update ucctd set noa=@chg_uccno where noa=@tmp_uccno
+--更新客戶
+update ucccust set noa=@chg_uccno where noa=@tmp_uccno
+--更新供應商
+update ucccust set productno=@chg_uccno where noa=@tmp_uccno
+
+--更新報價
+declare @t_accy nvarchar(MAX)
+declare cursor_table cursor for 
+select accy from view_quats where productno=@tmp_uccno group by accy
+open cursor_table 
+fetch next from cursor_table 
+into @t_accy
+while(@@FETCH_STATUS <> -1) 
+begin 
+
+	exec("update a 
+	set productno='"+@chg_uccno+"',product=b.product,spec=b.spec
+	from quats"+@t_accy+" a
+	outer apply (select * from ucc where noa='"+@chg_uccno+"') b
+	where a.productno='"+@tmp_uccno+"'")
+	
+	fetch next from cursor_table 
+	into @t_accy
+end 
+close cursor_table 
+deallocate cursor_table 
+
+--更新訂單
+declare cursor_table cursor for 
+select accy from view_ordes where productno=@tmp_uccno group by accy
+open cursor_table 
+fetch next from cursor_table 
+into @t_accy
+while(@@FETCH_STATUS <> -1) 
+begin 
+
+	exec("update a
+	set productno='"+@chg_uccno+"',product=b.product,spec=b.spec
+	from ordes"+@t_accy+" a
+	outer apply (select * from ucc where noa='"+@chg_uccno+"') b
+	where a.productno='"+@tmp_uccno+"'")
+	
+	fetch next from cursor_table 
+	into @t_accy
+end 
+close cursor_table 
+deallocate cursor_table 
+;
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+orde_ucc:--orde_ucc --產生產品編號
+SET QUOTED_IDENTIFIER OFF
+declare @noa nvarchar(MAX) = [1]
+declare @year nvarchar(MAX) = [2]
+
+declare @nowdate nvarchar(30) --今天日期
+set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
+set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
+
+declare @custno nvarchar(MAX)=isnull((select custno from view_orde where noa=@noa),'')
+declare @accy nvarchar(MAX)
+declare @t_noa nvarchar(MAX)
+declare @t_no2 nvarchar(MAX)
+declare @product nvarchar(MAX)
+declare @spec nvarchar(MAX)
+declare @t_spec nvarchar(MAX)
+declare @unit nvarchar(MAX)
+declare @classa nvarchar(MAX)
+declare @quatno nvarchar(MAX)
+declare @no3 nvarchar(MAX)
+declare @newpno nvarchar(MAX)
+
+if(@custno!='')
+begin
+
+	declare cursor_table cursor for 
+	select accy,noa,no2,product,spec,unit,classa,quatno,no3 from view_ordes where noa=@noa and productno=''
+	and (classa='印' or classa='客') --1050206 只產生 印刷品
+	open cursor_table 
+	fetch next from cursor_table 
+	into @accy,@t_noa,@t_no2,@product,@spec,@unit,@classa,@quatno,@no3
+	while(@@FETCH_STATUS <> -1) 
+	begin 
+		if(@classa='印' or @classa='客')
+		begin
+			set @newpno=left(@custno,5)+'-'+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,5)=left(@custno,5) and len(noa)>5 and CHARINDEX('-',noa)>0),'000'),3) as int)+1 as nvarchar(10)),3)
+		end
+		else--便品
+		begin
+			--104/03/05 便品編號規格改為 2碼羅馬+規格4碼後面補0+流水號3碼
+			set @t_spec=@spec
+			if(patindex('%[0-9]%',@t_spec)>0)
+			begin
+				set @t_spec=SUBSTRING(@t_spec,patindex('%[0-9]%',@t_spec),LEN(@t_spec))
+				set @t_spec=SUBSTRING(@t_spec,1,case when patindex('%[^0-9]%',@t_spec)=0 then LEN(@t_spec) else  patindex('%[^0-9]%',@t_spec)-1 end)
+				set @t_spec=left(isnull(@t_spec,'')+'0000',4)
+			end
+			else
+			begin
+			 	set @t_spec='0000'
+			end
+				
+			--set @newpno='B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec
+			--+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-4=len('B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like 'B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),4) as int)+1 as nvarchar(10)),4)
+			
+			set @newpno=UPPER(left(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(dbo.procGetPY(@product),'''',''),' ',''),'.',''),'(',''),'+',''),'-',''),'*',''),'/',''),'~',''),'!',''),'@',''),'#',''),'$',''),'%',''),'^',''),'&','')+'ZZZ',2))
+			set @newpno=@newpno+@t_spec
+			+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-3=len(UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),3) as int)+1 as nvarchar(10)),3)
+			
+		end
+		
+		insert ucc(noa,product,spec,unit,typea,date2,worker,style)
+		select @newpno,@product,@spec+' '+@classa,@unit,'1',@nowdate,@t_noa+'-'+@t_no2,@classa
+		
+		--更新訂單產品編號
+		exec("update ordes"+@accy+" set productno='"+@newpno+"'	where noa='"+@t_noa+"' and no2='"+@t_no2+"'")
+		
+		if(isnull(@quatno,'')!='' and isnull(@no3,'')!='')
+		begin
+			set @year=(select top 1 accy from view_quat where noa=@quatno)
+			exec("update quats"+@year+" set productno='"+@newpno+"' where noa='"+@quatno+"' and no3='"+@no3+"'")
+		end
+		
+		fetch next from cursor_table 
+		into @accy,@t_noa,@t_no2,@product,@spec,@unit,@classa,@quatno,@no3
+	end 
+	close cursor_table 
+	deallocate cursor_table 
+
+end
+;
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ordc_ucc:--ordc_ucc --產生產品編號
+SET QUOTED_IDENTIFIER OFF
+declare @noa nvarchar(MAX) = [1]
+declare @year nvarchar(MAX) = [2]
+
+declare @tggno nvarchar(MAX)=isnull((select tggno from view_ordc where noa=@noa),'')
+declare @accy nvarchar(MAX)
+declare @t_noa nvarchar(MAX)
+declare @t_no2 nvarchar(MAX)
+declare @product nvarchar(MAX)
+declare @spec nvarchar(MAX)
+declare @t_spec nvarchar(MAX)
+declare @unit nvarchar(MAX)
+declare @classa nvarchar(MAX)
+declare @ordbno nvarchar(MAX)
+declare @no3 nvarchar(MAX)
+declare @newpno nvarchar(MAX)
+
+declare @nowdate nvarchar(30) --今天日期
+set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
+set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
+
+if(@tggno!='')
+begin
+
+	declare cursor_table cursor for 
+	select accy,noa,no2,product,spec,unit,classa,ordbno,no3 from view_ordcs where noa=@noa and productno=''
+	open cursor_table 
+	fetch next from cursor_table 
+	into @accy,@t_noa,@t_no2,@product,@spec,@unit,@classa,@ordbno,@no3
+	while(@@FETCH_STATUS <> -1) 
+	begin 
+		
+		--採購只有便品
+		--104/03/05 便品編號規格改為 2碼羅馬+規格4碼後面補0+流水號3碼
+		set @t_spec=@spec
+		if(patindex('%[0-9]%',@t_spec)>0)
+		begin
+			set @t_spec=SUBSTRING(@t_spec,patindex('%[0-9]%',@t_spec),LEN(@t_spec))
+			set @t_spec=SUBSTRING(@t_spec,1,case when patindex('%[^0-9]%',@t_spec)=0 then LEN(@t_spec) else  patindex('%[^0-9]%',@t_spec)-1 end)
+			set @t_spec=left(isnull(@t_spec,'')+'0000',4)
+		end
+		else
+		begin
+		 	set @t_spec='0000'
+		end
+		
+		set @newpno=UPPER(left(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(dbo.procGetPY(@product),'''',''),' ',''),'.',''),'(',''),'+',''),'-',''),'*',''),'/',''),'~',''),'!',''),'@',''),'#',''),'$',''),'%',''),'^',''),'&','')+'ZZZ',2))
+			
+		set @newpno=@newpno+@t_spec
+		+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-3=len(UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),3) as int)+1 as nvarchar(10)),3)
+			
+		insert ucc(noa,product,spec,unit,typea,date2,worker,style)
+		select @newpno,@product,@spec,@unit,'1',@nowdate,@t_noa+'-'+@t_no2,@classa
+		
+		--更新請購產品編號
+		exec("update ordcs"+@accy+" set productno='"+@newpno+"' where noa='"+@t_noa+"' and no2='"+@t_no2+"'")
+		
+		if(isnull(@ordbno,'')!='' and isnull(@no3,'')!='')
+		begin
+			set @year=(select top 1 accy from view_ordb where noa=@ordbno)
+			exec("update ordbs"+@year+" set productno='"+@newpno+"' where noa='"+@ordbno+"' and no3='"+@no3+"'")
+		end
+		
+		fetch next from cursor_table 
+		into @accy,@t_noa,@t_no2,@product,@spec,@unit,@classa,@ordbno,@no3
+	end 
+	close cursor_table 
+	deallocate cursor_table 
+
+end
+;
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+orde2vcc:--orde2vcc
+SET QUOTED_IDENTIFIER OFF
+declare @year nvarchar(20)=[1]--年度
+declare @noa nvarchar(20)=[2]--單據編號
+declare @condition nvarchar(20)=[3]--動作 0 刪除, 1 新增
+declare @usera nvarchar(20)=[4]
+
+declare @cmd nvarchar(max)
+declare @vccno nvarchar(MAX)
+
+declare @nowdate nvarchar(30) --今天日期
+set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
+set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
+--105/01/04 轉出貨單 預設是隔天
+set @nowdate=dbo.q_cdn(@nowdate,1)
+
+declare @accy nvarchar(20)
+set @accy=isnull((select accy from view_orde where noa=@noa),@year)
+set @vccno=isnull((select vccno from view_orde where noa=@noa),'')
+
+if(@condition='0')
+begin
+	--刪除產生的vcc
+	set @cmd="delete vcc"+@accy+" where noa='"+@vccno+"'"
+	EXECUTE sp_executesql @cmd
+	set @cmd="delete vccs"+@accy+" where noa='"+@vccno+"'"
+	EXECUTE sp_executesql @cmd
+end
+
+declare @n_vccno nvarchar(50) --新的vccno
+declare @ordecount int
+declare @ordedate nvarchar(20)
+
+if(@condition='1')
+begin
+	--105/01/13 先判斷有預交日就以預交日為主(限表身皆是同一個預交日)
+	set @ordecount=isnull((select count(*) from ( (select datea from view_ordes where noa=@noa group by datea) )tmp) ,0)
+	set @ordedate=isnull((select MIN(datea) from view_ordes where noa=@noa),'')
+	if(@ordedate!='')
+		set @nowdate=@ordedate
+		
+	--檢查orde的vccno是否已有編號(表示修改)
+	if(LEN(@vccno)=0)
+	begin
+		--取得當天最後一個出貨單號
+		select @n_vccno=MAX(noa) from view_vcc where noa like 'D'+REPLACE(@nowdate,'/','')+'%'
+		--新的出貨單號(後面號碼+1)
+		set @n_vccno='D'+REPLACE(@nowdate,'/','')+right('000'+cast(cast(RIGHT(isnull(@n_vccno,'000'),3) as int)+1 as nvarchar(10)),3)
+	end
+	else
+	begin
+		set @n_vccno=@vccno
+	end
+	
+	--將orde的內容轉至vcc
+	set @cmd="insert vcc"+@accy+"(noa,ordeno,typea,stype,datea,custno,comp,nick,tel,fax,post,addr,post2,addr2,salesno,sales
+	,cno,acomp,paytype,trantype,money,tax,taxtype,total,worker,worker2,unpay,payed,memo,cardealno,cardeal
+	,coin,floata,totalus,custno2,comp2,transtyle,mon,invono)
+	select '"+@n_vccno+"' noa,noa ordeno,'1' typea,stype,'"+@nowdate+"',custno,comp,nick,tel,fax,post,addr,post2,addr2,salesno,sales
+	,cno,acomp,paytype,trantype,money,tax,taxtype,total,isnull((select namea from sss where noa='"+@usera+"'),'"+@usera+"'),'',total unpay,0 payed,memo
+	,case when trantype='送達' then 'YUDA' when trantype='貨運' then 'H002' else '' end
+	,case when trantype='送達' then '有達實業有限公司' when trantype='貨運' then '新竹貨運物流' else '' end
+	,coin,floata,totalus,isnull((select custno2 from cust where noa=a.custno),''),isnull((select cust2 from cust where noa=a.custno),'')
+	,conform
+	,case when len(a.mon)>0 then a.mon when cast(right('"+@nowdate+"',2) as int) >= cast(isnull((select startdate from cust where noa=a.custno),'0')as int)
+	and cast(isnull((select startdate from cust where noa=a.custno),'0')as int) !=0
+	then left(dbo.q_cdn(LEFT('"+@nowdate+"',6)+'/25',10),6) else LEFT('"+@nowdate+"',6) end,''
+	from orde"+@accy+" a where noa='"+@noa+"'"
+	EXECUTE sp_executesql @cmd
+		
+	set @cmd="insert vccs"+@accy+"(noa,noq,datea,typea,productno,product,spec,unit,itemno
+	,mount,width,dime,tranmoney2,tranmoney3,price,total,memo,ordeno,no2,custno,storeno,store,storeno2,store2)
+	select '"+@n_vccno+"' noa,a.no2 noq,'"+@nowdate+"','1' typea,a.productno,a.product
+	,case when charindex(a.classa,a.spec)>0 then a.spec else a.classa+' '+a.spec end,a.unit,a.source
+	,case when a.source='2' then 0 else a.mount end
+	,case when a.source='1' or a.source='2' then 0 else a.mount end
+	,a.mount
+	,case when a.source='1' then a.mount else 0 end
+	,case when a.source='2' then a.mount else 0 end
+	,a.price,a.total,a.memo,a.noa ordeno,a.no2,b.custno
+	,case when a.source='2' then '' else (case when left(b.custno,5)='DY001' then 'DY' else 'A' end) end
+	,case when a.source='2' then '' else (case when left(b.custno,5)='DY001' then '大葉倉' else '工廠倉' end) end
+	,a.size,a.ucolor
+	from ordes"+@accy+" a left join orde"+@accy+" b on a.noa=b.noa where a.noa='"+@noa+"' "
+	EXECUTE sp_executesql @cmd
+			
+	if(LEN(@vccno)=0)
+	begin
+		--資料寫入dno 避免下次自動產生出現問題
+		insert dno(tablea,noa,usera,mech)
+		select 'vcc',@n_vccno,@usera,replace(convert(nvarchar(20),GETDATE(),20),'-','/')
+		
+		--更新vccno
+		set @cmd="update orde"+@accy+" set vccno='"+@n_vccno+"' where noa='"+@noa+"'"
+		EXECUTE sp_executesql @cmd
+	end
+	
+	set @vccno=@n_vccno
+	
+	select @vccno vccno
+end
+;
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+vcc2vcca:--vcc2vcca
+--有達出貨轉發票
+SET QUOTED_IDENTIFIER OFF
+declare @year nvarchar(20)=[1]--年度[1]
+declare @noa nvarchar(20)=[2]--單據編號[2]
+declare @condition nvarchar(20)=[3]--動作 0 刪除, 1 新增,2作廢[3]
+declare @t_err nvarchar(200)=''
+declare @userno nvarchar(20)=[4]
+declare @partno nvarchar(20)=isnull((select partno from sss where noa=@userno),'')
+
+declare @custno nvarchar(20)=isnull((select custno from view_vcc where noa=@noa),'')
+set @custno=case when isnull((select invocustno from custm where noa=@custno),'')!='' then 
+isnull((select invocustno from custm where noa=@custno),'') else @custno end
+declare @p23 nvarchar(20)=isnull((select p23 from custm where noa=@custno),'')
+-----------------------------------------------------------------------
+declare @nowdate nvarchar(30) --今天日期
+set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
+set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
+
+declare @cmd nvarchar(max)
+declare @accy nvarchar(20)
+declare @invono nvarchar(max)
+declare @t_cno nvarchar(50)
+set @accy=isnull((select accy from view_vcc where noa=@noa),@year)
+set @invono=isnull((select invono from view_vcc where noa=@noa),'')
+set @t_cno=isnull((select cno from view_vcc where noa=@noa),'')
+
+if(@condition='0')
+begin
+	--刪除產生的發票
+	if((select count(*) from vcca where vccno=@noa and [type]='V')>0) --由出貨產生發票
+	begin
+		set @cmd="delete a  from vccas a where exists (select noa from vcca where noa=a.noa and vccno='"+@noa+"' and [type]='V')"
+		EXECUTE sp_executesql @cmd
+		
+		set @cmd="update vcca set money=0,tax=0,total=0 where vccno='"+@noa+"' and [type]='V'"
+		EXECUTE sp_executesql @cmd
+		
+		set @invono=isnull((select top 1 noa from vcca where vccno=@noa and [type]='V' ),'')
+		
+		--不刪除發票表頭--保留
+		--set @cmd="delete vcca where vccno='"+@noa+"' and [type]='V'"
+		--EXECUTE sp_executesql @cmd
+	end
+end
+
+if(@condition='2')
+begin
+	if((select count(*) from vcca where vccno=@noa and [type]='V')>0) --由出貨產生發票
+	begin
+		set @cmd="update vcca set custno='',comp='',serial='',money=0,tax=0,total=0,buyerno='',buyer='',taxtype='6' where vccno='"+@noa+"' and [type]='V'"
+		EXECUTE sp_executesql @cmd
+		
+		set @cmd="update a  set mount=0,money=0 from vccas a where exists (select noa from vcca where noa=a.noa and vccno='"+@noa+"' and [type]='V')"
+		EXECUTE sp_executesql @cmd
+	end
+end
+
+--可開立發票
+declare @cvcca table(
+	noa nvarchar(20),
+	vccano nvarchar(20)
+)
+declare @vccarno nvarchar(20)
+declare @bvccano nvarchar(20)
+declare @evccano nvarchar(20)
+declare @xvccano nvarchar(20)
+
+declare @money int=0
+declare @moneys int=0
+declare @noq nvarchar(20)=''
+
+if(@condition='1')
+begin
+	if(len(@invono)>0) --有發票號碼
+	begin
+		if((select count(*) from vcca where noa=@invono and vccno=@noa and [type]='V')=0) --由出貨產生發票
+		begin
+			set @t_err=@invono+'非系統產生發票，故不處理!!'
+		end
+	end
+	
+	--if(@p23!='2' and @p23!='3')
+	--begin
+	--	set @t_err='客戶發票聯式未選擇!!'
+	--end
+
+	if(len(@invono)=0)--無發票號碼
+	begin
+		--抓取可開立的發票
+		declare cursor_table cursor for
+		select a.noa,b.binvono,b.einvono from vccar a left join vccars b on a.noa=b.noa 
+		where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 and a.rev=@p23 --and a.cno=@t_cno 
+		and ((len(case when (select count(*) from vccars where noa=a.noa and partno=@partno)>0 then @partno else '' end )=0 and partno='') or partno=@partno)
+		order by a.noa,a.binvono
+		open cursor_table
+		fetch next from cursor_table
+		into @vccarno,@bvccano,@evccano
+		while(@@FETCH_STATUS <> -1)
+		begin
+			set @xvccano=@bvccano
+			while (@xvccano<=@evccano and (@xvccano between @bvccano and @evccano))
+			begin
+				if((select count(*) from vcca where noa=@xvccano)=0)
+				begin
+					insert @cvcca
+					select @vccarno,@xvccano
+				end
+				set @xvccano=LEFT(@xvccano,2)
+				+RIGHT('00000000'+cast(cast(RIGHT(@xvccano,8) as int)+1 as nvarchar(10)),8)
+			end
+					fetch next from cursor_table
+			into @vccarno,@bvccano,@evccano
+		end
+		close cursor_table
+		deallocate cursor_table
+		
+		if((select count(*) from @cvcca)=0) 
+		begin
+			set @t_err='當期無可用發票，請手動開立'
+		end
+		else
+		begin
+			set @invono=(select top 1 vccano from @cvcca order by noa,vccano )
+		end
+	end
+		
+	if(len(@t_err)=0)
+	begin		
+		if((select count(*) from vcca where noa=@invono)>0)
+		begin
+			update a
+			set custno=b.custno,comp=case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end
+			,nick=b.nick
+			,serial=case when @p23='2' then '' when isnull(e.invocustno,'')!='' then d.serial else c.serial end
+			,mon=b.mon
+			,cno=case when isnull(b.cno,'')!='' then b.cno else (select top 1 noa from acomp order by noa) end
+			,acomp=case when isnull(b.cno,'')!='' then b.acomp else (select top 1 acomp from acomp order by noa) end
+			--,zip=case when isnull(d.zip_invo,'')!='' then isnull(d.zip_invo,'') else isnull(c.zip_invo,'') end
+			--,address=case when isnull(d.addr_invo,'')!='' then isnull(d.addr_invo,'') else isnull(c.addr_invo,'') end
+			,buyerno=case when isnull(e.invocustno,'')!='' then d.noa else b.custno end
+			,buyer=case when isnull(e.invocustno,'')!='' and len(d.invoicetitle)>0 then d.invoicetitle else case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end end
+			,taxtype=case when b.taxtype='1' or b.taxtype='3' then '1' else b.taxtype end
+			,money=case when @p23='2' then b.total else b.money end
+			,tax=case when @p23='2' then 0 else b.tax end
+			,total=b.total
+			,worker=case when b.worker2!='' then b.worker2 else b.worker end
+			,vccno=@noa
+			from vcca a outer apply (select top 1 * from view_vcc b where noa=@noa) b
+			left join custm e on isnull(b.custno,'')=e.noa
+			outer apply (select top 1 * from cust where noa=b.custno) c
+			outer apply (select top 1 * from cust where noa=isnull(e.invocustno,'')) d
+			where a.noa=@invono
+		end
+		else
+		begin
+			insert vcca(noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp
+			,zip,address,taxtype,money,tax,total,worker,vccno,[type],memo,chkno)
+			select @invono,b.custno,case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end,b.nick
+			,case when @p23='2' then '' when isnull(e.invocustno,'')!='' then d.serial else c.serial end
+			,case when isnull(e.invocustno,'')!='' then d.noa else b.custno end
+			,case when isnull(e.invocustno,'')!='' and len(d.invoicetitle)>0 then d.invoicetitle else case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end end			
+			,@nowdate,case when isnull(b.mon,'')!='' then b.mon else left(@nowdate,6) end
+			,case when isnull(b.cno,'')!='' then b.cno else (select top 1 noa from acomp order by noa) end
+			,case when isnull(b.cno,'')!='' then b.acomp else (select top 1 acomp from acomp order by noa) end
+			,'',''
+			--,case when isnull(d.zip_invo,'')!='' then isnull(d.zip_invo,'') else isnull(c.zip_invo,'') end
+			--,case when isnull(d.addr_invo,'')!='' then isnull(d.addr_invo,'') else isnull(c.addr_invo,'') end
+			,case when b.taxtype='1' or b.taxtype='3' then '1' else b.taxtype end
+			,case when @p23='2' then b.total else b.money end
+			,case when @p23='2' then 0 else b.tax end,b.total
+			,case when b.worker2!='' then b.worker2 else b.worker end,b.noa,'V','出貨單號：'+b.noa 
+			,right('000000'+cast(cast(cast(
+				cast(LOG((ascii(SUBSTRING(@invono,1,1))*100)+
+				(ascii(SUBSTRING(@invono,2,1))*25)+
+				cast(SUBSTRING(@invono,3,3) as int))*100 as int)
+			*144 as int)
+			+(SIN(cast(SUBSTRING(@invono,6,2) as int))*cast(SUBSTRING(@invono,8,3) as int)*100) as int)as nvarchar(10)),6)
+			from view_vcc b left join custm e on b.custno=e.noa
+			outer apply (select top 1 * from cust where noa=b.custno) c
+			outer apply (select top 1 * from cust where noa=isnull(e.invocustno,'')) d
+			where b.noa=@noa
+		end
+		
+		--105/08/17 金額=0不顯示
+		if((select taxtype from view_vcc where noa=@noa)='3' and @p23!='2') 
+		begin
+			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,datea,ordeno,no2)
+			select @invono,a.noq,a.custno,a.productno,a.product,a.unit
+			,a.mount
+			,case when a.mount=0 then 0 else round(round(a.total/1.05,0)/a.mount,3) end
+			,round(a.total/1.05,0),@nowdate,a.noa,a.no2
+			from view_vccs a where a.noa=@noa and a.total>0
+			
+			set @money=isnull((select money from vcca where noa=@invono),0)
+			set @moneys=isnull((select SUM(money) from vccas where noa=@invono),0)
+			
+			--表頭未稅與表身未稅金額不符
+			if(@money!=@moneys)
+			begin
+				--調整最後一個產品金額(只取有金額)
+				set @noq=(select MAX(noq) from vccas where noa=@invono and mount>0 and money>0)
+				
+				update vccas set money=money+(@money-@moneys) where noa=@invono and noq=@noq
+				update vccas set price=round(money/mount,3) where noa=@invono and noq=@noq
+			end
+			
+			--update a
+			--set money=(select SUM(money) from vccas where noa=a.noa)
+			--,tax=total-isnull((select SUM(money) from vccas where noa=a.noa),0)
+			--from vcca a where noa=@invono
+		end
+		else if((select taxtype from view_vcc where noa=@noa)='6')
+		begin
+			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,ordeno,no2)
+			select @invono,a.noq,a.custno,a.productno,a.product,a.unit,0,a.price,0,a.noa,a.no2
+			from view_vccs a where a.noa=@noa and a.total>0
+		end
+		else
+		begin
+			insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,ordeno,no2)
+			select @invono,a.noq,a.custno,a.productno,a.product,a.unit
+			,a.mount
+			,a.price,a.total,a.noa,a.no2
+			from view_vccs a where a.noa=@noa and a.total>0
+		end
+		
+		--更新表身日期
+		update b set datea=a.datea from vcca a left join vccas b on a.noa=b.noa where a.noa=@invono
+		
+		--更新出貨單上的發票號碼
+		EXEC("update vcc"+@accy+" set invono='"+@invono+"' where noa='"+@noa+"'")
+	end
+end
+
+select @invono invono,@t_err t_err
+;
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+vccamon:--vccamon
+--有達月結開發票
+SET QUOTED_IDENTIFIER OFF
+declare @salesno nvarchar(20)=case when '#non'=[1] then '' else [1] end
+declare @custno nvarchar(20)=case when '#non'=[2] then '' else [2] end
+declare @mon nvarchar(20)=case when '#non'=[3] then '' else [3] end
+declare @bdate nvarchar(20)=case when '#non'=[4] then '' else [4] end
+declare @edate nvarchar(20)=case when '#non'=[5] then char(255) else [5] end
+declare @startdate nvarchar(20)=case when '#non'=[6] then '' else [6] end
+declare @po nvarchar(50)=case when '#non'=[7] then '' else [7] end
+declare @radio nvarchar(20)=case when '#non'=[8] then '1' else [8] end
+declare @userno nvarchar(20)=case when '#non'=[9] then '' else [9] end
+declare @rname nvarchar(20)=case when '#non'=[10] then '' else [10] end
+declare @t_err nvarchar(200)=''
+declare @partno nvarchar(20)=isnull((select partno from sss where noa=@userno),'')
+-----------------------------------------------------------------------
+declare @nowdate nvarchar(30) --今天日期
+set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
+set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
+
+--紀錄寫入資料
+declare @xxxnoa nvarchar(30)=replace(replace(convert(varchar, getdate(), 20),'-',''),':','')+' '+cast(Round(RAND() * 100, 0) as nvarchar(10))
+insert adpro(noa,datea,memo)
+select @xxxnoa,replace(convert(varchar, getdate(), 20),'-','/')
+,@salesno+'@@'+@custno+'@@'+@mon+'@@'+@bdate+'@@'+@edate+'@@'+@startdate+'@@'+@po+'@@'+@radio+'@@'+@userno+'@@'+@rname
+
+IF OBJECT_ID('tempdb..#tvcc')is not null
+BEGIN
+	drop table #tvcc
+END
+
+IF OBJECT_ID('tempdb..#tvcca')is not null
+BEGIN
+	drop table #tvcca
+END
+
+IF OBJECT_ID('tempdb..#tvccas')is not null
+BEGIN
+	drop table #tvccas
+END
+
+--可開立發票
+declare @cvcca table(
+	noa nvarchar(20),
+	vccano nvarchar(20)
+)
+declare @vccarno nvarchar(20)
+declare @bvccano nvarchar(20)
+declare @evccano nvarchar(20)
+declare @xvccano nvarchar(20)
+
+--105/08/16 月結只開立三聯式發票
+--抓取可開立的發票
+declare cursor_table cursor for
+select a.noa,b.binvono,b.einvono from vccar a left join vccars b on a.noa=b.noa 
+where (@nowdate between a.bdate and a.edate) and isnull(a.iselectric,0)=1 and a.rev!='2' --and a.cno=@t_cno 
+and ((len(case when (select count(*) from vccars where noa=a.noa and partno=@partno)>0 then @partno else '' end )=0 and partno='') or partno=@partno)
+order by a.noa,a.binvono
+open cursor_table
+fetch next from cursor_table
+into @vccarno,@bvccano,@evccano
+while(@@FETCH_STATUS <> -1)
+begin
+	set @xvccano=@bvccano
+	while (@xvccano<=@evccano and (@xvccano between @bvccano and @evccano))
+	begin
+		if((select count(*) from vcca where noa=@xvccano)=0)
+		begin
+			insert @cvcca
+			select @vccarno,@xvccano
+		end
+		set @xvccano=LEFT(@xvccano,2)
+		+RIGHT('00000000'+cast(cast(RIGHT(@xvccano,8) as int)+1 as nvarchar(10)),8)
+	end
+	fetch next from cursor_table
+	into @vccarno,@bvccano,@evccano
+end
+close cursor_table
+deallocate cursor_table
+
+if((select count(*) from @cvcca)=0) 
+begin
+	set @t_err='當期無可用發票'
+end
+
+create table #tvcca(
+	noa nvarchar(20),
+	custno nvarchar(30),
+	comp nvarchar(100),
+	nick nvarchar(20),
+	serial nvarchar(20),
+	buyerno nvarchar(20),
+	buyer nvarchar(100),
+	datea nvarchar(10),
+	mon nvarchar(7),
+	cno nvarchar(20),
+	acomp nvarchar(100),
+	zip nvarchar(10),
+	address nvarchar(100),
+	taxtype nvarchar(6),
+	money float,
+	tax float,
+	total float,
+	worker nvarchar(20),
+	vccno nvarchar(MAX),
+	[type] nvarchar(2),
+	memo nvarchar(MAX),
+	chkno nvarchar(6),
+	trdno nvarchar(50),
+	vcccustno nvarchar(50),
+	salesno nvarchar(50)
+	
+)
+--CREATE INDEX tvcca_index ON #tvcca (vccno)
+
+create table #tvccas(
+	noa nvarchar(20),
+	noq nvarchar(20),
+	cno nvarchar(20),
+	custno nvarchar(30),
+	datea nvarchar(10),
+	productno nvarchar(30),
+	product nvarchar(MAX),
+	unit nvarchar(10),
+	mount float,
+	price float,
+	money float,
+	memo nvarchar(MAX),
+	trdno nvarchar(50),
+	taxtype nvarchar(6)
+)
+
+create table #tvcc(
+	accy nvarchar(10),
+	typea nvarchar(10),
+	cno nvarchar(50),
+	custno nvarchar(50),
+	vccno nvarchar(50),
+	taxtype nvarchar(50),
+	custorde nvarchar(50),
+	ordeno nvarchar(20),
+	invono nvarchar(50),
+	money float,
+	tax float,
+	total float,
+	primary key(vccno)
+)
+--105/07/14 出貨單金額/稅額=發票金額/稅額 其誤差調整最後一項金額
+
+if(@radio='1')--週結
+begin
+	insert #tvcc(accy,typea,cno,custno,vccno,taxtype,money,tax,total)
+	select a.accy,a.transtyle,a.cno
+	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end,a.noa,a.taxtype
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
+	from view_vcc a left join view_vccs b on a.noa=b.noa left join custm c on a.custno=c.noa
+	where a.datea between @bdate and @edate
+	and (len(@mon)=0 or a.mon=@mon)
+	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
+	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='週結'
+	and a.taxtype!='6' and isnull(b.total,0)>0
+	group by a.accy,a.transtyle,a.cno
+	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end
+	,a.noa,a.taxtype
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
+end
+if(@radio='2')--月結
+begin
+	insert #tvcc(accy,typea,cno,custno,vccno,taxtype,money,tax,total)
+	select a.accy,a.transtyle,a.cno
+	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end,a.noa,a.taxtype
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
+	from view_vcc a left join view_vccs b on a.noa=b.noa left join custm c on a.custno=c.noa
+	left join cust d on a.custno=d.noa
+	where a.mon=@mon
+	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
+	and (len(@startdate)=0 or isnull(d.startdate,'')=@startdate)
+	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='月結'
+	and a.taxtype!='6' and isnull(b.total,0)>0
+	group by a.accy,a.transtyle,a.cno
+	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end
+	,a.noa,a.taxtype
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
+end
+if(@radio='3')--PO
+begin
+	insert #tvcc(accy,typea,cno,custno,vccno,taxtype,custorde,ordeno,money,tax,total)
+	select a.accy,a.transtyle,a.cno
+	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end,a.noa,a.taxtype,d.custorde,b.ordeno
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
+	from view_vcc a left join view_vccs b on a.noa=b.noa left join custm c on a.custno=c.noa
+	left join view_orde d on b.ordeno=d.noa
+	where (len(@mon)=0 or a.mon=@mon) and (a.datea between @bdate and @edate) 
+	and isnull(d.custorde,'')!='' and (len(@po)=0 or isnull(d.custorde,'')=@po)
+	and (len(@salesno)=0 or isnull(a.salesno,'')=@salesno)
+	and len(isnull(a.invono,''))=0 and isnull(a.transtyle,'')='PO' 
+	and a.taxtype!='6' and isnull(b.total,0)>0
+	group by a.accy,a.transtyle,a.cno
+	,case when isnull(c.invocustno,'')!='' then c.invocustno else a.custno end
+	,a.noa,a.taxtype,d.custorde,b.ordeno
+	,case when a.typea='1' then 1 else -1 end*a.money
+	,case when a.typea='1' then 1 else -1 end*a.tax
+	,case when a.typea='1' then 1 else -1 end*a.total
+end
+
+delete a from #tvcc a where not exists (select * from cust where noa=a.custno)
+
+if(len(@custno)>0)
+begin
+	--105/07/14 客戶會打總店編號 所以分店 不排除
+	delete #tvcc where left(custno,len(@custno))!=@custno
+end
+
+if(@radio!='3')
+begin
+	insert #tvcca (noa,custno,buyerno,datea,mon,cno,acomp,taxtype,money,tax,total)
+	select '',custno,custno,@nowdate,LEFT(@nowdate,6),cno,isnull((select acomp from acomp where noa=a.cno),'')
+	,case when taxtype='3' then '1' else taxtype end,SUM(money),SUM(tax),SUM(total)
+	from #tvcc a
+	group by custno,cno,case when taxtype='3' then '1' else taxtype end
+	
+	if(@radio='2')
+	begin
+		update a
+		set comp=b.comp,nick=left(b.nick,20),serial=isnull(b.serial,'')
+		,buyer=case when isnull(b.invoicetitle,'')='' then b.comp else b.invoicetitle end
+		,zip=isnull(b.zip_invo,''),address=isnull(b.addr_invo,'')
+		--,money=0,tax=0,total=0
+		,worker=@rname
+		,vccno=stuff((select ','+vccno from #tvcc where custno=a.custno and cno=a.cno and case when taxtype='3' then '1' else taxtype end=a.taxtype for xml path('')),1,1,'')
+		,type='M',memo='月結轉出',chkno='',trdno=''
+		from #tvcca a left join cust b on a.custno=b.noa
+	end
+	else
+	begin
+		update a
+		set comp=b.comp,nick=left(b.nick,20),serial=isnull(b.serial,'')
+		,buyer=case when isnull(b.invoicetitle,'')='' then b.comp else b.invoicetitle end
+		,zip=isnull(b.zip_invo,''),address=isnull(b.addr_invo,'')
+		--,money=0,tax=0,total=0
+		,worker=@rname
+		,vccno=stuff((select ','+vccno from #tvcc where custno=a.custno and cno=a.cno and case when taxtype='3' then '1' else taxtype end=a.taxtype for xml path('')),1,1,'')
+		,type='W',memo='週結轉出',chkno='',trdno=''
+		from #tvcca a left join cust b on a.custno=b.noa
+	end
+	
+	insert #tvccas (noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo,trdno,taxtype)
+	select '','',a.cno,a.custno,@nowdate,b.productno,b.product,b.unit
+	,SUM(case when b.typea='1' then 1 else -1 end*b.mount)
+	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
+	,SUM(case when b.typea='1' then 1 else -1 end*
+	case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
+	,'','',case when a.taxtype='3' then '1' else a.taxtype end
+	from #tvcc a left join view_vccs b on a.vccno=b.noa
+	where isnull(b.total,0)>0
+	group by a.custno,a.cno,b.productno,b.product,b.unit
+	,case when a.taxtype='3' then '1' else a.taxtype end
+	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
+	
+	--update a
+	--set product=case when isnull(b.product,'')!='' then isnull(b.product,'') else isnull(c.product,'') end
+	--,unit=case when isnull(b.unit,'')!='' then isnull(b.unit,'') else isnull(c.unit,'') end
+	--from #tvccas a 
+	--outer apply (select * from ucca where noa=a.productno) b
+	--outer apply (select * from view_ucaucc where noa=a.productno) c
+end
+else
+begin
+	insert #tvcca (noa,custno,buyerno,datea,mon,cno,acomp,trdno,taxtype,money,tax,total)
+	select '',custno,custno,@nowdate,LEFT(@nowdate,6)
+	,cno,isnull((select acomp from acomp where noa=a.cno),''),custorde
+	,case when taxtype='3' then '1' else taxtype end
+	,SUM(money),SUM(tax),SUM(total)
+	from #tvcc a
+	group by custno,cno,custorde,case when taxtype='3' then '1' else taxtype end
+	
+	update a
+	set comp=b.comp,nick=left(b.nick,20),serial=isnull(b.serial,'')
+	,buyer=case when isnull(b.invoicetitle,'')='' then b.comp else b.invoicetitle end
+	,zip=isnull(b.zip_invo,''),address=isnull(b.addr_invo,'')
+	--,money=0,tax=0,total=0
+	,worker=@rname
+	,vccno=stuff((select ','+vccno from #tvcc where custno=a.custno and cno=a.cno and custorde=a.trdno 
+	and case when taxtype='3' then '1' else taxtype end=a.taxtype for xml path('')),1,1,'')
+	,type='P',memo='PO轉出'+trdno,chkno=''
+	from #tvcca a left join cust b on a.custno=b.noa
+	
+	insert #tvccas (noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo,trdno,taxtype)
+	select '','',a.cno,a.custno,@nowdate,b.productno,b.product,b.unit
+	,SUM(case when b.typea='1' then 1 else -1 end*b.mount)
+	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
+	,SUM(case when b.typea='1' then 1 else -1 end*
+	case when a.taxtype='3' then round(b.total/1.05,0) else b.total end)
+	,'',a.custorde,case when taxtype='3' then '1' else taxtype end
+	from #tvcc a left join view_vccs b on a.vccno=b.noa
+	where a.ordeno=b.ordeno and isnull(b.total,0)>0
+	group by a.custno,a.cno,b.productno,b.product,b.unit,a.custorde
+	,case when taxtype='3' then '1' else taxtype end
+	,case when a.taxtype='3' then round(b.price/1.05,3) else b.price end
+	
+	--update a
+	--set product=case when isnull(b.product,'')!='' then isnull(b.product,'') else isnull(c.product,'') end
+	--,unit=case when isnull(b.unit,'')!='' then isnull(b.unit,'') else isnull(c.unit,'') end
+	--from #tvccas a 
+	--outer apply (select * from ucca where noa=a.productno) b
+	--outer apply (select * from view_ucaucc where noa=a.productno) c
+end
+
+delete #tvccas where mount=0
+
+if(len(@t_err)=0)
+begin
+	if((select count(*) from @cvcca)<(select count(*) from #tvcca))
+	begin
+		set @t_err='系統開立發票需'+CAST((select count(*) from #tvcca) as nvarchar(50))+'張'
+		set @t_err=@t_err+'，可用發票(剩餘'+cast((select count(*) from @cvcca) as nvarchar(50))+'張)不足開立張數!!'
+	end
+	if((select count(*) from #tvcca where total<=0 )>0)
+	begin
+		set @t_err='產生發票金額小於等於0!!'
+	end
+	if((select count(*) from #tvcca)=0)
+	begin
+		set @t_err='無發票需產生!!'
+	end
+end
+
+declare @invono nvarchar(50) --發票號碼
+declare @vccno nvarchar(50) --出貨單號
+declare @accy nvarchar(50)
+
+if(len(@t_err)=0)
+begin
+	--更新業務 對帳客戶
+	update a
+	set vcccustno=case when isnull(c.vcccustno,'')!='' then c.vcccustno else a.custno end,salesno=b.salesno
+	,serial=case when isnull(c.p23,'')='2' then '' else a.serial end 
+	from #tvcca a left join cust b on a.custno=b.noa left join custm c on a.custno=c.noa
+	
+	update a
+	set a.noa=b.vccano
+	from (select ROW_NUMBER()over(order by cno,salesno,vcccustno,custno,trdno)rr,custno,noa from #tvcca)a
+	left join (select ROW_NUMBER()over(order by noa,vccano)rr,vccano from @cvcca)b on a.rr=b.rr
+	
+	update a
+	set a.noa=b.noa
+	from #tvccas a left join #tvcca b on a.cno=b.cno and a.custno=b.custno and a.taxtype=b.taxtype and a.trdno=b.trdno
+	
+	update a
+	set noq=right('000'+cast(rr as nvarchar(10)),3)
+	from (select ROW_NUMBER()over(partition by noa order by productno)rr,noq from #tvccas)a
+	
+	update a
+	set --money=b.money,
+	--tax=case when a.taxtype='1' then round(b.money*0.05,0) else 0 end,
+	--total=b.money+case when a.taxtype='1' then round(b.money*0.05,0) else 0 end,
+	chkno=right('000000'+cast(cast(cast(
+	cast(LOG((ascii(SUBSTRING(a.noa,1,1))*100)+(ascii(SUBSTRING(a.noa,2,1))*25)+cast(SUBSTRING(a.noa,3,3) as int))*100 as int)*144 as int)
+	+(SIN(cast(SUBSTRING(a.noa,6,2) as int))*cast(SUBSTRING(a.noa,8,3) as int)*100) as int)as nvarchar(10)),6)
+	from #tvcca a --outer apply (select SUM(money)money from #tvccas where noa=a.noa) b
+	
+	--105/07/14 要用總金額回推 稅額與未稅金額
+	update #tvcca
+	set tax=round((total/1.05*0.05),0),money=total-round((total/1.05*0.05),0)
+	where taxtype='1'
+	
+	--105/07/14 出貨單金額/稅額!=發票金額/稅額 更新最後一筆單價金額
+	----------------------------------------------------------------------
+	declare @bmoney float
+	declare @smoney float
+	declare @mnoq nvarchar(20)
+	declare @cvccano nvarchar(20)
+	
+	declare cursor_table cursor for
+	select isnull(a.money,0),isnull(b.money,0),b.mnoq,a.noa from #tvcca a 
+	outer apply (select sum(money)money,MAX(noq)mnoq from #tvccas where noa=a.noa)b
+	where isnull(a.money,0)!=isnull(b.money,0) and len(b.mnoq)>0
+	open cursor_table
+	fetch next from cursor_table
+	into @bmoney,@smoney,@mnoq,@cvccano
+	while(@@FETCH_STATUS <> -1)
+	begin
+		
+		update #tvccas
+		set money=money+(@bmoney-@smoney),price=round((money+(@bmoney-@smoney))/mount,3)
+		where noa=@cvccano and noq=@mnoq
+		
+		fetch next from cursor_table
+		into @bmoney,@smoney,@mnoq,@cvccano
+	end
+	close cursor_table
+	deallocate cursor_table
+	
+	----------------------------------------------------------------------
+	
+	update a
+	set invono=stuff(isnull((select ','+noa from #tvcca where vccno like '%'+a.vccno+'%' for xml path('')),''),1,1,'')
+	from #tvcc a
+	
+	BEGIN TRY
+		Begin Transaction
+		
+		--select * from #tvcca order by noa
+		--select * from #tvccas order by noa
+		
+		--新增vcca --105/06/23 地址暫時為空
+		insert vcca(noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp,zip,address,taxtype,money,tax,total,worker,vccno,type,memo,chkno,trdno)
+		select noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp,'','',taxtype,money,tax,total,worker,vccno,type,memo,chkno,trdno
+		from #tvcca order by noa
+		
+		insert vccas(noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo)
+		select noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo from #tvccas order by noa,noq
+	
+		--回寫到vcc
+		declare cursor_table cursor for
+		select accy,vccno,invono from #tvcc
+		open cursor_table
+		fetch next from cursor_table
+		into @accy,@vccno,@invono
+		while(@@FETCH_STATUS <> -1)
+		begin
+			
+			EXEC("update vcc"+@accy+" set invono='"+@invono+"' where noa='"+@vccno+"' ")
+			
+			fetch next from cursor_table
+			into @accy,@vccno,@invono
+		end
+		close cursor_table
+		deallocate cursor_table
+		
+		Commit Transaction
+	END TRY
+	BEGIN CATCH
+		ROLLBACK
+		set @t_err='產生錯誤請聯絡工程師!!'
+		BEGIN TRY
+			close cursor_table
+			deallocate cursor_table
+		END TRY
+		BEGIN CATCH
+		END CATCH
+	END CATCH	
+end
+
+--select * from #tvcc order by custno,custorde
+
+declare @binvono nvarchar(20)=isnull((select MIN(noa) from #tvcca),'')
+declare @einvono nvarchar(20)=isnull((select MAX(noa) from #tvcca),'')
+
+select @t_err t_err,@radio radio,@binvono binvono,@einvono einvono
+
+--紀錄寫入資料
+update adpro
+set memo=@salesno+'@@'+@custno+'@@'+@mon+'@@'+@bdate+'@@'+@edate+'@@'+@startdate+'@@'+@po+'@@'+@radio+'@@'+@userno+'@@'+@rname+'^^'+@binvono+'^^'+@einvono+'^^'+@t_err
+where noa=@xxxnoa
+
+IF OBJECT_ID('tempdb..#tvcc')is not null
+BEGIN
+	drop table #tvcc
+END
+
+IF OBJECT_ID('tempdb..#tvcca')is not null
+BEGIN
+	drop table #tvcca
+END
+
+IF OBJECT_ID('tempdb..#tvccas')is not null
+BEGIN
+	drop table #tvccas
+END
+;
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+quat2orde:--quat2orde
+SET QUOTED_IDENTIFIER OFF
+declare @year nvarchar(20)=[1]
+declare @noa nvarchar(20)=[2]
+declare @usera nvarchar(20)=[3]
+declare @t_no3 nvarchar(MAX)=[4]
+declare @tno3 nvarchar(MAX)=@t_no3
+
+declare @cmd nvarchar(max)
+
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	set @cmd = 'drop table #tmp'
+	EXECUTE sp_executesql @cmd
+END
+
+create table #tmp(
+	no3 nvarchar(10),
+	mount float
+)
+
+while (CHARINDEX('#',@tno3)>1)
+begin
+	insert #tmp
+	select LEFT(@tno3,CHARINDEX('@',@tno3)-1),
+	cast(SUBSTRING(@tno3,CHARINDEX('@',@tno3)+1,CHARINDEX('#',@tno3)-CHARINDEX('@',@tno3)-1) as float)
+	
+	set @tno3=substring(@tno3,charindex('#',@tno3)+1,LEN(@tno3))
+end
+
+declare @nowdate nvarchar(30) --今天日期
+set @nowdate=CONVERT (VARCHAR(7), GETDATE(),12 )+0890000
+set @nowdate=left(@nowdate,3)+'/'+substring(@nowdate,4,2)+'/'+right(@nowdate,2)
+
+declare @accy nvarchar(20)=left(@nowdate,3)
+
+declare @n_ordeno nvarchar(50) --新的ordeno
+--取得當天最後一個出貨單號
+select @n_ordeno=MAX(noa) from view_orde where noa like 'E'+REPLACE(@nowdate,'/','')+'%'
+--新的出貨單號(後面號碼+1)
+set @n_ordeno='E'+REPLACE(@nowdate,'/','')+right('000'+cast(cast(RIGHT(isnull(@n_ordeno,'000'),3) as int)+1 as nvarchar(10)),3)
+
+--將quat的內容轉至orde
+set @cmd="insert orde"+@accy+" (noa,quatno,odate,stype,cno,acomp,custno,comp,nick
+,tel,fax,post,addr,post2,addr2,salesno,sales,paytype,trantype,contract
+,money,tax,taxtype,total,coin,floata,totalus,memo,worker,worker2,isproj)
+select '"+@n_ordeno+"' noa,noa,'"+@nowdate+"',stype,cno,acomp,custno,comp,nick
+,tel,fax,post,addr,post2,addr2,salesno,sales,paytype,trantype,contract
+,money,tax,taxtype,total,coin,floata,totalus,memo,isnull((select namea from sss where noa='"+@usera+"'),'"+@usera+"'),'',1
+from orde"+@accy+" a where noa='"+@noa+"'"
+EXECUTE sp_executesql @cmd
+
+set @cmd="insert ordes"+@accy+" (noa,no2,odate,productno,product,spec,classa,sizea,dime,unit
+,mount,source,price,total,datea,c1,notv,memo,quatno,no3)
+
+select '"+@n_ordeno+"' noa,right('000'+cast(ROW_NUMBER() over (order by a.no3)as nvarchar(10)),3),'"+@nowdate+"'
+,a.productno,a.product,a.spec,a.classa,a.sizea,a.dime,a.unit
+,c.mount
+,a.source,a.price,round(c.mount*a.price,0),'',0
+,c.mount
+,a.memo,a.noa,a.no3
+from view_quats a left join view_quat b on a.noa=b.noa left join #tmp c on a.no3=c.no3 
+left join ucc d on a.productno=d.noa
+outer apply (select top 1 noq,inmount,pack,packway from pack2s where noa=d.noa and isnull(pack,'')!='' order by inmount desc)e
+where a.noa='"+@noa+"' and isnull(c.no3,'')!='' "
+EXECUTE sp_executesql @cmd
+
+EXEC(" update a 
+set money=case when a.taxtype='3' then isnull((select sum(total) from view_ordes where noa=a.noa),0) - round(isnull((select sum(total) from view_ordes where noa=a.noa),0)/1.05*0.05,0)
+else isnull((select sum(total) from view_ordes where noa=a.noa),0) end
+,tax=case when a.taxtype='3' then round(isnull((select sum(total) from view_ordes where noa=a.noa),0)/1.05*0.05,0)
+when a.taxtype='1' then round(isnull((select sum(total) from view_ordes where noa=a.noa),0)*0.05,0) else 0 end
+,total=case when a.taxtype='3' then isnull((select sum(total) from view_ordes where noa=a.noa),0)
+when a.taxtype='1' then isnull((select sum(total) from view_ordes where noa=a.noa),0) + round(isnull((select sum(total) from view_ordes where noa=a.noa),0)*0.05,0) else 0 end 
+from orde"+@accy+" a where a.noa='"+@noa+"' ")
+
+EXEC(" update a set totalus=total*isnull(floata,0) from orde"+@accy+" a where a.noa='"+@noa+"' ")
+
+--資料寫入dno 避免下次自動產生出現問題
+insert dno(tablea,noa,usera,mech)
+select 'orde',@n_ordeno,@usera,replace(convert(nvarchar(20),GETDATE(),20),'-','/')
+
+select @n_ordeno ordeno
+
+--表示要產生產品編號
+if((select count(*) from view_ordes where noa=@n_ordeno and isnull(productno,'')='' and isnull(product,'')!='' )>0)
+begin
+	declare @custno nvarchar(MAX)=isnull((select custno from view_orde where noa=@n_ordeno),'')
+	declare @t_noa nvarchar(MAX)
+	declare @t_no2 nvarchar(MAX)
+	declare @product nvarchar(MAX)
+	declare @spec nvarchar(MAX)
+	declare @t_spec nvarchar(MAX)
+	declare @unit nvarchar(MAX)
+	declare @classa nvarchar(MAX)
+	declare @quatno nvarchar(MAX)
+	declare @no3 nvarchar(MAX)
+	declare @newpno nvarchar(MAX)
+	
+	if(@custno!='')
+	begin
+	
+		declare cursor_table cursor for 
+		select accy,noa,no2,product,spec,unit,classa,quatno,no3 from view_ordes where noa=@n_ordeno and productno=''
+		open cursor_table 
+		fetch next from cursor_table 
+		into @accy,@t_noa,@t_no2,@product,@spec,@unit,@classa,@quatno,@no3
+		while(@@FETCH_STATUS <> -1) 
+		begin 
+			if(@classa='印' or @classa='客')
+			begin
+				--set @newpno=@custno+'-'+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,len(@custno))=@custno and len(noa)>5),'000'),3) as int)+1 as nvarchar(10)),3)
+				set @newpno=left(@custno,5)+'-'+right('000'+cast(cast(right(isnull((select MAX(noa) from ucc where LEFT(noa,5)=left(@custno,5) and len(noa)>5 and CHARINDEX('-',noa)>0),'000'),3) as int)+1 as nvarchar(10)),3)
+			end
+			else--便品
+			begin
+				--104/03/05 便品編號規格改為 2碼羅馬+規格4碼後面補0+流水號3碼
+				set @t_spec=@spec
+				if(patindex('%[0-9]%',@t_spec)>0)
+				begin
+					set @t_spec=SUBSTRING(@t_spec,patindex('%[0-9]%',@t_spec),LEN(@t_spec))
+					set @t_spec=SUBSTRING(@t_spec,1,case when patindex('%[^0-9]%',@t_spec)=0 then LEN(@t_spec) else  patindex('%[^0-9]%',@t_spec)-1 end)
+					set @t_spec=left(isnull(@t_spec,'')+'0000',4)
+				end
+				else
+				begin
+				 	set @t_spec='0000'
+				end
+					
+				--set @newpno='B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec
+				--+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-4=len('B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like 'B'+UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),4) as int)+1 as nvarchar(10)),4)
+				
+				set @newpno=UPPER(left(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(dbo.procGetPY(@product),'''',''),' ',''),'.',''),'(',''),'+',''),'-',''),'*',''),'/',''),'~',''),'!',''),'@',''),'#',''),'$',''),'%',''),'^',''),'&','')+'ZZZ',2))
+				set @newpno=@newpno+@t_spec
+				+right('0000'+cast(cast(right(isnull((select MAX(noa) from ucc where len(noa)-3=len(UPPER(left(dbo.procGetPY(@product),2))+@t_spec) and noa like UPPER(left(dbo.procGetPY(@product),2))+@t_spec+'%' ),'000'),3) as int)+1 as nvarchar(10)),3)
+				
+			end
+			
+			insert ucc(noa,product,spec,unit,typea,date2,worker,style)
+			select @newpno,@product,@spec+' '+@classa,@unit,'1',@nowdate,@t_noa+'-'+@t_no2,@classa
+			
+			--更新訂單產品編號
+			exec("update ordes"+@accy+" set productno='"+@newpno+"'	where noa='"+@t_noa+"' and no2='"+@t_no2+"'")
+			
+			if(isnull(@quatno,'')!='' and isnull(@no3,'')!='')
+			begin
+				set @year=(select top 1 accy from view_quat where noa=@quatno)
+				exec("update quats"+@year+" set productno='"+@newpno+"' where noa='"+@quatno+"' and no3='"+@no3+"'")
+			end
+			
+			fetch next from cursor_table 
+			into @accy,@t_noa,@t_no2,@product,@spec,@unit,@classa,@quatno,@no3
+		end 
+		close cursor_table 
+		deallocate cursor_table 
+	
+	end
+end
+
+IF OBJECT_ID('tempdb..#tmp')is not null
+BEGIN
+	set @cmd = 'drop table #tmp'
+	EXECUTE sp_executesql @cmd
+END
+;
+-------------------------------------------------------------------------------------------------------------
+quatimport:--quatimport
+--取得最新報價明細
+declare @datea nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @custno nvarchar(50)=case when '#non'=[2] then '' else [2] end
+declare @productno nvarchar(50)=case when '#non'=[3] then '' else [3] end
+declare @custno2 nvarchar(50)=left(@custno,5)
+
+declare @tmp table(
+	noa nvarchar(30),
+	no3 nvarchar(10),
+	custno  nvarchar(50),
+	datea nvarchar(10),
+	odate nvarchar(10),
+	productno nvarchar(30),
+	product nvarchar(max),
+	spec nvarchar(max),
+	sizea nvarchar(max),
+	dime float,
+	class nvarchar(50),
+	classa nvarchar(50),
+	unit nvarchar(10),
+	uunit nvarchar(10),
+	ounit nvarchar(10),
+	price float,
+	mount float,
+	total float,
+	memo nvarchar(max)
+)
+
+insert @tmp
+select a.noa,b.no3,a.custno,a.datea,a.odate 
+,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit
+,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'')
+,isnull((select top 1 zinc from view_ordes where productno=b.productno and custno=@custno order by odate desc,noa desc),b.unit)
+,b.price,b.mount,b.total,b.memo
+from view_quat a left join view_quats b on a.noa=b.noa
+where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 and isnull(a.custno,'')!=''
+and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),'')
+or exists (select * from cust where noa=a.custno and isnull(grpno,'')=@custno) --105/07/21 集團底下子公司
+)--含總店 集團
+and b.datea>=@datea --有效日
+and isnull(b.gweight,0)=1 --成交
+and (len(@productno)=0 or b.productno=@productno)
+
+--105/04/18 如果產品重複只保留最下層的單價 群組-總店-分店
+delete a 
+from @tmp a 
+outer apply (select top 1 custno,productno from @tmp where a.productno=productno
+order by case when custno=@custno then 0 when custno=@custno2 then 1 else 2 end) b
+where exists (select productno from @tmp group by productno having count(*)>1 and productno=a.productno)
+and a.custno!=b.custno
+
+--只保留最新報價
+delete a from @tmp a 
+outer apply (
+	select MAX(odate)odate,custno,productno from @tmp group by custno,productno
+	having custno=a.custno and productno=a.productno
+)b where a.odate!=b.odate
+
+--只保留最後的訂單號
+delete a from @tmp a 
+outer apply (
+	select MAX(noa)noa,custno,productno from @tmp group by custno,productno
+	having custno=a.custno and productno=a.productno
+)b where a.noa!=b.noa
+
+--105/04/11訂單 匯入報價 第二次不帶入數量
+update a
+set mount=case when xcount>0 then 0 else mount end
+,total=case when xcount>0 then 0 else total end
+from @tmp a outer apply (select count(*)xcount from view_ordes where quatno=a.noa and no3=a.no3)b
+
+--放入conts
+declare @tmpa table(
+	noa nvarchar(30),
+	no3 nvarchar(10),
+	custno  nvarchar(50),
+	datea nvarchar(10),
+	odate nvarchar(10),
+	productno nvarchar(30),
+	product nvarchar(max),
+	spec nvarchar(max),
+	sizea nvarchar(max),
+	dime float,
+	class nvarchar(50),
+	classa nvarchar(50),
+	unit nvarchar(10),
+	uunit nvarchar(10),
+	ounit nvarchar(10),
+	price float,
+	mount float,
+	total float,
+	memo nvarchar(max)
+)
+insert @tmpa
+select a.noa,b.noq,a.custno,b.ucolor,a.datea,b.productno,b.product,b.spec,'' sizea,0 dime,100 class,b.class classa
+,b.unit,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'') uunit
+,isnull((select top 1 unit from view_ordes where noa=b.productno order by odate desc,noa desc),b.unit) ounit
+,b.price,b.mount-isnull(c.omount,0)mount,round((b.mount-isnull(c.omount,0))*b.price,0)total,a.contract memo
+from cont a left join conts b on a.noa=b.noa
+outer apply (select SUM(mount)omount from view_ordes where quatno=a.noa and no3=b.noq)c
+where a.datea<=@datea and b.ucolor>=@datea 
+and isnull(a.contract,'')!='' and a.kind='PO' and b.mount-isnull(c.omount,0)>0
+and a.custno=@custno and (len(@productno)=0 or b.productno=@productno)
+and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))
+and isnull(b.ordeweight,0)=0 and isnull(b.enda,0)=0 and isnull(a.chka2,0)=0 and isnull(a.enda,0)=0
+order by a.datea,b.productno
+
+--106/10/30 更新客戶品名
+update a
+set product=case when isnull(b.product,'')='' then a.product else isnull(b.product,'') end
+from @tmp a outer apply (select top 1 product from ucccust where noa=a.productno and custno=a.custno and product!='' order by noq desc)b
+
+--106/10/30品名+客戶最新產品編號 目前只有CR002長航
+update a
+set product=a.product+isnull(b.productno,'')
+from @tmp a outer apply (select top 1 productno from ucccust where noa=a.productno and custno=a.custno and productno!='' order by noq desc)b
+where custno='CR002'
+
+select xtmp.*,case when xb.xcount=0 and xc.xcount=0 and classa='印刷' then '新版' else '' end scolor
+from (
+	select * from @tmpa
+	union all
+	select * from @tmp a
+	where not exists (select* from @tmpa where productno=a.productno)
+)xtmp outer apply (select count(*) xcount from view_vccs where productno=xtmp.productno)xb
+outer apply (select count(*) xcount from view_cub where productno=xtmp.productno)xc
+order by noa,no3
+;
+---------------------------------------------------------------------------------------------------------------------------------
+vccprintcount:--vccprintcount
+SET QUOTED_IDENTIFIER OFF
+--更新出貨單列印筆數
+declare @bnoa nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @enoa nvarchar(50)=case when '#non'=[2] then '' else [2] end
+declare @accy nvarchar(50)
+declare @noa nvarchar(50)
+
+BEGIN TRY
+	Begin Transaction
+		declare cursor_table cursor for 
+		select accy,noa from view_vcc where noa between @bnoa and @enoa
+		open cursor_table 
+		fetch next from cursor_table 
+		into @accy,@noa
+		while(@@FETCH_STATUS <> -1) 
+		begin 
+					EXEC("update vcc"+@accy+" set tranadd=isnull(tranadd,0)+1 where noa='"+@noa+"' " )
+					
+			fetch next from cursor_table 
+			into @accy,@noa
+		end 
+		close cursor_table 
+		deallocate cursor_table 
+		
+		Commit Transaction
+END TRY
+BEGIN CATCH
+	ROLLBACK
+	
+	BEGIN TRY
+		close cursor_table
+		deallocate cursor_table
+	END TRY
+	BEGIN CATCH
+	END CATCH
+END CATCH
+;
+-------------------------------------------------------------------------------------------------------------
+contimport:--contimport
+--取得PO明細
+declare @datea nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @custno nvarchar(50)=case when '#non'=[2] then '' else [2] end
+declare @productno nvarchar(50)=case when '#non'=[3] then '' else [3] end
+declare @custno2 nvarchar(50)=left(@custno,5)
+declare @kind nvarchar(50)=case when '#non'=[4] then '' else [4] end
+
+--取得報價單價
+declare @tmp table(
+	noa nvarchar(30),
+	no3 nvarchar(10),
+	custno  nvarchar(50),
+	datea nvarchar(10),
+	odate nvarchar(10),
+	productno nvarchar(30),
+	product nvarchar(max),
+	spec nvarchar(max),
+	sizea nvarchar(max),
+	dime float,
+	class nvarchar(50),
+	classa nvarchar(50),
+	unit nvarchar(10),
+	price float,
+	mount float,
+	total float,
+	memo nvarchar(max)
+)
+
+insert @tmp
+select a.noa,b.no3,a.custno,a.datea,a.odate 
+,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit,b.price,b.mount,b.total,b.memo
+from view_quat a left join view_quats b on a.noa=b.noa
+where isnull(b.enda,0)=0 and isnull(b.cancel,0)=0 and isnull(a.custno,'')!=''
+and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),'')
+or exists (select * from cust where noa=a.custno and isnull(grpno,'')=@custno) --105/07/21 集團底下子公司
+)--含總店 集團
+and b.datea>=@datea --有效日
+and isnull(b.gweight,0)=1 --成交
+and (len(@productno)=0 or b.productno=@productno)
+
+--105/04/18 如果產品重複只保留最下層的單價 群組-總店-分店
+delete a 
+from @tmp a 
+outer apply (select top 1 custno,productno from @tmp where a.productno=productno
+order by case when custno=@custno then 0 when custno=@custno2 then 1 else 2 end) b
+where exists (select productno from @tmp group by productno having count(*)>1 and productno=a.productno)
+and a.custno!=b.custno
+
+--只保留最新報價
+delete a from @tmp a 
+outer apply (
+	select MAX(odate)odate,custno,productno from @tmp group by custno,productno
+	having custno=a.custno and productno=a.productno
+)b where a.odate!=b.odate
+
+--只保留最後的訂單號
+delete a from @tmp a 
+outer apply (
+	select MAX(noa)noa,custno,productno from @tmp group by custno,productno
+	having custno=a.custno and productno=a.productno
+)b where a.noa!=b.noa
+
+if(@kind='PO')
+begin
+	select a.noa,a.datea,a.contract,b.noq,b.productno,b.product,b.spec,b.class,b.unit
+	,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'') uunit
+	,isnull((select top 1 unit from view_ordes where noa=b.productno order by odate desc,noa desc),b.unit) ounit
+	,b.mount,b.price,b.total,c.omount,d.price qprice
+	from cont a left join conts b on a.noa=b.noa
+	outer apply (select SUM(mount)omount from view_ordes where quatno=a.noa and no3=b.noq)c
+	outer apply (select top 1 price from @tmp where productno=b.productno order by noa,no3) d
+	where a.datea<=@datea and b.ucolor>=@datea 
+	and isnull(a.contract,'')!='' and a.kind='PO' and b.mount-isnull(c.omount,0)>0
+	and a.custno=@custno and (len(@productno)=0 or b.productno=@productno)
+	and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))
+	order by a.datea,b.productno
+end
+else
+begin
+	select a.noa,a.datea,a.contract,b.noq,b.productno,b.product,b.spec,b.class,b.unit
+	,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'') uunit
+	,isnull((select top 1 unit from view_ordes where noa=b.productno order by odate desc,noa desc),b.unit) ounit
+	,b.mount,b.price,b.total,d.price qprice
+	from cont a left join conts b on a.noa=b.noa
+	outer apply (select top 1 price from @tmp where productno=b.productno order by noa,no3) d
+	where a.datea<=@datea and b.ucolor>=@datea 
+	and isnull(a.contract,'')!='' and a.kind!='PO'
+	and a.custno=@custno and (len(@productno)=0 or b.productno=@productno)
+	and (a.custno=@custno2 or a.custno=@custno or a.custno=ISNULL((select grpno from cust where noa=@custno),''))
+	order by a.datea,b.productno
+end
+;
+----------------------------------------------------------------------------------------------
+contenda:--contenda
+declare @noa nvarchar(50)=case when '#non'=[1] then '' else [1] end
+
+--更新已/未交量
+update b
+set gweight=isnull(c.mount,0),eweight=b.mount-isnull(c.mount,0)
+from cont a left join conts b on a.noa=b.noa
+outer apply (select SUM(mount)mount from view_ordes where quatno=a.noa and no3=b.noq) c
+where isnull(a.chka1,0)=1 and isnull(a.chka2,0)=0 and isnull(b.ordeweight,0)=0 and isnull(b.productno,'')!=''
+and (a.noa=@noa or exists (select * from view_ordes where noa=@noa and quatno=a.noa))
+and a.kind='PO'
+
+--更新表身結案
+update b
+set enda=case when b.eweight<=0 then 1 else 0 end
+from cont a left join conts b on a.noa=b.noa
+where isnull(a.chka1,0)=1 and isnull(a.chka2,0)=0 and isnull(b.ordeweight,0)=0 and isnull(b.productno,'')!=''
+and (a.noa=@noa or exists (select * from view_ordes where noa=@noa and quatno=a.noa))
+and a.kind='PO'
+
+--更新表頭結案
+update a
+set enda=case when isnull(b.xcount,0)!=isnull(b.ecount,0) then 0 else 1 end
+from cont a outer apply (select count(*)xcount,sum(case when isnull(enda,0)=1 then 1 else 0 end)ecount from conts where noa=a.noa and isnull(productno,'')!='' and isnull(ordeweight,0)=0 )b
+where isnull(a.chka1,0)=1 and isnull(a.chka2,0)=0
+and (a.noa=@noa or exists (select * from view_ordes where noa=@noa and quatno=a.noa))
+and isnull(b.xcount,0)>0
+and a.kind='PO'
+
+--更新資料
+select a.noa,b.noq,a.enda,b.enda endas,b.gweight,b.eweight
+from cont a left join conts b on a.noa=b.noa
+where a.noa=@noa
+;
+-------------------------------------------------------------------------------------------------------
+cugsenda:--cugsenda
+SET QUOTED_IDENTIFIER OFF
+declare @noa nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @noq nvarchar(50)=case when '#non'=[2] then '' else [2] end
+declare @worker nvarchar(50)=case when '#non'=[3] then '' else [3] end
+
+declare @accy nvarchar(50)=isnull((select accy from view_cug where noa=@noa),'')
+
+if((select count(*) from view_cug where noa=@noa)>0)
+begin
+	EXEC("
+		update cugs"+@accy+" set issel=1 
+		,nosold=case when isnull(nosold,'')='' then '"+@worker+"' else nosold end
+		where noa='"+@noa+"' and noq<='"+@noq+"'
+	")
+end
+
+select * from view_cugs where noa=@noa;
+;
+-------------------------------------------------------------------------------------------------------
+cugsup2cub:--cugsup2cub
+SET QUOTED_IDENTIFIER OFF
+declare @noa nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @workno nvarchar(50)
+declare @edate nvarchar(50)
+declare @accy nvarchar(50)
+
+declare cursor_table cursor for
+select a.workno,a.edate,b.accy 
+from (select workno,MAX(uindate) edate from view_cugs a where noa=@noa group by workno) a
+left join view_cub b on a.workno=b.noa 
+where b.noa is not null and isnull(a.edate,'')!=''
+open cursor_table
+fetch next from cursor_table
+into @workno,@edate,@accy
+while(@@FETCH_STATUS <> -1)
+begin
+		
+	EXEC("update cub"+@accy+" set edate='"+@edate+"' where noa='"+@workno+"'")
+		
+	fetch next from cursor_table
+	into @workno,@edate,@accy
+end
+close cursor_table
+deallocate cursor_table
+;
+-------------------------------------------------------------------------------------------------------
+cubimport:--cubimport
+SET QUOTED_IDENTIFIER OFF
+declare @product nvarchar(100)=case when '#non'=[1] then '' else [1] end
+declare @spec nvarchar(100)=case when '#non'=[2] then '' else [2] end
+declare @size9 nvarchar(100)=case when '#non'=[3] then '' else [3] end
+declare @size13 nvarchar(100)=case when '#non'=[4] then '' else [4] end
+declare @size17 nvarchar(100)=case when '#non'=[5] then '' else [5] end
+declare @bcubdate nvarchar(100)=case when '#non'=[6] then '' else [6] end
+declare @ecubdate nvarchar(100)=case when '#non'=[7] then char(255) else [7] end
+declare @bodate nvarchar(100)=case when '#non'=[8] then '' else [8] end
+declare @eodate nvarchar(100)=case when '#non'=[9] then char(255) else [9] end
+
+set @product=replace(@product,'@$#','"')
+set @spec=replace(@spec,'@$#','"')
+
+select a.noa,a.productno,a.product,a.spec,a.unit,a.mount,a.mount-isnull(b.mount,0) emount
+,a.ordeno,a.no2,a.custno,a.comp,a.memo,a.bdate,a.edate
+,a.mount*case when a.spec like '%9"%' then CAST(@size9 as float) 
+when a.spec like '%13"%' then CAST(@size13 as float)
+when a.spec like '%17"%' then CAST(@size17 as float) else 0 end ahours
+,(a.mount-isnull(b.mount,0))*case when a.spec like '%9"%' then CAST(@size9 as float) 
+when a.spec like '%13"%' then CAST(@size13 as float)
+when a.spec like '%17"%' then CAST(@size17 as float) else 0 end ehours
+,a.bdate odate,a.kind,c.*
+from view_cub a outer apply (select SUM(mount)mount from view_cugs where workno=a.noa and isnull(issel,0)=1) b
+outer apply (select product oproduct,spec ospec,classa oclassa,scolor from view_ordes where noa=a.ordeno and no2=a.no2) c
+where isnull(a.enda,0)!=1 
+and isnull(a.cancel,0)!=1
+and a.typea='製造部'
+and a.mount-isnull(b.mount,0)>0
+and (len(@product)=0 or a.product like '%'+@product+'%')
+and (len(@spec)=0 or a.spec like '%'+@spec+'%')
+and (1=0 or (CAST(@size9 as float)>0 and a.spec like '%9"%')
+or (CAST(@size13 as float)>0 and a.spec like '%13"%')
+or (CAST(@size17 as float)>0 and a.spec like '%17"%'))
+and a.datea between @bcubdate and @ecubdate
+and a.bdate between @bodate and @eodate
+order by case when a.bdate='' then CHAR(255) else a.bdate end,a.noa
+;
+-------------------------------------------------------------------------------------------------------------
+cub2upcust:--cub2upcust
+declare @noa nvarchar(100)=case when '#non'=[1] then '' else [1] end
+declare @upnoa nvarchar(100)=case when '#non'=[2] then '' else [2] end
+
+update upcust
+set memo=isnull((select isnull(a.product,'')+' '+isnull(a.spec,'')+' '+isnull(b.sales,'') from view_cub a left join cust b on a.custno=b.noa where a.noa=@noa),'')+'製令單【'+@noa+'】上傳',typea=''
+where noa=@upnoa
+
+update upcusts
+set namea=@noa
+where noa=@upnoa
+;
+-------------------------------------------------------------------------------------------------------
+ordecheckstk:--ordecheckstk
+declare @t_noa nvarchar(50)=case when '#non'=[1] then '' else [1] end
+
+declare @tmp table(
+	noa nvarchar(50),
+	no2 nvarchar(50),
+	productno nvarchar(100),
+	products nvarchar(MAX),
+	mount decimal(25, 4),
+	unit nvarchar(10),
+	notv decimal(25, 4),	
+	smount decimal(25, 4),
+	cmount decimal(25, 4),
+	dcmount decimal(25, 4),
+	towork nvarchar(20),
+	stkmemo nvarchar(100)
+)
+
+	insert into @tmp
+	select b.noa,a.no2,	a.productno,a.product+' '+a.classa+' '+isnull(a.spec,'') 
+	,a.mount,a.unit,a.notv,0
+	,isnull((select sum(case when typea='1' then 1 else -1 end*tranmoney2-tranmoney3) from view_vccs where productno=a.productno),0)
+	,isnull((select sum(notv) from view_ordcs where productno=a.productno and enda!=1 and cancel!=1),0) 
+	+isnull((select sum(notv) from view_cub where productno=a.productno and enda!=1 and cancel!=1),0) 
+	,d.cdate,''
+	from view_ordes a
+	left join view_orde b on a.noa = b.noa
+	left join cust c on b.custno = c.noa
+	left join ucc d on a.productno=d.noa
+	where a.noa=@t_noa and (a.mount!=0) 
+	and isnull(a.enda,0)!=1 and isnull(b.enda,0)!=1 
+	and isnull(a.cancel,0)!=1 and isnull(b.cancel,0)!=1
+	order by b.custno,a.product,b.noa,b.odate,b.datea
+	
+declare @stkmount table(
+	productno nvarchar(50),
+	mount float
+)
+
+declare @t_sdate nvarchar(10)=dbo.AD2ChineseEraName(CONVERT (VARCHAR(10), GETDATE(),20))
+
+declare @counts int=(select count(*) from @tmp)
+
+if(@counts>0)
+begin
+	if(@counts<=7)
+	begin
+		declare @productno nvarchar(50)
+		declare cursor_table cursor for 
+		select productno from @tmp
+		open cursor_table 
+		fetch next from cursor_table 
+		into @productno
+		while(@@FETCH_STATUS <> -1) 
+		begin
+			insert @stkmount
+			select productno,mount from stkucc(@t_sdate,'A',@productno) a 
+			
+			fetch next from cursor_table 
+			into @productno
+		end 
+		close cursor_table 
+		deallocate cursor_table 
+	end
+	else
+	begin
+		insert @stkmount
+		select productno,mount from stkucc(@t_sdate,'A','') a 
+		where exists (select * from @tmp where productno=a.productno)
+	end
+end
+
+update a
+set smount=isnull(b.mount,0),stkmemo=case when isnull(a.notv,0)-a.dcmount-a.cmount-isnull(b.mount,0)>0 then case when len(towork)>0 then +'需'+towork else '庫存不足' end else '' end
+from @tmp a left join @stkmount b on a.productno=b.productno
+
+select noa,no2,productno,products,unit
+,mount,notv,smount,cmount,dcmount,stkmemo 
+from @tmp order by noa,no2
+
+;
+-------------------------------------------------------------------------------------------------------
+btnstore2:--btnstore2 --讀取寄庫資料
+declare @t_custno nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @t_noa nvarchar(50)=case when '#non'=[2] then '' else [2] end
+declare @t_datea nvarchar(50)=case when '#non'=[3] then '' else [3] end
+declare @t_productno nvarchar(50)=case when '#non'=[4] then '' else [4] end
+declare @t_storeno nvarchar(50)=''
+declare @storeno nvarchar(50)=''
+declare @productno nvarchar(50)=''
+declare @rank int=5
+
+--預設寄庫倉庫＝出貨分店倉1、總店2、集團3、它分店倉4
+declare cursor_table cursor for
+select noa from store where noa like LEFT(@t_custno,5)+'%'
+or ((select count(*) from cust where noa=@t_custno and isnull(grpno,'')!='')>0 
+and noa like (select top 1 grpno from cust where noa=@t_custno)+'%')
+open cursor_table
+fetch next from cursor_table
+into @storeno
+while(@@FETCH_STATUS <> -1)
+begin
+	--出貨分店倉
+	if(@t_custno=@storeno)
+	begin
+		set @t_storeno=@storeno
+		set @rank=1
+	end
+	--總店
+	if(left(@t_custno,5)=@storeno and @rank>2)
+	begin
+		set @t_storeno=@storeno
+		set @rank=2
+	end
+	--集團
+	if(left(@t_custno,5)!=left(@storeno,5) and @rank>3)
+	begin
+		set @t_storeno=@storeno
+		set @rank=3
+	end
+	--它分店倉
+	if(left(@t_custno,5)=left(@storeno,5) and @rank>4)
+	begin
+		set @t_storeno=@storeno
+		set @rank=4
+	end
+	fetch next from cursor_table
+	into @storeno
+end
+close cursor_table
+deallocate cursor_table
+
+declare @tmp table(
+	gno nvarchar(10),
+	storeno2 nvarchar(50),
+	store2 nvarchar(50),
+	productno nvarchar(50),
+	product nvarchar(MAX),
+	spec nvarchar(MAX),
+	style nvarchar(MAX),
+	unit nvarchar(50),
+	mount float,
+	othmount float,
+	stkmount float,
+	total float
+)
+--select @t_storeno,@rank
+if(len(@t_storeno)>0)
+begin
+	--寄庫商品
+	insert @tmp
+	select '0',a.storeno2,isnull(MAX(b.store),'')store2,a.productno,isnull(MAX(c.product),'')product
+	,isnull(MAX(c.spec),'')spec,isnull(MAX(c.style),'')style,isnull(MAX(c.unit),'')unit
+	,sum(case when a.typea='2' then -1 else 1 end*(isnull(a.tranmoney2,0)-isnull(a.tranmoney3,0)))mount,0,0,0
+	from view_vccs a left join store b on a.storeno2=b.noa left join ucc c on a.productno=c.noa
+	where a.storeno2=@t_storeno and isnull(a.productno,'')!='' and a.noa!=@t_noa
+	and (len(@t_productno)=0 or a.productno=@t_productno)
+	group by a.storeno2,a.productno 
+	having sum(case when a.typea='2' then -1 else 1 end*(isnull(a.tranmoney2,0)-isnull(a.tranmoney3,0)))!=0
+	order by a.storeno2,a.productno 
+
+	insert @tmp
+	select '1',a.storeno2,isnull(MAX(b.store),'')store2,a.productno,isnull(MAX(c.product),'')product
+	,isnull(MAX(c.spec),'')spec,isnull(MAX(c.style),'')style,isnull(MAX(c.unit),'')unit,0
+	,sum(case when a.typea='2' then -1 else 1 end*(isnull(a.tranmoney2,0)-isnull(a.tranmoney3,0)))mount,0,0
+	from view_vccs a left join store b on a.storeno2=b.noa left join ucc c on a.productno=c.noa
+	where a.storeno2!=@t_storeno and isnull(a.productno,'')!='' and a.noa!=@t_noa
+	and (len(@t_productno)=0 or a.productno=@t_productno)
+	and exists (select * from @tmp where productno=a.productno)
+	group by a.storeno2,a.productno 
+	having sum(case when a.typea='2' then -1 else 1 end*(isnull(a.tranmoney2,0)-isnull(a.tranmoney3,0)))!=0
+	order by a.storeno2,a.productno 
+	
+	update a
+	set othmount=isnull(b.othmount,0)
+	from @tmp a outer apply (select SUM(othmount)othmount from @tmp where gno='1' and productno=a.productno)b
+	where gno='0'
+	
+	delete @tmp where gno='1'
+	
+	declare cursor_table cursor for
+	select product from @tmp
+	open cursor_table
+	fetch next from cursor_table
+	into @productno
+	while(@@FETCH_STATUS <> -1)
+	begin
+		
+		update @tmp
+		set stkmount=isnull((select sum(mount) from stkucc(@t_datea,'',@productno) where storeno!='HHC' and store not like '%報廢%'),0)
+		where productno=@productno
+	
+		fetch next from cursor_table
+		into @productno
+	end
+	close cursor_table
+	deallocate cursor_table
+	
+	update @tmp
+	set total=mount+othmount+stkmount	
+end
+select 
+gno,storeno2,store2,productno,product,spec,style,unit
+,dbo.getComma(mount,-1)mount
+,dbo.getComma(othmount,-1)othmount
+,dbo.getComma(stkmount,-1)stkmount
+,dbo.getComma(total,-1)total
+from @tmp
+;
+-------------------------------------------------------------------------------------------------------
+chkstk:--chkstk --讀取庫存資料
+
+declare @t_noa nvarchar(50)=case when '#non'=[1] then '' else [1] end
+declare @t_pro nvarchar(MAX)=case when '#non'=[2] then '' else [2] end
+declare @t_pro2 nvarchar(MAX)=case when '#non'=[3] then '' else [3] end
+declare @t_datea nvarchar(50)=case when '#non'=[4] then '' else [4] end
+
+declare @t_storeno nvarchar(50)=''
+declare @storeno nvarchar(50)=''
+declare @productno nvarchar(50)=''
+
+set @t_pro=REPLACE(@t_pro,'###',',')
+set @t_pro2=REPLACE(@t_pro2,'###',',')
+
+declare @tmp table(
+	typea nvarchar(50),
+	storeno nvarchar(50),
+	store nvarchar(50),
+	productno nvarchar(50),
+	product nvarchar(MAX),
+	spec nvarchar(MAX),
+	style nvarchar(MAX),
+	unit nvarchar(50),
+	stkmount float
+)
+
+declare cursor_table cursor for
+select n productno,item storeno from fnSplit(@t_pro)
+open cursor_table
+fetch next from cursor_table
+into @productno,@storeno
+while(@@FETCH_STATUS <> -1)
+begin
+	insert @tmp(typea,storeno,productno,stkmount)
+	select '1',@storeno,@productno,isnull((select sum(mount) from stkucc(@t_datea,@storeno,@productno) where storeno!='HHC' and store not like '%報廢%'),0)
+	
+	fetch next from cursor_table
+	into @productno,@storeno
+end
+close cursor_table
+deallocate cursor_table
+
+if((select count(*) from view_vcc where noa=@t_noa)>0)
+begin
+	insert @tmp(typea,storeno,productno,stkmount)
+	select '1',case when left(custno,5)='DY001' then 'DY' else 'A' end,productno,0
+	from view_vccs a where noa=@t_noa and  not exists (select * from @tmp where storeno=a.storeno and a.productno=a.productno)
+	
+	update a
+	set stkmount=stkmount+isnull((select SUM(mount) from view_vccs where noa=@t_noa and productno=a.productno and storeno=a.storeno),0)
+	from @tmp a
+end
+
+declare cursor_table cursor for
+select n productno,item storeno from fnSplit(@t_pro2)
+open cursor_table
+fetch next from cursor_table
+into @productno,@storeno
+while(@@FETCH_STATUS <> -1)
+begin
+	insert @tmp(typea,storeno,productno,stkmount)
+	select '2',@storeno,@productno,ROUND(isnull((select SUM(case when typea='1' then 1 else -1 end*(tranmoney2-tranmoney3)) from view_vccs where productno=@productno and storeno2=@storeno and (itemno='1' or itemno='2') and (isnull(tranmoney2,0)!=0 or isnull(tranmoney3,0)!=0)),0),0)
+	
+	fetch next from cursor_table
+	into @productno,@storeno
+end
+close cursor_table
+deallocate cursor_table
+
+update a
+set store=c.store,product=b.product,spec=b.spec,style=b.style,unit=b.unit
+from @tmp a left join ucc b on a.productno=b.noa
+left join store c on a.storeno=c.noa
+
+select * from @tmp order by typea,productno
+;

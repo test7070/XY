@@ -163,7 +163,11 @@
                 	t_where += " and noa in (select ordeno from view_vcces where width=0 and charindex('不',class)==0) ";
 				
 				if(t_paytype.length>0)
-                	t_where += " and charindex('"+t_paytype+"',paytype)>0 ";	
+                	t_where += " and charindex('"+t_paytype+"',paytype)>0 ";
+                	
+                if($('#checkInvono').prop('checked')){
+                	t_where += " and isnull(invono,'')='' ";
+                }
                 	
 				t_where = ' where=^^ ' + t_where + ' ^^ ';
 				return t_where;
@@ -231,7 +235,10 @@
 					<td><a id='lblMon'> </a></td>
 					<td><input id="txtMon" type="text" style="width:40%;"/></td>
 					<td><a id='lblInvono'> </a></td>
-					<td><input id="txtInvono" type="text"/></td>
+					<td>
+						<input id="txtInvono" type="text" style="width: 100px;"/>
+						<input id="checkInvono" type="checkbox" style="width:auto;"/>空白
+					</td>
 				</tr>
 				<tr class='seek_tr'>
 					<td><a id='lblOrdeno'> </a></td>

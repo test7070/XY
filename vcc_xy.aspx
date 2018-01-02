@@ -165,6 +165,11 @@
 				});
 				
 				$('#btnOrdes').click(function() {
+					if($('#cmbTaxtype').val()=='6'){
+						alert('營業稅【作廢】禁止訂單匯入!!');
+						return;
+					}
+					
 					if(q_cur==1 || q_cur==2){
 						var t_custno = trim($('#txtCustno').val());
 						var t_where = '';

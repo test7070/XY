@@ -696,7 +696,7 @@ begin
 			if(@nowdate<'107/01/01')--電子計算機發票
 			begin
 				insert vcca(noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp
-				,zip,address,taxtype,money,tax,total,worker,vccno,[type],memo,chkno)
+				,zip,address,taxtype,money,tax,total,worker,vccno,[type],memo,chkno,taxrate)
 				select @invono,b.custno,case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end,b.nick
 				,case when @p23='2' then '' when isnull(e.invocustno,'')!='' then d.serial else c.serial end
 				,case when isnull(e.invocustno,'')!='' then d.noa else b.custno end
@@ -717,6 +717,7 @@ begin
 					cast(SUBSTRING(@invono,3,3) as int))*100 as int)
 				*144 as int)
 				+(SIN(cast(SUBSTRING(@invono,6,2) as int))*cast(SUBSTRING(@invono,8,3) as int)*100) as int)as nvarchar(10)),6)
+				,0.05
 				from view_vcc b left join custm e on b.custno=e.noa
 				outer apply (select top 1 * from cust where noa=b.custno) c
 				outer apply (select top 1 * from cust where noa=isnull(e.invocustno,'')) d
@@ -728,7 +729,7 @@ begin
 				set @trand= right('0000'+CAST(Round(RAND() * 9999, 0) as nvarchar(10)),4)
 			
 				insert vcca(noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp
-				,zip,address,taxtype,money,tax,total,worker,vccno,[type],memo,chkno,randnumber)
+				,zip,address,taxtype,money,tax,total,worker,vccno,[type],memo,chkno,randnumber,taxrate)
 				select @invono,b.custno,case when isnull(c.invoicetitle,'')!='' then c.invoicetitle else b.comp end,b.nick
 				,case when @p23='2' then '' when isnull(e.invocustno,'')!='' then d.serial else c.serial end
 				,case when isnull(e.invocustno,'')!='' then d.noa else b.custno end
@@ -750,7 +751,7 @@ begin
 					cast(SUBSTRING(@invono,3,3) as int))*100 as int)
 				*144 as int)
 				+(SIN(cast(SUBSTRING(@invono,6,2) as int))*cast(SUBSTRING(@invono,8,3) as int)*100) as int)as nvarchar(10)),6)
-				,@trand
+				,@trand,0.05
 				from view_vcc b left join custm e on b.custno=e.noa
 				outer apply (select top 1 * from cust where noa=b.custno) c
 				outer apply (select top 1 * from cust where noa=isnull(e.invocustno,'')) d
@@ -1422,8 +1423,8 @@ begin
 		--select * from #tvccas order by noa
 		
 		--新增vcca --105/06/23 地址暫時為空
-		insert vcca(noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp,zip,address,taxtype,money,tax,total,worker,vccno,type,memo,chkno,trdno,randnumber)
-		select noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp,'','',taxtype,money,tax,total,worker,vccno,type,memo,chkno,trdno,randnumber
+		insert vcca(noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp,zip,address,taxtype,money,tax,total,worker,vccno,type,memo,chkno,trdno,randnumber,taxrate)
+		select noa,custno,comp,nick,serial,buyerno,buyer,datea,mon,cno,acomp,'','',taxtype,money,tax,total,worker,vccno,type,memo,chkno,trdno,randnumber,0.05
 		from #tvcca order by noa
 		
 		insert vccas(noa,noq,cno,custno,datea,productno,product,unit,mount,price,money,memo)

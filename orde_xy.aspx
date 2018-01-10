@@ -2626,7 +2626,9 @@
 			
 			var orde2vcc_modi=false;
 			var orde2vcc57=false;
+			var orde2ordbcub=false;
 			function btnModi() {
+				orde2ordbcub=false;
 				if (emp($('#txtNoa').val()))
 					return;
 				
@@ -2664,6 +2666,7 @@
 					var as2 = _q_appendData("view_ordbs", "", true);
 					
 					if(as[0]!=undefined || as2[0]!=undefined){
+						orde2ordbcub=true;
 						if(as[0]!=undefined){
 							alert('訂單【'+$('#txtNoa').val()+'】已轉製令單【'+as[0].noa+'】!!');
 						}else if(as2[0]!=undefined){
@@ -2939,6 +2942,30 @@
 						$('#txtUnit_'+j).removeAttr('disabled');
 					}else{
 						$('#txtUnit_'+j).attr('disabled', 'disabled');
+					}
+					
+					if(orde2ordbcub && q_cur==2){
+						$('#btnPlus').attr('disabled', 'disabled');
+						for (var j = 0; j < q_bbsCount; j++) {
+							$('#btnMinus_'+j).attr('disabled', 'disabled');
+							$('#txtProductno_'+j).attr('disabled', 'disabled');
+							$('#btnProduct_'+j).attr('disabled', 'disabled');
+							$('#btnSpec_'+j).attr('disabled', 'disabled');
+							$('#txtProduct_'+j).attr('disabled', 'disabled');
+							$('#combGroupbno_'+j).attr('disabled', 'disabled');
+							$('#combZinc_'+j).attr('disabled', 'disabled');
+							$('#txtSpec_'+j).attr('disabled', 'disabled');
+							$('#btnSpec_'+j).attr('disabled', 'disabled');
+							$('#txtClassa_'+j).attr('disabled', 'disabled');
+							$('#combClassa_'+j).attr('disabled', 'disabled');
+							$('#txtSizea_'+j).attr('disabled', 'disabled');
+							$('#txtDime_'+j).attr('disabled', 'disabled');
+							$('#txtUnit_'+j).attr('disabled', 'disabled');
+							$('#txtPrice_'+j).attr('disabled', 'disabled');
+							$('#cmbSource_'+j).attr('disabled', 'disabled');
+							//$('#txtDatea_'+j).attr('disabled', 'disabled');
+							$('#txtMemo_'+j).attr('disabled', 'disabled');
+						}
 					}
 					
 					//copy_field();

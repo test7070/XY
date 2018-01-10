@@ -1275,7 +1275,7 @@ begin
 	,SUM(case when a.taxtype='1' then round(b.total*0.05,0)
 	when a.taxtype='3' then b.total-round(b.total/1.05,0)	
 	else 0 end)
-	,'','',case when a.taxtype='1' or a.taxtype='3' then case when c.p23='2' then '3' else '1' end else a.taxtype end
+	,'',a.custorde,case when a.taxtype='1' or a.taxtype='3' then case when c.p23='2' then '3' else '1' end else a.taxtype end
 	from #tvcc a left join view_vccs b on a.vccno=b.noa
 	left join custm c on a.custno=c.noa
 	where a.ordeno=b.ordeno and isnull(b.total,0)>0

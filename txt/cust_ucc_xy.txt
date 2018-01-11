@@ -1781,7 +1781,7 @@ from (
 	select * from @tmp a
 	where not exists (select* from @tmpa where productno=a.productno)
 )xtmp outer apply (select count(*) xcount from view_vccs where productno=xtmp.productno)xb
-outer apply (select count(*) xcount from view_cub where productno=xtmp.productno)xc
+outer apply (select count(*) xcount from view_cub where productno=xtmp.productno and isnull(cancel,0)=0)xc
 order by noa,no3
 ;
 ---------------------------------------------------------------------------------------------------------------------------------

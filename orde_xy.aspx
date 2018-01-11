@@ -1919,7 +1919,9 @@
 							t_IdSeq = -1;
 							q_bodyId($(this).attr('id'));
 							b_seq = t_IdSeq;
-							$('#cmbSource_' + b_seq).change();
+							if(!(q_cur==2 && (orde2ordbcub || orde2vcc57) && r_rank<'8')){
+								$('#cmbSource_' + b_seq).change();
+							}
 						});
 						
 						$('#combZinc_' + j).change(function() {

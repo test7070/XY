@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title></title>
+		<title> </title>
 		<script src="../script/jquery.min.js" type="text/javascript"></script>
 		<script src='../script/qj2.js' type="text/javascript"></script>
 		<script src='qset.js' type="text/javascript"></script>
@@ -19,7 +19,8 @@
 				['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,custno,comp', 'txtOrdeno,txtNo2', ''],
 				['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,invoicetitle,serial', 'txtCustno,txtComp', 'cust_b.aspx'],
 				['txtTggno', 'lblTgg', 'tgg', 'noa,comp,nick', 'txtTggno,txtTgg', 'tgg_b.aspx'],
-				['txtProductno', 'lblProduct', 'ucc', 'noa,product,spec,style', 'txtProductno,txtProduct', 'ucc_b.aspx']
+				['txtProductno', 'lblProduct', 'ucc', 'noa,product,spec,style', 'txtProductno,txtProduct', 'ucc_b.aspx'],
+				['txtProcessno', 'lblProcess', 'process', 'noa,process', 'txtProcessno,txtProcess', 'process_b.aspx']
 			);
 			$(document).ready(function() {
 				main();
@@ -51,6 +52,7 @@
 				var t_noa = $.trim($('#txtNoa').val());
 				var t_custno = $.trim($('#txtCustno').val());
 				var t_tggno = $.trim($('#txtTggno').val());
+				var t_processno = $.trim($('#txtProcessno').val());
 				var t_pno = $.trim($('#txtProductno').val());
 				var t_product = $.trim($('#txtProduct').val());
 				var t_ordeno = $.trim($('#txtOrdeno').val());
@@ -72,6 +74,8 @@
 					
 				if(t_tggno.length>0)
 					t_where += " and exists (select * from view_cubs"+r_accy+" where tggno='"+t_tggno+"' and noa=view_cub"+r_accy+".noa) ";
+				if(t_processno.length>0)
+					t_where += " and exists (select * from view_cubs"+r_accy+" where processno='"+t_processno+"' and noa=view_cub"+r_accy+".noa) ";	
 				if(t_product.length>0)
 					t_where += " and charindex('"+t_product+"',product)>0 ";
 				
@@ -135,6 +139,14 @@
 						<input class="txt" id="txtTggno" type="text" style="width:90px;" />
 						&nbsp;
 						<input class="txt readonly" id="txtTgg" type="text" style="width:120px;" />
+					</td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek' style="width:90px;"><a id='lblProcess'>製程</a></td>
+					<td style="width:215px;">
+						<input class="txt" id="txtProcessno" type="text" style="width:90px;" />
+						&nbsp;
+						<input class="txt readonly" id="txtProcess" type="text" style="width:120px;" />
 					</td>
 				</tr>
 				<tr class='seek_tr'>

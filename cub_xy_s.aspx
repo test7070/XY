@@ -14,11 +14,11 @@
 		<script src="css/jquery/ui/jquery.ui.datepicker_tw.js"></script>
 		<script type="text/javascript">
 			var q_name = "cub_xy_s";
-			var q_readonly = ['txtNoa', 'txtComp', 'txtTgg', 'txtMech'];
+			var q_readonly = ['txtNoa','txtTgg','txtProcess','txtMech'];
 			aPop = new Array(
 				['txtOrdeno', '', 'view_ordes', 'noa,no2,productno,product,custno,comp', 'txtOrdeno,txtNo2', ''],
-				['txtCustno', 'lblCust', 'cust', 'noa,comp,nick,invoicetitle,serial', 'txtCustno,txtComp', 'cust_b.aspx'],
-				['txtTggno', 'lblTgg', 'tgg', 'noa,comp,nick', 'txtTggno,txtTgg', 'tgg_b.aspx'],
+				['txtCustno', 'lblCust', 'cust', 'noa,nick,comp,invoicetitle,serial', 'txtCustno,txtComp', 'cust_b.aspx'],
+				['txtTggno', 'lblTgg', 'tgg', 'noa,nick,comp', 'txtTggno,txtTgg', 'tgg_b.aspx'],
 				['txtProductno', 'lblProduct', 'ucc', 'noa,product,spec,style', 'txtProductno,txtProduct', 'ucc_b.aspx'],
 				['txtProcessno', 'lblProcess', 'process', 'noa,process', 'txtProcessno,txtProcess', 'process_b.aspx']
 			);
@@ -60,6 +60,7 @@
 				var t_typea = $.trim($('#cmbTypea').val());
 				var t_enda = $('#cmbEnda').val();
                 var t_worker =$('#txtWorker').val();
+                var t_comp = $.trim($('#txtComp').val());
 				
 				var t_where = " 1=1 " + q_sqlPara2("datea", t_bdate,t_edate) + q_sqlPara2("noa", t_noa)+
 										q_sqlPara2("typea", t_typea) +
@@ -78,6 +79,8 @@
 					t_where += " and exists (select * from view_cubs"+r_accy+" where processno='"+t_processno+"' and noa=view_cub"+r_accy+".noa) ";	
 				if(t_product.length>0)
 					t_where += " and charindex('"+t_product+"',product)>0 ";
+				if(t_comp.length>0)
+					t_where += " and charindex('"+t_comp+"',comp)>0 ";
 				
 				t_where = ' where=^^' + t_where + '^^ ';
 				return t_where;
@@ -130,7 +133,7 @@
 					<td style="width:215px;">
 						<input class="txt" id="txtCustno" type="text" style="width:90px;" />
 						&nbsp;
-						<input class="txt readonly" id="txtComp" type="text" style="width:120px;" />
+						<input class="txt" id="txtComp" type="text" style="width:120px;" />
 					</td>
 				</tr>
 				<tr class='seek_tr'>

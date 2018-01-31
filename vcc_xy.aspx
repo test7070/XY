@@ -194,8 +194,8 @@
 				$('#btnVccs').click(function() {
 					if(!emp($('#txtCustno').val())){
 						var t_custno=$('#txtCustno').val();
-						//取最近的出貨單>>先取最後50筆出貨單
-						var t_where = " exists (select * from (select top 50 noa from view_vcc where custno='"+t_custno+"' and typea='1' and noa!='"+$('#txtNoa').val()+"' order by datea desc) tmp where noa=view_vccs"+r_accy+".noa ) order by datea desc,noa desc,noq "
+						//取最近的出貨單>>先取最後50筆出貨單 //107/01/31 改成100
+						var t_where = " exists (select * from (select top 100 noa from view_vcc where custno='"+t_custno+"' and typea='1' and noa!='"+$('#txtNoa').val()+"' order by datea desc) tmp where noa=view_vccs"+r_accy+".noa ) order by datea desc,noa desc,noq "
 						q_box("vccs_b_xy.aspx?" + r_userno + ";" + r_name + ";" + q_time + ";" + t_where+";"+ r_accy, 'vccs_xy', "95%", "650px", $('#btnVccs').val());
 					}else{
 						alert("請輸入客戶編號!!");

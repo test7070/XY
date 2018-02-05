@@ -26,6 +26,9 @@ declare @a nvarchar(MAX),@b nvarchar(MAX),@c nvarchar(MAX),@d nvarchar(MAX)
 
 declare @custno1 nvarchar(MAX),@custno2 nvarchar(MAX),@custno3 nvarchar(MAX),@custno4 nvarchar(MAX),@custno5 nvarchar(MAX)
 
+declare @xnoa nvarchar(50)=''
+declare @t_xnoa nvarchar(50)=''
+
 if(@t_odate!='')
 begin
 	declare @tmp table(
@@ -40,27 +43,39 @@ begin
 	)
 
 	declare cursor_table cursor for 
-	select a,b,c,d,e,f,g,h,i from ztmpxls where a!='' 
+	select a,b,c,d,e,f,g,h,i,noa from ztmpxls where a!='' 
 	and replace(a,' ','')!='項數' and replace(a,' ','')!='各店金額' and replace(a,' ','')!='總計金額(未稅)' and cast(noa as int)>5
 	order by noa
 	open cursor_table 
 	fetch next from cursor_table 
-	into @a,@b,@c,@d,@e,@f,@g,@h,@i
+	into @a,@b,@c,@d,@e,@f,@g,@h,@i,@xnoa
 	while(@@FETCH_STATUS <> -1) 
 	begin 
 		--設定客戶
 		if(@a='品號')
 		begin
-			set @te=@e
-			set @tf=@f
-			set @tg=@g
-			set @th=@h
-			set @ti=@i
-			set @custno1=isnull((select top 1 noa from cust where boss=@e),'')
-			set @custno2=isnull((select top 1 noa from cust where boss=@f),'')
-			set @custno3=isnull((select top 1 noa from cust where boss=@g),'')
-			set @custno4=isnull((select top 1 noa from cust where boss=@h),'')
-			set @custno5=isnull((select top 1 noa from cust where boss=@i),'')
+			set @t_xnoa=right(REPLICATE('0',len(@xnoa))+cast(cast(@xnoa as int)+1 as nvarchar(50)),LEN(@xnoa))
+			
+			--107/02/01 版本 02/05修改
+			select @te=a.e,@tf=a.f,@tg=a.g,@th=a.h,@ti=a.i
+			,@custno1=isnull((select top 1 noa from cust where boss=a.e),'')
+			,@custno2=isnull((select top 1 noa from cust where boss=a.f),'')
+			,@custno3=isnull((select top 1 noa from cust where boss=a.g),'')
+			,@custno4=isnull((select top 1 noa from cust where boss=a.h),'')
+			,@custno5=isnull((select top 1 noa from cust where boss=a.i),'')
+			from ztmpxls a where noa=@t_xnoa
+			
+			--set @te=@e
+			--set @tf=@f
+			--set @tg=@g
+			--set @th=@h
+			--set @ti=@i
+			--set @custno1=isnull((select top 1 noa from cust where boss=@e),'')
+			--set @custno2=isnull((select top 1 noa from cust where boss=@f),'')
+			--set @custno3=isnull((select top 1 noa from cust where boss=@g),'')
+			--set @custno4=isnull((select top 1 noa from cust where boss=@h),'')
+			--set @custno5=isnull((select top 1 noa from cust where boss=@i),'')
+			
 			--select @custno1,@custno2,@custno3,@custno4,@custno5
 		end
 		else
@@ -92,7 +107,7 @@ begin
 			end
 		end
 		fetch next from cursor_table 
-		into @a,@b,@c,@d,@e,@f,@g,@h,@i
+		into @a,@b,@c,@d,@e,@f,@g,@h,@i,@xnoa
 	end 
 	close cursor_table 
 	deallocate cursor_table

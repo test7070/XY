@@ -503,7 +503,9 @@ set @t_cno=isnull((select cno from view_vcc where noa=@noa),'')
 if(@condition='0')
 begin
 	--刪除產生的發票
-	if((select count(*) from vcca where vccno=@noa and [type]='V')>0) --由出貨產生發票
+	if((select count(*) from vcca where vccno=@noa and [type]='V')>0
+	and ((select taxtype from view_vcc where noa=@noa)!='6') --107/02/14 作廢發票不刪除表身
+	) --由出貨產生發票
 	begin
 		set @cmd="delete a  from vccas a where exists (select noa from vcca where noa=a.noa and vccno='"+@noa+"' and [type]='V')"
 		EXECUTE sp_executesql @cmd
@@ -523,11 +525,15 @@ if(@condition='2')
 begin
 	if((select count(*) from vcca where vccno=@noa and [type]='V')>0) --由出貨產生發票
 	begin
-		set @cmd="update vcca set custno='',comp='',serial='',money=0,tax=0,total=0,buyerno='',buyer='',taxtype='6' where vccno='"+@noa+"' and [type]='V'"
+		--107/02/14
+		set @cmd="update vcca set taxtype='6' where vccno='"+@noa+"' and [type]='V'"
 		EXECUTE sp_executesql @cmd
 		
-		set @cmd="update a  set mount=0,money=0 from vccas a where exists (select noa from vcca where noa=a.noa and vccno='"+@noa+"' and [type]='V')"
-		EXECUTE sp_executesql @cmd
+		--set @cmd="update vcca set custno='',comp='',serial='',money=0,tax=0,total=0,buyerno='',buyer='',taxtype='6' where vccno='"+@noa+"' and [type]='V'"
+		--EXECUTE sp_executesql @cmd
+		
+		--set @cmd="update a  set mount=0,money=0 from vccas a where exists (select noa from vcca where noa=a.noa and vccno='"+@noa+"' and [type]='V')"
+		--EXECUTE sp_executesql @cmd
 	end
 end
 
@@ -793,7 +799,10 @@ begin
 			begin
 				insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,ordeno,no2)
 				select @invono,a.noq,a.custno,a.productno,a.product,a.unit,0,a.price,0,a.noa,a.no2
-				from view_vccs a where a.noa=@noa and a.total>0
+				from view_vccs a where a.noa=@noa and a.total>0 and 1=0 --107/02/14 不處理
+				
+				update a set cancel=1 from vcca a where noa=@invono
+				
 			end
 			else
 			begin
@@ -866,7 +875,9 @@ begin
 			begin
 				insert vccas(noa,noq,custno,productno,product,unit,mount,price,money,tax,ordeno,no2)
 				select @invono,a.noq,a.custno,a.productno,a.product,a.unit,0,a.price,0,0,a.noa,a.no2
-				from view_vccs a where a.noa=@noa and a.total>0
+				from view_vccs a where a.noa=@noa and a.total>0 and 1=0 --107/02/14 不處理
+				
+				update a set cancel=1 from vcca a where noa=@invono
 			end
 			else
 			begin

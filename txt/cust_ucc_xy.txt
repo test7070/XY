@@ -2222,7 +2222,7 @@ begin
 	where a.storeno2=@t_storeno and isnull(a.productno,'')!='' and a.noa!=@t_noa
 	and (len(@t_productno)=0 or a.productno=@t_productno)
 	group by a.storeno2,a.productno 
-	having sum(case when a.typea='2' then -1 else 1 end*(isnull(a.tranmoney2,0)-isnull(a.tranmoney3,0)))!=0
+	--having sum(case when a.typea='2' then -1 else 1 end*(isnull(a.tranmoney2,0)-isnull(a.tranmoney3,0)))!=0
 	order by a.storeno2,a.productno 
 
 	insert @tmp

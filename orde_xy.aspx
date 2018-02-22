@@ -2143,16 +2143,16 @@
 									q_func('qtxt.query.lengthb', 'cust_ucc_xy.txt,btnstore2,' + encodeURI(t_custno)+';'+encodeURI(t_noa)+';'+encodeURI(t_datea)+';'+encodeURI(t_pno),r_accy,1);
 									
 									var as = _q_appendData("tmp0", "", true, true);
-									for (var i = 0; i < as.length; i++) {
+									/*for (var i = 0; i < as.length; i++) {
 										if(dec(as[i].mount)==0 || as[i].productno!=$('#txtProductno_' + b_seq).val()){
 											as.splice(i, 1);
 											i--;
 										}
-									}
+									}*/
 									if (as[0] != undefined) {
-										if(dec(as[0].mount)!=0){
+										//if(dec(as[0].mount)!=0){
 											t_msgs='預設客倉剩餘:'+as[0].mount;
-										}
+										//}
 										if(dec(as[0].othmount)!=0){
 											t_msgs=t_msgs+(t_msgs.length>0?'<br>':'')+'其他客倉剩餘:'+as[0].othmount;
 										}
@@ -2164,6 +2164,7 @@
 										else
 											$('#cmbSource_'+b_seq).val('0').change();
 									}else{
+										q_msg($('#txtMount_' + b_seq), '無寄庫庫存',100,15000);
 										$('#cmbSource_'+b_seq).val('0').change();
 									}
 								}

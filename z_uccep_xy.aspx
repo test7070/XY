@@ -84,7 +84,7 @@
                     }, {
                         type : '5', //[17]
                         name : 'xstyle',
-                        value : [q_getPara('report.all')].concat('便品,空白,公版,加工,印刷,私-空白,新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣'.split(','))
+                        value : [q_getPara('report.all')].concat('便品,空白,公版,加工,印刷,私-空白'.split(','))
                     }, {
                         type : '6', //[18]
                         name : 'xspec'

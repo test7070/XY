@@ -156,8 +156,8 @@
 				q_cmbParse("combPaytype", q_getPara('vcc.paytype'));
 				q_cmbParse("cmbTrantype", q_getPara('sys.tran'));
 				q_cmbParse("cmbTaxtype", q_getPara('sys.taxtype'));
-				q_cmbParse("combClassa",' ,便品,空白,公版,加工,印刷,私-空白,新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣,變更','s');
-				q_cmbParse("cmbScolor",',新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣','s');
+				q_cmbParse("combClassa",' ,便品,空白,公版,加工,印刷,私-空白','s');
+				q_cmbParse("cmbScolor",',新版,改版,新版數位樣,新版正式樣,改版數位樣,改版正式樣,變更','s');
 				q_cmbParse("cmbSource",'0@ ,1@寄庫,2@庫出,3@公關品,4@樣品,5@換貨','s');
 				q_cmbParse("cmbConform", '@,隨貨@隨貨,月結@月結,週結@週結,PO@PO');
 				q_cmbParse("cmbIndate", '當天@當天,之前@之前,等待@等待','s');

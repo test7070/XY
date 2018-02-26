@@ -2610,6 +2610,11 @@
 					}
 					curData.paste();
 				}
+				combzincchange('ALL');
+				for (var i = 0; i < q_bbsCount; i++) {
+					unitchange(i);
+				}
+				pricecolor();
 				ShowDownlbl();
 				
 				//copy_field();

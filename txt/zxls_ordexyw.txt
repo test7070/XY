@@ -292,10 +292,10 @@ begin
 		,ordbno,ordcno,trantype,salesno,sales,custorde,money,tax,taxtype,total,coin,floata,totalus,vccno,worker,worker2
 		,weight,apv,memo,isproj,enda,cancel,conform from #bbm order by noa
 		")
-		--105/04/18預交日不寫入 --107/02/26 恢復寫入
+		--105/04/18預交日不寫入
 		exec("
 		insert ordes"+@accy+"(noa,no2,productno,product,spec,classa,size,dime,source,unit,price
-		,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc)
+		,mount,total,custno,comp,odate, ''datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc)
 		select noa,no2,productno,product,spec,classa,size,dime,source,unit,price
 		,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc from #bbs order by noa,no2
 		")

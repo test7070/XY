@@ -295,9 +295,9 @@ begin
 		--105/04/18預交日不寫入
 		exec("
 		insert ordes"+@accy+"(noa,no2,productno,product,spec,classa,size,dime,source,unit,price
-		,mount,total,custno,comp,odate, ''datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc)
+		,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc)
 		select noa,no2,productno,product,spec,classa,size,dime,source,unit,price
-		,mount,total,custno,comp,odate,datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc from #bbs order by noa,no2
+		,mount,total,custno,comp,odate,'' datea,memo,enda,cancel,quatno,no3,c1,notv,zinc,lengthb,hard,lengthc from #bbs order by noa,no2
 		")
 	end
 end

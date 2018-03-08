@@ -478,6 +478,20 @@
 						}
 					}
 				});
+				
+				if (q_cur<1 && q_cur>2) {
+					for (var j = 0; j < q_bbsCount; j++) {
+						$('#txtHandle_'+j).datepicker('destroy');
+						$('#txtHandle2_'+j).datepicker('destroy');
+					}
+				} else {
+					for (var j = 0; j < q_bbsCount; j++) {
+						$('#txtHandle_'+j).removeClass('hasDatepicker')
+						$('#txtHandle_'+j).datepicker();
+						$('#txtHandle2_'+j).removeClass('hasDatepicker')
+						$('#txtHandle2_'+j).datepicker();
+					}
+				}
 			}
 
 			function btnIns() {

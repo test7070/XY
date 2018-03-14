@@ -496,6 +496,7 @@ declare @cmd nvarchar(max)
 declare @accy nvarchar(20)
 declare @invono nvarchar(max)
 declare @t_cno nvarchar(50)
+declare @vccastatus nvarchar(20)=''
 set @accy=isnull((select accy from view_vcc where noa=@noa),@year)
 set @invono=isnull((select invono from view_vcc where noa=@noa),'')
 set @t_cno=isnull((select cno from view_vcc where noa=@noa),'')
@@ -507,17 +508,31 @@ begin
 	and ((select taxtype from view_vcc where noa=@noa)!='6') --107/02/14 作廢發票不刪除表身
 	) --由出貨產生發票
 	begin
-		set @cmd="delete a  from vccas a where exists (select noa from vcca where noa=a.noa and vccno='"+@noa+"' and [type]='V')"
-		EXECUTE sp_executesql @cmd
-		
-		set @cmd="update vcca set money=0,tax=0,total=0 where vccno='"+@noa+"' and [type]='V'"
-		EXECUTE sp_executesql @cmd
-		
+	
 		set @invono=isnull((select top 1 noa from vcca where vccno=@noa and [type]='V' ),'')
-		
-		--不刪除發票表頭--保留
-		--set @cmd="delete vcca where vccno='"+@noa+"' and [type]='V'"
-		--EXECUTE sp_executesql @cmd
+
+		set @vccastatus=isnull((
+			select top 1 STATUS from [127.0.0.1,1798].TNK.dbo.TURNKEY_MESSAGE_LOG 
+				where (invoice_identifier like 'A0101'+@invono+'%' 
+				or invoice_identifier like 'A0401'+@invono+'%' 
+				or invoice_identifier like 'C0401'+@invono+'%' )
+				and LEN(STATUS)>0 order by message_dts desc
+			)
+		,'')
+		if(len(@vccastatus)=0) --107/03/14表示未上傳國稅局
+		begin
+			set @cmd="delete a  from vccas a where exists (select noa from vcca where noa=a.noa and vccno='"+@noa+"' and [type]='V')"
+			EXECUTE sp_executesql @cmd
+			
+			set @cmd="update vcca set money=0,tax=0,total=0 where vccno='"+@noa+"' and [type]='V'"
+			EXECUTE sp_executesql @cmd
+			
+			set @invono=isnull((select top 1 noa from vcca where vccno=@noa and [type]='V' ),'')
+			
+			--不刪除發票表頭--保留
+			--set @cmd="delete vcca where vccno='"+@noa+"' and [type]='V'"
+			--EXECUTE sp_executesql @cmd
+		end
 	end
 end
 
@@ -525,9 +540,13 @@ if(@condition='2')
 begin
 	if((select count(*) from vcca where vccno=@noa and [type]='V')>0) --由出貨產生發票
 	begin
-		--107/02/14
-		set @cmd="update vcca set taxtype='6' where vccno='"+@noa+"' and [type]='V'"
+		
+		set @cmd="update vcca set cancel=1 where vccno='"+@noa+"' and [type]='V'"
 		EXECUTE sp_executesql @cmd
+		
+		----107/02/14
+		--set @cmd="update vcca set taxtype='6' where vccno='"+@noa+"' and [type]='V'"
+		--EXECUTE sp_executesql @cmd
 		
 		--set @cmd="update vcca set custno='',comp='',serial='',money=0,tax=0,total=0,buyerno='',buyer='',taxtype='6' where vccno='"+@noa+"' and [type]='V'"
 		--EXECUTE sp_executesql @cmd
@@ -560,6 +579,17 @@ begin
 		if((select count(*) from vcca where noa=@invono and vccno=@noa and [type]='V')=0) --由出貨產生發票
 		begin
 			set @t_err=@invono+'非系統產生發票，故不處理!!'
+		end
+		else
+		begin
+			set @vccastatus=isnull((
+				select top 1 STATUS from [127.0.0.1,1798].TNK.dbo.TURNKEY_MESSAGE_LOG 
+					where (invoice_identifier like 'A0101'+@invono+'%' 
+					or invoice_identifier like 'A0401'+@invono+'%' 
+					or invoice_identifier like 'C0401'+@invono+'%' )
+					and LEN(STATUS)>0 order by message_dts desc
+				)
+			,'')
 		end
 	end
 	
@@ -641,8 +671,9 @@ begin
 		end
 	end
 		
-	if(len(@t_err)=0)
-	begin		
+	if(len(@t_err)=0 and len(@vccastatus)=0) --107/03/14表示未上傳國稅局 才更新發票內容
+	begin
+		--bbm
 		if((select count(*) from vcca where noa=@invono)>0)
 		begin
 			if(@nowdate<'107/01/01')--電子計算機發票
@@ -765,6 +796,7 @@ begin
 			end
 		end
 		
+		--bbs
 		--105/08/17 金額=0不顯示
 		if(@nowdate<'107/01/01')--電子計算機發票
 		begin
@@ -897,6 +929,15 @@ begin
 		
 		--更新出貨單上的發票號碼
 		EXEC("update vcc"+@accy+" set invono='"+@invono+"' where noa='"+@noa+"'")
+	end
+	else if (len(@t_err)=0 and len(@vccastatus)>0)
+	begin
+		set @t_err='已上傳國稅局不修正發票!!'
+		if((select taxtype from view_vcc where noa=@noa)='6') --作廢
+		begin
+			update a set cancel=1 from vcca a where noa=@invono
+			set @t_err='已上傳國稅局，只修正作廢不變更明細!!'
+		end
 	end
 end
 

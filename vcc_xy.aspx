@@ -1923,8 +1923,12 @@
 					}
 					
 					if(!($('#cmbTypea').val()!='1' || $('#cmbStype').val()=='3' || $('#cmbTranstyle').val()!='隨貨') || t_p23 ==''){
-						stpostvcca=true;
-						q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0'+ ';' + encodeURI(r_userno));
+						if(r_rank>='3'){
+							stpostvcca=true;
+							q_func('qtxt.query.vcc2vcca0', 'cust_ucc_xy.txt,vcc2vcca,' + encodeURI(r_accy) + ';' + encodeURI($('#txtNoa').val())+ ';0'+ ';' + encodeURI(r_userno));
+						}else{
+							alert('權限不足不更新發票內容!!');
+						}
 					}else{
 						alert('變更的出貨單不符合開立發票條件，故不變動發票內容!!');
 					}

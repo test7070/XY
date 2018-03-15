@@ -482,6 +482,7 @@ declare @condition nvarchar(20)=[3]--動作 0 刪除, 1 新增,2作廢[3]
 declare @t_err nvarchar(200)=''
 declare @userno nvarchar(20)=[4]
 declare @partno nvarchar(20)=isnull((select partno from sss where noa=@userno),'')
+declare @rname nvarchar(20)=isnull((select namea from nhpe where noa=@userno),@userno)
 
 declare @custno nvarchar(20)=isnull((select custno from view_vcc where noa=@noa),'')
 set @custno=case when isnull((select invocustno from custm where noa=@custno),'')!='' then 
@@ -524,7 +525,7 @@ begin
 			set @cmd="delete a  from vccas a where exists (select noa from vcca where noa=a.noa and vccno='"+@noa+"' and [type]='V')"
 			EXECUTE sp_executesql @cmd
 			
-			set @cmd="update vcca set money=0,tax=0,total=0 where vccno='"+@noa+"' and [type]='V'"
+			set @cmd="update vcca set money=0,tax=0,total=0,worker='"+@rname+"' where vccno='"+@noa+"' and [type]='V'"
 			EXECUTE sp_executesql @cmd
 			
 			set @invono=isnull((select top 1 noa from vcca where vccno=@noa and [type]='V' ),'')
@@ -541,7 +542,7 @@ begin
 	if((select count(*) from vcca where vccno=@noa and [type]='V')>0) --由出貨產生發票
 	begin
 		
-		set @cmd="update vcca set cancel=1 where vccno='"+@noa+"' and [type]='V'"
+		set @cmd="update vcca set cancel=1,worker='"+@rname+"' where vccno='"+@noa+"' and [type]='V'"
 		EXECUTE sp_executesql @cmd
 		
 		----107/02/14
@@ -693,7 +694,7 @@ begin
 				,money=case when @p23='2' then b.total else b.money end
 				,tax=case when @p23='2' then 0 else b.tax end
 				,total=b.total
-				,worker=case when b.worker2!='' then b.worker2 else b.worker end
+				,worker=@rname
 				,vccno=@noa
 				from vcca a outer apply (select top 1 * from view_vcc b where noa=@noa) b
 				left join custm e on isnull(b.custno,'')=e.noa
@@ -719,7 +720,7 @@ begin
 				,money=case when @p23='2' then b.total else b.money end
 				,tax=case when @p23='2' then 0 else b.tax end
 				,total=b.total
-				,worker=case when b.worker2!='' then b.worker2 else b.worker end
+				,worker=@rname
 				,vccno=@noa
 				from vcca a outer apply (select top 1 * from view_vcc b where noa=@noa) b
 				left join custm e on isnull(b.custno,'')=e.noa
@@ -747,7 +748,7 @@ begin
 				,case when b.taxtype='1' or b.taxtype='3' then '1' else b.taxtype end
 				,case when @p23='2' then b.total else b.money end
 				,case when @p23='2' then 0 else b.tax end,b.total
-				,case when b.worker2!='' then b.worker2 else b.worker end,b.noa,'V','出貨單號：'+b.noa 
+				,@rname,b.noa,'V','出貨單號：'+b.noa 
 				,right('000000'+cast(cast(cast(
 					cast(LOG((ascii(SUBSTRING(@invono,1,1))*100)+
 					(ascii(SUBSTRING(@invono,2,1))*25)+
@@ -781,7 +782,7 @@ begin
 				,case when b.taxtype='1' or b.taxtype='3' then case when @p23='2' then '3' else '1' end else b.taxtype end
 				,case when @p23='2' then b.total else b.money end
 				,case when @p23='2' then 0 else b.tax end,b.total
-				,case when b.worker2!='' then b.worker2 else b.worker end,b.noa,'V','出貨單號：'+b.noa 
+				,@rname,b.noa,'V','出貨單號：'+b.noa 
 				,right('000000'+cast(cast(cast(
 					cast(LOG((ascii(SUBSTRING(@invono,1,1))*100)+
 					(ascii(SUBSTRING(@invono,2,1))*25)+
@@ -935,7 +936,7 @@ begin
 		set @t_err='已上傳國稅局不修正發票!!'
 		if((select taxtype from view_vcc where noa=@noa)='6') --作廢
 		begin
-			update a set cancel=1 from vcca a where noa=@invono
+			update a set cancel=1,worker=@rname from vcca a where noa=@invono
 			set @t_err='已上傳國稅局，只修正作廢不變更明細!!'
 		end
 	end

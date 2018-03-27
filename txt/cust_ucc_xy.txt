@@ -1751,6 +1751,7 @@ or exists (select * from cust where noa=a.custno and isnull(grpno,'')=@custno) -
 and b.datea>=@datea --有效日
 and isnull(b.gweight,0)=1 --成交
 and (len(@productno)=0 or b.productno=@productno)
+and a.odate<=@datea --107/03/27 排除日期未到的報價日
 
 --105/04/18 如果產品重複只保留最下層的單價 群組-總店-分店
 delete a 

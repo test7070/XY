@@ -974,6 +974,12 @@
 							alert('客戶訂單尚有未交貨產品，請確認是否有重複下單!!');
 						}
 						break;
+					case 'cust_orde2':
+						var as = _q_appendData("view_orde", "", true);
+						if (as[0] != undefined) {
+							alert('客戶近日【'+as[0].odate+'】有下過訂單已出貨，請確認是否有重複下單!!');
+						}
+						break;
 					case 'orde_Modi':
 						var as = _q_appendData("view_vccs", "", true);
 						if(r_rank<"5"){ //4以下禁止修改
@@ -3137,9 +3143,13 @@
 							var t_where = "where=^^ noa='" + $('#txtCustno').val() + "' ^^";
 							q_gt('custm', t_where, 0, 0, 0, "cust_detail2");
 							
-							//06/03提示是否有未出訂單
+							//106/06/03提示是否有未出訂單
 							var t_where = "where=^^ custno='" + $('#txtCustno').val() + "' and isnull(enda,0)!=1 and isnull(cancel,0)!=1 ^^";
 							q_gt('view_orde', t_where, 0, 0, 0, "cust_orde");
+							
+							//107/04/09
+							var t_where = "where=^^ custno='" + $('#txtCustno').val() + "' and isnull(enda,0)=1 and odate>='"+q_cdn($('#txtOdate').val(),-1)+"' ^^";
+							q_gt('view_orde', t_where, 0, 0, 0, "cust_orde2");
 						}
 						break;
 					case 'txtProductno_':

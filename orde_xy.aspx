@@ -2167,8 +2167,10 @@
 										
 										if(dec(as[0].mount)!=0 && dec(as[0].mount)>=dec($('#txtMount_'+b_seq).val()))
 											$('#cmbSource_'+b_seq).val('2').change();
-										else
+										else{
 											$('#cmbSource_'+b_seq).val('0').change();
+											alert('無寄庫庫存，請先寄庫!!');
+										}
 									}else{
 										q_msg($('#txtMount_' + b_seq), '無寄庫庫存',100,15000);
 										$('#cmbSource_'+b_seq).val('0').change();

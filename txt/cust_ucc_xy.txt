@@ -2128,7 +2128,7 @@ declare @tmp table(
 	insert into @tmp
 	select b.noa,a.no2,	a.productno,a.product+' '+a.classa+' '+isnull(a.spec,'') 
 	,a.mount,a.unit,a.notv,0
-	,isnull((select sum(case when typea='1' then 1 else -1 end*tranmoney2-tranmoney3) from view_vccs where productno=a.productno),0)
+	,isnull((select sum(case when typea='1' then 1 else -1 end*(tranmoney2-tranmoney3)) from view_vccs where productno=a.productno),0)
 	,isnull((select sum(notv) from view_ordcs where productno=a.productno and enda!=1 and cancel!=1),0) 
 	+isnull((select sum(notv) from view_cub where productno=a.productno and enda!=1 and cancel!=1),0) 
 	,d.cdate,''

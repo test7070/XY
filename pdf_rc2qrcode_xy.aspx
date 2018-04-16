@@ -49,7 +49,7 @@
 									else '' end,'') spec
 									from view_rc2 a left join view_rc2s b on a.noa=b.noa
 									left join ucc c on b.productno=c.noa
-									left join cust d on left(b.productno,5)=d.noa
+									left join cust d on left(b.productno,5)=d.noa and CHARINDEX('-',b.productno)>0
 									outer apply (select top 1 product from ucccust where noa=b.productno and custno=d.noa and product!='' order by noq desc)xb
 									outer apply (select top 1 productno from ucccust where noa=b.productno and custno=d.noa and productno!='' order by noq desc)xc
                                     where a.noa=@t_noa and c.noa is not null
@@ -81,7 +81,7 @@
 									else '' end,'') spec
 									from view_ina a left join view_inas b on a.noa=b.noa
 									left join ucc c on b.productno=c.noa
-									left join cust d on left(b.productno,5)=d.noa
+									left join cust d on left(b.productno,5)=d.noa and CHARINDEX('-',b.productno)>0
 									outer apply (select top 1 product from ucccust where noa=b.productno and custno=d.noa and product!='' order by noq desc)xb
 									outer apply (select top 1 productno from ucccust where noa=b.productno and custno=d.noa and productno!='' order by noq desc)xc
                                     where a.noa=@t_noa and c.noa is not null

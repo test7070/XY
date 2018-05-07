@@ -505,8 +505,8 @@ set @t_cno=isnull((select cno from view_vcc where noa=@noa),'')
 if(@condition='0')
 begin
 	--刪除產生的發票
-	if((select count(*) from vcca where vccno=@noa and [type]='V')>0
-	and ((select taxtype from view_vcc where noa=@noa)!='6') --107/02/14 作廢發票不刪除表身
+	if((select count(*) from vcca where vccno=@noa and [type]='V' and isnull(cancel,0)=0)>0
+	and ((select taxtype from view_vcc where noa=@noa)!='6') --107/02/14 作廢發票不刪除表身 107/05/07 不作廢
 	) --由出貨產生發票
 	begin
 	
@@ -522,7 +522,7 @@ begin
 		,'')
 		if(len(@vccastatus)=0) --107/03/14表示未上傳國稅局
 		begin
-			set @cmd="delete a  from vccas a where exists (select noa from vcca where noa=a.noa and vccno='"+@noa+"' and [type]='V')"
+			set @cmd="delete a  from vccas a where exists (select noa from vcca where noa=a.noa and vccno='"+@noa+"' and [type]='V' and isnull(cancel,0)=0 )"
 			EXECUTE sp_executesql @cmd
 			
 			set @cmd="update vcca set money=0,tax=0,total=0,worker='"+@rname+"' where vccno='"+@noa+"' and [type]='V'"
@@ -580,6 +580,10 @@ begin
 		if((select count(*) from vcca where noa=@invono and vccno=@noa and [type]='V')=0) --由出貨產生發票
 		begin
 			set @t_err=@invono+'非系統產生發票，故不處理!!'
+		end
+		else if((select count(*) from vcca where noa=@invono and vccno=@noa and [type]='V' and isnull(cancel,0)=1)=1 ) --由出貨產生發票 且作廢
+		begin
+			set @t_err=@invono+'系統產生發票已作廢，故不更新!!'
 		end
 		else
 		begin

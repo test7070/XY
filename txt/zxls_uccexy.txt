@@ -77,7 +77,7 @@ set @accy=LEFT(@t_datea,3)
 
 insert #bbs(noa,noq,productno,product,spec,style,mount,unit,price,total,memo,emount2,storeno,tmount,dime)
 select @t_noa,ROW_NUMBER() over (order by b.noa)
-,b.noa,b.product,b.spec,b.style,a.mount-isnull(c.tmount,0),b.unit,0,0,'盤點數量:'+cast(a.mount as nvarchar)+a.unit
+,b.noa,b.product,b.spec,b.style,round(a.mount-isnull(c.tmount,0),4),b.unit,0,0,'盤點數量:'+cast(a.mount as nvarchar)+a.unit
 +case when d.noa is not null then ',客戶名稱:'+d.nick else '' end 
 ,isnull(e.mount,0),a.storeno,isnull(c.tmount,0),a.mount
 from @tmpxls a

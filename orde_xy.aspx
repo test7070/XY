@@ -2705,7 +2705,7 @@
 							$('#txtDime_'+j).attr('disabled', 'disabled');
 							$('#txtUnit_'+j).attr('disabled', 'disabled');
 							$('#txtPrice_'+j).attr('disabled', 'disabled');
-							$('#cmbSource_'+j).attr('disabled', 'disabled');
+							//$('#cmbSource_'+j).attr('disabled', 'disabled');
 							//$('#txtDatea_'+j).attr('disabled', 'disabled');
 							$('#txtMemo_'+j).attr('disabled', 'disabled');
 						}
@@ -2947,7 +2947,7 @@
 							$('#txtDime_'+j).attr('disabled', 'disabled');
 							//$('#txtUnit_'+j).attr('disabled', 'disabled');
 							//$('#txtPrice_'+j).attr('disabled', 'disabled');
-							$('#cmbSource_'+j).attr('disabled', 'disabled');
+							//$('#cmbSource_'+j).attr('disabled', 'disabled');
 							//$('#txtDatea_'+j).attr('disabled', 'disabled');
 							$('#txtMemo_'+j).attr('disabled', 'disabled');
 						}
@@ -2978,7 +2978,7 @@
 							$('#txtDime_'+j).attr('disabled', 'disabled');
 							$('#txtUnit_'+j).attr('disabled', 'disabled');
 							$('#txtPrice_'+j).attr('disabled', 'disabled');
-							$('#cmbSource_'+j).attr('disabled', 'disabled');
+							//$('#cmbSource_'+j).attr('disabled', 'disabled');
 							//$('#txtDatea_'+j).attr('disabled', 'disabled');
 							$('#txtMemo_'+j).attr('disabled', 'disabled');
 						}

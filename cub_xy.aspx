@@ -217,6 +217,16 @@
 		                    q_cmbParse("combTypea", t_item, '');
 		                }
 						break;*/
+					case 'msg_stk':
+						var as = _q_appendData("stkucc", "", true);
+						var stkmount = 0;
+						t_msg = '';
+						for (var i = 0; i < as.length; i++) {
+							stkmount = q_add(stkmount, dec(as[i].mount));
+						}
+						t_msg = "庫存量：" + stkmount;
+						q_msg($('#txtMount__' + b_seq), t_msg,10,5000);
+						break;
 					case q_name:
 						if (q_cur == 4)
 							q_Seek_gtPost();
@@ -492,7 +502,7 @@
 				if (q_cur > 0 && q_cur < 4)
 					return;
 					
-				q_box('cub_xy_s.aspx', q_name + '_s', "500px", "510px", q_getMsg("popSeek"));
+				q_box('cub_xy_s.aspx', q_name + '_s', "500px", "550px", q_getMsg("popSeek"));
 			}
 
 			function btnIns() {
@@ -825,7 +835,7 @@
 						$('#txtMount_' + i).change(function() {    
                         	t_IdSeq = -1;
                             q_bodyId($(this).attr('id'));
-                            b_seq = t_IdSeq;  	
+                            b_seq = t_IdSeq;
                             if(dec($('#txtMount_' + b_seq).val())>0 && dec($('#txtPrice_' + b_seq).val())>0){
                             	t_mount = dec($('#txtMount_' + b_seq).val());
                             	t_price = dec($('#txtPrice_' + b_seq).val());
@@ -837,7 +847,7 @@
 	                            }
                             	$('#txtW01_' + b_seq).val(q_add(dec($('#txtW02_' + b_seq).val()), dec($('#txtMo_' + b_seq).val())));
                             }                    			                	
-                        });
+                       });
 						
 						$('#txtPrice_' + i).change(function() {
                         	t_IdSeq = -1;
@@ -916,6 +926,18 @@
 				for (var i = 0; i < q_bbtCount; i++) {
 					$('#lblNo__' + i).text(i + 1);
 					if (!$('#btnMinut__' + i).hasClass('isAssign')) {
+						$('#txtMount__'+i).focusin(function() {
+                        	t_IdSeq = -1;
+                            q_bodyId($(this).attr('id'));
+                            b_seq = t_IdSeq;
+                            var t_pno=$('#txtProductno__'+b_seq).val();
+                            var t_storeno=$('#txtStoreno__'+b_seq).val();
+                            if(t_pno.length>0){
+                            	//庫存
+								var t_where = "where=^^ ['" + q_date() + "','"+t_storeno+"','"+t_pno+"')  ^^";
+								q_gt('calstk', t_where, 0, 0, 0, "msg_stk", r_accy);
+                            }
+                        });
 					}
 				}
 				_bbtAssign();

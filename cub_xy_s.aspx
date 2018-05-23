@@ -39,6 +39,7 @@
 				$('.readonly').attr('readonly',true);
 				q_cmbParse("cmbTypea", '@全部,製造部,加工部,委外部,採購部');
 				q_cmbParse("cmbEnda", '@全部,Y@Y,N@N');
+				q_cmbParse("cmbCancel", '@全部,Y@Y,N@N');
 			}
 
 			function q_gtPost(t_name) {
@@ -59,6 +60,7 @@
 				var t_no2 = $.trim($('#txtNo2').val());
 				var t_typea = $.trim($('#cmbTypea').val());
 				var t_enda = $('#cmbEnda').val();
+				var t_cancel = $('#cmbCancel').val();
                 var t_worker =$('#txtWorker').val();
                 var t_comp = $.trim($('#txtComp').val());
 				
@@ -72,6 +74,11 @@
 					t_where += " and isnull(enda,0)=1 ";
 				if(t_enda=='N')
 					t_where += " and isnull(enda,0)=0 ";
+					
+				if(t_cancel=='Y')
+					t_where += " and isnull(cancel,0)=1 ";
+				if(t_cancel=='N')
+					t_where += " and isnull(cancel,0)=0 ";
 					
 				if(t_tggno.length>0)
 					t_where += " and exists (select * from view_cubs"+r_accy+" where tggno='"+t_tggno+"' and noa=view_cub"+r_accy+".noa) ";
@@ -125,8 +132,12 @@
 					<td><select id="cmbTypea" class="txt c1" style="font-size:medium;"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
-					<td class='seek'  style="width:20%;"><a id='lblEnda'>結案</a></td>
+					<td class='seek' style="width:20%;"><a id='lblEnda'>結案</a></td>
 					<td><select id="cmbEnda" class="txt c1" style="font-size:medium;"> </select></td>
+				</tr>
+				<tr class='seek_tr'>
+					<td class='seek' style="width:20%;"><a id='lblCancel'>取消</a></td>
+					<td><select id="cmbCancel" class="txt c1" style="font-size:medium;"> </select></td>
 				</tr>
 				<tr class='seek_tr'>
 					<td class='seek' style="width:90px;"><a id='lblCust'> </a></td>
@@ -169,7 +180,7 @@
 					</td>
 				</tr>
 				<tr class='seek_tr'>
-					<td class='seek'  style="width:20%;"><a id='lblWorker'>操作者 </a></td>
+					<td class='seek' style="width:20%;"><a id='lblWorker'>操作者 </a></td>
 					<td><input class="txt" id="txtWorker" type="text" style="width:215px; font-size:medium;" /></td>
 				</tr>
 			</table>

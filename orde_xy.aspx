@@ -3229,8 +3229,12 @@
 					//isorde_ucc=false;
 				//}
 				
+				if(q_cur==2 && !emp($('#txtApv').val())){//107/05/23 提示再核准
+					alert('訂單已核准過，請記得再核准一次!!');
+				}
+				
 				if(q_cur==2 && !emp($('#txtVccno').val())){//修改後重新產生 避免資料不對應
-					alert('請核准後更新出貨單!!');
+					alert('請核准後並更新出貨單!!');
 					/*if (confirm("是否要更新出貨單?"))
 						$('#btnOrdetoVcc').click();*/
 				}

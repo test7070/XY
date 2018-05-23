@@ -17,7 +17,7 @@
 			this.errorHandler = null;
 			q_tables = 't';
 			var q_name = "cub";
-			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano','txtEdate','txtSpec','txtBdate','txtKind','textScolor','txtUnit'];
+			var q_readonly = ['txtNoa','txtComp','txtProduct','txtWorker','txtWorker2','txtNotv','txtC1','txtOrdeno','txtNo2','textInano','txtEdate','txtBdate','txtKind','textScolor','txtUnit'];
 			var q_readonlys = ['txtDate2', 'txtOrdeno', 'txtNo2','txtMo','txtW01'];
 			var q_readonlyt = [];
 			var bbmNum = [['txtMount',10,0,1],['txtNotv',10,0,1]];
@@ -69,6 +69,9 @@
 			}
 
 			function mainPost() {
+				if(r_rank<8) //107/05/23
+					q_readonly.push('txtSpec');
+				
 				q_getFormat();
 				bbmMask = [['txtDatea', r_picd], ['txtBdate', r_picd], ['txtEdate', r_picd]];
 				bbsMask = [['txtDate2', r_picd], ['txtDatea', r_picd]];

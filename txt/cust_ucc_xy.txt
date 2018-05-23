@@ -1719,7 +1719,21 @@ declare @custno nvarchar(50)=case when '#non'=[2] then '' else [2] end
 declare @productno nvarchar(50)=case when '#non'=[3] then '' else [3] end
 declare @custno2 nvarchar(50)=left(@custno,5)
 
-declare @tmp table(
+SET QUOTED_IDENTIFIER OFF
+declare @cmd nvarchar(max)
+IF OBJECT_ID('tempdb..#quattmp')is not null
+BEGIN
+	set @cmd = 'drop table #quattmp'
+	EXECUTE sp_executesql @cmd
+END
+
+IF OBJECT_ID('tempdb..#quattmpa')is not null
+BEGIN
+	set @cmd = 'drop table #quattmpa'
+	EXECUTE sp_executesql @cmd
+END
+
+create table #quattmp(
 	noa nvarchar(30),
 	no3 nvarchar(10),
 	custno  nvarchar(50),
@@ -1741,7 +1755,7 @@ declare @tmp table(
 	memo nvarchar(max)
 )
 
-insert @tmp
+insert #quattmp
 select a.noa,b.no3,a.custno,a.datea,a.odate 
 ,b.productno,b.product,b.spec,b.sizea,b.dime,b.class,b.classa,b.unit
 ,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'')
@@ -1759,23 +1773,23 @@ and a.odate<=@datea --107/03/27 排除日期未到的報價日
 
 --105/04/18 如果產品重複只保留最下層的單價 群組-總店-分店
 delete a 
-from @tmp a 
-outer apply (select top 1 custno,productno from @tmp where a.productno=productno
+from #quattmp a 
+outer apply (select top 1 custno,productno from #quattmp where a.productno=productno
 order by case when custno=@custno then 0 when custno=@custno2 then 1 else 2 end) b
-where exists (select productno from @tmp group by productno having count(*)>1 and productno=a.productno)
+where exists (select productno from #quattmp group by productno having count(*)>1 and productno=a.productno)
 and a.custno!=b.custno
 
 --只保留最新報價
-delete a from @tmp a 
+delete a from #quattmp a 
 outer apply (
-	select MAX(odate)odate,custno,productno from @tmp group by custno,productno
+	select MAX(odate)odate,custno,productno from #quattmp group by custno,productno
 	having custno=a.custno and productno=a.productno
 )b where a.odate!=b.odate
 
 --只保留最後的訂單號
-delete a from @tmp a 
+delete a from #quattmp a 
 outer apply (
-	select MAX(noa)noa,custno,productno from @tmp group by custno,productno
+	select MAX(noa)noa,custno,productno from #quattmp group by custno,productno
 	having custno=a.custno and productno=a.productno
 )b where a.noa!=b.noa
 
@@ -1783,10 +1797,10 @@ outer apply (
 update a
 set mount=case when xcount>0 then 0 else mount end
 ,total=case when xcount>0 then 0 else total end
-from @tmp a outer apply (select count(*)xcount from view_ordes where quatno=a.noa and no3=a.no3)b
+from #quattmp a outer apply (select count(*)xcount from view_ordes where quatno=a.noa and no3=a.no3)b
 
 --放入conts
-declare @tmpa table(
+create table #quattmpa(
 	noa nvarchar(30),
 	no3 nvarchar(10),
 	custno  nvarchar(50),
@@ -1807,7 +1821,7 @@ declare @tmpa table(
 	total float,
 	memo nvarchar(max)
 )
-insert @tmpa
+insert #quattmpa
 select a.noa,b.noq,a.custno,b.ucolor,a.datea,b.productno,b.product,b.spec,'' sizea,0 dime,100 class,b.class classa
 ,b.unit,isnull((select top 1 unit from view_ucaucc where noa=b.productno),'') uunit
 ,isnull((select top 1 unit from view_ordes where noa=b.productno order by odate desc,noa desc),b.unit) ounit
@@ -1824,23 +1838,35 @@ order by a.datea,b.productno
 --106/10/30 更新客戶品名
 update a
 set product=case when isnull(b.product,'')='' then a.product else isnull(b.product,'') end
-from @tmp a outer apply (select top 1 product from ucccust where noa=a.productno and custno=a.custno and product!='' order by noq desc)b
+from #quattmp a outer apply (select top 1 product from ucccust where noa=a.productno and custno=a.custno and product!='' order by noq desc)b
 
 --106/10/30品名+客戶最新產品編號 目前只有CR002長航
 update a
 set product=a.product+isnull(b.productno,'')
-from @tmp a outer apply (select top 1 productno from ucccust where noa=a.productno and custno=a.custno and productno!='' order by noq desc)b
+from #quattmp a outer apply (select top 1 productno from ucccust where noa=a.productno and custno=a.custno and productno!='' order by noq desc)b
 where custno='CR002'
 
 select xtmp.*,case when xb.xcount=0 and xc.xcount=0 and classa='印刷' then '新版' else '' end scolor
 from (
-	select * from @tmpa
+	select * from #quattmpa
 	union all
-	select * from @tmp a
-	where not exists (select* from @tmpa where productno=a.productno)
+	select * from #quattmp a
+	where not exists (select* from #quattmpa where productno=a.productno)
 )xtmp outer apply (select count(*) xcount from view_vccs where productno=xtmp.productno)xb
 outer apply (select count(*) xcount from view_cub where productno=xtmp.productno and isnull(cancel,0)=0)xc
 order by noa,no3
+
+IF OBJECT_ID('tempdb..#quattmp')is not null
+BEGIN
+	set @cmd = 'drop table #quattmp'
+	EXECUTE sp_executesql @cmd
+END
+
+IF OBJECT_ID('tempdb..#quattmpa')is not null
+BEGIN
+	set @cmd = 'drop table #quattmpa'
+	EXECUTE sp_executesql @cmd
+END
 ;
 ---------------------------------------------------------------------------------------------------------------------------------
 vccprintcount:--vccprintcount

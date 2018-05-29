@@ -1702,6 +1702,12 @@
 					return;
 				}
 				
+				//107/05/29 帳款月份禁止小於日期一個月
+				if(!emp($('#txtMon').val()) && $('#txtMon').val()<q_cdn($('#txtOdate').val().substr(0,r_lenm)+'/01',-1).substr(0,r_lenm)){
+					alert('帳款月份禁止超過訂單日期一個月!!');
+					return;
+				}
+				
 				//105/06/14 增加mon
 				/*if(!check_startdate && emp($('#txtMon').val())){
 				//if(!check_startdate && $('#txtMemo').val().substr(0,1)!='*'){	

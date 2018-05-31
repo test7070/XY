@@ -2703,8 +2703,10 @@
 							$('#txtProduct_'+j).attr('disabled', 'disabled');
 							$('#combGroupbno_'+j).attr('disabled', 'disabled');
 							$('#combZinc_'+j).attr('disabled', 'disabled');
-							$('#txtSpec_'+j).attr('disabled', 'disabled');
-							$('#btnSpec_'+j).attr('disabled', 'disabled');
+							if(r_rank<8){//107/05/31
+								$('#txtSpec_'+j).attr('disabled', 'disabled');
+								$('#btnSpec_'+j).attr('disabled', 'disabled');
+							}
 							$('#txtClassa_'+j).attr('disabled', 'disabled');
 							$('#combClassa_'+j).attr('disabled', 'disabled');
 							$('#txtSizea_'+j).attr('disabled', 'disabled');
@@ -2901,9 +2903,11 @@
 						if(!emp($('#txtQuatno_'+j).val()) || !q_authRun(7)){
 							//$('#txtProductno_'+j).attr('disabled', 'disabled'); //1050127 開放修改 輸入相同產品 
 							//$('#btnProduct_'+j).attr('disabled', 'disabled');
-							$('#btnSpec_'+j).attr('disabled', 'disabled');
 							$('#txtProduct_'+j).attr('disabled', 'disabled');
-							$('#txtSpec_'+j).attr('disabled', 'disabled');
+							if(r_rank<8){//107/05/31
+								$('#btnSpec_'+j).attr('disabled', 'disabled');
+								$('#txtSpec_'+j).attr('disabled', 'disabled');
+							}
 							$('#txtClassa_'+j).attr('disabled', 'disabled');
 							$('#txtSizea_'+j).attr('disabled', 'disabled');
 							$('#txtDime_'+j).attr('disabled', 'disabled');
@@ -2914,8 +2918,8 @@
 						}else{
 							//$('#txtProductno_'+j).removeAttr('disabled');
 							//$('#btnProduct_'+j).removeAttr('disabled');
-							$('#btnSpec_'+j).removeAttr('disabled');
 							$('#txtProduct_'+j).removeAttr('disabled');
+							$('#btnSpec_'+j).removeAttr('disabled');
 							$('#txtSpec_'+j).removeAttr('disabled');
 							$('#txtClassa_'+j).removeAttr('disabled');
 							$('#txtSizea_'+j).removeAttr('disabled');
@@ -2926,8 +2930,8 @@
 							$('#combClassa_'+j).removeAttr('disabled');
 						}
 					}else{
-						$('#btnSpec_'+j).attr('disabled', 'disabled');
 						$('#txtProduct_'+j).attr('disabled', 'disabled');
+						$('#btnSpec_'+j).attr('disabled', 'disabled');
 						$('#txtSpec_'+j).attr('disabled', 'disabled');
 						$('#txtClassa_'+j).attr('disabled', 'disabled');
 						$('#txtSizea_'+j).attr('disabled', 'disabled');
@@ -2942,7 +2946,6 @@
 							$('#btnMinus_'+j).attr('disabled', 'disabled');
 							$('#txtProductno_'+j).attr('disabled', 'disabled');
 							$('#btnProduct_'+j).attr('disabled', 'disabled');
-							$('#btnSpec_'+j).attr('disabled', 'disabled');
 							$('#txtProduct_'+j).attr('disabled', 'disabled');
 							$('#combGroupbno_'+j).attr('disabled', 'disabled');
 							$('#txtSpec_'+j).attr('disabled', 'disabled');
@@ -2972,12 +2975,13 @@
 							$('#btnMinus_'+j).attr('disabled', 'disabled');
 							$('#txtProductno_'+j).attr('disabled', 'disabled');
 							$('#btnProduct_'+j).attr('disabled', 'disabled');
-							$('#btnSpec_'+j).attr('disabled', 'disabled');
 							$('#txtProduct_'+j).attr('disabled', 'disabled');
 							$('#combGroupbno_'+j).attr('disabled', 'disabled');
 							$('#combZinc_'+j).attr('disabled', 'disabled');
-							$('#txtSpec_'+j).attr('disabled', 'disabled');
-							$('#btnSpec_'+j).attr('disabled', 'disabled');
+							if(r_rank<8){//107/05/31
+								$('#txtSpec_'+j).attr('disabled', 'disabled');
+								$('#btnSpec_'+j).attr('disabled', 'disabled');
+							}
 							$('#txtClassa_'+j).attr('disabled', 'disabled');
 							$('#combClassa_'+j).attr('disabled', 'disabled');
 							$('#txtSizea_'+j).attr('disabled', 'disabled');

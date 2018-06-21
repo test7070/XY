@@ -705,7 +705,7 @@
 								if($('#cmbSource_'+i).val()=='2'){
 									t_pno2=t_pno2+(t_pno2.length>0?'###':'')+$('#txtProductno_'+i).val()+'@'+$('#txtSize_'+i).val();
 								}else{
-									t_pno=t_pno+(t_pno.length>0?'###':'')+$('#txtProductno_'+i).val()+'@'+($('#txtCustno').val().substr(0,5)!='DY001'?'A':'DY');
+									t_pno=t_pno+(t_pno.length>0?'###':'')+$('#txtProductno_'+i).val()+'@'+($('#txtCustno').val().substr(0,5)!='DY001'?'A':'A.DY001');
 								}
 							}
 						}
